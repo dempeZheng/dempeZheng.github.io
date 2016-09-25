@@ -92,13 +92,13 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
 dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前仅支持默认motan的协议，所以很多时候我们可能会扩展motan支持自己的协议，那么我们就得从codec入手了（有的时">
-<meta property="og:image" content="code.zhizus.com/blog/images/motan/codec.png">
-<meta property="og:updated_time" content="2016-09-24T10:06:06.785Z">
+<meta property="og:image" content="code.zhizus.com/images/motan/codec.png">
+<meta property="og:updated_time" content="2016-09-25T05:54:49.159Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-codec">
 <meta name="twitter:description" content="motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
 dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前仅支持默认motan的协议，所以很多时候我们可能会扩展motan支持自己的协议，那么我们就得从codec入手了（有的时">
-<meta name="twitter:image" content="code.zhizus.com/blog/images/motan/codec.png">
+<meta name="twitter:image" content="code.zhizus.com/images/motan/codec.png">
 
 
 
@@ -349,7 +349,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
         <p>motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。</p>
 <p>dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前仅支持默认motan的协议，所以很多时候我们可能会扩展motan支持自己的协议，那么我们就得从codec入手了（有的时候甚至还会涉及到protocol）。</p>
 <p>codec的类图如下：</p>
-<p><img src="/blog/images/motan/codec.png" alt="Alt text"></p>
+<p><img src="/images/motan/codec.png" alt="Alt text"></p>
 <p>下面 codec interface的定义：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 可基于spi扩展</span></div><div class="line"><span class="meta">@Spi</span>(scope=Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Codec</span> </span>&#123;</div><div class="line">	<span class="comment">// channel为motan定义的channel，非netty的channel</span></div><div class="line">	<span class="keyword">byte</span>[] encode(Channel channel, Object message) <span class="keyword">throws</span> IOException;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> channel</div><div class="line">	 * <span class="doctag">@param</span> remoteIp 用来在server端decode request时能获取到client的ip。</div><div class="line">	 * <span class="doctag">@param</span> buffer</div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 * <span class="doctag">@throws</span> IOException</div><div class="line">	 */</div><div class="line">	<span class="comment">// 不明白为什么要把remoteIp定义到decode接口里面，channel里面已经包含ip的信息了</span></div><div class="line">	<span class="function">Object <span class="title">decode</span><span class="params">(Channel channel, String remoteIp, <span class="keyword">byte</span>[] buffer)</span> <span class="keyword">throws</span> IOException</span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>AbstractCodec里面实现了创建输入输出流的方法，用来将协议序列化成字节数组或将字节数组反序列化成协议的。（这种方式的性能还没压测，不知道好坏）</p>
@@ -444,7 +444,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
     <div id="QR" style="display: none;">
       
         <div id="wechat" style="display: inline-block">
-          <img id="wechat_qr" src="/blog/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
           <p>微信打赏</p>
         </div>
       

@@ -108,10 +108,10 @@ ActiveWeight(缺省)
 1&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
 
 低并发度优先：">
-<meta property="og:image" content="code.zhizus.com/blog/images/motan/14612385789967.jpg">
-<meta property="og:image" content="code.zhizus.com/blog/images/motan/motan-lb.png">
-<meta property="og:image" content="code.zhizus.com/blog/images/motan/loadbalance.png">
-<meta property="og:updated_time" content="2016-09-24T10:18:05.112Z">
+<meta property="og:image" content="code.zhizus.com/images/motan/14612385789967.jpg">
+<meta property="og:image" content="code.zhizus.com/images/motan/motan-lb.png">
+<meta property="og:image" content="code.zhizus.com/images/motan/loadbalance.png">
+<meta property="og:updated_time" content="2016-09-25T05:54:49.126Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-负载均衡">
 <meta name="twitter:description" content="负载均衡的策略
@@ -124,7 +124,7 @@ ActiveWeight(缺省)
 1&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
 
 低并发度优先：">
-<meta name="twitter:image" content="code.zhizus.com/blog/images/motan/14612385789967.jpg">
+<meta name="twitter:image" content="code.zhizus.com/images/motan/14612385789967.jpg">
 
 
 
@@ -420,10 +420,10 @@ ActiveWeight(缺省)
 </blockquote>
 <h4 id="motan加载loadbalance策略的机制"><a href="#motan加载loadbalance策略的机制" class="headerlink" title="motan加载loadbalance策略的机制"></a>motan加载loadbalance策略的机制</h4><p>上面我们了解了motan支持的负载均衡的策略，下面我们来剖析一下motan怎么实现的。</p>
 <p>RPCClient首先会经过一层HA（这里 motan实现了两种容灾策略，failfast&amp;failover），然后会根据配置的loadbalance的策略选取相应的nettyClient发送请求到RPCServer。流程如下图所示：</p>
-<p><img src="/blog/images/motan/14612385789967.jpg" alt=""></p>
+<p><img src="/images/motan/14612385789967.jpg" alt=""></p>
 <p>motan的loadbalance策略实现在客户端，客户端初始化时会根据配置，基于spi机制查找对应的实现（不了解SPI的可以看<a href="http://zhizus.com/code/motan-spi" target="_blank" rel="external">Motan源码解读-SPI机制</a>加载loadbalance的实现。<br>调用链如下图所示：</p>
-<p><img src="/blog/images/motan/motan-lb.png" alt=""></p>
-<h4 id="motan-LoadBalance实现"><a href="#motan-LoadBalance实现" class="headerlink" title="motan LoadBalance实现"></a>motan LoadBalance实现</h4><p><img src="/blog/images/motan/loadbalance.png" alt=""></p>
+<p><img src="/images/motan/motan-lb.png" alt=""></p>
+<h4 id="motan-LoadBalance实现"><a href="#motan-LoadBalance实现" class="headerlink" title="motan LoadBalance实现"></a>motan LoadBalance实现</h4><p><img src="/images/motan/loadbalance.png" alt=""></p>
 <p>接下来，我们看loadbalance接口</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 可以基于SPI扩展，使用方可以实现自己的LoadBalance</span></div><div class="line"><span class="meta">@Spi</span>(scope = Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">LoadBalance</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">//当可用的应用列表变化时会调用这个方法刷新（motan的可用引用列表是基于服务发现这种模式实现，目前实现了consul&amp;zk）</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onRefresh</span><span class="params">(List&lt;Referer&lt;T&gt;&gt; referers)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// 基于负载均衡的策略选择可用的引用</span></div><div class="line">    <span class="function">Referer&lt;T&gt; <span class="title">select</span><span class="params">(Request request)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// FailoverHaStrategy会使用到这个，多线程场景</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">selectToHolder</span><span class="params">(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// ?? 仅仅属于WeightLoadBalance的特性，定义在最上层接口是否合适？？</span></div><div class="line">    <span class="comment">//cluster.getLoadBalance().setWeightString(weights); 这里使用的时候判断一下类型，对WeightLoadBalance这种类型单独处理向下转型是否可以？</span></div><div class="line">    <span class="comment">// 或者是否有其他更好的办法？？</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setWeightString</span><span class="params">(String weightString)</span></span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>下面我们AbstractLoadBalance,实现了公有的基础逻辑。将不同的策略交由子类去实现，实际上应用到了java设计模式的模板模式。</p>
@@ -462,7 +462,7 @@ ActiveWeight(缺省)
     <div id="QR" style="display: none;">
       
         <div id="wechat" style="display: inline-block">
-          <img id="wechat_qr" src="/blog/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
           <p>微信打赏</p>
         </div>
       
@@ -481,8 +481,8 @@ ActiveWeight(缺省)
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-19-motan-clientMessage.html" rel="next" title="Motan源码解读-Client异步消息">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-Client异步消息
+              <a href="/2016-09-19-motan-spi.html" rel="next" title="Motan源码解读-SPI机制">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-SPI机制
               </a>
             
           </div>

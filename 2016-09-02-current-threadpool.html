@@ -90,13 +90,13 @@
 <meta property="og:url" content="code.zhizus.com/2016-09-02-current-threadpool.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="1.概述好的软件设计不建议手动创建和销毁线程。线程的创建和销毁是非常耗 CPU 和内存的，因为这需要 JVM 和操作系统的参与。64位 JVM 默认线程栈是大小1 MB。这就是为什么说在请求频繁时为每个小的请求创建线程是一种资源的浪费。线程池可以根据创建时选择的策略自动处理线程的生命周期。重点在于：在资源（如内存、CPU）充足的情况下，线程池没有明显的优势，否则没有线程池将导致服务器奔溃。有很多的">
-<meta property="og:image" content="http://zhizus.com/code/images/threadPoolFramworkNew.png">
-<meta property="og:image" content="http://zhizus.com/code/images/threadPoolFlow.jpg">
-<meta property="og:updated_time" content="2016-09-24T10:06:06.770Z">
+<meta property="og:image" content="code.zhizus.com/images/threadPoolFramworkNew.png">
+<meta property="og:image" content="code.zhizus.com/images/threadPoolFlow.jpg">
+<meta property="og:updated_time" content="2016-09-25T05:54:49.142Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java线程池详解">
 <meta name="twitter:description" content="1.概述好的软件设计不建议手动创建和销毁线程。线程的创建和销毁是非常耗 CPU 和内存的，因为这需要 JVM 和操作系统的参与。64位 JVM 默认线程栈是大小1 MB。这就是为什么说在请求频繁时为每个小的请求创建线程是一种资源的浪费。线程池可以根据创建时选择的策略自动处理线程的生命周期。重点在于：在资源（如内存、CPU）充足的情况下，线程池没有明显的优势，否则没有线程池将导致服务器奔溃。有很多的">
-<meta name="twitter:image" content="http://zhizus.com/code/images/threadPoolFramworkNew.png">
+<meta name="twitter:image" content="code.zhizus.com/images/threadPoolFramworkNew.png">
 
 
 
@@ -363,12 +363,12 @@
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ThreadPoolExecutor.AbortPolicy://丢弃任务并抛出RejectedExecutionException异常。</div><div class="line">ThreadPoolExecutor.DiscardPolicy：//也是丢弃任务，但是不抛出异常。</div><div class="line">ThreadPoolExecutor.DiscardOldestPolicy：//丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）</div><div class="line">ThreadPoolExecutor.CallerRunsPolicy：//由调用线程处理该任务</div></pre></td></tr></table></figure>
 <h4 id="2-2-线程池的整体流程"><a href="#2-2-线程池的整体流程" class="headerlink" title="2.2 线程池的整体流程"></a>2.2 线程池的整体流程</h4><p>了解完线程池的参数，下面这张线程架构图能够很好的帮助我们深入理解Java的线程池：</p>
-<p><img src="http://zhizus.com/code/images/threadPoolFramworkNew.png" alt=""></p>
+<p><img src="/images/threadPoolFramworkNew.png" alt=""></p>
 <p><strong>ExecuteService简单的理解可以认为是：</strong></p>
 <p>1.通过消费者模式来解耦线程资源和任务。（消费者模式真的是非常有用的模式，java的框架中大量使用到（logback也有使用，一个线程作为消费者来写日志，多个生产者将日志放入队列），只要涉及到需要解耦的可能都会考虑这个设计模式）</p>
 <p>2.使用池的技术来管理稀缺资源，包括管理生命周期，监控等等</p>
 <p>下面，借用<a href="http://www.infoq.com/cn/articles/java-threadPool" target="_blank" rel="external">Qcon</a>一张流程图来说说线程池的处理流程：</p>
-<p><img src="http://zhizus.com/code/images/threadPoolFlow.jpg" alt=""></p>
+<p><img src="/images/threadPoolFlow.jpg" alt=""></p>
 <p><strong>1.首先线程池判断基本线程池是否已满？没满，创建一个工作线程来执行任务。满了，则进入下个流程。</strong></p>
 <p><strong>2.其次线程池判断工作队列是否已满？没满，则将新提交的任务存储在工作队列里。满了，则进入下个流程。</strong></p>
 <p><strong>3.最后线程池判断整个线程池是否已满？没满，则创建一个新的工作线程来执行任务，满了，则交给饱和策略来处理这个任务。</strong></p>
@@ -454,7 +454,7 @@
     <div id="QR" style="display: none;">
       
         <div id="wechat" style="display: inline-block">
-          <img id="wechat_qr" src="/blog/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
           <p>微信打赏</p>
         </div>
       

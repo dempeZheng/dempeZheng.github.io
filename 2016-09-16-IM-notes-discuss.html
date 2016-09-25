@@ -94,14 +94,14 @@
 <meta property="og:description" content="写在前面最近比较感兴趣即时通讯，自己也也开始折腾折腾IM的服务端实现，顺便也记下折腾的笔记。当然要实现稳定功能完善的IM并非易事，整个探索实现的过程可能会持续的迭代优化，甚至可能会否定推到之前的设计。故包括IM的笔记可能也会持续的更改。
 项目地址：https://github.com/dempeZheng/ocean
 通讯协议IM协议选择原则一般是:易于拓展，方便覆盖各种业务逻辑，同时又比较节约流">
-<meta property="og:image" content="code.zhizus.com/blog/images/im/chat-info.png">
-<meta property="og:updated_time" content="2016-09-24T10:06:06.763Z">
+<meta property="og:image" content="code.zhizus.com/images/im/chat-info.png">
+<meta property="og:updated_time" content="2016-09-25T05:54:49.142Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="IM开发日记-漫谈">
 <meta name="twitter:description" content="写在前面最近比较感兴趣即时通讯，自己也也开始折腾折腾IM的服务端实现，顺便也记下折腾的笔记。当然要实现稳定功能完善的IM并非易事，整个探索实现的过程可能会持续的迭代优化，甚至可能会否定推到之前的设计。故包括IM的笔记可能也会持续的更改。
 项目地址：https://github.com/dempeZheng/ocean
 通讯协议IM协议选择原则一般是:易于拓展，方便覆盖各种业务逻辑，同时又比较节约流">
-<meta name="twitter:image" content="code.zhizus.com/blog/images/im/chat-info.png">
+<meta name="twitter:image" content="code.zhizus.com/images/im/chat-info.png">
 
 
 
@@ -371,7 +371,7 @@
 <p>进行UDP广播:发送自己信息和接受同局域网内其他端信息<br>开启TCP监听:等待其他端进行连接<br>这种方式在有种种限制和不便:一方面它只适合在线的点对点消息传输，对离线，群组等业务支持不够。另一方面由于 NAT 的存在，使得不同局域网内机器互联难度大大上升，在某些网络类型(对称NAT)下无法建立连接。</p>
 <h4 id="服务器中转"><a href="#服务器中转" class="headerlink" title="服务器中转"></a>服务器中转</h4><p>消息请求都经过服务器中转使得服务器掌握了消息的控制权，对消息的控制能力强，故它能支持很多设备直连支持不好的业务，例如离线消息，群组，聊天室，垃圾消息过滤。这也是目前大部分互联网选用服务器中转的原因。</p>
 <h3 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h3><p>采用分层的设计，可以初步分为链接层，业务层，数据访问层。</p>
-<p><img src="/blog/images/im/chat-info.png" alt=""></p>
+<p><img src="/images/im/chat-info.png" alt=""></p>
 <ul>
 <li>ChatServer：连接层。剥离即时通讯的核心逻辑，即维护连接和消息投递(后续可能进一步拆分，将Connetor&amp;MessageService拆分成单独服务)，保证单一职责，便于实现，扩展及维护。通过TCP长连接保持并维护连接，发送投递消息。不关心具体的业务逻辑实现，业务逻辑实现直接交由LogicService层处理。</li>
 <li>HttpApiServer：抛却核心业务通讯的业务，其他的所有不依赖通讯的业务都可以用过Rest接口提供服务。(Http协议作为广泛使用的协议，有非常成熟的方案，利于开发测试联调)</li>
@@ -408,7 +408,7 @@
     <div id="QR" style="display: none;">
       
         <div id="wechat" style="display: inline-block">
-          <img id="wechat_qr" src="/blog/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
           <p>微信打赏</p>
         </div>
       
@@ -435,8 +435,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-19-motan-spi.html" rel="prev" title="Motan源码解读-SPI机制">
-                Motan源码解读-SPI机制 <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-19-motan-clientMessage.html" rel="prev" title="Motan源码解读-Client异步消息">
+                Motan源码解读-Client异步消息 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>

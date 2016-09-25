@@ -96,17 +96,17 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 
 
 Motan是一套基于java开发的RPC框架，除了常规的点对点调用外，Motan还提供服务治理功能，包括服务节点的自动发现、摘除、高可用和负载均衡等。Motan具有良好的扩展性，主要模块都提供了多种不同的实现，例如支持多种注册中心，支持多种">
-<meta property="og:image" content="code.zhizus.com/blog/images/motan/motan-frame.png">
-<meta property="og:image" content="code.zhizus.com/blog/images/motan/caller.png">
-<meta property="og:image" content="code.zhizus.com/blog/images/motan/call-motan.png">
-<meta property="og:updated_time" content="2016-09-24T10:18:05.115Z">
+<meta property="og:image" content="code.zhizus.com/images/motan/motan-frame.png">
+<meta property="og:image" content="code.zhizus.com/images/motan/caller.png">
+<meta property="og:image" content="code.zhizus.com/images/motan/call-motan.png">
+<meta property="og:updated_time" content="2016-09-25T05:54:49.142Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入浅出Motan RPC">
 <meta name="twitter:description" content="motan写在前面本系列文章假设你已经阅读过motan的官方wiki，对motan或者dubbo有一定的了解。对于没有读过wiki的请先阅读官方wiki。
 
 
 Motan是一套基于java开发的RPC框架，除了常规的点对点调用外，Motan还提供服务治理功能，包括服务节点的自动发现、摘除、高可用和负载均衡等。Motan具有良好的扩展性，主要模块都提供了多种不同的实现，例如支持多种注册中心，支持多种">
-<meta name="twitter:image" content="code.zhizus.com/blog/images/motan/motan-frame.png">
+<meta name="twitter:image" content="code.zhizus.com/images/motan/motan-frame.png">
 
 
 
@@ -364,7 +364,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 <p><code>RPC</code> 的全称是 <code>Remote Procedure Call</code> 是一种进程间通信方式。 它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。<strong>即程序员无论是调用本地的还是远程的函数，本质上编写的调用代码基本相同</strong>。</p>
 </blockquote>
 <p>RPC本质上要屏蔽远程调用和本地调用的差异性。</p>
-<h4 id="motan的架构"><a href="#motan的架构" class="headerlink" title="motan的架构"></a>motan的架构</h4><p><img src="/blog/images/motan/motan-frame.png" alt="Alt text"></p>
+<h4 id="motan的架构"><a href="#motan的架构" class="headerlink" title="motan的架构"></a>motan的架构</h4><p><img src="/images/motan/motan-frame.png" alt="Alt text"></p>
 <h4 id="motan分层："><a href="#motan分层：" class="headerlink" title="motan分层："></a>motan分层：</h4><p>motan的分层还是比较清晰，可以分为如下六层：</p>
 <ul>
 <li><p>Registy 服务发现</p>
@@ -417,7 +417,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 </ul>
 <h4 id="从Caller调用说起"><a href="#从Caller调用说起" class="headerlink" title="从Caller调用说起"></a>从Caller调用说起</h4><p>motan本质上还是一个RPC服务，RPC的本质是实现无差别的调用远程服务。所以，优雅的RPC应该是无论是服务端还是客户端调用都自同一个接口。<br>对于motan，这个接口就是Caller中的</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Response call(Request request);</div></pre></td></tr></table></figure>
-<p><img src="/blog/images/motan/caller.png" alt="Alt text"></p>
+<p><img src="/images/motan/caller.png" alt="Alt text"></p>
 <p>实现Caller接口的主要可以分为一下三类：</p>
 <ul>
 <li><p>Referer</p>
@@ -436,7 +436,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 </blockquote>
 </li>
 </ul>
-<h4 id="一个request到一个response的过程"><a href="#一个request到一个response的过程" class="headerlink" title="一个request到一个response的过程"></a>一个request到一个response的过程</h4><p><img src="/blog/images/motan/call-motan.png" alt="Alt text"></p>
+<h4 id="一个request到一个response的过程"><a href="#一个request到一个response的过程" class="headerlink" title="一个request到一个response的过程"></a>一个request到一个response的过程</h4><p><img src="/images/motan/call-motan.png" alt="Alt text"></p>
 <p>首先我们通过RefererConfig获取一个客户端调用Service的Proxy，当我们在客户端执行service的方法时，Proxy就会InvokeHandler就会拦截到执行其invoke方法。<br>在执行invoke的时候，我们会调用Cluster.call()方法，而cluster.call()，实际上是一个代理(这个代理主要是用来处理集群功能的，容灾和负载均衡)，真正执行的是Referer.call()<br>referer是一个服务的引用（我们可以理解为他引用了一个调用特定的provider的client），referer.call()会将request消息编码打包，通过netty tcp长连接传输到服务端（在referer.call()调用的时候其实motan用了装饰模式，经过了filter层，对所有的调用做了一层过滤），<br>服务端收到了Request会对其进行解码，并根据协议body里面穿的interfaceName&amp;methodName&amp;parameterDesc（或者是方法签名）找到对应的provider，并执行，获取返回结果Resonse<br>并将response编码传输返回给客户端。</p>
 <h4 id="Protocol"><a href="#Protocol" class="headerlink" title="Protocol"></a>Protocol</h4><p>上面我们已经看到Referer&amp;Provider的重要性，他是服务提供方和服务的引用方。可以说是整个motan RPC最重要的地方之一。那么Referer&amp;Provider分别是在哪里构造的呢？</p>
 <p>这个时候我们需要看Protocol了.</p>
@@ -481,7 +481,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
     <div id="QR" style="display: none;">
       
         <div id="wechat" style="display: inline-block">
-          <img id="wechat_qr" src="/blog/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
           <p>微信打赏</p>
         </div>
       
