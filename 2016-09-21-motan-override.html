@@ -29,7 +29,7 @@
 
   
   
-  <link href="/blog/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
 
 
 
@@ -63,9 +63,9 @@
 
 
 
-<link href="/blog/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
 
-<link href="/blog/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
   <meta name="keywords" content="motan,源码,包结构,概述" />
@@ -77,7 +77,7 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.0.1" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
 
 
 
@@ -93,7 +93,7 @@ motan-manager // 管理后台
 motan-registry-consul">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Motan源码解读-源码结构">
-<meta property="og:url" content="http://zhizus.com/2016-09-21-motan-override.html">
+<meta property="og:url" content="code.zhizus.com/2016-09-21-motan-override.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
 motan包结构motan-benchmark // 压测相关
@@ -132,7 +132,7 @@ motan-registry-consul">
 
 
 
-  <link rel="canonical" href="http://zhizus.com/2016-09-21-motan-override.html"/>
+  <link rel="canonical" href="code.zhizus.com/2016-09-21-motan-override.html"/>
 
   <title> Motan源码解读-源码结构 | 郑大侠的博客 </title>
 </head>
@@ -173,7 +173,7 @@ motan-registry-consul">
   
 
   <div class="custom-logo-site-title">
-    <a href="/blog/"  class="brand" rel="start">
+    <a href="/"  class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
       <span class="site-title">郑大侠的博客</span>
       <span class="logo-line-after"><i></i></span>
@@ -198,7 +198,7 @@ motan-registry-consul">
       
         
         <li class="menu-item menu-item-home">
-          <a href="/blog/" rel="section">
+          <a href="/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
@@ -208,7 +208,7 @@ motan-registry-consul">
       
         
         <li class="menu-item menu-item-archives">
-          <a href="/blog/archives" rel="section">
+          <a href="/archives" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
@@ -218,7 +218,7 @@ motan-registry-consul">
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/blog/categories" rel="section">
+          <a href="/categories" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
@@ -238,7 +238,7 @@ motan-registry-consul">
       
         
         <li class="menu-item menu-item-about">
-          <a href="/blog/about" rel="section">
+          <a href="/about" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
             
@@ -310,7 +310,7 @@ motan-registry-consul">
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/blog/categories/Motan源码解读/" itemprop="url" rel="index">
+                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
                     <span itemprop="name">Motan源码解读</span>
                   </a>
                 </span>
@@ -326,7 +326,7 @@ motan-registry-consul">
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/blog/2016-09-21-motan-override.html#comments" itemprop="discussionUrl">
+                <a href="/2016-09-21-motan-override.html#comments" itemprop="discussionUrl">
                   <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-override.html" itemprop="commentsCount"></span>
                 </a>
               </span>
@@ -337,7 +337,7 @@ motan-registry-consul">
 
           
           
-             <span id="/blog/2016-09-21-motan-override.html" class="leancloud_visitors" data-flag-title="Motan源码解读-源码结构">
+             <span id="/2016-09-21-motan-override.html" class="leancloud_visitors" data-flag-title="Motan源码解读-源码结构">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -371,12 +371,12 @@ motan-springsupport // spring容器的支持，也支持springboot
 motan-transport-netty // netty传输的封装
 </code></pre><h4 id="motan-core"><a href="#motan-core" class="headerlink" title="motan-core"></a>motan-core</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">└─com</div><div class="line">    └─weibo</div><div class="line">        └─api</div><div class="line">            └─motan</div><div class="line">                ├─cluster</div><div class="line">                │  ├─ha //①容灾策略</div><div class="line">                │  ├─loadbalanc //②负载均衡</div><div class="line">                │  └─support</div><div class="line">                ├─codec //③编解码</div><div class="line">                ├─common</div><div class="line">                ├─config //④配置</div><div class="line">                │  ├─annotation</div><div class="line">                │  └─handler</div><div class="line">                ├─core</div><div class="line">                │  └─extension //⑤ SPI机制扩展</div><div class="line">                ├─exception // ⑥异常</div><div class="line">                ├─filter //⑦过滤器</div><div class="line">                ├─log //⑧日志</div><div class="line">                ├─protocol //⑨责点到点的通讯(有别于我们理解的protocol)</div><div class="line">                │  ├─injvm</div><div class="line">                │  ├─rpc</div><div class="line">                │  └─support</div><div class="line">                ├─proxy //⑩代理</div><div class="line">                │  └─spi</div><div class="line">                ├─registry //⑪服务注册</div><div class="line">                │  └─support</div><div class="line">                │      └─comman</div><div class="line">                ├─rpc</div><div class="line">                ├─serialize //⑫序列化</div><div class="line">                ├─switcher</div><div class="line">                ├─transport</div><div class="line">                │  └─support</div><div class="line">                └─util</div></pre></td></tr></table></figure>
 <p>这个包是motan的核心实现，里面的大部分代码，接下的文章都会涉及到。</p>
-<p>①<a href="http://zhizus.com/code/motan-hastratege">motan-容灾策略</a></p>
-<p>②<a href="http://zhizus.com/code/motan-loadbalance">motan-负载均衡</a></p>
-<p>⑤<a href="http://zhizus.com/code/motan-spi">motan-SPI机制扩展</a></p>
-<p>⑦<a href="http://zhizus.com/code/motan-filter">motan-过滤器</a></p>
-<p>⑨<a href="http://zhizus.com/code/motan-protocol">motan-protocol</a></p>
-<h4 id="motan-transport-netty"><a href="#motan-transport-netty" class="headerlink" title="motan-transport-netty"></a>motan-transport-netty</h4><p>⑨<a href="http://zhizus.com/code/motan-clientMessage">motan-netty-client异步消息</a></p>
+<p>①<a href="http://zhizus.com/code/motan-hastratege" target="_blank" rel="external">motan-容灾策略</a></p>
+<p>②<a href="http://zhizus.com/code/motan-loadbalance" target="_blank" rel="external">motan-负载均衡</a></p>
+<p>⑤<a href="http://zhizus.com/code/motan-spi" target="_blank" rel="external">motan-SPI机制扩展</a></p>
+<p>⑦<a href="http://zhizus.com/code/motan-filter" target="_blank" rel="external">motan-过滤器</a></p>
+<p>⑨<a href="http://zhizus.com/code/motan-protocol" target="_blank" rel="external">motan-protocol</a></p>
+<h4 id="motan-transport-netty"><a href="#motan-transport-netty" class="headerlink" title="motan-transport-netty"></a>motan-transport-netty</h4><p>⑨<a href="http://zhizus.com/code/motan-clientMessage" target="_blank" rel="external">motan-netty-client异步消息</a></p>
 
       
     </div>
@@ -418,7 +418,7 @@ motan-transport-netty // netty传输的封装
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2016-09-20-motan-loadbalance.html" rel="next" title="Motan源码解读-负载均衡">
+              <a href="/2016-09-20-motan-loadbalance.html" rel="next" title="Motan源码解读-负载均衡">
                 <i class="fa fa-chevron-left"></i> Motan源码解读-负载均衡
               </a>
             
@@ -426,8 +426,8 @@ motan-transport-netty // netty传输的封装
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/blog/2016-09-21-motan-filter.html" rel="prev" title="Motan源码解读-Filter">
-                Motan源码解读-Filter <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-21-motan-hastratege.html" rel="prev" title="Motan源码解读-容错策略">
+                Motan源码解读-容错策略 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -455,7 +455,7 @@ motan-transport-netty // netty传输的封装
   <div class="comments" id="comments">
     
       <div class="ds-thread" data-thread-key="2016-09-21-motan-override.html"
-           data-title="Motan源码解读-源码结构" data-url="http://zhizus.com/blog/2016-09-21-motan-override.html">
+           data-title="Motan源码解读-源码结构" data-url="code.zhizus.com/2016-09-21-motan-override.html">
       </div>
     
   </div>
@@ -499,7 +499,7 @@ motan-transport-netty // netty传输的封装
         </div>
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
-            <a href="/blog/archives">
+            <a href="/archives">
               <span class="site-state-item-count">12</span>
               <span class="site-state-item-name">日志</span>
             </a>
@@ -507,7 +507,7 @@ motan-transport-netty // netty传输的封装
 
           
             <div class="site-state-item site-state-categories">
-              <a href="/blog/categories">
+              <a href="/categories">
                 <span class="site-state-item-count">3</span>
                 <span class="site-state-item-name">分类</span>
               </a>
@@ -641,46 +641,46 @@ motan-transport-netty // netty传输的封装
 
 
   
-  <script type="text/javascript" src="/blog/vendors/jquery/index.js?v=2.1.3"></script>
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
 
   
-  <script type="text/javascript" src="/blog/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
 
   
-  <script type="text/javascript" src="/blog/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
 
   
-  <script type="text/javascript" src="/blog/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
 
   
-  <script type="text/javascript" src="/blog/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
 
   
-  <script type="text/javascript" src="/blog/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.0.1"></script>
-
-  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.0.1"></script>
-
-
-
-  
-  
-
-  
-  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.0.1"></script>
-
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
 
 
   
 
 
-  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.0.1"></script>
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
 
 
 
@@ -705,8 +705,8 @@ motan-transport-netty // netty传输的封装
 
   
     
-    <script src="/blog/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
-    <script src="/blog/js/src/hook-duoshuo.js"></script>
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
   
 
 
