@@ -677,8 +677,8 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-hastratege.html" itemprop="url">
-                  Motan源码解读-容错策略
+                <a class="post-title-link" href="/2016-09-21-motan-override.html" itemprop="url">
+                  Motan源码解读-源码结构
                 </a>
               
             
@@ -721,8 +721,8 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016-09-21-motan-hastratege.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-hastratege.html" itemprop="commentsCount"></span>
+                <a href="/2016-09-21-motan-override.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-override.html" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -732,7 +732,7 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
 
           
           
-             <span id="/2016-09-21-motan-hastratege.html" class="leancloud_visitors" data-flag-title="Motan源码解读-容错策略">
+             <span id="/2016-09-21-motan-override.html" class="leancloud_visitors" data-flag-title="Motan源码解读-源码结构">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -756,17 +756,15 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
       
         
           
-          Motan的容错策略
-Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
-
-
-Failover 失效切换（缺省）
-
-1&lt;motan:protocol ... haStrateg
+          旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
+motan包结构motan-benchmark // 压测相关
+motan-core    //motan核心代码，也是源码解析的主要包
+motan-demo    // 示例，快速上手的最佳方法
+motan-extension //
           ...
 
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016-09-21-motan-hastratege.html#more" rel="contents">
+            <a class="btn" href="/2016-09-21-motan-override.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1088,8 +1086,8 @@ AccessLog
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-override.html" itemprop="url">
-                  Motan源码解读-源码结构
+                <a class="post-title-link" href="/2016-09-21-motan-hastratege.html" itemprop="url">
+                  Motan源码解读-容错策略
                 </a>
               
             
@@ -1132,8 +1130,8 @@ AccessLog
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016-09-21-motan-override.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-override.html" itemprop="commentsCount"></span>
+                <a href="/2016-09-21-motan-hastratege.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-hastratege.html" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -1143,7 +1141,7 @@ AccessLog
 
           
           
-             <span id="/2016-09-21-motan-override.html" class="leancloud_visitors" data-flag-title="Motan源码解读-源码结构">
+             <span id="/2016-09-21-motan-hastratege.html" class="leancloud_visitors" data-flag-title="Motan源码解读-容错策略">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1167,15 +1165,17 @@ AccessLog
       
         
           
-          旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
-motan包结构motan-benchmark // 压测相关
-motan-core    //motan核心代码，也是源码解析的主要包
-motan-demo    // 示例，快速上手的最佳方法
-motan-extension //
+          Motan的容错策略
+Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
+
+
+Failover 失效切换（缺省）
+
+1&lt;motan:protocol ... haStrateg
           ...
 
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016-09-21-motan-override.html#more" rel="contents">
+            <a class="btn" href="/2016-09-21-motan-hastratege.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
