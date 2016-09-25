@@ -1,0 +1,12 @@
+# hexo robots.txt
+User-agent: * Allow: /
+Allow: /blog/archives/
+Disallow: /blog/vendors/
+Disallow: /blog/js/
+Disallow: /blog/css/
+Disallow: /blog/fonts/
+Disallow: /blog/vendors/
+Disallow: /blog/fancybox/
+
+Sitemap: http://zhizus/blog/sitemap.xml
+Sitemap: http://zhizus/blog/baidusitemap.xml
