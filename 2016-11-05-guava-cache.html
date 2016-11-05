@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="motan,源码,filter" />
+  <meta name="keywords" content="guava,cache,expireAfterWrite,refreshAfterWrite" />
 
 
 
@@ -84,31 +84,34 @@
 
 
 
-<meta name="description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter
-AccessLogFilter
+<meta name="description" content="Guava Cache 分析guava的单线程回源缓存的更新有两种方法:
 
+被动更新：先从缓存获取，没有则回源获取，再更新缓存；
+主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
 
-统计整个call的执行状况，尽量到最上层，最后执行.此filter会对性能产生一定">
+在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。
+guava cache解决办法：guava">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Motan源码解读-Filter">
-<meta property="og:url" content="http://code.zhizus.com/2016-09-21-motan-filter.html">
+<meta property="og:title" content="Guava Cache 分析">
+<meta property="og:url" content="http://code.zhizus.com/2016-11-05-guava-cache.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter
-AccessLogFilter
+<meta property="og:description" content="Guava Cache 分析guava的单线程回源缓存的更新有两种方法:
 
+被动更新：先从缓存获取，没有则回源获取，再更新缓存；
+主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
 
-统计整个call的执行状况，尽量到最上层，最后执行.此filter会对性能产生一定">
-<meta property="og:updated_time" content="2016-09-24T10:06:06.782Z">
+在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。
+guava cache解决办法：guava">
+<meta property="og:updated_time" content="2016-11-05T12:41:29.800Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Motan源码解读-Filter">
-<meta name="twitter:description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter
-AccessLogFilter
+<meta name="twitter:title" content="Guava Cache 分析">
+<meta name="twitter:description" content="Guava Cache 分析guava的单线程回源缓存的更新有两种方法:
 
+被动更新：先从缓存获取，没有则回源获取，再更新缓存；
+主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
 
-统计整个call的执行状况，尽量到最上层，最后执行.此filter会对性能产生一定">
+在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。
+guava cache解决办法：guava">
 
 
 
@@ -129,9 +132,9 @@ AccessLogFilter
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2016-09-21-motan-filter.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2016-11-05-guava-cache.html"/>
 
-  <title> Motan源码解读-Filter | 郑大侠的博客 </title>
+  <title> Guava Cache 分析 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -281,7 +284,7 @@ AccessLogFilter
             
             
               
-                Motan源码解读-Filter
+                Guava Cache 分析
               
             
           </h1>
@@ -293,8 +296,8 @@ AccessLogFilter
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-21T00:00:00+08:00" content="2016-09-21">
-              2016-09-21
+            <time itemprop="dateCreated" datetime="2016-11-05T00:00:00+08:00" content="2016-11-05">
+              2016-11-05
             </time>
           </span>
 
@@ -307,8 +310,8 @@ AccessLogFilter
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
+                  <a href="/categories/cache/" itemprop="url" rel="index">
+                    <span itemprop="name">cache</span>
                   </a>
                 </span>
 
@@ -323,8 +326,8 @@ AccessLogFilter
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016-09-21-motan-filter.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-filter.html" itemprop="commentsCount"></span>
+                <a href="/2016-11-05-guava-cache.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-11-05-guava-cache.html" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -334,7 +337,7 @@ AccessLogFilter
 
           
           
-             <span id="/2016-09-21-motan-filter.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Filter">
+             <span id="/2016-11-05-guava-cache.html" class="leancloud_visitors" data-flag-title="Guava Cache 分析">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -356,51 +359,32 @@ AccessLogFilter
       
 
       
-        <p>很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。<br>过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。</p>
-<h3 id="motan-filter："><a href="#motan-filter：" class="headerlink" title="motan filter："></a>motan filter：</h3><h4 id="目前实现的filter"><a href="#目前实现的filter" class="headerlink" title="目前实现的filter"></a>目前实现的filter</h4><ul>
-<li>AccessLogFilter</li>
-</ul>
-<blockquote>
-<p>统计整个call的执行状况，尽量到最上层，最后执行.<br>此filter会对性能产生一定影响，请求量较大时建议关闭。</p>
-</blockquote>
+        <h2 id="Guava-Cache-分析"><a href="#Guava-Cache-分析" class="headerlink" title="Guava Cache 分析"></a>Guava Cache 分析</h2><h3 id="guava的单线程回源"><a href="#guava的单线程回源" class="headerlink" title="guava的单线程回源"></a>guava的单线程回源</h3><p>缓存的更新有两种方法:</p>
 <ul>
-<li>AccessStatisticFilter</li>
+<li>被动更新：先从缓存获取，没有则回源获取，再更新缓存；</li>
+<li>主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）</li>
 </ul>
-<p>&gt;</p>
-<ul>
-<li>ActiveLimitFilter</li>
-</ul>
+<p>在高并发环境，被动回源是需要注意的。<br>问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。</p>
+<p>guava cache解决办法：<br>guava cache保证单线程回源，对于同一个key，只让一个请求回源load，其他线程阻塞等待结果。同时，在Guava里可以通过配置expireAfterAccess/expireAfterWrite设定key的过期时间，key过期后就单线程回源加载并放回缓存。</p>
+<p>这样通过Guava Cache简简单单就较为安全地实现了缓存的被动更新操作。</p>
+<p>但是如果对于同一时间大量不同的key同时过期，造成大量不同的key同时回源，这种怎么解决呢？</p>
 <blockquote>
-<p>limit active count，判断某个接口并发数是否超限，如果超过限制，则上抛异常,同时做简单的统计。 此filter比较严格，尽量放到底层较早执行。</p>
+<p>guava cache实现类似ConcurrentHashMap，维护segment数组，每个segment独享一个锁，ConcurrentHashMap是通过这种机制来实现分段锁，ConcurrentHashMap默认分了16个segment；<br>guava Cache默认是4个segment，故guava cache的并发级别默认是4个，也就是说默认情况下，即便是大量不同的key同时过期，最多只也有4个线程并发回源，理论上不会给后端造成过大的压力。</p>
 </blockquote>
-<ul>
-<li>ServiceMockFilter</li>
+<h3 id="guava-refresh和expire刷新机制"><a href="#guava-refresh和expire刷新机制" class="headerlink" title="guava refresh和expire刷新机制"></a>guava refresh和expire刷新机制</h3><ul>
+<li>expireAfterAccess: 当缓存项在指定的时间段内没有被读或写就会被回收。</li>
+<li>expireAfterWrite：当缓存项在指定的时间段内没有更新就会被回收。</li>
+<li>refreshAfterWrite：当缓存项上一次更新操作之后的多久会被刷新。</li>
 </ul>
-<blockquote>
-<p>mock serivce。测试场景使用</p>
-</blockquote>
-<ul>
-<li>SwitcherFilter</li>
-</ul>
-<blockquote>
-<p>服务降级的filter，</p>
-</blockquote>
-<h4 id="按使用的地方划分"><a href="#按使用的地方划分" class="headerlink" title="按使用的地方划分"></a>按使用的地方划分</h4><ul>
-<li><strong>服务端的filter</strong></li>
-<li><strong>客户端的filter</strong></li>
-</ul>
-<p>motan的服务端和客户端都可以添加filter，可以是相同的filter也可以是不同的filter</p>
-<h4 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h4><p>下面我们来看filter的ProtocolFilterDecorator 代码(代码仅保留了分析相关部分)：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProtocolFilterDecorator</span> <span class="keyword">implements</span> <span class="title">Protocol</span> </span>&#123;</div><div class="line">    ...</div><div class="line">    <span class="keyword">private</span> &lt;T&gt; <span class="function">Referer&lt;T&gt; <span class="title">decorateWithFilter</span><span class="params">(Referer&lt;T&gt; referer, URL url)</span> </span>&#123;</div><div class="line">        List&lt;Filter&gt; filters = getFilters(url, MotanConstants.NODE_TYPE_REFERER);</div><div class="line">        Referer&lt;T&gt; lastRef = referer;</div><div class="line">        <span class="keyword">for</span> (Filter filter : filters) &#123;</div><div class="line">            <span class="keyword">final</span> Filter f = filter;</div><div class="line">            <span class="keyword">final</span> Referer&lt;T&gt; lf = lastRef;</div><div class="line">            lastRef = <span class="keyword">new</span> Referer&lt;T&gt;() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request)</span> </span>&#123;</div><div class="line">	                <span class="comment">// 这里可以通过配置来控制，对于重试的请求要不要经过filter，比如有些安全校验的，第一次已经校验通过，重试自然不用在校验一次，但是对于有些统计来说，可能会认为不管是不是重试，都需要统计，这里通过配置把这种情况暴露给使用者，把决定权留给使用方</span></div><div class="line">                    <span class="keyword">if</span> (!f.getClass().getAnnotation(Activation.class).retry() &amp;&amp; request.getRetries() != <span class="number">0</span>) &#123;</div><div class="line">                        <span class="keyword">return</span> lf.call(request);</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">return</span> f.filter(lf, request);</div><div class="line">                &#125;</div><div class="line"></div><div class="line">               ...</div><div class="line">            &#125;;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> lastRef;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> &lt;T&gt; <span class="function">Provider&lt;T&gt; <span class="title">decorateWithFilter</span><span class="params">(Provider&lt;T&gt; provider, URL url)</span> </span>&#123;</div><div class="line">        List&lt;Filter&gt; filters = getFilters(url, MotanConstants.NODE_TYPE_SERVICE);</div><div class="line">        <span class="keyword">if</span> (filters == <span class="keyword">null</span> || filters.size() == <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">return</span> provider;</div><div class="line">        &#125;</div><div class="line">        Provider&lt;T&gt; lastProvider = provider;</div><div class="line">        <span class="keyword">for</span> (Filter filter : filters) &#123;</div><div class="line">            <span class="keyword">final</span> Filter f = filter;</div><div class="line">            <span class="keyword">final</span> Provider&lt;T&gt; lp = lastProvider;</div><div class="line">            lastProvider = <span class="keyword">new</span> Provider&lt;T&gt;() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request)</span> </span>&#123;</div><div class="line">                    <span class="keyword">return</span> f.filter(lp, request);</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                ...</div><div class="line">            &#125;;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> lastProvider;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>从这个类的名字我们可以可以猜测motan的filter是基于java的<code>装饰模式</code>了，关于java的装饰者模式，（最经典的是jdk的IO部分的用法）</p>
-<blockquote>
-<p><strong>装饰模式：</strong>在不必改变原类文件和使用继承的情况下，动态地扩展一个对象的功能。它是通过创建一个包装对象，也就是装饰来包裹真实的对象。</p>
-</blockquote>
-<p>这个类中包装了两个filter，一个是把客户端的referer decorateWithFilter，另一个是把服务端的Provider decorateWithFilter。</p>
-<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>对于filter，作用大多是过滤，一般越早越好，如果不满足过滤条件，能够早些丢弃，不会浪费资源对那些不满足filter过滤条件的请求做其他的处理。</p>
-<p>所以一般encode&amp;decode完成的请求会立即进到filter过滤。</p>
-<hr>
-<p>后记：后面会补充</p>
+<p>仅仅使用 expireAfterWrite或者expireAfterAccess就可以实现缓存定时过期，但是频繁的过期会造成频繁的单线程回源，然而guava cache回源的时候会独占一个segment的锁，对于同一个segment的其他的读操作 处于loading状态的则会继续等待，value expire或者为null的key则会阻塞等待segment的锁。</p>
+<p> expireAfterWrite或者expireAfterAccess的实现在数据回源的时候会让请求block住，以获取最新的值。数据实时性保证的较好，但是阻塞住请求对于一些响应要求严苛的业务可能是没办法接受的。那有没有解决的办法呢？</p>
+<p>我们且看refreshAfterWrite：</p>
+<p>refreshAfterWrite通过定时刷新可以让缓存项保持可用。缓存项只有在被检索时才会真正刷新（如果CacheLoader.refresh实现为异步，那么检索不会被刷新拖慢）。也是保证同一个segment的单线程回源，但是与expireAfterWrite不同的是：其他线程访问loading状态的key时，仅仅稍微等一会，没有等到就返回旧值，整个请求就比较平滑。<br>与此同时，也引入了一个问题，refreshAfterWrite策略下，如果一个key长期没有被访问，就有可能会访问到很久之前的旧值。例如refreshAfterWrite(5),5s刷新一次，如果1min内，这个key都没有被访问，那么1min之后访问这个key，仍然有可能访问到旧数据，尽管我们设置了5s刷新一次。（guava cache并没单独的线程来处理刷新的逻辑，而是通过读操作来触发清理工作）</p>
+<p>对于这个问题有没有这种的办法呢？<br>guava cache支持我们同时使用expireAfterWrite&amp;refreshAfterWrite，我们既可以通过组合的策略既保证性能，又保证不要读取到太旧的数据。<br>比如我们有需求：要求请求必须平滑，而且不能读到5s之前的旧数据。</p>
+<p>我们可以如下设置来满足需求：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">LoadingCache&lt;String, String&gt; cache;</div><div class="line">   cache = CacheBuilder</div><div class="line">           .newBuilder()</div><div class="line">           .refreshAfterWrite(4L, TimeUnit.SECONDS)</div><div class="line">           .expireAfterWrite(5L, TimeUnit.SECONDS)</div><div class="line">           .build(loader);</div></pre></td></tr></table></figure>
+<p> <code>expireAfterWrite(5L, TimeUnit.SECONDS)</code>能保证不会读到5s之前的旧数据，<code>refreshAfterWrite(4L, TimeUnit.SECONDS)</code>能保证大部分请求都在4s左右被刷新，小部分访问量较少的在5s的时候通过expireAfterWrite策略重新被回源。</p>
+<h3 id="guava后台异步刷新"><a href="#guava后台异步刷新" class="headerlink" title="guava后台异步刷新"></a>guava后台异步刷新</h3><p>refreshAfterWrite的刷新调用的是reload，reload的默认实现是在当前线程里面reload，也会造成一些卡顿，如果希望异步reload，需要重载这个方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">@GwtIncompatible // Futures</div><div class="line"> public ListenableFuture&lt;V&gt; reload(K key, V oldValue) throws Exception &#123;</div><div class="line">   checkNotNull(key);</div><div class="line">   checkNotNull(oldValue);</div><div class="line">   return Futures.immediateFuture(load(key));//当前线程调用load，会造成当前线程的卡顿，如果不接受卡顿，需要重载这个方法</div><div class="line"> &#125;</div></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -442,17 +426,13 @@ AccessLogFilter
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-20-motan-loadbalance.html" rel="next" title="Motan源码解读-负载均衡">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-负载均衡
+              <a href="/2016-11-05guava-cache-info.html" rel="next" title="Guava Cache 分析">
+                <i class="fa fa-chevron-left"></i> Guava Cache 分析
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016-09-21-motan-hastratege.html" rel="prev" title="Motan源码解读-容错策略">
-                Motan源码解读-容错策略 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -478,8 +458,8 @@ AccessLogFilter
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016-09-21-motan-filter.html"
-           data-title="Motan源码解读-Filter" data-url="http://code.zhizus.com/2016-09-21-motan-filter.html">
+      <div class="ds-thread" data-thread-key="2016-11-05-guava-cache.html"
+           data-title="Guava Cache 分析" data-url="http://code.zhizus.com/2016-11-05-guava-cache.html">
       </div>
     
   </div>
@@ -606,7 +586,7 @@ AccessLogFilter
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#motan-filter："><span class="nav-number">1.</span> <span class="nav-text">motan filter：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#目前实现的filter"><span class="nav-number">1.1.</span> <span class="nav-text">目前实现的filter</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#按使用的地方划分"><span class="nav-number">1.2.</span> <span class="nav-text">按使用的地方划分</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码分析"><span class="nav-number">1.3.</span> <span class="nav-text">代码分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结"><span class="nav-number">1.4.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Guava-Cache-分析"><span class="nav-number">1.</span> <span class="nav-text">Guava Cache 分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#guava的单线程回源"><span class="nav-number">1.1.</span> <span class="nav-text">guava的单线程回源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#guava-refresh和expire刷新机制"><span class="nav-number">1.2.</span> <span class="nav-text">guava refresh和expire刷新机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#guava后台异步刷新"><span class="nav-number">1.3.</span> <span class="nav-text">guava后台异步刷新</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
