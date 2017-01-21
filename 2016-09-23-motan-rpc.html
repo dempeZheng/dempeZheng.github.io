@@ -76,7 +76,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 				<h1 class="site-name"><a href="/" title="郑大侠的博客">郑大侠的博客</a></h1>
 				<h2 class="blog-motto">DempeZheng&#39;S Blog</h2>
 			</div>
-			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜單">
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
 			</a></div>
 			<nav class="animated">
 				<ul>
@@ -115,14 +115,14 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 		<a href="/about" title="DempeZheng" target="_blank" itemprop="author">DempeZheng</a>
 		
   <p class="article-time">
-    <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished"> 發表於 2016-09-23</time>
+    <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished"> 发表于 2016-09-23</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
 		<div id="toc" class="toc-article">
-			<strong class="toc-title">文章目錄</strong>
+			<strong class="toc-title">文章目录</strong>
 		
 			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#motan"><span class="toc-number">1.</span> <span class="toc-text">motan</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#写在前面"><span class="toc-number">1.1.</span> <span class="toc-text">写在前面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan的架构"><span class="toc-number">1.2.</span> <span class="toc-text">motan的架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan分层："><span class="toc-number">1.3.</span> <span class="toc-text">motan分层：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan的一些重要概念"><span class="toc-number">1.4.</span> <span class="toc-text">motan的一些重要概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#从Caller调用说起"><span class="toc-number">1.5.</span> <span class="toc-text">从Caller调用说起</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#一个request到一个response的过程"><span class="toc-number">1.6.</span> <span class="toc-text">一个request到一个response的过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Protocol"><span class="toc-number">1.7.</span> <span class="toc-text">Protocol</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#transport"><span class="toc-number">1.8.</span> <span class="toc-text">transport</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#传输协议header："><span class="toc-number">1.8.1.</span> <span class="toc-text">传输协议header：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#负载均衡"><span class="toc-number">1.9.</span> <span class="toc-text">负载均衡</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#延伸阅读"><span class="toc-number">1.10.</span> <span class="toc-text">延伸阅读</span></a></li></ol></li></ol>
 		
@@ -269,18 +269,18 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2016-09-23-motan-codec.html" title="Motan源码解读-codec">
+ <a href="/2016-11-05guava-cache-info.html" title="Guava Cache使用示例">
   <strong>上一篇：</strong><br/>
   <span>
-  Motan源码解读-codec</span>
+  Guava Cache使用示例</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/2016-09-22-motan-serialize.html"  title="Motan源码解读-serialize">
+<a href="/2016-09-23-motan-codec.html"  title="Motan源码解读-codec">
  <strong>下一篇：</strong><br/> 
- <span>Motan源码解读-serialize
+ <span>Motan源码解读-codec
 </span>
 </a>
 </div>
@@ -290,17 +290,17 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 	
 
 </div>  
-      <div class="openaside"><a class="navbutton" href="#" title="顯示側邊欄"></a></div>
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
 
   <div id="toc" class="toc-aside">
-  <strong class="toc-title">文章目錄</strong>
+  <strong class="toc-title">文章目录</strong>
  
  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#motan"><span class="toc-number">1.</span> <span class="toc-text">motan</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#写在前面"><span class="toc-number">1.1.</span> <span class="toc-text">写在前面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan的架构"><span class="toc-number">1.2.</span> <span class="toc-text">motan的架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan分层："><span class="toc-number">1.3.</span> <span class="toc-text">motan分层：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan的一些重要概念"><span class="toc-number">1.4.</span> <span class="toc-text">motan的一些重要概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#从Caller调用说起"><span class="toc-number">1.5.</span> <span class="toc-text">从Caller调用说起</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#一个request到一个response的过程"><span class="toc-number">1.6.</span> <span class="toc-text">一个request到一个response的过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Protocol"><span class="toc-number">1.7.</span> <span class="toc-text">Protocol</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#transport"><span class="toc-number">1.8.</span> <span class="toc-text">transport</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#传输协议header："><span class="toc-number">1.8.1.</span> <span class="toc-text">传输协议header：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#负载均衡"><span class="toc-number">1.9.</span> <span class="toc-text">负载均衡</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#延伸阅读"><span class="toc-number">1.10.</span> <span class="toc-text">延伸阅读</span></a></li></ol></li></ol>
  
   </div>
 
 <div id="asidepart">
-<div class="closeaside"><a class="closebutton" href="#" title="隱藏側邊欄"></a></div>
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
 <aside class="clearfix">
 
   
@@ -308,7 +308,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 
   
 <div class="categorieslist">
-	<p class="asidetitle">分類</p>
+	<p class="asidetitle">分类</p>
 		<ul>
 		
 		  
@@ -320,7 +320,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 		  
 		
 		  
-			<li><a href="/categories/cache/" title="cache">cache<sup>2</sup></a></li>
+			<li><a href="/categories/cache/" title="cache">cache<sup>3</sup></a></li>
 		  
 		
 		  
@@ -334,7 +334,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
   
 
   <div class="linkslist">
-  <p class="asidetitle">友情鏈接</p>
+  <p class="asidetitle">友情链接</p>
     <ul>
         
           <li>
@@ -356,7 +356,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 
 
   <div class="rsspart">
-	<a href="/atom.xml" target="_blank" title="rss">RSS 訂閱</a>
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
 </div>
 
   <div class="weiboshow">
@@ -587,7 +587,7 @@ var _hmt = _hmt || [];
 <!-- Totop Begin -->
 
 	<div id="totop">
-	<a title="返回頂部"><img src="/img/scrollup.png"/></a>
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
 	</div>
 	<script src="/js/totop.js"></script>
 

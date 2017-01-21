@@ -53,7 +53,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 				<h1 class="site-name"><a href="/" title="郑大侠的博客">郑大侠的博客</a></h1>
 				<h2 class="blog-motto">DempeZheng&#39;S Blog</h2>
 			</div>
-			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜單">
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
 			</a></div>
 			<nav class="animated">
 				<ul>
@@ -92,14 +92,14 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 		<a href="/about" title="DempeZheng" target="_blank" itemprop="author">DempeZheng</a>
 		
   <p class="article-time">
-    <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished"> 發表於 2016-09-23</time>
+    <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished"> 发表于 2016-09-23</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
 		<div id="toc" class="toc-article">
-			<strong class="toc-title">文章目錄</strong>
+			<strong class="toc-title">文章目录</strong>
 		
 			<ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#motan协议格式"><span class="toc-number">1.</span> <span class="toc-text">motan协议格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan协议打包"><span class="toc-number">2.</span> <span class="toc-text">motan协议打包</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan协议的压缩"><span class="toc-number">3.</span> <span class="toc-text">motan协议的压缩</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#压缩算法比较"><span class="toc-number">3.1.</span> <span class="toc-text">压缩算法比较</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan中的协议压缩"><span class="toc-number">4.</span> <span class="toc-text">motan中的协议压缩</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#方法签名"><span class="toc-number">5.</span> <span class="toc-text">方法签名</span></a></li></ol>
 		
@@ -212,18 +212,18 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2016-11-05guava-cache-info.html" title="Guava Cache使用示例">
+ <a href="/2016-09-23-motan-rpc.html" title="深入浅出Motan RPC">
   <strong>上一篇：</strong><br/>
   <span>
-  Guava Cache使用示例</span>
+  深入浅出Motan RPC</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/2016-09-23-motan-rpc.html"  title="深入浅出Motan RPC">
+<a href="/2016-09-22-motan-serialize.html"  title="Motan源码解读-serialize">
  <strong>下一篇：</strong><br/> 
- <span>深入浅出Motan RPC
+ <span>Motan源码解读-serialize
 </span>
 </a>
 </div>
@@ -233,17 +233,17 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 	
 
 </div>  
-      <div class="openaside"><a class="navbutton" href="#" title="顯示側邊欄"></a></div>
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
 
   <div id="toc" class="toc-aside">
-  <strong class="toc-title">文章目錄</strong>
+  <strong class="toc-title">文章目录</strong>
  
  <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#motan协议格式"><span class="toc-number">1.</span> <span class="toc-text">motan协议格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan协议打包"><span class="toc-number">2.</span> <span class="toc-text">motan协议打包</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan协议的压缩"><span class="toc-number">3.</span> <span class="toc-text">motan协议的压缩</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#压缩算法比较"><span class="toc-number">3.1.</span> <span class="toc-text">压缩算法比较</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan中的协议压缩"><span class="toc-number">4.</span> <span class="toc-text">motan中的协议压缩</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#方法签名"><span class="toc-number">5.</span> <span class="toc-text">方法签名</span></a></li></ol>
  
   </div>
 
 <div id="asidepart">
-<div class="closeaside"><a class="closebutton" href="#" title="隱藏側邊欄"></a></div>
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
 <aside class="clearfix">
 
   
@@ -251,7 +251,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
   
 <div class="categorieslist">
-	<p class="asidetitle">分類</p>
+	<p class="asidetitle">分类</p>
 		<ul>
 		
 		  
@@ -263,7 +263,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 		  
 		
 		  
-			<li><a href="/categories/cache/" title="cache">cache<sup>2</sup></a></li>
+			<li><a href="/categories/cache/" title="cache">cache<sup>3</sup></a></li>
 		  
 		
 		  
@@ -277,7 +277,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
   
 
   <div class="linkslist">
-  <p class="asidetitle">友情鏈接</p>
+  <p class="asidetitle">友情链接</p>
     <ul>
         
           <li>
@@ -299,7 +299,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
 
   <div class="rsspart">
-	<a href="/atom.xml" target="_blank" title="rss">RSS 訂閱</a>
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
 </div>
 
   <div class="weiboshow">
@@ -530,7 +530,7 @@ var _hmt = _hmt || [];
 <!-- Totop Begin -->
 
 	<div id="totop">
-	<a title="返回頂部"><img src="/img/scrollup.png"/></a>
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
 	</div>
 	<script src="/js/totop.js"></script>
 
