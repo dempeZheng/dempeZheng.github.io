@@ -100,31 +100,6 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-11-05-guava-cache.html" title="Guava Cache 分析" itemprop="url">
-  
-    <h1 itemprop="name">Guava Cache 分析</h1>
-    
-     
-           <p itemprop="description" >Guava Cache 分析guava的单线程回源缓存的更新有两种方法:
-
-被动更新：先从缓存获取，没有则回源获取，再更新缓存；
-主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
-
-在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，</p>
-        
-    
-    <time datetime="2016-11-04T16:00:00.000Z" itemprop="datePublished">2016-11-05</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
     <a href="/2016-11-05guava-cache-info.html" title="Guava Cache使用示例" itemprop="url">
   
     <h1 itemprop="name">Guava Cache使用示例</h1>
@@ -147,16 +122,20 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-23-motan-codec.html" title="Motan源码解读-codec" itemprop="url">
+    <a href="/2016-11-05-guava-cache.html" title="Guava Cache 分析" itemprop="url">
   
-    <h1 itemprop="name">Motan源码解读-codec</h1>
+    <h1 itemprop="name">Guava Cache 分析</h1>
     
      
-           <p itemprop="description" >motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
-dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目</p>
+           <p itemprop="description" >Guava Cache 分析guava的单线程回源缓存的更新有两种方法:
+
+被动更新：先从缓存获取，没有则回源获取，再更新缓存；
+主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
+
+在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，</p>
         
     
-    <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished">2016-09-23</time>
+    <time datetime="2016-11-04T16:00:00.000Z" itemprop="datePublished">2016-11-05</time>
   </a>
 </section>
 
@@ -196,6 +175,27 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点</p>
   
 <section class="post" itemscope itemprop="blogitem">
   
+    <a href="/2016-09-23-motan-codec.html" title="Motan源码解读-codec" itemprop="url">
+  
+    <h1 itemprop="name">Motan源码解读-codec</h1>
+    
+     
+           <p itemprop="description" >motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
+dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目</p>
+        
+    
+    <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished">2016-09-23</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
     <a href="/2016-09-22-motan-serialize.html" title="Motan源码解读-serialize" itemprop="url">
   
     <h1 itemprop="name">Motan源码解读-serialize</h1>
@@ -219,13 +219,16 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-21-motan-filter.html" title="Motan源码解读-Filter" itemprop="url">
+    <a href="/2016-09-21-motan-override.html" title="Motan源码解读-源码结构" itemprop="url">
   
-    <h1 itemprop="name">Motan源码解读-Filter</h1>
+    <h1 itemprop="name">Motan源码解读-源码结构</h1>
     
      
-           <p itemprop="description" >很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter</p>
+           <p itemprop="description" >旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
+motan包结构motan-benchmark // 压测相关
+motan-core    //motan核心代码，也是源码解析的主要包
+motan-demo    // 示例，快速上手的最佳方法
+motan-ex</p>
         
     
     <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
@@ -240,16 +243,13 @@ motan filter：目前实现的filter</p>
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-21-motan-override.html" title="Motan源码解读-源码结构" itemprop="url">
+    <a href="/2016-09-21-motan-filter.html" title="Motan源码解读-Filter" itemprop="url">
   
-    <h1 itemprop="name">Motan源码解读-源码结构</h1>
+    <h1 itemprop="name">Motan源码解读-Filter</h1>
     
      
-           <p itemprop="description" >旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
-motan包结构motan-benchmark // 压测相关
-motan-core    //motan核心代码，也是源码解析的主要包
-motan-demo    // 示例，快速上手的最佳方法
-motan-ex</p>
+           <p itemprop="description" >很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
+motan filter：目前实现的filter</p>
         
     
     <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
