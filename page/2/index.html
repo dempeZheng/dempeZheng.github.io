@@ -45,7 +45,7 @@
 <div class="intrude-less">
 	<header id="header" class="inner">
 		<a href="/" class="profilepic">
-			<img src="null" class="js-avatar">
+			<img src="/avatar.jpg" class="js-avatar">
 		</a>
 		<hgroup>
 		  <h1 class="header-author"><a href="/">DempeZheng</a></h1>
@@ -105,7 +105,7 @@
 	<div class="intrude-less">
 		<header id="header" class="inner">
 			<div class="profilepic">
-				<img src="null" class="js-avatar">
+				<img src="/avatar.jpg" class="js-avatar">
 			</div>
 			<hgroup>
 			  <h1 class="header-author js-header-author">DempeZheng</h1>
@@ -287,113 +287,6 @@
 
 
   
-    <article id="post-2016-09-19-motan-spi" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016-09-19-motan-spi.html">Motan源码解读-SPI机制</a>
-    </h1>
-  
-
-        
-        <a href="/2016-09-19-motan-spi.html" class="archive-article-date">
-  	<time datetime="2016-09-18T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-09-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。<br>motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。</p>
-<h3 id="SPI机制"><a href="#SPI机制" class="headerlink" title="SPI机制"></a>SPI机制</h3><p>SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceLoader的文档里有比较详细的介绍。简单的总结下java spi机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案，比如日志模块的方案，xml解析模块、jdbc模块的方案等。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。 java spi就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。</p>
-<h3 id="SPI约定"><a href="#SPI约定" class="headerlink" title="SPI约定"></a>SPI约定</h3><p>java spi的具体约定为:当服务的提供者，提供了服务接口的一种实现之后，在jar包的META-INF/services/目录里同时创建一个以服务接口命名的文件。该文件里就是实现该服务接口的具体实现类。而当外部程序装配这个模块的时候，就能通过该jar包META-INF/services/里的配置文件找到具体的实现类名，并装载实例化，完成模块的注入。 基于这样一个约定就能很好的找到服务接口的实现类，而不需要再代码里制定。jdk提供服务实现查找的一个工具类：java.util.ServiceLoader</p>
-<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><ul>
-<li><strong>common-logging</strong><br>apache最早提供的日志的门面接口。只有接口，没有实现。具体方案由各提供商实现， 发现日志提供商是通过扫描 META-INF/services/org.apache.commons.logging.LogFactory配置文件，通过读取该文件的内容找到日志提工商实现类。只要我们的日志实现里包含了这个文件，并在文件里制定 LogFactory工厂接口的实现类即可。</li>
-<li><p><strong>jdbc</strong><br>jdbc4.0以前， 开发人员还需要基于Class.forName(“xxx”)的方式来装载驱动，jdbc4也基于spi的机制来发现驱动提供商了，可以通过META-INF/services/java.sql.Driver文件里指定实现类的方式来暴露驱动提供者。</p>
-</li>
-<li><p><strong>dubbo&amp;motan</strong><br>dubbo和motan也扩展了spi作为框架的主要扩展机制。</p>
-</li>
-</ul>
-<h3 id="使用示例："><a href="#使用示例：" class="headerlink" title="使用示例："></a>使用示例：</h3><p>接口定义</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">package my.xyz.spi;  </div><div class="line">import java.util.List;  </div><div class="line">public interface Search &#123;  </div><div class="line">   public List serch(String keyword);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>A公司采用文件系统搜索的方式实现了 Search接口，B公司采用了数据库系统的方式实现了Search接口</p>
-<ul>
-<li>A公司实现的类  com.A.spi.impl.FileSearch  </li>
-<li>B公司实现的类  com.B.spi.impl.DatabaseSearch  </li>
-</ul>
-<p>那么A公司发布 实现jar包时，则要在jar包中META-INF/services/my.xyz.spi.Search文件中写下如下内容<br>    com.A.spi.impl.FileSearch<br>那么B公司发布 实现jar包时，则要在jar包中META-INF/services/my.xyz.spi.Search文件中写下如下内容</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"> com.B.spi.impl.DatabaseSearch</div><div class="line">package com.xyz.factory;  </div><div class="line">import java.util.Iterator;  </div><div class="line">import java.util.ServiceLoader;  </div><div class="line">import my.xyz.spi.Search;  </div><div class="line">public class SearchFactory &#123;  </div><div class="line">    private SearchFactory() &#123;  </div><div class="line">    &#125;  </div><div class="line">    public static Search newSearch() &#123;  </div><div class="line">        Search search = null;  </div><div class="line">        ServiceLoader&lt;Search&gt; serviceLoader = ServiceLoader.load(Search.class);  </div><div class="line">        Iterator&lt;Search&gt; searchs = serviceLoader.iterator();  </div><div class="line">        if (searchs.hasNext()) &#123;  </div><div class="line">            search = searchs.next();  </div><div class="line">        &#125;  </div><div class="line">        return search;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">package my.xyz.test;  </div><div class="line">import java.util.Iterator;  </div><div class="line">import java.util.ServiceLoader;  </div><div class="line">import com.xyz.factory.SearchFactory;  </div><div class="line">import my.xyz.spi.Search;  </div><div class="line">public class SearchTest &#123;  </div><div class="line">    public static void main(String[] args) &#123;  </div><div class="line">        Search search = SearchFactory.newSearch();  </div><div class="line">        search.serch(&quot;java spi test&quot;);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="JDK-SPI"><a href="#JDK-SPI" class="headerlink" title="JDK SPI"></a>JDK SPI</h4><p><strong>JDK自带的ServiceLoader功能比较弱，只提供了如下几个方法：</strong></p>
-<ul>
-<li><p>reload：清除服务实例缓存，重新加载；</p>
-</li>
-<li><p>iterator:延迟方式加载服务，按配置的顺序生成服务实例；</p>
-</li>
-<li><p>load：从上下文加载器（ContextClassLoader）加载。</p>
-</li>
-<li><p>loadInstalled，系统加载器（SystemClassLoader）优先，没有则从上下文加载器加载。</p>
-</li>
-</ul>
-<p>实际上，JDK自带的ServiceLoader并不能满足开发的需求，例如单例服务，按别名使用指定的服务实现，优先级控制等等。</p>
-<h4 id="Motan-SPI"><a href="#Motan-SPI" class="headerlink" title="Motan SPI"></a>Motan SPI</h4><p>Motan底层模块之间调用也是采用SPI模式（com.weibo.api.motan.core.extension.ExtensionLoader），可以根据配置实现调用不同的服务实例。</p>
-<p><strong>Motan提供了三个注解：</strong></p>
-<p><code>@Spi</code> 声明接口为SPI服务接口；</p>
-<p><code>@Scope</code> 声明单例模式还是多例模式</p>
-<p><code>@Activation</code> 声明服务优先级（sequence值越小越优先调用）、分组查询、以及是否支持重试调用。</p>
-<p><code>@SpiMeta</code>设定服务别名，没配置则用实现类的类名为别名</p>
-<p>ExtensionLoader兼容JDK自带的ServiceLoader，也就是说跟ServiceLoader的配置方式是一样的，在META-INF/services创建服务接口文件，内容为实现类的完整包路径列表。</p>
-<p>实现：<br>ClassLoader.getSystemResources(“”)根据路径获取所有加载的URL</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Enumeration&lt;URL&gt; urls = ClassLoader.getSystemResources(&quot;META-INF/services/com.dempe.spi.Search&quot;);</div></pre></td></tr></table></figure>
-<p>基于上面的注解扩展SPI的语义已经很清晰了，暂时不再深入研究。如果兴趣可co下来淘宝的<a href="https://github.com/alibaba/cooma/wiki" target="_blank" rel="external">Cooma</a>  (Cooma是一个极简、灵活的开源Java微容器（microcontainer）实现。)</p>
-<h4 id="motan的扩展"><a href="#motan的扩展" class="headerlink" title="motan的扩展"></a>motan的扩展</h4><p>motan是一个轻量的RPC框架，同时motan的扩展性也是非常好的，你几乎可以扩展它实现任何你希望RPC框架可以有的能力。</p>
-<p>我们大致看看包含SPI注解的类：</p>
-<p><img src="/images/motan/SPI.png" alt="Alt text"></p>
-<p>我们可以看到基本上在任何地方我们能想到扩展的地方motan都给我们留下了扩展的入口。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Motan源码解读/" class="article-tag-list-link color5">Motan源码解读</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2016-09-19-motan-spi.html">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-
-
-
-
-
-
-
-  
     <article id="post-2016-09-19-motan-clientMessage" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -491,6 +384,113 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2016-09-19-motan-clientMessage.html">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
+    <article id="post-2016-09-19-motan-spi" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016-09-19-motan-spi.html">Motan源码解读-SPI机制</a>
+    </h1>
+  
+
+        
+        <a href="/2016-09-19-motan-spi.html" class="archive-article-date">
+  	<time datetime="2016-09-18T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-09-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。<br>motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。</p>
+<h3 id="SPI机制"><a href="#SPI机制" class="headerlink" title="SPI机制"></a>SPI机制</h3><p>SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceLoader的文档里有比较详细的介绍。简单的总结下java spi机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案，比如日志模块的方案，xml解析模块、jdbc模块的方案等。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。 java spi就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。</p>
+<h3 id="SPI约定"><a href="#SPI约定" class="headerlink" title="SPI约定"></a>SPI约定</h3><p>java spi的具体约定为:当服务的提供者，提供了服务接口的一种实现之后，在jar包的META-INF/services/目录里同时创建一个以服务接口命名的文件。该文件里就是实现该服务接口的具体实现类。而当外部程序装配这个模块的时候，就能通过该jar包META-INF/services/里的配置文件找到具体的实现类名，并装载实例化，完成模块的注入。 基于这样一个约定就能很好的找到服务接口的实现类，而不需要再代码里制定。jdk提供服务实现查找的一个工具类：java.util.ServiceLoader</p>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><ul>
+<li><strong>common-logging</strong><br>apache最早提供的日志的门面接口。只有接口，没有实现。具体方案由各提供商实现， 发现日志提供商是通过扫描 META-INF/services/org.apache.commons.logging.LogFactory配置文件，通过读取该文件的内容找到日志提工商实现类。只要我们的日志实现里包含了这个文件，并在文件里制定 LogFactory工厂接口的实现类即可。</li>
+<li><p><strong>jdbc</strong><br>jdbc4.0以前， 开发人员还需要基于Class.forName(“xxx”)的方式来装载驱动，jdbc4也基于spi的机制来发现驱动提供商了，可以通过META-INF/services/java.sql.Driver文件里指定实现类的方式来暴露驱动提供者。</p>
+</li>
+<li><p><strong>dubbo&amp;motan</strong><br>dubbo和motan也扩展了spi作为框架的主要扩展机制。</p>
+</li>
+</ul>
+<h3 id="使用示例："><a href="#使用示例：" class="headerlink" title="使用示例："></a>使用示例：</h3><p>接口定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">package my.xyz.spi;  </div><div class="line">import java.util.List;  </div><div class="line">public interface Search &#123;  </div><div class="line">   public List serch(String keyword);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>A公司采用文件系统搜索的方式实现了 Search接口，B公司采用了数据库系统的方式实现了Search接口</p>
+<ul>
+<li>A公司实现的类  com.A.spi.impl.FileSearch  </li>
+<li>B公司实现的类  com.B.spi.impl.DatabaseSearch  </li>
+</ul>
+<p>那么A公司发布 实现jar包时，则要在jar包中META-INF/services/my.xyz.spi.Search文件中写下如下内容<br>    com.A.spi.impl.FileSearch<br>那么B公司发布 实现jar包时，则要在jar包中META-INF/services/my.xyz.spi.Search文件中写下如下内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"> com.B.spi.impl.DatabaseSearch</div><div class="line">package com.xyz.factory;  </div><div class="line">import java.util.Iterator;  </div><div class="line">import java.util.ServiceLoader;  </div><div class="line">import my.xyz.spi.Search;  </div><div class="line">public class SearchFactory &#123;  </div><div class="line">    private SearchFactory() &#123;  </div><div class="line">    &#125;  </div><div class="line">    public static Search newSearch() &#123;  </div><div class="line">        Search search = null;  </div><div class="line">        ServiceLoader&lt;Search&gt; serviceLoader = ServiceLoader.load(Search.class);  </div><div class="line">        Iterator&lt;Search&gt; searchs = serviceLoader.iterator();  </div><div class="line">        if (searchs.hasNext()) &#123;  </div><div class="line">            search = searchs.next();  </div><div class="line">        &#125;  </div><div class="line">        return search;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">package my.xyz.test;  </div><div class="line">import java.util.Iterator;  </div><div class="line">import java.util.ServiceLoader;  </div><div class="line">import com.xyz.factory.SearchFactory;  </div><div class="line">import my.xyz.spi.Search;  </div><div class="line">public class SearchTest &#123;  </div><div class="line">    public static void main(String[] args) &#123;  </div><div class="line">        Search search = SearchFactory.newSearch();  </div><div class="line">        search.serch(&quot;java spi test&quot;);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="JDK-SPI"><a href="#JDK-SPI" class="headerlink" title="JDK SPI"></a>JDK SPI</h4><p><strong>JDK自带的ServiceLoader功能比较弱，只提供了如下几个方法：</strong></p>
+<ul>
+<li><p>reload：清除服务实例缓存，重新加载；</p>
+</li>
+<li><p>iterator:延迟方式加载服务，按配置的顺序生成服务实例；</p>
+</li>
+<li><p>load：从上下文加载器（ContextClassLoader）加载。</p>
+</li>
+<li><p>loadInstalled，系统加载器（SystemClassLoader）优先，没有则从上下文加载器加载。</p>
+</li>
+</ul>
+<p>实际上，JDK自带的ServiceLoader并不能满足开发的需求，例如单例服务，按别名使用指定的服务实现，优先级控制等等。</p>
+<h4 id="Motan-SPI"><a href="#Motan-SPI" class="headerlink" title="Motan SPI"></a>Motan SPI</h4><p>Motan底层模块之间调用也是采用SPI模式（com.weibo.api.motan.core.extension.ExtensionLoader），可以根据配置实现调用不同的服务实例。</p>
+<p><strong>Motan提供了三个注解：</strong></p>
+<p><code>@Spi</code> 声明接口为SPI服务接口；</p>
+<p><code>@Scope</code> 声明单例模式还是多例模式</p>
+<p><code>@Activation</code> 声明服务优先级（sequence值越小越优先调用）、分组查询、以及是否支持重试调用。</p>
+<p><code>@SpiMeta</code>设定服务别名，没配置则用实现类的类名为别名</p>
+<p>ExtensionLoader兼容JDK自带的ServiceLoader，也就是说跟ServiceLoader的配置方式是一样的，在META-INF/services创建服务接口文件，内容为实现类的完整包路径列表。</p>
+<p>实现：<br>ClassLoader.getSystemResources(“”)根据路径获取所有加载的URL</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Enumeration&lt;URL&gt; urls = ClassLoader.getSystemResources(&quot;META-INF/services/com.dempe.spi.Search&quot;);</div></pre></td></tr></table></figure>
+<p>基于上面的注解扩展SPI的语义已经很清晰了，暂时不再深入研究。如果兴趣可co下来淘宝的<a href="https://github.com/alibaba/cooma/wiki" target="_blank" rel="external">Cooma</a>  (Cooma是一个极简、灵活的开源Java微容器（microcontainer）实现。)</p>
+<h4 id="motan的扩展"><a href="#motan的扩展" class="headerlink" title="motan的扩展"></a>motan的扩展</h4><p>motan是一个轻量的RPC框架，同时motan的扩展性也是非常好的，你几乎可以扩展它实现任何你希望RPC框架可以有的能力。</p>
+<p>我们大致看看包含SPI注解的类：</p>
+<p><img src="/images/motan/SPI.png" alt="Alt text"></p>
+<p>我们可以看到基本上在任何地方我们能想到扩展的地方motan都给我们留下了扩展的入口。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Motan源码解读/" class="article-tag-list-link color5">Motan源码解读</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2016-09-19-motan-spi.html">展开全文 >></a>
         </p>
       
 
