@@ -1,124 +1,199 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <meta charset="UTF-8">
-  <title>
-    Motan源码解读-Client异步消息 - 
-    郑大侠的博客
-  </title>
-  <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/sidebar.css">
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<title>
+  
+    Motan源码解读-Client异步消息
+  
+</title>
+
+<meta name="description" content="如何设计RPC异步消息？异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？
+既然是异步的，我们有一个首要的问题需要解决：
+
+通常异步调用都是一问一答的模式，一个Request拿到一个Response，如果我们做了异步，怎么把这两个消息对应起来呢？
+
+既然需要对应，那么只有一种思路就是通过一种方式把两者联系起来，所以我们在设计协议的时候必须包含一个messageID，唯一的，这个唯一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Motan源码解读-Client异步消息">
+<meta property="og:url" content="http://code.zhizus.com/2016-09-19-motan-clientMessage.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="如何设计RPC异步消息？异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？
+既然是异步的，我们有一个首要的问题需要解决：
+
+通常异步调用都是一问一答的模式，一个Request拿到一个Response，如果我们做了异步，怎么把这两个消息对应起来呢？
+
+既然需要对应，那么只有一种思路就是通过一种方式把两者联系起来，所以我们在设计协议的时候必须包含一个messageID，唯一的，这个唯一">
+<meta property="og:updated_time" content="2016-09-24T10:06:06.760Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Motan源码解读-Client异步消息">
+<meta name="twitter:description" content="如何设计RPC异步消息？异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？
+既然是异步的，我们有一个首要的问题需要解决：
+
+通常异步调用都是一问一答的模式，一个Request拿到一个Response，如果我们做了异步，怎么把这两个消息对应起来呢？
+
+既然需要对应，那么只有一种思路就是通过一种方式把两者联系起来，所以我们在设计协议的时候必须包含一个messageID，唯一的，这个唯一">
+
+
+  <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
+
+
+
+  <link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="/perfect-scrollbar/css/perfect-scrollbar.min.css">
+<link rel="stylesheet" href="/styles/main.css">
+
+
+
+
+
+
 </head>
-
-<body>
-  <div class="wrap">
-
-    <div class="sidebar">
+<body
   
-  <div class="face">
-    <div img-src=""></div>
-  </div>
-
-  <h1 class="author">DempeZheng</h1>
-  <p class="desc">請更固執，將自己謀生與擅長的事情做到最好</p>
+    class="monochrome"
   
-  
-  
-  
-  
-  
-  
-  
-  <div class="pages">
-    <a class="" href="/about-me">ABOUT ME</a>
-    <a class="" href="/links">LINKS</a>
-  </div>
-  
-  <div class="categories">
-  
-    
-    
-    <a class="" href="/">All Categories</a>
-    
-    
-      
-      
-      
-      
-      
-      
-      
-        
-      
-    
-      <a class="" href="/categories/并发编程/">并发编程</a>
-      
-    
-      
-      
-      
-      
-      
-      
-      
-        
-          
-        
-      
-    
-      <a class="active" href="/categories/Motan源码解读/">Motan源码解读</a>
-      
-    
-      
-      
-      
-      
-      
-      
-      
-        
-      
-    
-      <a class="" href="/categories/IM开发日记/">IM开发日记</a>
-      
-    
-      
-      
-      
-      
-      
-      
-      
-        
-      
-    
-      <a class="" href="/categories/cache/">cache</a>
-      
-    
-  </div>
-
-  
-  
-  <div class="sns">
-    
-  </div>
-  
-  <script src="/js/jquery.min.js"></script>
-  <script src="/js/sidebar.js"></script>
-  
+  >
+  <div class="mobile-header">
+  <button class="sidebar-toggle" type="button">
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+  <a class="title" href="/">郑大侠的博客</a>
 </div>
+
+  <div class="main-container">
+    <div class="sidebar">
+  <div class="header">
+    <h1 class="title"><a href="/">郑大侠的博客</a></h1>
     
-    <link rel="stylesheet" href="/css/post.css">
-    <link rel="stylesheet" href="/css/markdown.css">
-    <link rel="stylesheet" href="/css/highlight/print-code.css">
+      <p class="subtitle">
+        DempeZheng&#39;S Blog
+      </p>
     
-    <div class="main">
-      <div class="post">
-        <h1>Motan源码解读-Client异步消息</h1>
-        <h2>2016-9-19</h2>
-        <hr>
-        <div class="content markdown"><h3 id="如何设计RPC异步消息？"><a href="#如何设计RPC异步消息？" class="headerlink" title="如何设计RPC异步消息？"></a>如何设计RPC异步消息？</h3><p>异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？</p>
+    <div class="info">
+      <div class="content">
+        
+          <div class="description">請更固執，將自己謀生與擅長的事情做到最好</div>
+        
+        
+          <div class="author">DempeZheng</div>
+        
+      </div>
+      
+        <div class="avatar">
+          
+            <a href="/about"><img src="https://cn.gravatar.com/avatar/35fef74d731255cd569c2c2b0b9e87e4?s=200"></a>
+          
+        </div>
+      
+    </div>
+  </div>
+  <div class="body">
+    
+      
+        <ul class="nav">
+          
+            
+              <li class="category-list-container">
+                <a href="javascript:;">Category</a>
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/IM开发日记/">IM开发日记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/cache/">cache</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发编程/">并发编程</a><span class="category-list-count">1</span></li></ul>
+              </li>
+            
+          
+            
+              <li class="tag-list-container">
+                <a href="javascript:;">Tag</a>
+                
+              </li>
+            
+          
+            
+              <li class="archive-list-container">
+                <a href="javascript:;">Archive</a>
+                <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/">2016</a><span class="archive-list-count">15</span></li></ul>
+              </li>
+            
+          
+        </ul>
+      
+        <ul class="nav">
+          
+            
+              <li>
+                <a href="/" title="Homepage">Homepage</a>
+              </li>
+            
+          
+            
+              <li>
+                <a href="/archives" title="By Year">By Year</a>
+              </li>
+            
+          
+        </ul>
+      
+        <ul class="nav">
+          
+            
+              <li>
+                <a href="https://github.com/denjones/hexo-theme-chan" title="Chan" target="_blank" rel="external">Chan</a>
+              </li>
+            
+          
+            
+              <li>
+                <a href="https://github.com/denjones" title="Github" target="_blank" rel="external">Github</a>
+              </li>
+            
+          
+            
+              <li>
+                <a href="/atom.xml" title="RSS">RSS</a>
+              </li>
+            
+          
+        </ul>
+      
+    
+  </div>
+</div>
+
+    <div class="main-content">
+      
+        <div style="max-width: 1000px">
+      
+          <article id="post-2016-09-19-motan-clientMessage" class="article article-type-post">
+  
+    <h1 class="article-header">
+      Motan源码解读-Client异步消息
+    </h1>
+  
+  
+
+  <div class="article-info">
+    <span class="article-date">
+  2016-09-19
+</span>
+
+    
+	<span class="article-category tagcloud">
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a></li></ul>
+	</span>
+
+
+    
+
+  </div>
+  <div class="article-entry">
+    <h3 id="如何设计RPC异步消息？"><a href="#如何设计RPC异步消息？" class="headerlink" title="如何设计RPC异步消息？"></a>如何设计RPC异步消息？</h3><p>异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？</p>
 <p>既然是异步的，我们有一个首要的问题需要解决：</p>
 <blockquote>
 <p>通常异步调用都是一问一答的模式，一个Request拿到一个Response，如果我们做了异步，怎么把这两个消息对应起来呢？</p>
@@ -171,17 +246,120 @@
 <p>但是要实现一个靠谱的RPC框架，<code>一定要注意存放消息id和请求Request上下文映射的map特殊情况的内存释放问题</code>。而且这个map最好是线程安全的，一般rpc都会用到多线程。</p>
 <p>最后，还有值得关注的地方：</p>
 <p>实现一个完善的RPC框架，<code>能否有效的各种情况的异常透传到客户端</code>还是一个很重要的议题（用过公司的某个rpc，不管什么异常都是TimeoutException，联调接口时，如果出问题只能跪求别人查日志…），虽然本文没有讨论，但是有兴趣的可以好好研究一下motan在这一块的设计。<br>不过后续可能也会写对应的文章，好好探讨rpc异常设计和传递。</p>
-<div>
-        <div id="disqus_thread"></div>
-      </div>
-    </div>
 
   </div>
-  
-  <script src="/js/jquery.min.js"></script>
-  <script src="/js/post.js"></script>
-  <script src="/js/markdown.js"></script>
-  <script src="//undefined.disqus.com/embed.js"></script>
+  <footer class="article-footer">
     
+  <div class="cc">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/deed.z" target="_blank" title="Attribution-ShareAlike">
+      <img src="/images/cc/cc.png">
+      
+          <img src="/images/cc/by.png">
+        
+          <img src="/images/cc/sa.png">
+      
+      <span>
+        This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+      </span>
+    </a>
+  </div>
+
+
+    
+
+  </footer>
+</article>
+
+
+
+
+
+
+
+          <div class="main-footer">
+  
+    © 2017 郑大侠的博客 - Powered by <a href="http://hexo.io" target="_blank">Hexo</a> - Theme <a href="https://github.com/denjones/hexo-theme-chan" target="_blank">Chan</a>
+  
+</div>
+
+      
+        </div>
+      
+    </div>
+  </div>
+  <script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+  <link rel="stylesheet" href="/PhotoSwipe/photoswipe.css">
+  <link rel="stylesheet" href="/PhotoSwipe/default-skin/default-skin.css">
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+             It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+      <!-- Container that holds slides.
+                PhotoSwipe keeps only 3 of them in the DOM to save memory.
+                Don't modify these 3 pswp__item elements, data is added later on. -->
+      <div class="pswp__container">
+        <div class="pswp__item"></div>
+        <div class="pswp__item"></div>
+        <div class="pswp__item"></div>
+      </div>
+
+      <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+      <div class="pswp__ui pswp__ui--hidden">
+
+        <div class="pswp__top-bar">
+
+          <!--  Controls are self-explanatory. Order can be changed. -->
+
+          <div class="pswp__counter"></div>
+
+          <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+          <button class="pswp__button pswp__button--share" title="Share"></button>
+
+          <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+          <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+          <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+          <!-- element will get class pswp__preloader--active when preloader is running -->
+          <div class="pswp__preloader">
+            <div class="pswp__preloader__icn">
+              <div class="pswp__preloader__cut">
+                <div class="pswp__preloader__donut"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+          <div class="pswp__share-tooltip"></div>
+        </div>
+
+        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+
+        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+
+        <div class="pswp__caption">
+          <div class="pswp__caption__center"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/PhotoSwipe/photoswipe.js"></script>
+  <script src="/PhotoSwipe/photoswipe-ui-default.js"></script>
+
+
+<script src="/perfect-scrollbar/js/min/perfect-scrollbar.min.js"></script>
+<script src="/scripts/main.js"></script>
+
 </body>
 </html>

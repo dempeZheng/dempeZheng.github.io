@@ -1,124 +1,189 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <meta charset="UTF-8">
-  <title>
-    Motan源码解读-SPI机制 - 
-    郑大侠的博客
-  </title>
-  <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/sidebar.css">
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<title>
+  
+    Motan源码解读-SPI机制
+  
+</title>
+
+<meta name="description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
+SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Motan源码解读-SPI机制">
+<meta property="og:url" content="http://code.zhizus.com/2016-09-19-motan-spi.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
+SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
+<meta property="og:image" content="http://code.zhizus.com/images/motan/SPI.png">
+<meta property="og:updated_time" content="2016-09-25T05:54:49.159Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Motan源码解读-SPI机制">
+<meta name="twitter:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
+SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
+<meta name="twitter:image" content="http://code.zhizus.com/images/motan/SPI.png">
+
+
+  <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
+
+
+
+  <link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="/perfect-scrollbar/css/perfect-scrollbar.min.css">
+<link rel="stylesheet" href="/styles/main.css">
+
+
+
+
+
+
 </head>
-
-<body>
-  <div class="wrap">
-
-    <div class="sidebar">
+<body
   
-  <div class="face">
-    <div img-src=""></div>
-  </div>
-
-  <h1 class="author">DempeZheng</h1>
-  <p class="desc">請更固執，將自己謀生與擅長的事情做到最好</p>
+    class="monochrome"
   
-  
-  
-  
-  
-  
-  
-  
-  <div class="pages">
-    <a class="" href="/about-me">ABOUT ME</a>
-    <a class="" href="/links">LINKS</a>
-  </div>
-  
-  <div class="categories">
-  
-    
-    
-    <a class="" href="/">All Categories</a>
-    
-    
-      
-      
-      
-      
-      
-      
-      
-        
-      
-    
-      <a class="" href="/categories/并发编程/">并发编程</a>
-      
-    
-      
-      
-      
-      
-      
-      
-      
-        
-          
-        
-      
-    
-      <a class="active" href="/categories/Motan源码解读/">Motan源码解读</a>
-      
-    
-      
-      
-      
-      
-      
-      
-      
-        
-      
-    
-      <a class="" href="/categories/IM开发日记/">IM开发日记</a>
-      
-    
-      
-      
-      
-      
-      
-      
-      
-        
-      
-    
-      <a class="" href="/categories/cache/">cache</a>
-      
-    
-  </div>
-
-  
-  
-  <div class="sns">
-    
-  </div>
-  
-  <script src="/js/jquery.min.js"></script>
-  <script src="/js/sidebar.js"></script>
-  
+  >
+  <div class="mobile-header">
+  <button class="sidebar-toggle" type="button">
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+  <a class="title" href="/">郑大侠的博客</a>
 </div>
+
+  <div class="main-container">
+    <div class="sidebar">
+  <div class="header">
+    <h1 class="title"><a href="/">郑大侠的博客</a></h1>
     
-    <link rel="stylesheet" href="/css/post.css">
-    <link rel="stylesheet" href="/css/markdown.css">
-    <link rel="stylesheet" href="/css/highlight/print-code.css">
+      <p class="subtitle">
+        DempeZheng&#39;S Blog
+      </p>
     
-    <div class="main">
-      <div class="post">
-        <h1>Motan源码解读-SPI机制</h1>
-        <h2>2016-9-19</h2>
-        <hr>
-        <div class="content markdown"><p>SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。<br>motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。</p>
+    <div class="info">
+      <div class="content">
+        
+          <div class="description">請更固執，將自己謀生與擅長的事情做到最好</div>
+        
+        
+          <div class="author">DempeZheng</div>
+        
+      </div>
+      
+        <div class="avatar">
+          
+            <a href="/about"><img src="https://cn.gravatar.com/avatar/35fef74d731255cd569c2c2b0b9e87e4?s=200"></a>
+          
+        </div>
+      
+    </div>
+  </div>
+  <div class="body">
+    
+      
+        <ul class="nav">
+          
+            
+              <li class="category-list-container">
+                <a href="javascript:;">Category</a>
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/IM开发日记/">IM开发日记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/cache/">cache</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发编程/">并发编程</a><span class="category-list-count">1</span></li></ul>
+              </li>
+            
+          
+            
+              <li class="tag-list-container">
+                <a href="javascript:;">Tag</a>
+                
+              </li>
+            
+          
+            
+              <li class="archive-list-container">
+                <a href="javascript:;">Archive</a>
+                <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/">2016</a><span class="archive-list-count">15</span></li></ul>
+              </li>
+            
+          
+        </ul>
+      
+        <ul class="nav">
+          
+            
+              <li>
+                <a href="/" title="Homepage">Homepage</a>
+              </li>
+            
+          
+            
+              <li>
+                <a href="/archives" title="By Year">By Year</a>
+              </li>
+            
+          
+        </ul>
+      
+        <ul class="nav">
+          
+            
+              <li>
+                <a href="https://github.com/denjones/hexo-theme-chan" title="Chan" target="_blank" rel="external">Chan</a>
+              </li>
+            
+          
+            
+              <li>
+                <a href="https://github.com/denjones" title="Github" target="_blank" rel="external">Github</a>
+              </li>
+            
+          
+            
+              <li>
+                <a href="/atom.xml" title="RSS">RSS</a>
+              </li>
+            
+          
+        </ul>
+      
+    
+  </div>
+</div>
+
+    <div class="main-content">
+      
+        <div style="max-width: 1000px">
+      
+          <article id="post-2016-09-19-motan-spi" class="article article-type-post">
+  
+    <h1 class="article-header">
+      Motan源码解读-SPI机制
+    </h1>
+  
+  
+
+  <div class="article-info">
+    <span class="article-date">
+  2016-09-19
+</span>
+
+    
+	<span class="article-category tagcloud">
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a></li></ul>
+	</span>
+
+
+    
+
+  </div>
+  <div class="article-entry">
+    <p>SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。<br>motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。</p>
 <h3 id="SPI机制"><a href="#SPI机制" class="headerlink" title="SPI机制"></a>SPI机制</h3><p>SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceLoader的文档里有比较详细的介绍。简单的总结下java spi机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案，比如日志模块的方案，xml解析模块、jdbc模块的方案等。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。 java spi就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。</p>
 <h3 id="SPI约定"><a href="#SPI约定" class="headerlink" title="SPI约定"></a>SPI约定</h3><p>java spi的具体约定为:当服务的提供者，提供了服务接口的一种实现之后，在jar包的META-INF/services/目录里同时创建一个以服务接口命名的文件。该文件里就是实现该服务接口的具体实现类。而当外部程序装配这个模块的时候，就能通过该jar包META-INF/services/里的配置文件找到具体的实现类名，并装载实例化，完成模块的注入。 基于这样一个约定就能很好的找到服务接口的实现类，而不需要再代码里制定。jdk提供服务实现查找的一个工具类：java.util.ServiceLoader</p>
 <h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><ul>
@@ -164,17 +229,120 @@
 <p>我们大致看看包含SPI注解的类：</p>
 <p><img src="/images/motan/SPI.png" alt="Alt text"></p>
 <p>我们可以看到基本上在任何地方我们能想到扩展的地方motan都给我们留下了扩展的入口。</p>
-<div>
-        <div id="disqus_thread"></div>
-      </div>
-    </div>
 
   </div>
-  
-  <script src="/js/jquery.min.js"></script>
-  <script src="/js/post.js"></script>
-  <script src="/js/markdown.js"></script>
-  <script src="//undefined.disqus.com/embed.js"></script>
+  <footer class="article-footer">
     
+  <div class="cc">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/deed.z" target="_blank" title="Attribution-ShareAlike">
+      <img src="/images/cc/cc.png">
+      
+          <img src="/images/cc/by.png">
+        
+          <img src="/images/cc/sa.png">
+      
+      <span>
+        This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+      </span>
+    </a>
+  </div>
+
+
+    
+
+  </footer>
+</article>
+
+
+
+
+
+
+
+          <div class="main-footer">
+  
+    © 2017 郑大侠的博客 - Powered by <a href="http://hexo.io" target="_blank">Hexo</a> - Theme <a href="https://github.com/denjones/hexo-theme-chan" target="_blank">Chan</a>
+  
+</div>
+
+      
+        </div>
+      
+    </div>
+  </div>
+  <script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+  <link rel="stylesheet" href="/PhotoSwipe/photoswipe.css">
+  <link rel="stylesheet" href="/PhotoSwipe/default-skin/default-skin.css">
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+             It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+      <!-- Container that holds slides.
+                PhotoSwipe keeps only 3 of them in the DOM to save memory.
+                Don't modify these 3 pswp__item elements, data is added later on. -->
+      <div class="pswp__container">
+        <div class="pswp__item"></div>
+        <div class="pswp__item"></div>
+        <div class="pswp__item"></div>
+      </div>
+
+      <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+      <div class="pswp__ui pswp__ui--hidden">
+
+        <div class="pswp__top-bar">
+
+          <!--  Controls are self-explanatory. Order can be changed. -->
+
+          <div class="pswp__counter"></div>
+
+          <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+          <button class="pswp__button pswp__button--share" title="Share"></button>
+
+          <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+          <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+          <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+          <!-- element will get class pswp__preloader--active when preloader is running -->
+          <div class="pswp__preloader">
+            <div class="pswp__preloader__icn">
+              <div class="pswp__preloader__cut">
+                <div class="pswp__preloader__donut"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+          <div class="pswp__share-tooltip"></div>
+        </div>
+
+        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+
+        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+
+        <div class="pswp__caption">
+          <div class="pswp__caption__center"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/PhotoSwipe/photoswipe.js"></script>
+  <script src="/PhotoSwipe/photoswipe-ui-default.js"></script>
+
+
+<script src="/perfect-scrollbar/js/min/perfect-scrollbar.min.js"></script>
+<script src="/scripts/main.js"></script>
+
 </body>
 </html>

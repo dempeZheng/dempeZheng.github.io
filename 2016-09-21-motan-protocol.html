@@ -1,124 +1,189 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <meta charset="UTF-8">
-  <title>
-    Motan源码解读-Protocol - 
-    郑大侠的博客
-  </title>
-  <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/sidebar.css">
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<title>
+  
+    Motan源码解读-Protocol
+  
+</title>
+
+<meta name="description" content="protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
+1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface Protocol &amp;#123;    /**     * 暴露服务     *      * @par">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Motan源码解读-Protocol">
+<meta property="og:url" content="http://code.zhizus.com/2016-09-21-motan-protocol.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
+1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface Protocol &amp;#123;    /**     * 暴露服务     *      * @par">
+<meta property="og:image" content="http://code.zhizus.com/images/motan/Protocol.png">
+<meta property="og:updated_time" content="2016-09-25T05:54:49.126Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Motan源码解读-Protocol">
+<meta name="twitter:description" content="protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
+1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface Protocol &amp;#123;    /**     * 暴露服务     *      * @par">
+<meta name="twitter:image" content="http://code.zhizus.com/images/motan/Protocol.png">
+
+
+  <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
+
+
+
+  <link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="/perfect-scrollbar/css/perfect-scrollbar.min.css">
+<link rel="stylesheet" href="/styles/main.css">
+
+
+
+
+
+
 </head>
-
-<body>
-  <div class="wrap">
-
-    <div class="sidebar">
+<body
   
-  <div class="face">
-    <div img-src=""></div>
-  </div>
-
-  <h1 class="author">DempeZheng</h1>
-  <p class="desc">請更固執，將自己謀生與擅長的事情做到最好</p>
+    class="monochrome"
   
-  
-  
-  
-  
-  
-  
-  
-  <div class="pages">
-    <a class="" href="/about-me">ABOUT ME</a>
-    <a class="" href="/links">LINKS</a>
-  </div>
-  
-  <div class="categories">
-  
-    
-    
-    <a class="" href="/">All Categories</a>
-    
-    
-      
-      
-      
-      
-      
-      
-      
-        
-      
-    
-      <a class="" href="/categories/并发编程/">并发编程</a>
-      
-    
-      
-      
-      
-      
-      
-      
-      
-        
-          
-        
-      
-    
-      <a class="active" href="/categories/Motan源码解读/">Motan源码解读</a>
-      
-    
-      
-      
-      
-      
-      
-      
-      
-        
-      
-    
-      <a class="" href="/categories/IM开发日记/">IM开发日记</a>
-      
-    
-      
-      
-      
-      
-      
-      
-      
-        
-      
-    
-      <a class="" href="/categories/cache/">cache</a>
-      
-    
-  </div>
-
-  
-  
-  <div class="sns">
-    
-  </div>
-  
-  <script src="/js/jquery.min.js"></script>
-  <script src="/js/sidebar.js"></script>
-  
+  >
+  <div class="mobile-header">
+  <button class="sidebar-toggle" type="button">
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+  <a class="title" href="/">郑大侠的博客</a>
 </div>
+
+  <div class="main-container">
+    <div class="sidebar">
+  <div class="header">
+    <h1 class="title"><a href="/">郑大侠的博客</a></h1>
     
-    <link rel="stylesheet" href="/css/post.css">
-    <link rel="stylesheet" href="/css/markdown.css">
-    <link rel="stylesheet" href="/css/highlight/print-code.css">
+      <p class="subtitle">
+        DempeZheng&#39;S Blog
+      </p>
     
-    <div class="main">
-      <div class="post">
-        <h1>Motan源码解读-Protocol</h1>
-        <h2>2016-9-21</h2>
-        <hr>
-        <div class="content markdown"><p>protocol可以说是motan最重要的部分之一。<br>暴露一个服务引用一个服务都是在这块实现的。</p>
+    <div class="info">
+      <div class="content">
+        
+          <div class="description">請更固執，將自己謀生與擅長的事情做到最好</div>
+        
+        
+          <div class="author">DempeZheng</div>
+        
+      </div>
+      
+        <div class="avatar">
+          
+            <a href="/about"><img src="https://cn.gravatar.com/avatar/35fef74d731255cd569c2c2b0b9e87e4?s=200"></a>
+          
+        </div>
+      
+    </div>
+  </div>
+  <div class="body">
+    
+      
+        <ul class="nav">
+          
+            
+              <li class="category-list-container">
+                <a href="javascript:;">Category</a>
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/IM开发日记/">IM开发日记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/cache/">cache</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发编程/">并发编程</a><span class="category-list-count">1</span></li></ul>
+              </li>
+            
+          
+            
+              <li class="tag-list-container">
+                <a href="javascript:;">Tag</a>
+                
+              </li>
+            
+          
+            
+              <li class="archive-list-container">
+                <a href="javascript:;">Archive</a>
+                <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/">2016</a><span class="archive-list-count">15</span></li></ul>
+              </li>
+            
+          
+        </ul>
+      
+        <ul class="nav">
+          
+            
+              <li>
+                <a href="/" title="Homepage">Homepage</a>
+              </li>
+            
+          
+            
+              <li>
+                <a href="/archives" title="By Year">By Year</a>
+              </li>
+            
+          
+        </ul>
+      
+        <ul class="nav">
+          
+            
+              <li>
+                <a href="https://github.com/denjones/hexo-theme-chan" title="Chan" target="_blank" rel="external">Chan</a>
+              </li>
+            
+          
+            
+              <li>
+                <a href="https://github.com/denjones" title="Github" target="_blank" rel="external">Github</a>
+              </li>
+            
+          
+            
+              <li>
+                <a href="/atom.xml" title="RSS">RSS</a>
+              </li>
+            
+          
+        </ul>
+      
+    
+  </div>
+</div>
+
+    <div class="main-content">
+      
+        <div style="max-width: 1000px">
+      
+          <article id="post-2016-09-21-motan-protocol" class="article article-type-post">
+  
+    <h1 class="article-header">
+      Motan源码解读-Protocol
+    </h1>
+  
+  
+
+  <div class="article-info">
+    <span class="article-date">
+  2016-09-21
+</span>
+
+    
+	<span class="article-category tagcloud">
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a></li></ul>
+	</span>
+
+
+    
+
+  </div>
+  <div class="article-entry">
+    <p>protocol可以说是motan最重要的部分之一。<br>暴露一个服务引用一个服务都是在这块实现的。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Spi</span>(scope = Scope.SINGLETON)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Protocol</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 暴露服务</div><div class="line">     * </div><div class="line">     * <span class="doctag">@param</span> &lt;T&gt;</div><div class="line">     * <span class="doctag">@param</span> provider</div><div class="line">     * <span class="doctag">@param</span> url</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    &lt;T&gt; <span class="function">Exporter&lt;T&gt; <span class="title">export</span><span class="params">(Provider&lt;T&gt; provider, URL url)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 引用服务</div><div class="line">     * </div><div class="line">     * <span class="doctag">@param</span> &lt;T&gt;</div><div class="line">     * <span class="doctag">@param</span> clz</div><div class="line">     * <span class="doctag">@param</span> url</div><div class="line">     * <span class="doctag">@param</span> serviceUrl</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    &lt;T&gt; <span class="function">Referer&lt;T&gt; <span class="title">refer</span><span class="params">(Class&lt;T&gt; clz, URL url, URL serviceUrl)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * &lt;pre&gt;</div><div class="line">	 * 		1） exporter destroy</div><div class="line">	 * 		2） referer destroy</div><div class="line">	 * &lt;/pre&gt;</div><div class="line">     * </div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <ul>
 <li>Provider</li>
@@ -152,17 +217,120 @@
 <p>ProviderMessageRouter：这个类也比较核心，call方法处理了Server消息路由调用的逻辑，handle方法理了心跳的逻辑</p>
 <hr>
 <p>后记：看到这里，觉得motan真心不错，虽然功能算不上丰富，但是处处留了扩展的入口。所以还在纠结要不要用motan的可以不用纠结了，即便你需要的功能motan没有覆盖到，<br>但是你多半也可以扩展去改造它。</p>
-<div>
-        <div id="disqus_thread"></div>
-      </div>
-    </div>
 
   </div>
-  
-  <script src="/js/jquery.min.js"></script>
-  <script src="/js/post.js"></script>
-  <script src="/js/markdown.js"></script>
-  <script src="//undefined.disqus.com/embed.js"></script>
+  <footer class="article-footer">
     
+  <div class="cc">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/deed.z" target="_blank" title="Attribution-ShareAlike">
+      <img src="/images/cc/cc.png">
+      
+          <img src="/images/cc/by.png">
+        
+          <img src="/images/cc/sa.png">
+      
+      <span>
+        This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+      </span>
+    </a>
+  </div>
+
+
+    
+
+  </footer>
+</article>
+
+
+
+
+
+
+
+          <div class="main-footer">
+  
+    © 2017 郑大侠的博客 - Powered by <a href="http://hexo.io" target="_blank">Hexo</a> - Theme <a href="https://github.com/denjones/hexo-theme-chan" target="_blank">Chan</a>
+  
+</div>
+
+      
+        </div>
+      
+    </div>
+  </div>
+  <script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+  <link rel="stylesheet" href="/PhotoSwipe/photoswipe.css">
+  <link rel="stylesheet" href="/PhotoSwipe/default-skin/default-skin.css">
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+             It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+      <!-- Container that holds slides.
+                PhotoSwipe keeps only 3 of them in the DOM to save memory.
+                Don't modify these 3 pswp__item elements, data is added later on. -->
+      <div class="pswp__container">
+        <div class="pswp__item"></div>
+        <div class="pswp__item"></div>
+        <div class="pswp__item"></div>
+      </div>
+
+      <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+      <div class="pswp__ui pswp__ui--hidden">
+
+        <div class="pswp__top-bar">
+
+          <!--  Controls are self-explanatory. Order can be changed. -->
+
+          <div class="pswp__counter"></div>
+
+          <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+          <button class="pswp__button pswp__button--share" title="Share"></button>
+
+          <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+          <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+          <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+          <!-- element will get class pswp__preloader--active when preloader is running -->
+          <div class="pswp__preloader">
+            <div class="pswp__preloader__icn">
+              <div class="pswp__preloader__cut">
+                <div class="pswp__preloader__donut"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+          <div class="pswp__share-tooltip"></div>
+        </div>
+
+        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+
+        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+
+        <div class="pswp__caption">
+          <div class="pswp__caption__center"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/PhotoSwipe/photoswipe.js"></script>
+  <script src="/PhotoSwipe/photoswipe-ui-default.js"></script>
+
+
+<script src="/perfect-scrollbar/js/min/perfect-scrollbar.min.js"></script>
+<script src="/scripts/main.js"></script>
+
 </body>
 </html>
