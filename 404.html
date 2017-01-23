@@ -25,7 +25,7 @@
 
 
 
- <link href="/themes/tranquil-heart.min.css" type="text/css" rel="stylesheet" />
+
 
   
   
@@ -121,6 +121,7 @@
      | 郑大侠的博客
   
 </title>
+   <link href="/themes/tranquil-heart.min.css" type="text/css" rel="stylesheet" />
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -412,11 +413,6 @@
   <span class="author" itemprop="copyrightHolder">DempeZheng</span>
 </div>
 
-<script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
-$(window).load(function(){
- $('pre').addClass('prettyprint linenums').attr('style', 'overflow:auto;');
-   prettyPrint();
- })
 
         
 
@@ -634,6 +630,15 @@ $(window).load(function(){
 
 
   
+
+  <script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript">
+     $("pre").addClass("prettyprint");
+     $("pre").addClass("linenums");
+     $("pre").addClass("lang-html");
+     $("pre").addClass("prettyprinted");
+     prettyPrint();
+  </script>
 
 </body>
 </html>

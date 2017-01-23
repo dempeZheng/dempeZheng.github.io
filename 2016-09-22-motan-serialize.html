@@ -25,7 +25,7 @@
 
 
 
- <link href="/themes/tranquil-heart.min.css" type="text/css" rel="stylesheet" />
+
 
   
   
@@ -133,6 +133,7 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
 
 
   <title> Motan源码解读-serialize | 郑大侠的博客 </title>
+   <link href="/themes/tranquil-heart.min.css" type="text/css" rel="stylesheet" />
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -431,16 +432,16 @@ public interface Serialization {
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-hastratege.html" rel="next" title="Motan源码解读-容错策略">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-容错策略
+              <a href="/2016-09-21-motan-override.html" rel="next" title="Motan源码解读-源码结构">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-源码结构
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-23-motan-rpc.html" rel="prev" title="深入浅出Motan RPC">
-                深入浅出Motan RPC <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-23-motan-codec.html" rel="prev" title="Motan源码解读-codec">
+                Motan源码解读-codec <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -621,11 +622,6 @@ public interface Serialization {
   <span class="author" itemprop="copyrightHolder">DempeZheng</span>
 </div>
 
-<script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
-$(window).load(function(){
- $('pre').addClass('prettyprint linenums').attr('style', 'overflow:auto;');
-   prettyPrint();
- })
 
         
 
@@ -847,6 +843,15 @@ $(window).load(function(){
 
 
   
+
+  <script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+  <script type="text/javascript">
+     $("pre").addClass("prettyprint");
+     $("pre").addClass("linenums");
+     $("pre").addClass("lang-html");
+     $("pre").addClass("prettyprinted");
+     prettyPrint();
+  </script>
 
 </body>
 </html>
