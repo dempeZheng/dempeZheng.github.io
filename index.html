@@ -80,14 +80,15 @@
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-11-05guava-cache-info.html" title="Guava Cache使用示例" itemprop="url">
+    <a href="/2017-01-21newyear.html" title="Guava Cache使用示例" itemprop="url">
   
     <h1 itemprop="name">Guava Cache使用示例</h1>
     
      
-           <p itemprop="description" >guava cache usage1.使用场景
-缓存在很多场景下都是相当有用的。例如，计算或检索一个值的代价很高，并且对同样的输入需要不止一次获取值的时候，就应当考虑使用缓存。
-Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区别是Concurr</p>
+           <p itemprop="description" >test LoadingCache&amp;lt;String, String&amp;gt; cache;
+    cache = CacheBuilder
+            .newBuilder()
+            .refreshAfterWrite(4L, TimeUni</p>
         
     
     <time datetime="2016-11-04T16:00:00.000Z" itemprop="datePublished">2016-11-05</time>
@@ -102,15 +103,14 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2017-01-21newyear.html" title="Guava Cache使用示例" itemprop="url">
+    <a href="/2016-11-05guava-cache-info.html" title="Guava Cache使用示例" itemprop="url">
   
     <h1 itemprop="name">Guava Cache使用示例</h1>
     
      
-           <p itemprop="description" >test LoadingCache&amp;lt;String, String&amp;gt; cache;
-    cache = CacheBuilder
-            .newBuilder()
-            .refreshAfterWrite(4L, TimeUni</p>
+           <p itemprop="description" >guava cache usage1.使用场景
+缓存在很多场景下都是相当有用的。例如，计算或检索一个值的代价很高，并且对同样的输入需要不止一次获取值的时候，就应当考虑使用缓存。
+Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区别是Concurr</p>
         
     
     <time datetime="2016-11-04T16:00:00.000Z" itemprop="datePublished">2016-11-05</time>
@@ -150,20 +150,13 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-23-motan-rpc.html" title="深入浅出Motan RPC" itemprop="url">
+    <a href="/2016-09-23-motan-codec.html" title="Motan源码解读-codec" itemprop="url">
   
-    <h1 itemprop="name">深入浅出Motan RPC</h1>
+    <h1 itemprop="name">Motan源码解读-codec</h1>
     
      
-           <p itemprop="description" >深入浅出Motan RPC
-目录
-
-TOC{:toc}
-
-motan写在前面本系列文章假设你已经阅读过motan的官方wiki，对motan或者dubbo有一定的了解。对于没有读过wiki的请先阅读官方wiki。
-
-
-Motan是一套基于java开发的RPC框架，除了常规的点对点</p>
+           <p itemprop="description" >motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
+dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目</p>
         
     
     <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished">2016-09-23</time>
@@ -178,13 +171,20 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点</p>
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-23-motan-codec.html" title="Motan源码解读-codec" itemprop="url">
+    <a href="/2016-09-23-motan-rpc.html" title="深入浅出Motan RPC" itemprop="url">
   
-    <h1 itemprop="name">Motan源码解读-codec</h1>
+    <h1 itemprop="name">深入浅出Motan RPC</h1>
     
      
-           <p itemprop="description" >motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
-dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目</p>
+           <p itemprop="description" >深入浅出Motan RPC
+目录
+
+TOC{:toc}
+
+motan写在前面本系列文章假设你已经阅读过motan的官方wiki，对motan或者dubbo有一定的了解。对于没有读过wiki的请先阅读官方wiki。
+
+
+Motan是一套基于java开发的RPC框架，除了常规的点对点</p>
         
     
     <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished">2016-09-23</time>
@@ -222,32 +222,6 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-21-motan-hastratege.html" title="Motan源码解读-容错策略" itemprop="url">
-  
-    <h1 itemprop="name">Motan源码解读-容错策略</h1>
-    
-     
-           <p itemprop="description" >Motan的容错策略
-Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
-
-
-Failover 失效切换（缺省）
-
-&amp;lt;motan:protocol ... </p>
-        
-    
-    <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
     <a href="/2016-09-21-motan-filter.html" title="Motan源码解读-Filter" itemprop="url">
   
     <h1 itemprop="name">Motan源码解读-Filter</h1>
@@ -255,30 +229,6 @@ Failover 失效切换（缺省）
      
            <p itemprop="description" >很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
 motan filter：目前实现的filter</p>
-        
-    
-    <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2016-09-21-motan-override.html" title="Motan源码解读-源码结构" itemprop="url">
-  
-    <h1 itemprop="name">Motan源码解读-源码结构</h1>
-    
-     
-           <p itemprop="description" >旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
-motan包结构motan-benchmark // 压测相关
-motan-core    //motan核心代码，也是源码解析的主要包
-motan-demo    // 示例，快速上手的最佳方法
-motan-ex</p>
         
     
     <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
@@ -305,6 +255,56 @@ public interface Protocol {
      * 暴露服务
      * 
      *</p>
+        
+    
+    <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016-09-21-motan-hastratege.html" title="Motan源码解读-容错策略" itemprop="url">
+  
+    <h1 itemprop="name">Motan源码解读-容错策略</h1>
+    
+     
+           <p itemprop="description" >Motan的容错策略
+Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
+
+
+Failover 失效切换（缺省）
+
+&amp;lt;motan:protocol ... </p>
+        
+    
+    <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016-09-21-motan-override.html" title="Motan源码解读-源码结构" itemprop="url">
+  
+    <h1 itemprop="name">Motan源码解读-源码结构</h1>
+    
+     
+           <p itemprop="description" >旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
+motan包结构motan-benchmark // 压测相关
+motan-core    //motan核心代码，也是源码解析的主要包
+motan-demo    // 示例，快速上手的最佳方法
+motan-ex</p>
         
     
     <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
