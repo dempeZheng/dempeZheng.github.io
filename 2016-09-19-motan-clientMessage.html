@@ -1,18 +1,17 @@
-<!DOCTYPE html>
-<html>
+
+ <!DOCTYPE HTML>
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-
-
-<title>
+  <meta charset="UTF-8">
   
-    Motan源码解读-Client异步消息
-  
-</title>
+    <title>Motan源码解读-Client异步消息 | 郑大侠的博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="DempeZheng">
+    
 
-<meta name="description" content="如何设计RPC异步消息？异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？
+    <meta name="keywords" content="motan,源码,client,异步消息">
+    <meta name="description" content="如何设计RPC异步消息？异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？
 既然是异步的，我们有一个首要的问题需要解决：
 
 通常异步调用都是一问一答的模式，一个Request拿到一个Response，如果我们做了异步，怎么把这两个消息对应起来呢？
@@ -38,162 +37,87 @@
 
 既然需要对应，那么只有一种思路就是通过一种方式把两者联系起来，所以我们在设计协议的时候必须包含一个messageID，唯一的，这个唯一">
 
+    
+    <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
 
-  <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
-
-
-
-  <link rel="icon" href="/favicon.png">
-
-
-<link rel="stylesheet" href="/perfect-scrollbar/css/perfect-scrollbar.min.css">
-<link rel="stylesheet" href="/styles/main.css">
-
-
-
-
-
-
+    <link href="/js/google-code-prettify/themes/tomorrow-night.min.css" type="text/css" rel="stylesheet" />
 </head>
-<body
-  
-    class="monochrome"
-  
-  >
-  <div class="mobile-header">
-  <button class="sidebar-toggle" type="button">
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-  </button>
-  <a class="title" href="/">郑大侠的博客</a>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="郑大侠的博客" title="郑大侠的博客"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="郑大侠的博客">郑大侠的博客</a></h1>
+				<h2 class="blog-motto">DempeZheng&#39;S Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:code.zhizus.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
 </div>
-
-  <div class="main-container">
-    <div class="sidebar">
-  <div class="header">
-    <h1 class="title"><a href="/">郑大侠的博客</a></h1>
-    
-      <p class="subtitle">
-        DempeZheng&#39;S Blog
-      </p>
-    
-    <div class="info">
-      <div class="content">
-        
-          <div class="description">請更固執，將自己謀生與擅長的事情做到最好</div>
-        
-        
-          <div class="author">DempeZheng</div>
-        
-      </div>
-      
-        <div class="avatar">
-          
-            <a href="/about"><img src="https://cn.gravatar.com/avatar/35fef74d731255cd569c2c2b0b9e87e4?s=200"></a>
-          
-        </div>
-      
-    </div>
-  </div>
-  <div class="body">
-    
-      
-        <ul class="nav">
-          
-            
-              <li class="category-list-container">
-                <a href="javascript:;">Category</a>
-                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/IM开发日记/">IM开发日记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/cache/">cache</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发编程/">并发编程</a><span class="category-list-count">1</span></li></ul>
-              </li>
-            
-          
-            
-              <li class="tag-list-container">
-                <a href="javascript:;">Tag</a>
-                
-              </li>
-            
-          
-            
-              <li class="archive-list-container">
-                <a href="javascript:;">Archive</a>
-                <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/">2016</a><span class="archive-list-count">15</span></li></ul>
-              </li>
-            
-          
-        </ul>
-      
-        <ul class="nav">
-          
-            
-              <li>
-                <a href="/" title="Homepage">Homepage</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="/archives" title="By Year">By Year</a>
-              </li>
-            
-          
-        </ul>
-      
-        <ul class="nav">
-          
-            
-              <li>
-                <a href="https://github.com/denjones/hexo-theme-chan" title="Chan" target="_blank" rel="external">Chan</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="https://github.com/denjones" title="Github" target="_blank" rel="external">Github</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="/atom.xml" title="RSS">RSS</a>
-              </li>
-            
-          
-        </ul>
-      
-    
-  </div>
-</div>
-
-    <div class="main-content">
-      
-        <div style="max-width: 1000px">
-      
-          <article id="post-2016-09-19-motan-clientMessage" class="article article-type-post">
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
   
-    <h1 class="article-header">
-      Motan源码解读-Client异步消息
-    </h1>
-  
-  
-
-  <div class="article-info">
-    <span class="article-date">
-  2016-09-19
-</span>
-
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
     
-	<span class="article-category tagcloud">
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a></li></ul>
-	</span>
-
-
+      <a href="/2016-09-19-motan-clientMessage.html" title="Motan源码解读-Client异步消息" itemprop="url">Motan源码解读-Client异步消息</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="DempeZheng" target="_blank" itemprop="author">DempeZheng</a>
+		
+  <p class="article-time">
+    <time datetime="2016-09-18T16:00:00.000Z" itemprop="datePublished"> Published 2016-09-19</time>
     
-
-  </div>
-  <div class="article-entry">
-    <h3 id="如何设计RPC异步消息？"><a href="#如何设计RPC异步消息？" class="headerlink" title="如何设计RPC异步消息？"></a>如何设计RPC异步消息？</h3><p>异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？</p>
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何设计RPC异步消息？"><span class="toc-number">1.</span> <span class="toc-text">如何设计RPC异步消息？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#纸上得来终觉浅，我们试着来撸一个"><span class="toc-number">2.</span> <span class="toc-text">纸上得来终觉浅，我们试着来撸一个</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#But，还有一个大bug"><span class="toc-number">3.</span> <span class="toc-text">But，还有一个大bug</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#言归正传，我们来说Motan怎么实现"><span class="toc-number">4.</span> <span class="toc-text">言归正传，我们来说Motan怎么实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#后记"><span class="toc-number">5.</span> <span class="toc-text">后记</span></a></li></ol>
+		
+		</div>
+		
+		<h3 id="如何设计RPC异步消息？"><a href="#如何设计RPC异步消息？" class="headerlink" title="如何设计RPC异步消息？"></a>如何设计RPC异步消息？</h3><p>异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？</p>
 <p>既然是异步的，我们有一个首要的问题需要解决：</p>
 <blockquote>
 <p>通常异步调用都是一问一答的模式，一个Request拿到一个Response，如果我们做了异步，怎么把这两个消息对应起来呢？</p>
@@ -201,9 +125,128 @@
 <p>既然需要对应，那么只有一种思路就是通过一种方式把两者联系起来，所以我们在设计协议的时候必须包含一个messageID，唯一的，这个唯一性是在客户端维护（多是自增）。</p>
 <p>客户端发送请求的req的时候，先req.setMessageId(messageID)，然后在发送；服务端拿到这个messageID的时候，把messageID原封不动的包装在Response中，这样客户端就可以把request和response对应起来。</p>
 <h3 id="纸上得来终觉浅，我们试着来撸一个"><a href="#纸上得来终觉浅，我们试着来撸一个" class="headerlink" title="纸上得来终觉浅，我们试着来撸一个"></a>纸上得来终觉浅，我们试着来撸一个</h3><p>我们写一个简单的DefaultClient</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultClient</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">protected</span> Map&lt;Integer, Context&gt; contextMap = <span class="keyword">new</span> ConcurrentHashMap&lt;Integer, Context&gt;();</div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initClientChannel</span><span class="params">(SocketChannel ch)</span> </span>&#123;</div><div class="line">        ChannelPipeline pipeline = ch.pipeline();</div><div class="line">        pipeline.</div><div class="line">                .addLast(<span class="string">"ClientHandler"</span>, <span class="keyword">new</span> ChannelHandlerAdapter() &#123;</div><div class="line">                    <span class="comment">/**</span></div><div class="line">                    * 收到服务端消息</div><div class="line">                    **/</div><div class="line">                    <span class="meta">@Override</span></div><div class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRead</span><span class="params">(ChannelHandlerContext ctx, Response resp)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">                    </div><div class="line">                        <span class="comment">// 收到服务端消息，找出对应包含context的request上下文，然后移除</span></div><div class="line">                        Context context = contextMap.remove(id);</div><div class="line">                        <span class="keyword">if</span> (context == <span class="keyword">null</span>) &#123;</div><div class="line">                            LOGGER.debug(<span class="string">"messageID:&#123;&#125;, take Context null"</span>, id);</div><div class="line">                            <span class="keyword">return</span>;</div><div class="line">                        &#125;</div><div class="line">                        <span class="comment">//异步通知结果返回</span></div><div class="line">                        context.cb.onReceive(resp);</div><div class="line">                    &#125;</div><div class="line">                &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 发送消息，并等待Response</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> request</div><div class="line">     * <span class="doctag">@return</span> Response</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> Callback <span class="title">call</span><span class="params">(Request request, Callback callback)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="keyword">int</span> id = getNextMessageId();</div><div class="line">        request.setMessageID(id);</div><div class="line">        Context context = <span class="keyword">new</span> Context(id, request, callback);</div><div class="line">        <span class="comment">// 发送消息前先把request上下文保存起来，</span></div><div class="line">        contextMap.put(id, context);</div><div class="line">        writeAndFlush(request);</div><div class="line">        <span class="comment">// 消息发送出去就直接返回callback，不会阻塞等待服务端结果返回</span></div><div class="line">        <span class="comment">// 当客户端收到服务端返回的response首先会通过messageID找到对应的request上下文，然后调用callback的onReceive(resp)方法通知</span></div><div class="line">        <span class="keyword">return</span> callback;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Future&lt;Response&gt; <span class="title">send</span><span class="params">(Request request)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Promise&lt;Response&gt; future = <span class="keyword">new</span> Promise&lt;Response&gt;();</div><div class="line">        call(request, future);</div><div class="line">        <span class="keyword">return</span> future;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Response <span class="title">sendAnWait</span><span class="params">(Request request)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Future&lt;Response&gt; future = send(request);</div><div class="line">        <span class="keyword">return</span> future.await();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Response <span class="title">sendAnWait</span><span class="params">(Request request, <span class="keyword">long</span> amount, TimeUnit unit)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Future&lt;Response&gt; future = send(request);</div><div class="line">        <span class="keyword">return</span> future.await(amount, unit);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Context</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> Request request;</div><div class="line">        <span class="keyword">final</span> Callback cb;</div><div class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">short</span> id;</div><div class="line"></div><div class="line">        Context(<span class="keyword">short</span> id, Request request, Callback cb) &#123;</div><div class="line">            <span class="keyword">this</span>.id = id;</div><div class="line">            <span class="keyword">this</span>.cb = cb;</div><div class="line">            <span class="keyword">this</span>.request = request;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">
+public class DefaultClient {
+
+    protected Map&lt;Integer, Context&gt; contextMap = new ConcurrentHashMap&lt;Integer, Context&gt;();
+
+    public void initClientChannel(SocketChannel ch) {
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.
+                .addLast(&quot;ClientHandler&quot;, new ChannelHandlerAdapter() {
+                    /**
+                    * 收到服务端消息
+                    **/
+                    @Override
+                    public void channelRead(ChannelHandlerContext ctx, Response resp) throws Exception {
+
+                        // 收到服务端消息，找出对应包含context的request上下文，然后移除
+                        Context context = contextMap.remove(id);
+                        if (context == null) {
+                            LOGGER.debug(&quot;messageID:{}, take Context null&quot;, id);
+                            return;
+                        }
+                        //异步通知结果返回
+                        context.cb.onReceive(resp);
+                    }
+                });
+    }
+
+    /**
+     * 发送消息，并等待Response
+     *
+     * @param request
+     * @return Response
+     */
+    public Callback call(Request request, Callback callback) throws Exception {
+        int id = getNextMessageId();
+        request.setMessageID(id);
+        Context context = new Context(id, request, callback);
+        // 发送消息前先把request上下文保存起来，
+        contextMap.put(id, context);
+        writeAndFlush(request);
+        // 消息发送出去就直接返回callback，不会阻塞等待服务端结果返回
+        // 当客户端收到服务端返回的response首先会通过messageID找到对应的request上下文，然后调用callback的onReceive(resp)方法通知
+        return callback;
+    }
+
+    public Future&lt;Response&gt; send(Request request) throws Exception {
+        Promise&lt;Response&gt; future = new Promise&lt;Response&gt;();
+        call(request, future);
+        return future;
+    }
+
+    public Response sendAnWait(Request request) throws Exception {
+        Future&lt;Response&gt; future = send(request);
+        return future.await();
+    }
+
+    public Response sendAnWait(Request request, long amount, TimeUnit unit) throws Exception {
+        Future&lt;Response&gt; future = send(request);
+        return future.await(amount, unit);
+    }
+
+    public static class Context {
+        final Request request;
+        final Callback cb;
+        private final short id;
+
+        Context(short id, Request request, Callback cb) {
+            this.id = id;
+            this.cb = cb;
+            this.request = request;
+        }
+    }
+
+}
+</code></pre>
 <p>DefaultClient做的事情就是在发送Request消息时候先保存request的上下文，等到服务端消息返回，然后通过callback异步通知。<br>接下来我们要看看callback的实现了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Promise</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Callback</span>&lt;<span class="title">T</span>&gt;, <span class="title">Future</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> CountDownLatch latch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</div><div class="line">    Throwable error;</div><div class="line">    <span class="keyword">private</span> T message;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(T message)</span> </span>&#123;</div><div class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">            <span class="keyword">this</span>.message = message;</div><div class="line">            latch.countDown();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 当onReceive调用之前，await方法会阻塞，一直到timeout</span></div><div class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">await</span><span class="params">(<span class="keyword">long</span> amount, TimeUnit unit)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="keyword">if</span> (latch.await(amount, unit)) &#123;</div><div class="line">            <span class="keyword">return</span> get();</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> TimeoutException();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">await</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        latch.await();</div><div class="line">        <span class="keyword">return</span> get();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> T <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Throwable e = error;</div><div class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (e <span class="keyword">instanceof</span> RuntimeException) &#123;</div><div class="line">                <span class="keyword">throw</span> (RuntimeException) e;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> Exception) &#123;</div><div class="line">                <span class="keyword">throw</span> (Exception) e;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> Error) &#123;</div><div class="line">                <span class="keyword">throw</span> (Error) e;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="comment">// don'M expect to hit this case.</span></div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> message;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">
+public class Promise&lt;T&gt; implements Callback&lt;T&gt;, Future&lt;T&gt; {
+    private final CountDownLatch latch = new CountDownLatch(1);
+    Throwable error;
+    private T message;
+
+    @Override
+    public void onReceive(T message) {
+        synchronized (this) {
+            this.message = message;
+            latch.countDown();
+        }
+    }
+
+    // 当onReceive调用之前，await方法会阻塞，一直到timeout
+    public T await(long amount, TimeUnit unit) throws Exception {
+        if (latch.await(amount, unit)) {
+            return get();
+        } else {
+            throw new TimeoutException();
+        }
+    }
+
+    public T await() throws Exception {
+        latch.await();
+        return get();
+    }
+
+    private T get() throws Exception {
+        Throwable e = error;
+        if (e != null) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            } else if (e instanceof Exception) {
+                throw (Exception) e;
+            } else if (e instanceof Error) {
+                throw (Error) e;
+            } else {
+                // don&#39;M expect to hit this case.
+                throw new RuntimeException(e);
+            }
+        }
+        return message;
+    }
+}
+</code></pre>
 <p>利用java的CountDownLatch可以非常轻松的实现：当回调方法调用之前，获取结果的await方法一直阻塞的。</p>
 <p>到此为止，我们基本实现异步消息调用的核心<code>伪代码</code>，但是是不是万事大吉了呢？</p>
 <h3 id="But，还有一个大bug"><a href="#But，还有一个大bug" class="headerlink" title="But，还有一个大bug"></a>But，还有一个大bug</h3><p>还有什么问题？</p>
@@ -217,7 +260,22 @@
 <li>2.服务端超时或者异常情况，contextMap又如何回收？</li>
 </ul>
 <p>问题1很要解决，在发送的时候捕获一下发送的异常，出现异常主动将contextMap的对象移除。伪代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Callback <span class="title">call</span><span class="params">(Request request, Callback callback)</span>  </span>&#123;</div><div class="line">    <span class="keyword">int</span> id = getNextMessageId();</div><div class="line">    request.setMessageID(id);</div><div class="line">    Context context = <span class="keyword">new</span> Context(id, request, callback);</div><div class="line">    <span class="comment">// 发送消息前先把request上下文保存起来，</span></div><div class="line">    contextMap.put(id, context);</div><div class="line">    <span class="keyword">try</span>&#123;</div><div class="line">         writeAndFlush(request);</div><div class="line">    &#125;<span class="keyword">catch</span>(Exception e)&#123;</div><div class="line">         contextMap.remove(id);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 消息发送出去就直接返回callback，不会阻塞等待服务端结果返回</span></div><div class="line">    <span class="comment">// 当客户端收到服务端返回的response首先会通过messageID找到对应的request上下文，然后调用callback的onReceive(resp)方法通知</span></div><div class="line">    <span class="keyword">return</span> callback;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">    public Callback call(Request request, Callback callback)  {
+        int id = getNextMessageId();
+        request.setMessageID(id);
+        Context context = new Context(id, request, callback);
+        // 发送消息前先把request上下文保存起来，
+        contextMap.put(id, context);
+        try{
+             writeAndFlush(request);
+        }catch(Exception e){
+             contextMap.remove(id);
+        }
+        // 消息发送出去就直接返回callback，不会阻塞等待服务端结果返回
+        // 当客户端收到服务端返回的response首先会通过messageID找到对应的request上下文，然后调用callback的onReceive(resp)方法通知
+        return callback;
+    }
+</code></pre>
 <p>关键是问题2，服务端超时，或者异常，这时候客户端收不到任何消息，那么上面的代码中contextMap的request上下文就没办法清理掉。</p>
 <p>这个时候该如何处理呢？<br>我们先讨论RPC一个很重的点：<code>TimeOut机制</code>。<br>如果没有timeout，假设某个服务响应慢或者不可用，可能造成客户端所有的connection都在等待请求响应，其他可用的服务也无法提供服务。<br>客户端请求分配的资源是有限的，我们不能因为某个业务不可用或者响应慢而让他占用了所有的资源。<code>对于每个异步调用的请求，我们最好都能给他一个默认的超时时间</code>。</p>
 <p>既然RPC有timeout机制，那么处理问题2最自然的思路就是定时去扫描contextMap，将里面超时的context清理掉。<code>motan也是这么做的</code></p>
@@ -227,13 +285,194 @@
 <p>这个不是本文的重点，暂不详细展开。</p>
 <h3 id="言归正传，我们来说Motan怎么实现"><a href="#言归正传，我们来说Motan怎么实现" class="headerlink" title="言归正传，我们来说Motan怎么实现"></a>言归正传，我们来说Motan怎么实现</h3><p>上面说了一堆，貌似跑题了，不过接下来，我们来剖析Motan 的源代码，看Motan是怎么实现这个逻辑的。</p>
 <p>直接看源代码，（为了简洁，略掉不相关逻辑代码）</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NettyClient</span> <span class="keyword">extends</span> <span class="title">AbstractPoolClient</span> <span class="keyword">implements</span> <span class="title">StatisticCallback</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="comment">// 回收过期任务</span></div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(<span class="number">4</span>);</div><div class="line"></div><div class="line">	<span class="comment">// 异步的request，需要注册callback future</span></div><div class="line">	<span class="comment">// 触发remove的操作有： 1) service的返回结果处理。 2) timeout thread cancel</span></div><div class="line">	<span class="keyword">protected</span> ConcurrentMap&lt;Long, NettyResponseFuture&gt; callbackMap = <span class="keyword">new</span> ConcurrentHashMap&lt;Long, NettyResponseFuture&gt;();</div><div class="line"></div><div class="line">	<span class="keyword">private</span> ScheduledFuture&lt;?&gt; timeMonitorFuture = <span class="keyword">null</span>;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">NettyClient</span><span class="params">(URL url)</span> </span>&#123;</div><div class="line">			timeMonitorFuture = scheduledExecutor.scheduleWithFixedDelay(</div><div class="line">				<span class="keyword">new</span> TimeoutMonitor(<span class="string">"timeout_monitor_"</span> + url.getHost() + <span class="string">"_"</span> + url.getPort()),</div><div class="line">				MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD, MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD,</div><div class="line">				TimeUnit.MILLISECONDS);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 请求remote service</div><div class="line">	 * </div><div class="line">	 * &lt;pre&gt;</div><div class="line">	 * 		1)  get connection from pool</div><div class="line">	 * 		2)  async requset</div><div class="line">	 * 		3)  return connection to pool</div><div class="line">	 * 		4)  check if async return response, true: return ResponseFuture;  false: return result</div><div class="line">	 * &lt;/pre&gt;</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> request</div><div class="line">	 * <span class="doctag">@param</span> async</div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 * <span class="doctag">@throws</span> TransportException</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> Response <span class="title">request</span><span class="params">(Request request, <span class="keyword">boolean</span> async)</span> <span class="keyword">throws</span> TransportException </span>&#123;</div><div class="line">		...</div><div class="line">		<span class="comment">// async request</span></div><div class="line">		response = channel.request(request);</div><div class="line">		response = asyncResponse(response, async);</div><div class="line">		<span class="keyword">return</span> response;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 初始化 netty clientBootstrap</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initClientBootstrap</span><span class="params">()</span> </span>&#123;</div><div class="line">		</div><div class="line">		bootstrap.setPipelineFactory(<span class="keyword">new</span> ChannelPipelineFactory() &#123;</div><div class="line">			...</div><div class="line">			<span class="function"><span class="keyword">public</span> ChannelPipeline <span class="title">getPipeline</span><span class="params">()</span> </span>&#123;</div><div class="line">				ChannelPipeline pipeline = Channels.pipeline();</div><div class="line">				pipeline.addLast(<span class="string">"decoder"</span>, <span class="keyword">new</span> NettyDecoder(codec, NettyClient.<span class="keyword">this</span>, maxContentLength));</div><div class="line">				pipeline.addLast(<span class="string">"encoder"</span>, <span class="keyword">new</span> NettyEncoder(codec, NettyClient.<span class="keyword">this</span>));</div><div class="line">				pipeline.addLast(<span class="string">"handler"</span>, <span class="keyword">new</span> NettyChannelHandler(NettyClient.<span class="keyword">this</span>, <span class="keyword">new</span> MessageHandler() &#123;</div><div class="line">					<span class="meta">@Override</span></div><div class="line">					<span class="function"><span class="keyword">public</span> Object <span class="title">handle</span><span class="params">(Channel channel, Object message)</span> </span>&#123;</div><div class="line">						Response response = (Response) message;</div><div class="line"></div><div class="line">						NettyResponseFuture responseFuture = NettyClient.<span class="keyword">this</span>.removeCallback(response.getRequestId());</div><div class="line"></div><div class="line">						<span class="keyword">if</span> (responseFuture == <span class="keyword">null</span>) &#123;</div><div class="line">							LoggerUtil.warn(</div><div class="line">									<span class="string">"NettyClient has response from server, but resonseFuture not exist,  requestId=&#123;&#125;"</span>,</div><div class="line">									response.getRequestId());</div><div class="line">							<span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">						&#125;</div><div class="line"></div><div class="line">						<span class="keyword">if</span> (response.getException() != <span class="keyword">null</span>) &#123;</div><div class="line">							responseFuture.onFailure(response);</div><div class="line">						&#125; <span class="keyword">else</span> &#123;</div><div class="line">							responseFuture.onSuccess(response);</div><div class="line">						&#125;</div><div class="line"></div><div class="line">						<span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">					&#125;</div><div class="line">				&#125;));</div><div class="line">				<span class="keyword">return</span> pipeline;</div><div class="line">			&#125;</div><div class="line">		&#125;);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 注册回调的resposne</div><div class="line">	 * </div><div class="line">	 * &lt;pre&gt;</div><div class="line">	 * </div><div class="line">	 * 		进行最大的请求并发数的控制，如果超过NETTY_CLIENT_MAX_REQUEST的话，那么throw reject exception</div><div class="line">	 * </div><div class="line">	 * &lt;/pre&gt;</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@throws</span> MotanServiceException</div><div class="line">	 * <span class="doctag">@param</span> requestId</div><div class="line">	 * <span class="doctag">@param</span> nettyResponseFuture</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerCallback</span><span class="params">(<span class="keyword">long</span> requestId, NettyResponseFuture nettyResponseFuture)</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.callbackMap.size() &gt;= MotanConstants.NETTY_CLIENT_MAX_REQUEST) &#123;</div><div class="line">			<span class="comment">// reject request, prevent from OutOfMemoryError</span></div><div class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(<span class="string">"NettyClient over of max concurrent request, drop request, url: "</span></div><div class="line">					+ url.getUri() + <span class="string">" requestId="</span> + requestId, MotanErrorMsgConstant.SERVICE_REJECT);</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		<span class="keyword">this</span>.callbackMap.put(requestId, nettyResponseFuture);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 移除回调的response</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> requestId</div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">public</span> NettyResponseFuture <span class="title">removeCallback</span><span class="params">(<span class="keyword">long</span> requestId)</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> callbackMap.remove(requestId);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 回收超时任务</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@author</span> maijunsheng</div><div class="line">	 * </div><div class="line">	 */</div><div class="line">	<span class="class"><span class="keyword">class</span> <span class="title">TimeoutMonitor</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</div><div class="line">		<span class="keyword">private</span> String name;</div><div class="line">		<span class="function"><span class="keyword">public</span> <span class="title">TimeoutMonitor</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">			<span class="keyword">this</span>.name = name;</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">			<span class="keyword">long</span> currentTime = System.currentTimeMillis();</div><div class="line">			<span class="keyword">for</span> (Map.Entry&lt;Long, NettyResponseFuture&gt; entry : callbackMap.entrySet()) &#123;</div><div class="line">				<span class="keyword">try</span> &#123;</div><div class="line">					NettyResponseFuture future = entry.getValue();</div><div class="line"></div><div class="line">					<span class="keyword">if</span> (future.getCreateTime() + future.getTimeout() &lt; currentTime) &#123;</div><div class="line">						<span class="comment">// timeout: remove from callback list, and then cancel</span></div><div class="line">						removeCallback(entry.getKey());</div><div class="line">						future.cancel();</div><div class="line">					&#125; </div><div class="line">				&#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">					LoggerUtil.error(</div><div class="line">							name + <span class="string">" clear timeout future Error: uri="</span> + url.getUri() + <span class="string">" requestId="</span> + entry.getKey(),</div><div class="line">							e);</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public class NettyClient extends AbstractPoolClient implements StatisticCallback {
+
+    // 回收过期任务
+    private static ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(4);
+
+    // 异步的request，需要注册callback future
+    // 触发remove的操作有： 1) service的返回结果处理。 2) timeout thread cancel
+    protected ConcurrentMap&lt;Long, NettyResponseFuture&gt; callbackMap = new ConcurrentHashMap&lt;Long, NettyResponseFuture&gt;();
+
+    private ScheduledFuture&lt;?&gt; timeMonitorFuture = null;
+    public NettyClient(URL url) {
+            timeMonitorFuture = scheduledExecutor.scheduleWithFixedDelay(
+                new TimeoutMonitor(&quot;timeout_monitor_&quot; + url.getHost() + &quot;_&quot; + url.getPort()),
+                MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD, MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD,
+                TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 请求remote service
+     * 
+     * &lt;pre&gt;
+     *         1)  get connection from pool
+     *         2)  async requset
+     *         3)  return connection to pool
+     *         4)  check if async return response, true: return ResponseFuture;  false: return result
+     * &lt;/pre&gt;
+     * 
+     * @param request
+     * @param async
+     * @return
+     * @throws TransportException
+     */
+    private Response request(Request request, boolean async) throws TransportException {
+        ...
+        // async request
+        response = channel.request(request);
+        response = asyncResponse(response, async);
+        return response;
+    }
+
+    /**
+     * 初始化 netty clientBootstrap
+     */
+    private void initClientBootstrap() {
+
+        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            ...
+            public ChannelPipeline getPipeline() {
+                ChannelPipeline pipeline = Channels.pipeline();
+                pipeline.addLast(&quot;decoder&quot;, new NettyDecoder(codec, NettyClient.this, maxContentLength));
+                pipeline.addLast(&quot;encoder&quot;, new NettyEncoder(codec, NettyClient.this));
+                pipeline.addLast(&quot;handler&quot;, new NettyChannelHandler(NettyClient.this, new MessageHandler() {
+                    @Override
+                    public Object handle(Channel channel, Object message) {
+                        Response response = (Response) message;
+
+                        NettyResponseFuture responseFuture = NettyClient.this.removeCallback(response.getRequestId());
+
+                        if (responseFuture == null) {
+                            LoggerUtil.warn(
+                                    &quot;NettyClient has response from server, but resonseFuture not exist,  requestId={}&quot;,
+                                    response.getRequestId());
+                            return null;
+                        }
+
+                        if (response.getException() != null) {
+                            responseFuture.onFailure(response);
+                        } else {
+                            responseFuture.onSuccess(response);
+                        }
+
+                        return null;
+                    }
+                }));
+                return pipeline;
+            }
+        });
+    }
+
+    /**
+     * 注册回调的resposne
+     * 
+     * &lt;pre&gt;
+     * 
+     *         进行最大的请求并发数的控制，如果超过NETTY_CLIENT_MAX_REQUEST的话，那么throw reject exception
+     * 
+     * &lt;/pre&gt;
+     * 
+     * @throws MotanServiceException
+     * @param requestId
+     * @param nettyResponseFuture
+     */
+    public void registerCallback(long requestId, NettyResponseFuture nettyResponseFuture) {
+        if (this.callbackMap.size() &gt;= MotanConstants.NETTY_CLIENT_MAX_REQUEST) {
+            // reject request, prevent from OutOfMemoryError
+            throw new MotanServiceException(&quot;NettyClient over of max concurrent request, drop request, url: &quot;
+                    + url.getUri() + &quot; requestId=&quot; + requestId, MotanErrorMsgConstant.SERVICE_REJECT);
+        }
+
+        this.callbackMap.put(requestId, nettyResponseFuture);
+    }
+
+    /**
+     * 移除回调的response
+     * 
+     * @param requestId
+     * @return
+     */
+    public NettyResponseFuture removeCallback(long requestId) {
+        return callbackMap.remove(requestId);
+    }
+
+    /**
+     * 回收超时任务
+     * 
+     * @author maijunsheng
+     * 
+     */
+    class TimeoutMonitor implements Runnable {
+        private String name;
+        public TimeoutMonitor(String name) {
+            this.name = name;
+        }
+
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            for (Map.Entry&lt;Long, NettyResponseFuture&gt; entry : callbackMap.entrySet()) {
+                try {
+                    NettyResponseFuture future = entry.getValue();
+
+                    if (future.getCreateTime() + future.getTimeout() &lt; currentTime) {
+                        // timeout: remove from callback list, and then cancel
+                        removeCallback(entry.getKey());
+                        future.cancel();
+                    } 
+                } catch (Exception e) {
+                    LoggerUtil.error(
+                            name + &quot; clear timeout future Error: uri=&quot; + url.getUri() + &quot; requestId=&quot; + entry.getKey(),
+                            e);
+                }
+            }
+        }
+    }
+}
+</code></pre>
 <p>这个里面的callbackMap就是存储request上下文的map，（TimeoutMonitor就是清理超时的请求上下文的）发送request请求的时候会调用到下面的方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Response <span class="title">request</span><span class="params">(Request request)</span> <span class="keyword">throws</span> TransportException </span>&#123;</div><div class="line"> </div><div class="line">  ...</div><div class="line">	<span class="keyword">boolean</span> result = writeFuture.awaitUninterruptibly(timeout, TimeUnit.MILLISECONDS);</div><div class="line"></div><div class="line">	<span class="keyword">if</span> (result &amp;&amp; writeFuture.isSuccess()) &#123;</div><div class="line">		response.addListener(<span class="keyword">new</span> FutureListener() &#123;</div><div class="line">			<span class="meta">@Override</span></div><div class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future future)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">				<span class="keyword">if</span> (future.isSuccess() || (future.isDone() &amp;&amp; ExceptionUtil.isBizException(future.getException()))) &#123;</div><div class="line">					<span class="comment">// 成功的调用 </span></div><div class="line">					nettyClient.resetErrorCount();</div><div class="line">				&#125; <span class="keyword">else</span> &#123;</div><div class="line">					<span class="comment">// 失败的调用 </span></div><div class="line">					nettyClient.incrErrorCount();</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;);</div><div class="line">		<span class="comment">// 如果正常情况，就直接返回response</span></div><div class="line">		<span class="keyword">return</span> response;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	writeFuture.cancel();</div><div class="line">	<span class="comment">// 异常情况 将任务移除</span></div><div class="line">	response = <span class="keyword">this</span>.nettyClient.removeCallback(request.getRequestId());</div><div class="line"></div><div class="line">	<span class="keyword">if</span> (response != <span class="keyword">null</span>) &#123;</div><div class="line">		response.cancel();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">    public Response request(Request request) throws TransportException {
+
+      ...
+        boolean result = writeFuture.awaitUninterruptibly(timeout, TimeUnit.MILLISECONDS);
+
+        if (result &amp;&amp; writeFuture.isSuccess()) {
+            response.addListener(new FutureListener() {
+                @Override
+                public void operationComplete(Future future) throws Exception {
+                    if (future.isSuccess() || (future.isDone() &amp;&amp; ExceptionUtil.isBizException(future.getException()))) {
+                        // 成功的调用 
+                        nettyClient.resetErrorCount();
+                    } else {
+                        // 失败的调用 
+                        nettyClient.incrErrorCount();
+                    }
+                }
+            });
+            // 如果正常情况，就直接返回response
+            return response;
+        }
+
+        writeFuture.cancel();
+        // 异常情况 将任务移除
+        response = this.nettyClient.removeCallback(request.getRequestId());
+
+        if (response != null) {
+            response.cancel();
+        }
+    }
+</code></pre>
 <p>我们可以看到在正常情况下会直接返回response，异常情况下则是直接调用removeCallback(request.getRequestId())清除了callbackMap中的无用request。<br>接下来我们看正常情况下，motan是在哪里清理callbackMap中内容的？<br>这个时候我们又需要回到上面的NettyClient中去看NettyChannelHandler了。<br>收到服务器的返回的response的时候会触发NettyChannelHandler的handle方法，而handle方法中首先就是:<br>通过消息id，移除callbackMap中的对象。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">NettyResponseFuture responseFuture = NettyClient.<span class="keyword">this</span>.removeCallback(response.getRequestId());</div></pre></td></tr></table></figure>
+<pre><code class="java">NettyResponseFuture responseFuture = NettyClient.this.removeCallback(response.getRequestId());
+</code></pre>
 <p>最后，我们看NettyClient中的TimeoutMonitor,它所做的的事情就是定时清理callbackMap超时的request上下文,NettyClient在初始化的时候就初始化了这个timeoutMonitor</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">NettyClient</span><span class="params">(URL url)</span> </span>&#123;</div><div class="line">			timeMonitorFuture = scheduledExecutor.scheduleWithFixedDelay(</div><div class="line">				<span class="keyword">new</span> TimeoutMonitor(<span class="string">"timeout_monitor_"</span> + url.getHost() + <span class="string">"_"</span> + url.getPort()),</div><div class="line">				MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD, MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD,</div><div class="line">				TimeUnit.MILLISECONDS);</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public NettyClient(URL url) {
+            timeMonitorFuture = scheduledExecutor.scheduleWithFixedDelay(
+                new TimeoutMonitor(&quot;timeout_monitor_&quot; + url.getHost() + &quot;_&quot; + url.getPort()),
+                MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD, MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD,
+                TimeUnit.MILLISECONDS);
+    }
+</code></pre>
 <p>接下来我们总结一下motan中callbackMap的逻辑：</p>
 <ul>
 <li>client发送request前先将request register到callbackMap中，如果发送前连接异常，则直接remove掉。</li>
@@ -246,120 +485,396 @@
 <p>但是要实现一个靠谱的RPC框架，<code>一定要注意存放消息id和请求Request上下文映射的map特殊情况的内存释放问题</code>。而且这个map最好是线程安全的，一般rpc都会用到多线程。</p>
 <p>最后，还有值得关注的地方：</p>
 <p>实现一个完善的RPC框架，<code>能否有效的各种情况的异常透传到客户端</code>还是一个很重要的议题（用过公司的某个rpc，不管什么异常都是TimeoutException，联调接口时，如果出问题只能跪求别人查日志…），虽然本文没有讨论，但是有兴趣的可以好好研究一下motan在这一块的设计。<br>不过后续可能也会写对应的文章，好好探讨rpc异常设计和传递。</p>
-
-  </div>
-  <footer class="article-footer">
-    
-  <div class="cc">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/deed.z" target="_blank" title="Attribution-ShareAlike">
-      <img src="/images/cc/cc.png">
-      
-          <img src="/images/cc/by.png">
-        
-          <img src="/images/cc/sa.png">
-      
-      <span>
-        This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
-      </span>
-    </a>
-  </div>
-
-
-    
-
-  </footer>
-</article>
-
-
-
-
-
-
-
-          <div class="main-footer">
   
-    © 2017 郑大侠的博客 - Powered by <a href="http://hexo.io" target="_blank">Hexo</a> - Theme <a href="https://github.com/denjones/hexo-theme-chan" target="_blank">Chan</a>
-  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Motan源码解读/">Motan源码解读</a>
 </div>
 
-      
-        </div>
-      
-    </div>
-  </div>
-  <script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 
-  <link rel="stylesheet" href="/PhotoSwipe/photoswipe.css">
-  <link rel="stylesheet" href="/PhotoSwipe/default-skin/default-skin.css">
+</div>
 
-  <!-- Root element of PhotoSwipe. Must have class pswp. -->
-  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 
-    <!-- Background of PhotoSwipe.
-             It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://code.zhizus.com/2016-09-19-motan-clientMessage.html" data-title="Motan源码解读-Client异步消息 | 郑大侠的博客" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
 
-      <!-- Container that holds slides.
-                PhotoSwipe keeps only 3 of them in the DOM to save memory.
-                Don't modify these 3 pswp__item elements, data is added later on. -->
-      <div class="pswp__container">
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-      </div>
 
-      <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-      <div class="pswp__ui pswp__ui--hidden">
+</footer>
 
-        <div class="pswp__top-bar">
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016-09-20-motan-loadbalance.html" title="Motan源码解读-负载均衡">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Motan源码解读-负载均衡</span>
+</a>
+</div>
 
-          <!--  Controls are self-explanatory. Order can be changed. -->
 
-          <div class="pswp__counter"></div>
+<div class="next">
+<a href="/2016-09-19-motan-spi.html"  title="Motan源码解读-SPI机制">
+ <strong>下一篇：</strong><br/> 
+ <span>Motan源码解读-SPI机制
+</span>
+</a>
+</div>
 
-          <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+</nav>
 
-          <button class="pswp__button pswp__button--share" title="Share"></button>
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016-09-19-motan-clientMessage.html" data-title="Motan源码解读-Client异步消息" data-url="http://code.zhizus.com/2016-09-19-motan-clientMessage.html"></div>
+</section>
 
-          <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
 
-          <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
 
-          <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-          <!-- element will get class pswp__preloader--active when preloader is running -->
-          <div class="pswp__preloader">
-            <div class="pswp__preloader__icn">
-              <div class="pswp__preloader__cut">
-                <div class="pswp__preloader__donut"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-          <div class="pswp__share-tooltip"></div>
-        </div>
-
-        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-
-        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-
-        <div class="pswp__caption">
-          <div class="pswp__caption__center"></div>
-        </div>
-      </div>
-    </div>
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何设计RPC异步消息？"><span class="toc-number">1.</span> <span class="toc-text">如何设计RPC异步消息？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#纸上得来终觉浅，我们试着来撸一个"><span class="toc-number">2.</span> <span class="toc-text">纸上得来终觉浅，我们试着来撸一个</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#But，还有一个大bug"><span class="toc-number">3.</span> <span class="toc-text">But，还有一个大bug</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#言归正传，我们来说Motan怎么实现"><span class="toc-number">4.</span> <span class="toc-text">言归正传，我们来说Motan怎么实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#后记"><span class="toc-number">5.</span> <span class="toc-text">后记</span></a></li></ol>
+ 
   </div>
 
-  <script src="/PhotoSwipe/photoswipe.js"></script>
-  <script src="/PhotoSwipe/photoswipe-ui-default.js"></script>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
 
 
-<script src="/perfect-scrollbar/js/min/perfect-scrollbar.min.js"></script>
-<script src="/scripts/main.js"></script>
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/IM开发日记/" title="IM开发日记">IM开发日记<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Motan源码解读/" title="Motan源码解读">Motan源码解读<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/cache/" title="cache">cache<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/并发编程/" title="并发编程">并发编程<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
 
-</body>
+
+  
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">Weibo</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Larry Page in Google. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2176287895" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="DempeZheng">DempeZheng</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"zhizus"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+});
+
+
+
+</script>
+
+<script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+<script type="text/javascript">
+   $("pre").addClass("prettyprint");
+   $("pre").addClass("linenums");
+   $("pre").addClass("lang-html");
+   $("pre").addClass("prettyprinted");
+   prettyPrint();
+</script>
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
 </html>

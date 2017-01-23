@@ -1,24 +1,23 @@
-<!DOCTYPE html>
-<html>
+
+ <!DOCTYPE HTML>
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-
-
-<title>
+  <meta charset="UTF-8">
   
-    Motan源码解读-容错策略
-  
-</title>
+    <title>Motan源码解读-容错策略 | 郑大侠的博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="DempeZheng">
+    
 
-<meta name="description" content="Motan的容错策略
+    <meta name="keywords" content="motan,源码,hastratege,容灾策略">
+    <meta name="description" content="Motan的容错策略
 Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
 
 
 Failover 失效切换（缺省）
 
-1&amp;lt;motan:protocol ... haStrategy=&amp;quot;failover&amp;quot;/&amp;gt;
+&amp;lt;motan:protocol ... haStrategy=&amp;quot;failover&amp;quot;/&amp;gt;
 
 失败自动切换，当出现失败，重试其它服务器。">
 <meta property="og:type" content="article">
@@ -31,7 +30,7 @@ Motan 在集群调用失败时，提供了两种容错方案，并支持自定�
 
 Failover 失效切换（缺省）
 
-1&amp;lt;motan:protocol ... haStrategy=&amp;quot;failover&amp;quot;/&amp;gt;
+&amp;lt;motan:protocol ... haStrategy=&amp;quot;failover&amp;quot;/&amp;gt;
 
 失败自动切换，当出现失败，重试其它服务器。">
 <meta property="og:image" content="http://zhizus.com/code/images//motan/14612385789967.jpg">
@@ -44,181 +43,106 @@ Motan 在集群调用失败时，提供了两种容错方案，并支持自定�
 
 Failover 失效切换（缺省）
 
-1&amp;lt;motan:protocol ... haStrategy=&amp;quot;failover&amp;quot;/&amp;gt;
+&amp;lt;motan:protocol ... haStrategy=&amp;quot;failover&amp;quot;/&amp;gt;
 
 失败自动切换，当出现失败，重试其它服务器。">
 <meta name="twitter:image" content="http://zhizus.com/code/images//motan/14612385789967.jpg">
 
+    
+    <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
 
-  <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
-
-
-
-  <link rel="icon" href="/favicon.png">
-
-
-<link rel="stylesheet" href="/perfect-scrollbar/css/perfect-scrollbar.min.css">
-<link rel="stylesheet" href="/styles/main.css">
-
-
-
-
-
-
+    <link href="/js/google-code-prettify/themes/tomorrow-night.min.css" type="text/css" rel="stylesheet" />
 </head>
-<body
-  
-    class="monochrome"
-  
-  >
-  <div class="mobile-header">
-  <button class="sidebar-toggle" type="button">
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-  </button>
-  <a class="title" href="/">郑大侠的博客</a>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="郑大侠的博客" title="郑大侠的博客"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="郑大侠的博客">郑大侠的博客</a></h1>
+				<h2 class="blog-motto">DempeZheng&#39;S Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:code.zhizus.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
 </div>
-
-  <div class="main-container">
-    <div class="sidebar">
-  <div class="header">
-    <h1 class="title"><a href="/">郑大侠的博客</a></h1>
-    
-      <p class="subtitle">
-        DempeZheng&#39;S Blog
-      </p>
-    
-    <div class="info">
-      <div class="content">
-        
-          <div class="description">請更固執，將自己謀生與擅長的事情做到最好</div>
-        
-        
-          <div class="author">DempeZheng</div>
-        
-      </div>
-      
-        <div class="avatar">
-          
-            <a href="/about"><img src="https://cn.gravatar.com/avatar/35fef74d731255cd569c2c2b0b9e87e4?s=200"></a>
-          
-        </div>
-      
-    </div>
-  </div>
-  <div class="body">
-    
-      
-        <ul class="nav">
-          
-            
-              <li class="category-list-container">
-                <a href="javascript:;">Category</a>
-                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/IM开发日记/">IM开发日记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/cache/">cache</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发编程/">并发编程</a><span class="category-list-count">1</span></li></ul>
-              </li>
-            
-          
-            
-              <li class="tag-list-container">
-                <a href="javascript:;">Tag</a>
-                
-              </li>
-            
-          
-            
-              <li class="archive-list-container">
-                <a href="javascript:;">Archive</a>
-                <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/">2016</a><span class="archive-list-count">15</span></li></ul>
-              </li>
-            
-          
-        </ul>
-      
-        <ul class="nav">
-          
-            
-              <li>
-                <a href="/" title="Homepage">Homepage</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="/archives" title="By Year">By Year</a>
-              </li>
-            
-          
-        </ul>
-      
-        <ul class="nav">
-          
-            
-              <li>
-                <a href="https://github.com/denjones/hexo-theme-chan" title="Chan" target="_blank" rel="external">Chan</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="https://github.com/denjones" title="Github" target="_blank" rel="external">Github</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="/atom.xml" title="RSS">RSS</a>
-              </li>
-            
-          
-        </ul>
-      
-    
-  </div>
-</div>
-
-    <div class="main-content">
-      
-        <div style="max-width: 1000px">
-      
-          <article id="post-2016-09-21-motan-hastratege" class="article article-type-post">
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
   
-    <h1 class="article-header">
-      Motan源码解读-容错策略
-    </h1>
-  
-  
-
-  <div class="article-info">
-    <span class="article-date">
-  2016-09-21
-</span>
-
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
     
-	<span class="article-category tagcloud">
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a></li></ul>
-	</span>
-
-
+      <a href="/2016-09-21-motan-hastratege.html" title="Motan源码解读-容错策略" itemprop="url">Motan源码解读-容错策略</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="DempeZheng" target="_blank" itemprop="author">DempeZheng</a>
+		
+  <p class="article-time">
+    <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished"> Published 2016-09-21</time>
     
-
-  </div>
-  <div class="article-entry">
-    <h3 id="Motan的容错策略"><a href="#Motan的容错策略" class="headerlink" title="Motan的容错策略"></a>Motan的容错策略</h3><blockquote>
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Motan的容错策略"><span class="toc-number">1.</span> <span class="toc-text">Motan的容错策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dubbo的容错策略"><span class="toc-number">2.</span> <span class="toc-text">dubbo的容错策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#motan容错策略源代码解读"><span class="toc-number">3.</span> <span class="toc-text">motan容错策略源代码解读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于容错的其他考虑"><span class="toc-number">4.</span> <span class="toc-text">关于容错的其他考虑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<h3 id="Motan的容错策略"><a href="#Motan的容错策略" class="headerlink" title="Motan的容错策略"></a>Motan的容错策略</h3><blockquote>
 <p>Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：</p>
 </blockquote>
 <ul>
 <li><strong>Failover 失效切换（缺省）</strong></li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... haStrategy=&quot;failover&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... haStrategy=&quot;failover&quot;/&gt;
+</code></pre><blockquote>
 <p>失败自动切换，当出现失败，重试其它服务器。</p>
 </blockquote>
 <ul>
 <li><strong>Failfast 快速失败</strong></li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... haStrategy=&quot;failfast&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... haStrategy=&quot;failfast&quot;/&gt;
+</code></pre><blockquote>
 <p>快速失败，只发起一次调用，失败立即报错。</p>
 </blockquote>
 <h3 id="dubbo的容错策略"><a href="#dubbo的容错策略" class="headerlink" title="dubbo的容错策略"></a>dubbo的容错策略</h3><p>motan实际上是dubbo的子集，也可以说是阉割版。一下是dubbo支持的容错策略。</p>
@@ -229,47 +153,118 @@ Failover 失效切换（缺省）
 </blockquote>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;dubbo:service retries=&quot;2&quot;&gt;</div></pre></td></tr></table></figure>
-<ul>
+<pre><code>&lt;dubbo:service retries=&quot;2&quot;&gt;
+</code></pre><ul>
 <li><strong>2.failfast cluster</strong></li>
 </ul>
 <blockquote>
 <p>快速失效，只发起一次调用，失败立即报错。通常用于非幂等性写操作，比如说新增记录</p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;dubbo:service cluster=&quot;failfast&quot;&gt;</div></pre></td></tr></table></figure>
-<ul>
+<pre><code>&lt;dubbo:service cluster=&quot;failfast&quot;&gt;
+</code></pre><ul>
 <li><p><strong>3.failsaft cluster</strong></p>
 <blockquote>
 <p>失败安全，出现异常时，直接忽略，通常用于写入审计日志等操作</p>
 </blockquote>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;dubbo:service cluster=&quot;failsafe&quot;&gt;</div></pre></td></tr></table></figure>
-<ul>
+<pre><code>&lt;dubbo:service cluster=&quot;failsafe&quot;&gt;
+</code></pre><ul>
 <li><strong>4.failback cluster</strong></li>
 </ul>
 <blockquote>
 <p>失败自动恢复，后台记录失败请求，定时重发，通常用于消息通知操作</p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;dubbo:service cluster=&quot;failback&quot;&gt;</div></pre></td></tr></table></figure>
-<ul>
+<pre><code>&lt;dubbo:service cluster=&quot;failback&quot;&gt;
+</code></pre><ul>
 <li><p><strong>5.forking cluster</strong></p>
 <blockquote>
 <p>并行调用多个服务器，只要一个成功即返回。通常用于实时性要求较高的读操作，但需要浪费更多的服务器资源。可通过forks=“2”来设置最大并行数。</p>
 </blockquote>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;dubbo:service cluster=&quot;forking&quot;&gt;</div></pre></td></tr></table></figure>
-<h3 id="motan容错策略源代码解读"><a href="#motan容错策略源代码解读" class="headerlink" title="motan容错策略源代码解读"></a>motan容错策略源代码解读</h3><p>motan的容错策略尽管支持的不够多，但是对于大部分场景已经够用。而对于一些特殊场景我们可以基于motan 的SPI机制扩展实现自己需要的容错策略。</p>
+<pre><code>&lt;dubbo:service cluster=&quot;forking&quot;&gt;
+</code></pre><h3 id="motan容错策略源代码解读"><a href="#motan容错策略源代码解读" class="headerlink" title="motan容错策略源代码解读"></a>motan容错策略源代码解读</h3><p>motan的容错策略尽管支持的不够多，但是对于大部分场景已经够用。而对于一些特殊场景我们可以基于motan 的SPI机制扩展实现自己需要的容错策略。</p>
 <p><img src="http://zhizus.com/code/images//motan/14612385789967.jpg" alt="enter image description here"></p>
 <p>motan的容错策略及时基于java的<code>策略模式</code>实现的。</p>
 <blockquote>
 <p>策略模式作为一种软件设计模式，指对象有某个行为，但是在不同的场景中，该行为有不同的实现算法。比如每个人都要“交个人所得税”，但是“在美国交个人所得税”和“在中国交个人所得税”就有不同的算税方法。</p>
 </blockquote>
 <p>motan容错的接口：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 可以通过motan的SPI机制扩展</span></div><div class="line"><span class="meta">@Spi</span>(scope = Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HaStrategy</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="comment">// 从后面的实现来看，没发现有什么用</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setUrl</span><span class="params">(URL url)</span></span>;</div><div class="line">    <span class="comment">//基于具体的LoadBalance调用请求，问答模式，一个request返回一个response，</span></div><div class="line">    <span class="function">Response <span class="title">call</span><span class="params">(Request request, LoadBalance&lt;T&gt; loadBalance)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">// 可以通过motan的SPI机制扩展
+@Spi(scope = Scope.PROTOTYPE)
+public interface HaStrategy&lt;T&gt; {
+    // 从后面的实现来看，没发现有什么用
+    void setUrl(URL url);
+    //基于具体的LoadBalance调用请求，问答模式，一个request返回一个response，
+    Response call(Request request, LoadBalance&lt;T&gt; loadBalance);
+}
+</code></pre>
 <p>AbstractHaStrategy这个抽象方法做的事情貌似没什么用，直接看具体的实现：<br>failfast很简单，直接略去。看failover的实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@SpiMeta</span>(name = <span class="string">"failover"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FailoverHaStrategy</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractHaStrategy</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">//确保每个线程持有一份单独的ArrayList&lt;Referer&lt;T&gt;（FailoverHaStrategy，会有单个实例被多个线程调用）</span></div><div class="line">    <span class="keyword">protected</span> ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt; referersHolder = <span class="keyword">new</span> ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt;() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="keyword">protected</span> java.util.List&lt;com.weibo.api.motan.rpc.Referer&lt;T&gt;&gt; initialValue() &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;Referer&lt;T&gt;&gt;();</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request, LoadBalance&lt;T&gt; loadBalance)</span> </span>&#123;</div><div class="line"></div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = selectReferers(request, loadBalance);</div><div class="line">        <span class="keyword">if</span> (referers.isEmpty()) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(String.format(<span class="string">"FailoverHaStrategy No referers for request:%s, loadbalance:%s"</span>, request,</div><div class="line">                    loadBalance));</div><div class="line">        &#125;</div><div class="line">        URL refUrl = referers.get(<span class="number">0</span>).getUrl();</div><div class="line">        <span class="comment">// 先使用method的配置</span></div><div class="line">        <span class="keyword">int</span> tryCount =</div><div class="line">                refUrl.getMethodParameter(request.getMethodName(), request.getParamtersDesc(), URLParamType.retries.getName(),</div><div class="line">                        URLParamType.retries.getIntValue());</div><div class="line">        <span class="comment">// 如果有问题，则设置为不重试</span></div><div class="line">        <span class="keyword">if</span> (tryCount &lt; <span class="number">0</span>) &#123;</div><div class="line">            tryCount = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= tryCount; i++) &#123;</div><div class="line">            Referer&lt;T&gt; refer = referers.get(i % referers.size());</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                request.setRetries(i);</div><div class="line">                <span class="keyword">return</span> refer.call(request);</div><div class="line">            &#125; <span class="keyword">catch</span> (RuntimeException e) &#123;</div><div class="line">                <span class="comment">// 对于业务异常，直接抛出</span></div><div class="line">                <span class="keyword">if</span> (ExceptionUtil.isBizException(e)) &#123;</div><div class="line">                    <span class="keyword">throw</span> e;</div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i &gt;= tryCount) &#123;</div><div class="line">                    <span class="keyword">throw</span> e;</div><div class="line">                &#125;</div><div class="line">                LoggerUtil.warn(String.format(<span class="string">"FailoverHaStrategy Call false for request:%s error=%s"</span>, request, e.getMessage()));</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">      <span class="comment">// 从逻辑来看 代码不会到这个地方（如果是业务逻辑直接抛出，如果达到重试次数，也直接抛出异常了二中断了）</span></div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> MotanFrameworkException(<span class="string">"FailoverHaStrategy.call should not come here!"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 先从threadLocal拿到当前线程持有的List&lt;Referer&lt;T&gt;&gt; referers，然后清除，再从loadbalance哪里复制一份最新的引用添加进去</div><div class="line">     * haStratege能感知到引用列表的实时变化</div><div class="line">     * <span class="doctag">@param</span> request</div><div class="line">     * <span class="doctag">@param</span> loadBalance</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    <span class="keyword">protected</span> List&lt;Referer&lt;T&gt;&gt; selectReferers(Request request, LoadBalance&lt;T&gt; loadBalance) &#123;</div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = referersHolder.get();</div><div class="line">        referers.clear();</div><div class="line">        loadBalance.selectToHolder(request, referers);</div><div class="line">        <span class="keyword">return</span> referers;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">@SpiMeta(name = &quot;failover&quot;)
+public class FailoverHaStrategy&lt;T&gt; extends AbstractHaStrategy&lt;T&gt; {
+
+    //确保每个线程持有一份单独的ArrayList&lt;Referer&lt;T&gt;（FailoverHaStrategy，会有单个实例被多个线程调用）
+    protected ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt; referersHolder = new ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt;() {
+        @Override
+        protected java.util.List&lt;com.weibo.api.motan.rpc.Referer&lt;T&gt;&gt; initialValue() {
+            return new ArrayList&lt;Referer&lt;T&gt;&gt;();
+        }
+    };
+
+    @Override
+    public Response call(Request request, LoadBalance&lt;T&gt; loadBalance) {
+
+        List&lt;Referer&lt;T&gt;&gt; referers = selectReferers(request, loadBalance);
+        if (referers.isEmpty()) {
+            throw new MotanServiceException(String.format(&quot;FailoverHaStrategy No referers for request:%s, loadbalance:%s&quot;, request,
+                    loadBalance));
+        }
+        URL refUrl = referers.get(0).getUrl();
+        // 先使用method的配置
+        int tryCount =
+                refUrl.getMethodParameter(request.getMethodName(), request.getParamtersDesc(), URLParamType.retries.getName(),
+                        URLParamType.retries.getIntValue());
+        // 如果有问题，则设置为不重试
+        if (tryCount &lt; 0) {
+            tryCount = 0;
+        }
+
+        for (int i = 0; i &lt;= tryCount; i++) {
+            Referer&lt;T&gt; refer = referers.get(i % referers.size());
+            try {
+                request.setRetries(i);
+                return refer.call(request);
+            } catch (RuntimeException e) {
+                // 对于业务异常，直接抛出
+                if (ExceptionUtil.isBizException(e)) {
+                    throw e;
+                } else if (i &gt;= tryCount) {
+                    throw e;
+                }
+                LoggerUtil.warn(String.format(&quot;FailoverHaStrategy Call false for request:%s error=%s&quot;, request, e.getMessage()));
+            }
+        }
+      // 从逻辑来看 代码不会到这个地方（如果是业务逻辑直接抛出，如果达到重试次数，也直接抛出异常了二中断了）
+        throw new MotanFrameworkException(&quot;FailoverHaStrategy.call should not come here!&quot;);
+    }
+
+    /**
+     * 先从threadLocal拿到当前线程持有的List&lt;Referer&lt;T&gt;&gt; referers，然后清除，再从loadbalance哪里复制一份最新的引用添加进去
+     * haStratege能感知到引用列表的实时变化
+     * @param request
+     * @param loadBalance
+     * @return
+     */
+    protected List&lt;Referer&lt;T&gt;&gt; selectReferers(Request request, LoadBalance&lt;T&gt; loadBalance) {
+        List&lt;Referer&lt;T&gt;&gt; referers = referersHolder.get();
+        referers.clear();
+        loadBalance.selectToHolder(request, referers);
+        return referers;
+    }
+
+}
+</code></pre>
 <p>这段代码花费了些时间理解。</p>
 <ul>
 <li>1.为什么要将引用放到new ThreadLocal<list<referer<t>&gt;&gt;()?</list<referer<t></li>
@@ -303,120 +298,396 @@ Failover 失效切换（缺省）
 <h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>容灾策略motan实现的比较简单 ，代码也相对好懂，可以参考借鉴。</p>
 <hr>
 <p>后记：<br>希望有时间可以看Hystrix的实现，</p>
-
-  </div>
-  <footer class="article-footer">
-    
-  <div class="cc">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/deed.z" target="_blank" title="Attribution-ShareAlike">
-      <img src="/images/cc/cc.png">
-      
-          <img src="/images/cc/by.png">
-        
-          <img src="/images/cc/sa.png">
-      
-      <span>
-        This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
-      </span>
-    </a>
-  </div>
-
-
-    
-
-  </footer>
-</article>
-
-
-
-
-
-
-
-          <div class="main-footer">
   
-    © 2017 郑大侠的博客 - Powered by <a href="http://hexo.io" target="_blank">Hexo</a> - Theme <a href="https://github.com/denjones/hexo-theme-chan" target="_blank">Chan</a>
-  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Motan源码解读/">Motan源码解读</a>
 </div>
 
-      
-        </div>
-      
-    </div>
-  </div>
-  <script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 
-  <link rel="stylesheet" href="/PhotoSwipe/photoswipe.css">
-  <link rel="stylesheet" href="/PhotoSwipe/default-skin/default-skin.css">
+</div>
 
-  <!-- Root element of PhotoSwipe. Must have class pswp. -->
-  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 
-    <!-- Background of PhotoSwipe.
-             It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://code.zhizus.com/2016-09-21-motan-hastratege.html" data-title="Motan源码解读-容错策略 | 郑大侠的博客" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
 
-      <!-- Container that holds slides.
-                PhotoSwipe keeps only 3 of them in the DOM to save memory.
-                Don't modify these 3 pswp__item elements, data is added later on. -->
-      <div class="pswp__container">
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-      </div>
 
-      <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-      <div class="pswp__ui pswp__ui--hidden">
+</footer>
 
-        <div class="pswp__top-bar">
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016-09-21-motan-override.html" title="Motan源码解读-源码结构">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Motan源码解读-源码结构</span>
+</a>
+</div>
 
-          <!--  Controls are self-explanatory. Order can be changed. -->
 
-          <div class="pswp__counter"></div>
+<div class="next">
+<a href="/2016-09-20-motan-loadbalance.html"  title="Motan源码解读-负载均衡">
+ <strong>下一篇：</strong><br/> 
+ <span>Motan源码解读-负载均衡
+</span>
+</a>
+</div>
 
-          <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+</nav>
 
-          <button class="pswp__button pswp__button--share" title="Share"></button>
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016-09-21-motan-hastratege.html" data-title="Motan源码解读-容错策略" data-url="http://code.zhizus.com/2016-09-21-motan-hastratege.html"></div>
+</section>
 
-          <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
 
-          <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
 
-          <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-          <!-- element will get class pswp__preloader--active when preloader is running -->
-          <div class="pswp__preloader">
-            <div class="pswp__preloader__icn">
-              <div class="pswp__preloader__cut">
-                <div class="pswp__preloader__donut"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-          <div class="pswp__share-tooltip"></div>
-        </div>
-
-        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-
-        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-
-        <div class="pswp__caption">
-          <div class="pswp__caption__center"></div>
-        </div>
-      </div>
-    </div>
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Motan的容错策略"><span class="toc-number">1.</span> <span class="toc-text">Motan的容错策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dubbo的容错策略"><span class="toc-number">2.</span> <span class="toc-text">dubbo的容错策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#motan容错策略源代码解读"><span class="toc-number">3.</span> <span class="toc-text">motan容错策略源代码解读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于容错的其他考虑"><span class="toc-number">4.</span> <span class="toc-text">关于容错的其他考虑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
   </div>
 
-  <script src="/PhotoSwipe/photoswipe.js"></script>
-  <script src="/PhotoSwipe/photoswipe-ui-default.js"></script>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
 
 
-<script src="/perfect-scrollbar/js/min/perfect-scrollbar.min.js"></script>
-<script src="/scripts/main.js"></script>
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/IM开发日记/" title="IM开发日记">IM开发日记<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Motan源码解读/" title="Motan源码解读">Motan源码解读<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/cache/" title="cache">cache<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/并发编程/" title="并发编程">并发编程<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
 
-</body>
+
+  
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">Weibo</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Larry Page in Google. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2176287895" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="DempeZheng">DempeZheng</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"zhizus"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+});
+
+
+
+</script>
+
+<script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+<script type="text/javascript">
+   $("pre").addClass("prettyprint");
+   $("pre").addClass("linenums");
+   $("pre").addClass("lang-html");
+   $("pre").addClass("prettyprinted");
+   prettyPrint();
+</script>
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
 </html>

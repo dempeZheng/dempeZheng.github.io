@@ -1,18 +1,17 @@
-<!DOCTYPE html>
-<html>
+
+ <!DOCTYPE HTML>
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-
-
-<title>
+  <meta charset="UTF-8">
   
-    Guava Cache 分析
-  
-</title>
+    <title>Guava Cache 分析 | 郑大侠的博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="DempeZheng">
+    
 
-<meta name="description" content="Guava Cache 分析guava的单线程回源缓存的更新有两种方法:
+    <meta name="keywords" content="guava,cache,expireAfterWrite,refreshAfterWrite">
+    <meta name="description" content="Guava Cache 分析guava的单线程回源缓存的更新有两种方法:
 
 被动更新：先从缓存获取，没有则回源获取，再更新缓存；
 主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
@@ -41,162 +40,87 @@ guava cache解决办法：guava">
 在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。
 guava cache解决办法：guava">
 
+    
+    <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
 
-  <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
-
-
-
-  <link rel="icon" href="/favicon.png">
-
-
-<link rel="stylesheet" href="/perfect-scrollbar/css/perfect-scrollbar.min.css">
-<link rel="stylesheet" href="/styles/main.css">
-
-
-
-
-
-
+    <link href="/js/google-code-prettify/themes/tomorrow-night.min.css" type="text/css" rel="stylesheet" />
 </head>
-<body
-  
-    class="monochrome"
-  
-  >
-  <div class="mobile-header">
-  <button class="sidebar-toggle" type="button">
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-  </button>
-  <a class="title" href="/">郑大侠的博客</a>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="郑大侠的博客" title="郑大侠的博客"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="郑大侠的博客">郑大侠的博客</a></h1>
+				<h2 class="blog-motto">DempeZheng&#39;S Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:code.zhizus.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
 </div>
-
-  <div class="main-container">
-    <div class="sidebar">
-  <div class="header">
-    <h1 class="title"><a href="/">郑大侠的博客</a></h1>
-    
-      <p class="subtitle">
-        DempeZheng&#39;S Blog
-      </p>
-    
-    <div class="info">
-      <div class="content">
-        
-          <div class="description">請更固執，將自己謀生與擅長的事情做到最好</div>
-        
-        
-          <div class="author">DempeZheng</div>
-        
-      </div>
-      
-        <div class="avatar">
-          
-            <a href="/about"><img src="https://cn.gravatar.com/avatar/35fef74d731255cd569c2c2b0b9e87e4?s=200"></a>
-          
-        </div>
-      
-    </div>
-  </div>
-  <div class="body">
-    
-      
-        <ul class="nav">
-          
-            
-              <li class="category-list-container">
-                <a href="javascript:;">Category</a>
-                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/IM开发日记/">IM开发日记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/cache/">cache</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发编程/">并发编程</a><span class="category-list-count">1</span></li></ul>
-              </li>
-            
-          
-            
-              <li class="tag-list-container">
-                <a href="javascript:;">Tag</a>
-                
-              </li>
-            
-          
-            
-              <li class="archive-list-container">
-                <a href="javascript:;">Archive</a>
-                <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/">2016</a><span class="archive-list-count">15</span></li></ul>
-              </li>
-            
-          
-        </ul>
-      
-        <ul class="nav">
-          
-            
-              <li>
-                <a href="/" title="Homepage">Homepage</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="/archives" title="By Year">By Year</a>
-              </li>
-            
-          
-        </ul>
-      
-        <ul class="nav">
-          
-            
-              <li>
-                <a href="https://github.com/denjones/hexo-theme-chan" title="Chan" target="_blank" rel="external">Chan</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="https://github.com/denjones" title="Github" target="_blank" rel="external">Github</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="/atom.xml" title="RSS">RSS</a>
-              </li>
-            
-          
-        </ul>
-      
-    
-  </div>
-</div>
-
-    <div class="main-content">
-      
-        <div style="max-width: 1000px">
-      
-          <article id="post-2016-11-05-guava-cache" class="article article-type-post">
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
   
-    <h1 class="article-header">
-      Guava Cache 分析
-    </h1>
-  
-  
-
-  <div class="article-info">
-    <span class="article-date">
-  2016-11-05
-</span>
-
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
     
-	<span class="article-category tagcloud">
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/cache/">cache</a></li></ul>
-	</span>
-
-
+      <a href="/2016-11-05-guava-cache.html" title="Guava Cache 分析" itemprop="url">Guava Cache 分析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="DempeZheng" target="_blank" itemprop="author">DempeZheng</a>
+		
+  <p class="article-time">
+    <time datetime="2016-11-04T16:00:00.000Z" itemprop="datePublished"> Published 2016-11-05</time>
     
-
-  </div>
-  <div class="article-entry">
-    <h2 id="Guava-Cache-分析"><a href="#Guava-Cache-分析" class="headerlink" title="Guava Cache 分析"></a>Guava Cache 分析</h2><h3 id="guava的单线程回源"><a href="#guava的单线程回源" class="headerlink" title="guava的单线程回源"></a>guava的单线程回源</h3><p>缓存的更新有两种方法:</p>
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Guava-Cache-分析"><span class="toc-number">1.</span> <span class="toc-text">Guava Cache 分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#guava的单线程回源"><span class="toc-number">1.1.</span> <span class="toc-text">guava的单线程回源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#guava-refresh和expire刷新机制"><span class="toc-number">1.2.</span> <span class="toc-text">guava refresh和expire刷新机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#guava后台异步刷新"><span class="toc-number">1.3.</span> <span class="toc-text">guava后台异步刷新</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<h2 id="Guava-Cache-分析"><a href="#Guava-Cache-分析" class="headerlink" title="Guava Cache 分析"></a>Guava Cache 分析</h2><h3 id="guava的单线程回源"><a href="#guava的单线程回源" class="headerlink" title="guava的单线程回源"></a>guava的单线程回源</h3><p>缓存的更新有两种方法:</p>
 <ul>
 <li>被动更新：先从缓存获取，没有则回源获取，再更新缓存；</li>
 <li>主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）</li>
@@ -219,123 +143,410 @@ guava cache解决办法：guava">
 <p>refreshAfterWrite通过定时刷新可以让缓存项保持可用。缓存项只有在被检索时才会真正刷新（如果CacheLoader.refresh实现为异步，那么检索不会被刷新拖慢）。也是保证同一个segment的单线程回源，但是与expireAfterWrite不同的是：其他线程访问loading状态的key时，仅仅稍微等一会，没有等到就返回旧值，整个请求就比较平滑。<br>与此同时，也引入了一个问题，refreshAfterWrite策略下，如果一个key长期没有被访问，就有可能会访问到很久之前的旧值。例如refreshAfterWrite(5),5s刷新一次，如果1min内，这个key都没有被访问，那么1min之后访问这个key，仍然有可能访问到旧数据，尽管我们设置了5s刷新一次。（guava cache并没单独的线程来处理刷新的逻辑，而是通过读操作来触发清理工作）</p>
 <p>对于这个问题有没有这种的办法呢？<br>guava cache支持我们同时使用expireAfterWrite&amp;refreshAfterWrite，我们既可以通过组合的策略既保证性能，又保证不要读取到太旧的数据。<br>比如我们有需求：要求请求必须平滑，而且不能读到5s之前的旧数据。</p>
 <p>我们可以如下设置来满足需求：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">LoadingCache&lt;String, String&gt; cache;</div><div class="line">   cache = CacheBuilder</div><div class="line">           .newBuilder()</div><div class="line">           .refreshAfterWrite(4L, TimeUnit.SECONDS)</div><div class="line">           .expireAfterWrite(5L, TimeUnit.SECONDS)</div><div class="line">           .build(loader);</div></pre></td></tr></table></figure>
-<p> <code>expireAfterWrite(5L, TimeUnit.SECONDS)</code>能保证不会读到5s之前的旧数据，<code>refreshAfterWrite(4L, TimeUnit.SECONDS)</code>能保证大部分请求都在4s左右被刷新，小部分访问量较少的在5s的时候通过expireAfterWrite策略重新被回源。</p>
-<h3 id="guava后台异步刷新"><a href="#guava后台异步刷新" class="headerlink" title="guava后台异步刷新"></a>guava后台异步刷新</h3><p>refreshAfterWrite的刷新调用的是reload，reload的默认实现是在当前线程里面reload，也会造成一些卡顿，如果希望异步reload，需要重载这个方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">@GwtIncompatible // Futures</div><div class="line"> public ListenableFuture&lt;V&gt; reload(K key, V oldValue) throws Exception &#123;</div><div class="line">   checkNotNull(key);</div><div class="line">   checkNotNull(oldValue);</div><div class="line">   return Futures.immediateFuture(load(key));//当前线程调用load，会造成当前线程的卡顿，如果不接受卡顿，需要重载这个方法</div><div class="line"> &#125;</div></pre></td></tr></table></figure></p>
+<pre><code> LoadingCache&lt;String, String&gt; cache;
+    cache = CacheBuilder
+            .newBuilder()
+            .refreshAfterWrite(4L, TimeUnit.SECONDS)
+            .expireAfterWrite(5L, TimeUnit.SECONDS)
+            .build(loader);
+</code></pre><p> <code>expireAfterWrite(5L, TimeUnit.SECONDS)</code>能保证不会读到5s之前的旧数据，<code>refreshAfterWrite(4L, TimeUnit.SECONDS)</code>能保证大部分请求都在4s左右被刷新，小部分访问量较少的在5s的时候通过expireAfterWrite策略重新被回源。</p>
+<h3 id="guava后台异步刷新"><a href="#guava后台异步刷新" class="headerlink" title="guava后台异步刷新"></a>guava后台异步刷新</h3><p>refreshAfterWrite的刷新调用的是reload，reload的默认实现是在当前线程里面reload，也会造成一些卡顿，如果希望异步reload，需要重载这个方法。</p>
+<pre><code> @GwtIncompatible // Futures
+  public ListenableFuture&lt;V&gt; reload(K key, V oldValue) throws Exception {
+    checkNotNull(key);
+    checkNotNull(oldValue);
+    return Futures.immediateFuture(load(key));//当前线程调用load，会造成当前线程的卡顿，如果不接受卡顿，需要重载这个方法
+  }
+</code></pre>  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
 
-  </div>
-  <footer class="article-footer">
-    
-  <div class="cc">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/deed.z" target="_blank" title="Attribution-ShareAlike">
-      <img src="/images/cc/cc.png">
-      
-          <img src="/images/cc/by.png">
-        
-          <img src="/images/cc/sa.png">
-      
-      <span>
-        This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
-      </span>
-    </a>
-  </div>
-
-
-    
-
-  </footer>
-</article>
-
-
-
-
-
-
-
-          <div class="main-footer">
-  
-    © 2017 郑大侠的博客 - Powered by <a href="http://hexo.io" target="_blank">Hexo</a> - Theme <a href="https://github.com/denjones/hexo-theme-chan" target="_blank">Chan</a>
-  
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/cache/">cache</a>
 </div>
 
-      
-        </div>
-      
-    </div>
-  </div>
-  <script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 
-  <link rel="stylesheet" href="/PhotoSwipe/photoswipe.css">
-  <link rel="stylesheet" href="/PhotoSwipe/default-skin/default-skin.css">
+</div>
 
-  <!-- Root element of PhotoSwipe. Must have class pswp. -->
-  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 
-    <!-- Background of PhotoSwipe.
-             It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://code.zhizus.com/2016-11-05-guava-cache.html" data-title="Guava Cache 分析 | 郑大侠的博客" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
 
-      <!-- Container that holds slides.
-                PhotoSwipe keeps only 3 of them in the DOM to save memory.
-                Don't modify these 3 pswp__item elements, data is added later on. -->
-      <div class="pswp__container">
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-      </div>
 
-      <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-      <div class="pswp__ui pswp__ui--hidden">
+</footer>
 
-        <div class="pswp__top-bar">
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017-01-21newyear.html" title="Guava Cache使用示例">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Guava Cache使用示例</span>
+</a>
+</div>
 
-          <!--  Controls are self-explanatory. Order can be changed. -->
 
-          <div class="pswp__counter"></div>
+<div class="next">
+<a href="/2016-11-05guava-cache-info.html"  title="Guava Cache使用示例">
+ <strong>下一篇：</strong><br/> 
+ <span>Guava Cache使用示例
+</span>
+</a>
+</div>
 
-          <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+</nav>
 
-          <button class="pswp__button pswp__button--share" title="Share"></button>
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016-11-05-guava-cache.html" data-title="Guava Cache 分析" data-url="http://code.zhizus.com/2016-11-05-guava-cache.html"></div>
+</section>
 
-          <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
 
-          <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
 
-          <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-          <!-- element will get class pswp__preloader--active when preloader is running -->
-          <div class="pswp__preloader">
-            <div class="pswp__preloader__icn">
-              <div class="pswp__preloader__cut">
-                <div class="pswp__preloader__donut"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-          <div class="pswp__share-tooltip"></div>
-        </div>
-
-        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-
-        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-
-        <div class="pswp__caption">
-          <div class="pswp__caption__center"></div>
-        </div>
-      </div>
-    </div>
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Guava-Cache-分析"><span class="toc-number">1.</span> <span class="toc-text">Guava Cache 分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#guava的单线程回源"><span class="toc-number">1.1.</span> <span class="toc-text">guava的单线程回源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#guava-refresh和expire刷新机制"><span class="toc-number">1.2.</span> <span class="toc-text">guava refresh和expire刷新机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#guava后台异步刷新"><span class="toc-number">1.3.</span> <span class="toc-text">guava后台异步刷新</span></a></li></ol></li></ol>
+ 
   </div>
 
-  <script src="/PhotoSwipe/photoswipe.js"></script>
-  <script src="/PhotoSwipe/photoswipe-ui-default.js"></script>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
 
 
-<script src="/perfect-scrollbar/js/min/perfect-scrollbar.min.js"></script>
-<script src="/scripts/main.js"></script>
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/IM开发日记/" title="IM开发日记">IM开发日记<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Motan源码解读/" title="Motan源码解读">Motan源码解读<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/cache/" title="cache">cache<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/并发编程/" title="并发编程">并发编程<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
 
-</body>
+
+  
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">Weibo</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Larry Page in Google. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2176287895" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="DempeZheng">DempeZheng</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"zhizus"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+});
+
+
+
+</script>
+
+<script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+<script type="text/javascript">
+   $("pre").addClass("prettyprint");
+   $("pre").addClass("linenums");
+   $("pre").addClass("lang-html");
+   $("pre").addClass("prettyprinted");
+   prettyPrint();
+</script>
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
 </html>

@@ -1,27 +1,26 @@
-<!DOCTYPE html>
-<html>
+
+ <!DOCTYPE HTML>
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-
-
-<title>
+  <meta charset="UTF-8">
   
-    Motan源码解读-负载均衡
-  
-</title>
+    <title>Motan源码解读-负载均衡 | 郑大侠的博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="DempeZheng">
+    
 
-<meta name="description" content="负载均衡的策略
+    <meta name="keywords" content="motan,源码,loadbalance,负载均衡">
+    <meta name="description" content="负载均衡的策略
 Motan 在集群负载均衡时，提供了多种方案，缺省为 ActiveWeight，并支持自定义扩展。 负载均衡策略在Client端生效，因此需在Client端添加配置
 
 目前支持的负载均衡策略有：
 
 ActiveWeight(缺省)
 
-1&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
+&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
 
-低并发度优先：">
+低并发度优先： r">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Motan源码解读-负载均衡">
 <meta property="og:url" content="http://code.zhizus.com/2016-09-20-motan-loadbalance.html">
@@ -33,9 +32,9 @@ Motan 在集群负载均衡时，提供了多种方案，缺省为 ActiveWeight�
 
 ActiveWeight(缺省)
 
-1&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
+&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
 
-低并发度优先：">
+低并发度优先： r">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/14612385789967.jpg">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/motan-lb.png">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/loadbalance.png">
@@ -49,210 +48,135 @@ Motan 在集群负载均衡时，提供了多种方案，缺省为 ActiveWeight�
 
 ActiveWeight(缺省)
 
-1&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
+&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
 
-低并发度优先：">
+低并发度优先： r">
 <meta name="twitter:image" content="http://code.zhizus.com/images/motan/14612385789967.jpg">
 
+    
+    <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
 
-  <link rel="alternative" href="/atom.xml" title="郑大侠的博客" type="application/atom+xml">
-
-
-
-  <link rel="icon" href="/favicon.png">
-
-
-<link rel="stylesheet" href="/perfect-scrollbar/css/perfect-scrollbar.min.css">
-<link rel="stylesheet" href="/styles/main.css">
-
-
-
-
-
-
+    <link href="/js/google-code-prettify/themes/tomorrow-night.min.css" type="text/css" rel="stylesheet" />
 </head>
-<body
-  
-    class="monochrome"
-  
-  >
-  <div class="mobile-header">
-  <button class="sidebar-toggle" type="button">
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-  </button>
-  <a class="title" href="/">郑大侠的博客</a>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="郑大侠的博客" title="郑大侠的博客"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="郑大侠的博客">郑大侠的博客</a></h1>
+				<h2 class="blog-motto">DempeZheng&#39;S Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:code.zhizus.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
 </div>
-
-  <div class="main-container">
-    <div class="sidebar">
-  <div class="header">
-    <h1 class="title"><a href="/">郑大侠的博客</a></h1>
-    
-      <p class="subtitle">
-        DempeZheng&#39;S Blog
-      </p>
-    
-    <div class="info">
-      <div class="content">
-        
-          <div class="description">請更固執，將自己謀生與擅長的事情做到最好</div>
-        
-        
-          <div class="author">DempeZheng</div>
-        
-      </div>
-      
-        <div class="avatar">
-          
-            <a href="/about"><img src="https://cn.gravatar.com/avatar/35fef74d731255cd569c2c2b0b9e87e4?s=200"></a>
-          
-        </div>
-      
-    </div>
-  </div>
-  <div class="body">
-    
-      
-        <ul class="nav">
-          
-            
-              <li class="category-list-container">
-                <a href="javascript:;">Category</a>
-                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/IM开发日记/">IM开发日记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/cache/">cache</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发编程/">并发编程</a><span class="category-list-count">1</span></li></ul>
-              </li>
-            
-          
-            
-              <li class="tag-list-container">
-                <a href="javascript:;">Tag</a>
-                
-              </li>
-            
-          
-            
-              <li class="archive-list-container">
-                <a href="javascript:;">Archive</a>
-                <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/">2016</a><span class="archive-list-count">15</span></li></ul>
-              </li>
-            
-          
-        </ul>
-      
-        <ul class="nav">
-          
-            
-              <li>
-                <a href="/" title="Homepage">Homepage</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="/archives" title="By Year">By Year</a>
-              </li>
-            
-          
-        </ul>
-      
-        <ul class="nav">
-          
-            
-              <li>
-                <a href="https://github.com/denjones/hexo-theme-chan" title="Chan" target="_blank" rel="external">Chan</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="https://github.com/denjones" title="Github" target="_blank" rel="external">Github</a>
-              </li>
-            
-          
-            
-              <li>
-                <a href="/atom.xml" title="RSS">RSS</a>
-              </li>
-            
-          
-        </ul>
-      
-    
-  </div>
-</div>
-
-    <div class="main-content">
-      
-        <div style="max-width: 1000px">
-      
-          <article id="post-2016-09-20-motan-loadbalance" class="article article-type-post">
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
   
-    <h1 class="article-header">
-      Motan源码解读-负载均衡
-    </h1>
-  
-  
-
-  <div class="article-info">
-    <span class="article-date">
-  2016-09-20
-</span>
-
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
     
-	<span class="article-category tagcloud">
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Motan源码解读/">Motan源码解读</a></li></ul>
-	</span>
-
-
+      <a href="/2016-09-20-motan-loadbalance.html" title="Motan源码解读-负载均衡" itemprop="url">Motan源码解读-负载均衡</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="DempeZheng" target="_blank" itemprop="author">DempeZheng</a>
+		
+  <p class="article-time">
+    <time datetime="2016-09-19T16:00:00.000Z" itemprop="datePublished"> Published 2016-09-20</time>
     
-
-  </div>
-  <div class="article-entry">
-    <h4 id="负载均衡的策略"><a href="#负载均衡的策略" class="headerlink" title="负载均衡的策略"></a>负载均衡的策略</h4><blockquote>
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#负载均衡的策略"><span class="toc-number">1.</span> <span class="toc-text">负载均衡的策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan加载loadbalance策略的机制"><span class="toc-number">2.</span> <span class="toc-text">motan加载loadbalance策略的机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan-LoadBalance实现"><span class="toc-number">3.</span> <span class="toc-text">motan LoadBalance实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<h4 id="负载均衡的策略"><a href="#负载均衡的策略" class="headerlink" title="负载均衡的策略"></a>负载均衡的策略</h4><blockquote>
 <p>Motan 在集群负载均衡时，提供了多种方案，缺省为 ActiveWeight，并支持自定义扩展。 负载均衡策略在Client端生效，因此需在Client端添加配置</p>
 </blockquote>
 <p><strong>目前支持的负载均衡策略有：</strong></p>
 <ul>
 <li>ActiveWeight(缺省)</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;activeWeight&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;activeWeight&quot;/&gt;
+</code></pre><blockquote>
 <p>低并发度优先： referer 的某时刻的 call 数越小优先级越高<br>由于 Referer List 可能很多，比如上百台，如果每次都要从这上百个 Referer 或者最低并发的几个，性能有些损耗，因此 random.nextInt(list.size()) 获取一个起始的 index，然后获取最多不超过 MAX_REFERER_COUNT 的状态是 isAvailable 的 referer 进行判断 activeCount.</p>
 </blockquote>
 <ul>
 <li>Random</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;random&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;random&quot;/&gt;
+</code></pre><blockquote>
 <p>随机，按权重设置随机概率。<br>在一个截面上碰撞的概率高，但调用量越大分布越均匀，而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。</p>
 </blockquote>
 <ul>
 <li>RoundRobin</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;roundrobin&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;roundrobin&quot;/&gt;
+</code></pre><blockquote>
 <p>轮循，按公约后的权重设置轮循比率</p>
 </blockquote>
 <ul>
 <li>LocalFirst</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;localFirst&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;localFirst&quot;/&gt;
+</code></pre><blockquote>
 <p>本地服务优先获取策略，对referers根据ip顺序查找本地服务，多存在多个本地服务，获取Active最小的本地服务进行服务。<br>当不存在本地服务，但是存在远程RPC服务，则根据ActivWeight获取远程RPC服务<br>当两者都存在，所有本地服务都应优先于远程服务，本地RPC服务与远程RPC服务内部则根据ActiveWeight进行</p>
 </blockquote>
 <ul>
 <li>Consistent</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;consistent&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;consistent&quot;/&gt;
+</code></pre><blockquote>
 <p>一致性 Hash，相同参数的请求总是发到同一提供者</p>
 </blockquote>
 <ul>
 <li>ConfigurableWeight</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;configurableWeight&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;configurableWeight&quot;/&gt;
+</code></pre><blockquote>
 <p>权重可配置的负载均衡策略</p>
 </blockquote>
 <h4 id="motan加载loadbalance策略的机制"><a href="#motan加载loadbalance策略的机制" class="headerlink" title="motan加载loadbalance策略的机制"></a>motan加载loadbalance策略的机制</h4><p>上面我们了解了motan支持的负载均衡的策略，下面我们来剖析一下motan怎么实现的。</p>
@@ -262,135 +186,607 @@ ActiveWeight(缺省)
 <p><img src="/images/motan/motan-lb.png" alt=""></p>
 <h4 id="motan-LoadBalance实现"><a href="#motan-LoadBalance实现" class="headerlink" title="motan LoadBalance实现"></a>motan LoadBalance实现</h4><p><img src="/images/motan/loadbalance.png" alt=""></p>
 <p>接下来，我们看loadbalance接口</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 可以基于SPI扩展，使用方可以实现自己的LoadBalance</span></div><div class="line"><span class="meta">@Spi</span>(scope = Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">LoadBalance</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">//当可用的应用列表变化时会调用这个方法刷新（motan的可用引用列表是基于服务发现这种模式实现，目前实现了consul&amp;zk）</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onRefresh</span><span class="params">(List&lt;Referer&lt;T&gt;&gt; referers)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// 基于负载均衡的策略选择可用的引用</span></div><div class="line">    <span class="function">Referer&lt;T&gt; <span class="title">select</span><span class="params">(Request request)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// FailoverHaStrategy会使用到这个，多线程场景</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">selectToHolder</span><span class="params">(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// ?? 仅仅属于WeightLoadBalance的特性，定义在最上层接口是否合适？？</span></div><div class="line">    <span class="comment">//cluster.getLoadBalance().setWeightString(weights); 这里使用的时候判断一下类型，对WeightLoadBalance这种类型单独处理向下转型是否可以？</span></div><div class="line">    <span class="comment">// 或者是否有其他更好的办法？？</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setWeightString</span><span class="params">(String weightString)</span></span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">// 可以基于SPI扩展，使用方可以实现自己的LoadBalance
+@Spi(scope = Scope.PROTOTYPE)
+public interface LoadBalance&lt;T&gt; {
+
+    //当可用的应用列表变化时会调用这个方法刷新（motan的可用引用列表是基于服务发现这种模式实现，目前实现了consul&amp;zk）
+    void onRefresh(List&lt;Referer&lt;T&gt;&gt; referers);
+
+    // 基于负载均衡的策略选择可用的引用
+    Referer&lt;T&gt; select(Request request);
+
+    // FailoverHaStrategy会使用到这个，多线程场景
+    void selectToHolder(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder);
+
+    // ?? 仅仅属于WeightLoadBalance的特性，定义在最上层接口是否合适？？
+    //cluster.getLoadBalance().setWeightString(weights); 这里使用的时候判断一下类型，对WeightLoadBalance这种类型单独处理向下转型是否可以？
+    // 或者是否有其他更好的办法？？
+    void setWeightString(String weightString);
+
+}
+</code></pre>
 <p>下面我们AbstractLoadBalance,实现了公有的基础逻辑。将不同的策略交由子类去实现，实际上应用到了java设计模式的模板模式。</p>
 <blockquote>
 <p>模板模式在模板模式（Template Pattern）中，一个抽象类公开定义了执行它的方法的方式/模板。它的子类可以按需要重写方法实现，但调用将以抽象类中定义的方式进行。这种类型的设计模式属于行为型模式。</p>
 </blockquote>
 <p>下面我们看代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractLoadBalance</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">LoadBalance</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> List&lt;Referer&lt;T&gt;&gt; referers;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRefresh</span><span class="params">(List&lt;Referer&lt;T&gt;&gt; referers)</span> </span>&#123;</div><div class="line">        <span class="comment">// 只能引用替换，不能进行referers update。</span></div><div class="line">        <span class="keyword">this</span>.referers = referers;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Referer&lt;T&gt; <span class="title">select</span><span class="params">(Request request)</span> </span>&#123;</div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = <span class="keyword">this</span>.referers;</div><div class="line"></div><div class="line">        Referer&lt;T&gt; ref = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">if</span> (referers.size() &gt; <span class="number">1</span>) &#123;</div><div class="line">            ref = doSelect(request);</div><div class="line"></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (referers.size() == <span class="number">1</span>) &#123;</div><div class="line">            ref = referers.get(<span class="number">0</span>).isAvailable() ? referers.get(<span class="number">0</span>) : <span class="keyword">null</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (ref != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">return</span> ref;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(<span class="keyword">this</span>.getClass().getSimpleName() + <span class="string">" No available referers for call request:"</span> + request);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">selectToHolder</span><span class="params">(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder)</span> </span>&#123;</div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = <span class="keyword">this</span>.referers;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (referers == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(<span class="keyword">this</span>.getClass().getSimpleName() + <span class="string">" No available referers for call : referers_size= 0 "</span></div><div class="line">                    + MotanFrameworkUtil.toString(request));</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (referers.size() &gt; <span class="number">1</span>) &#123;</div><div class="line">            doSelectToHolder(request, refersHolder);</div><div class="line"></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (referers.size() == <span class="number">1</span> &amp;&amp; referers.get(<span class="number">0</span>).isAvailable()) &#123;</div><div class="line">            refersHolder.add(referers.get(<span class="number">0</span>));</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (refersHolder.isEmpty()) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(<span class="keyword">this</span>.getClass().getSimpleName() + <span class="string">" No available referers for call : referers_size="</span></div><div class="line">                    + referers.size() + <span class="string">" "</span> + MotanFrameworkUtil.toString(request));</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">protected</span> List&lt;Referer&lt;T&gt;&gt; getReferers() &#123;</div><div class="line">        <span class="keyword">return</span> referers;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setWeightString</span><span class="params">(String weightString)</span> </span>&#123;</div><div class="line">        LoggerUtil.info(<span class="string">"ignore weightString:"</span> + weightString);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> Referer&lt;T&gt; <span class="title">doSelect</span><span class="params">(Request request)</span></span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">doSelectToHolder</span><span class="params">(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public abstract class AbstractLoadBalance&lt;T&gt; implements LoadBalance&lt;T&gt; {
+
+    private List&lt;Referer&lt;T&gt;&gt; referers;
+
+    @Override
+    public void onRefresh(List&lt;Referer&lt;T&gt;&gt; referers) {
+        // 只能引用替换，不能进行referers update。
+        this.referers = referers;
+    }
+
+    @Override
+    public Referer&lt;T&gt; select(Request request) {
+        List&lt;Referer&lt;T&gt;&gt; referers = this.referers;
+
+        Referer&lt;T&gt; ref = null;
+        if (referers.size() &gt; 1) {
+            ref = doSelect(request);
+
+        } else if (referers.size() == 1) {
+            ref = referers.get(0).isAvailable() ? referers.get(0) : null;
+        }
+
+        if (ref != null) {
+            return ref;
+        }
+        throw new MotanServiceException(this.getClass().getSimpleName() + &quot; No available referers for call request:&quot; + request);
+    }
+
+    @Override
+    public void selectToHolder(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder) {
+        List&lt;Referer&lt;T&gt;&gt; referers = this.referers;
+
+        if (referers == null) {
+            throw new MotanServiceException(this.getClass().getSimpleName() + &quot; No available referers for call : referers_size= 0 &quot;
+                    + MotanFrameworkUtil.toString(request));
+        }
+
+        if (referers.size() &gt; 1) {
+            doSelectToHolder(request, refersHolder);
+
+        } else if (referers.size() == 1 &amp;&amp; referers.get(0).isAvailable()) {
+            refersHolder.add(referers.get(0));
+        }
+        if (refersHolder.isEmpty()) {
+            throw new MotanServiceException(this.getClass().getSimpleName() + &quot; No available referers for call : referers_size=&quot;
+                    + referers.size() + &quot; &quot; + MotanFrameworkUtil.toString(request));
+        }
+    }
+
+    protected List&lt;Referer&lt;T&gt;&gt; getReferers() {
+        return referers;
+    }
+
+    @Override
+    public void setWeightString(String weightString) {
+        LoggerUtil.info(&quot;ignore weightString:&quot; + weightString);
+    }
+
+    protected abstract Referer&lt;T&gt; doSelect(Request request);
+
+    protected abstract void doSelectToHolder(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder);
+}
+</code></pre>
 <p>子类重写<code>doSelect(Request request)</code>方法就是实现自己的策略。(里面还有一个doSelectToHolder(Request request, List<referer<t>&gt; refersHolder)方法，这个FailoverHaStrategy会涉及到，我们下一篇在讨论)</referer<t></p>
 <p>看了一遍各种策略具体实现，貌似没什么好说的。有兴趣可以直接看motan源代码。</p>
 <p>下面贴出一个另外一种的实现，仅供学习参考，<code>非线程安全</code>，使用时需要注意.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LoadBalance</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> i = <span class="number">0</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> cw = <span class="number">0</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span>[] weight;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LoadBalance</span><span class="params">(<span class="keyword">int</span> count)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.count = count;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LoadBalance</span><span class="params">(<span class="keyword">int</span>[] weight)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.count = weight.length;</div><div class="line">        <span class="keyword">this</span>.weight = weight;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashIndex</span><span class="params">(String key)</span> </span>&#123;</div><div class="line">        <span class="keyword">long</span> hash = <span class="number">5381L</span>;</div><div class="line"></div><div class="line">        <span class="keyword">int</span> index;</div><div class="line">        <span class="keyword">for</span>(index = <span class="number">0</span>; index &lt; key.length(); ++index) &#123;</div><div class="line">            hash = (hash &lt;&lt; <span class="number">5</span>) + hash + (<span class="keyword">long</span>)key.charAt(index);</div><div class="line">            hash &amp;= <span class="number">4294967295L</span>;</div><div class="line">        &#125;</div><div class="line">        index = (<span class="keyword">int</span>)hash % <span class="keyword">this</span>.count;</div><div class="line">        index = Math.abs(index);</div><div class="line">        <span class="keyword">return</span> index;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">roundIndexByWeight</span><span class="params">()</span> </span>&#123;</div><div class="line">        do &#123;</div><div class="line">            <span class="keyword">this</span>.i = (<span class="keyword">this</span>.i + <span class="number">1</span>) % <span class="keyword">this</span>.count;</div><div class="line">            <span class="keyword">if</span>(<span class="keyword">this</span>.i == <span class="number">0</span>) &#123;</div><div class="line">                <span class="keyword">this</span>.cw -= <span class="keyword">this</span>.gcd();</div><div class="line">                <span class="keyword">if</span>(<span class="keyword">this</span>.cw &lt;= <span class="number">0</span>) &#123;</div><div class="line">                    <span class="keyword">this</span>.cw = <span class="keyword">this</span>.max();</div><div class="line">                    <span class="keyword">if</span>(<span class="keyword">this</span>.cw == <span class="number">0</span>) &#123;</div><div class="line">                        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">while</span>(<span class="keyword">this</span>.weight[<span class="keyword">this</span>.i] &lt; <span class="keyword">this</span>.cw);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.i;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">roundIndex</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> j = <span class="keyword">this</span>.i;</div><div class="line">        j = (j + <span class="number">1</span>) % <span class="keyword">this</span>.count;</div><div class="line">        <span class="keyword">this</span>.i = j;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.i;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">gcd</span><span class="params">()</span> </span>&#123;</div><div class="line">        BigInteger value = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.weight.length &gt; <span class="number">0</span>) &#123;</div><div class="line">            value = BigInteger.valueOf((<span class="keyword">long</span>)<span class="keyword">this</span>.weight[<span class="keyword">this</span>.i]);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.weight.length - <span class="number">1</span>; ++i) &#123;</div><div class="line">            BigInteger tmp = BigInteger.valueOf((<span class="keyword">long</span>)<span class="keyword">this</span>.weight[i]);</div><div class="line">            tmp = tmp.gcd(BigInteger.valueOf((<span class="keyword">long</span>)<span class="keyword">this</span>.weight[i + <span class="number">1</span>]));</div><div class="line">            <span class="keyword">if</span>(value.compareTo(tmp) &gt; <span class="number">0</span>) &#123;</div><div class="line">                value = tmp;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">null</span> != value) &#123;</div><div class="line">            <span class="keyword">return</span> value.intValue();</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">max</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> value = <span class="number">0</span>;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.weight.length &gt; <span class="number">0</span>) &#123;</div><div class="line">            value = <span class="keyword">this</span>.weight[<span class="number">0</span>];</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.weight.length - <span class="number">1</span>; ++i) &#123;</div><div class="line">            <span class="keyword">int</span> tmp = <span class="keyword">this</span>.weight[i];</div><div class="line">            <span class="keyword">if</span>(value &lt; tmp) &#123;</div><div class="line">                value = tmp;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> value;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">HALBProxy</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> HALBProxy.Strategy strategy;</div><div class="line">    <span class="keyword">private</span> LoadBalance lb;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">HALBProxy</span><span class="params">(HALBProxy.Strategy strategy)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.logger = Logger.getLogger(<span class="keyword">this</span>.getClass());</div><div class="line">        <span class="keyword">this</span>.availServers = <span class="keyword">new</span> CopyOnWriteArrayList();</div><div class="line">        <span class="keyword">this</span>.unavailServers = <span class="keyword">new</span> CopyOnWriteArrayList();</div><div class="line">        <span class="keyword">this</span>.listeners = <span class="keyword">new</span> HashSet();</div><div class="line">        <span class="keyword">this</span>.strategy = strategy;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getIndex</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">switch</span>(strategy) &#123;</div><div class="line">        <span class="keyword">case</span> <span class="number">1</span>:</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        <span class="keyword">case</span> <span class="number">2</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.lb.roundIndex();</div><div class="line">        <span class="keyword">case</span> <span class="number">3</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.lb.roundIndexByWeight();</div><div class="line">        <span class="keyword">default</span>:</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getIndex</span><span class="params">(String key)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.lb.hashIndex(key);</div><div class="line">    &#125;</div><div class="line">     <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">enum</span> Strategy &#123;</div><div class="line">        DEFAULT,</div><div class="line">        RR,</div><div class="line">        WRR,</div><div class="line">        HASH;</div><div class="line">        <span class="function"><span class="keyword">private</span> <span class="title">Strategy</span><span class="params">()</span> </span>&#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public class LoadBalance {
+    private int i = 0;
+    private int cw = 0;
+    private int[] weight;
+    private int count;
+
+    public LoadBalance(int count) {
+        this.count = count;
+    }
+
+    public LoadBalance(int[] weight) {
+        this.count = weight.length;
+        this.weight = weight;
+    }
+
+    public int hashIndex(String key) {
+        long hash = 5381L;
+
+        int index;
+        for(index = 0; index &lt; key.length(); ++index) {
+            hash = (hash &lt;&lt; 5) + hash + (long)key.charAt(index);
+            hash &amp;= 4294967295L;
+        }
+        index = (int)hash % this.count;
+        index = Math.abs(index);
+        return index;
+    }
+    public int roundIndexByWeight() {
+        do {
+            this.i = (this.i + 1) % this.count;
+            if(this.i == 0) {
+                this.cw -= this.gcd();
+                if(this.cw &lt;= 0) {
+                    this.cw = this.max();
+                    if(this.cw == 0) {
+                        return 0;
+                    }
+                }
+            }
+        } while(this.weight[this.i] &lt; this.cw);
+        return this.i;
+    }
+    public int roundIndex() {
+        int j = this.i;
+        j = (j + 1) % this.count;
+        this.i = j;
+        return this.i;
+    }
+    private int gcd() {
+        BigInteger value = null;
+        if(this.weight.length &gt; 0) {
+            value = BigInteger.valueOf((long)this.weight[this.i]);
+        }
+        for(int i = 0; i &lt; this.weight.length - 1; ++i) {
+            BigInteger tmp = BigInteger.valueOf((long)this.weight[i]);
+            tmp = tmp.gcd(BigInteger.valueOf((long)this.weight[i + 1]));
+            if(value.compareTo(tmp) &gt; 0) {
+                value = tmp;
+            }
+        }
+        if(null != value) {
+            return value.intValue();
+        } else {
+            return 0;
+        }
+    }
+    private int max() {
+        int value = 0;
+        if(this.weight.length &gt; 0) {
+            value = this.weight[0];
+        }
+
+        for(int i = 0; i &lt; this.weight.length - 1; ++i) {
+            int tmp = this.weight[i];
+            if(value &lt; tmp) {
+                value = tmp;
+            }
+        }
+        return value;
+    }
+}
+</code></pre>
+<pre><code class="java">public abstract class HALBProxy {
+    private HALBProxy.Strategy strategy;
+    private LoadBalance lb;
+    public HALBProxy(HALBProxy.Strategy strategy) {
+        this.logger = Logger.getLogger(this.getClass());
+        this.availServers = new CopyOnWriteArrayList();
+        this.unavailServers = new CopyOnWriteArrayList();
+        this.listeners = new HashSet();
+        this.strategy = strategy;
+    }
+    public int getIndex() {
+        switch(strategy) {
+        case 1:
+            return 0;
+        case 2:
+            return this.lb.roundIndex();
+        case 3:
+            return this.lb.roundIndexByWeight();
+        default:
+            return 0;
+        }
+    }
+    public int getIndex(String key) {
+        return this.lb.hashIndex(key);
+    }
+     public static enum Strategy {
+        DEFAULT,
+        RR,
+        WRR,
+        HASH;
+        private Strategy() {
+        }
+    }
+}
+</code></pre>
 <h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>总的来说负载均衡部分还算比较简单，LocalFirst优先读取本机的服务这个策略还是很不错的。</p>
 <hr>
 <p>关于更多loadbalance请看<a href="http://tutorials.jenkov.com/software-architecture/load-balancing.html" target="_blank" rel="external">老外的文章(直戳loadbalance本质)</a></p>
-
-  </div>
-  <footer class="article-footer">
-    
-  <div class="cc">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/deed.z" target="_blank" title="Attribution-ShareAlike">
-      <img src="/images/cc/cc.png">
-      
-          <img src="/images/cc/by.png">
-        
-          <img src="/images/cc/sa.png">
-      
-      <span>
-        This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
-      </span>
-    </a>
-  </div>
-
-
-    
-
-  </footer>
-</article>
-
-
-
-
-
-
-
-          <div class="main-footer">
   
-    © 2017 郑大侠的博客 - Powered by <a href="http://hexo.io" target="_blank">Hexo</a> - Theme <a href="https://github.com/denjones/hexo-theme-chan" target="_blank">Chan</a>
-  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Motan源码解读/">Motan源码解读</a>
 </div>
 
-      
-        </div>
-      
-    </div>
-  </div>
-  <script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 
-  <link rel="stylesheet" href="/PhotoSwipe/photoswipe.css">
-  <link rel="stylesheet" href="/PhotoSwipe/default-skin/default-skin.css">
+</div>
 
-  <!-- Root element of PhotoSwipe. Must have class pswp. -->
-  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 
-    <!-- Background of PhotoSwipe.
-             It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://code.zhizus.com/2016-09-20-motan-loadbalance.html" data-title="Motan源码解读-负载均衡 | 郑大侠的博客" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
 
-      <!-- Container that holds slides.
-                PhotoSwipe keeps only 3 of them in the DOM to save memory.
-                Don't modify these 3 pswp__item elements, data is added later on. -->
-      <div class="pswp__container">
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-      </div>
 
-      <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-      <div class="pswp__ui pswp__ui--hidden">
+</footer>
 
-        <div class="pswp__top-bar">
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016-09-21-motan-hastratege.html" title="Motan源码解读-容错策略">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Motan源码解读-容错策略</span>
+</a>
+</div>
 
-          <!--  Controls are self-explanatory. Order can be changed. -->
 
-          <div class="pswp__counter"></div>
+<div class="next">
+<a href="/2016-09-19-motan-clientMessage.html"  title="Motan源码解读-Client异步消息">
+ <strong>下一篇：</strong><br/> 
+ <span>Motan源码解读-Client异步消息
+</span>
+</a>
+</div>
 
-          <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+</nav>
 
-          <button class="pswp__button pswp__button--share" title="Share"></button>
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016-09-20-motan-loadbalance.html" data-title="Motan源码解读-负载均衡" data-url="http://code.zhizus.com/2016-09-20-motan-loadbalance.html"></div>
+</section>
 
-          <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
 
-          <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
 
-          <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-          <!-- element will get class pswp__preloader--active when preloader is running -->
-          <div class="pswp__preloader">
-            <div class="pswp__preloader__icn">
-              <div class="pswp__preloader__cut">
-                <div class="pswp__preloader__donut"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-          <div class="pswp__share-tooltip"></div>
-        </div>
-
-        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-
-        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-
-        <div class="pswp__caption">
-          <div class="pswp__caption__center"></div>
-        </div>
-      </div>
-    </div>
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#负载均衡的策略"><span class="toc-number">1.</span> <span class="toc-text">负载均衡的策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan加载loadbalance策略的机制"><span class="toc-number">2.</span> <span class="toc-text">motan加载loadbalance策略的机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan-LoadBalance实现"><span class="toc-number">3.</span> <span class="toc-text">motan LoadBalance实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
   </div>
 
-  <script src="/PhotoSwipe/photoswipe.js"></script>
-  <script src="/PhotoSwipe/photoswipe-ui-default.js"></script>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
 
 
-<script src="/perfect-scrollbar/js/min/perfect-scrollbar.min.js"></script>
-<script src="/scripts/main.js"></script>
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/IM开发日记/" title="IM开发日记">IM开发日记<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Motan源码解读/" title="Motan源码解读">Motan源码解读<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/cache/" title="cache">cache<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/并发编程/" title="并发编程">并发编程<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
 
-</body>
+
+  
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">Weibo</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Larry Page in Google. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2176287895" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="DempeZheng">DempeZheng</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"zhizus"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+});
+
+
+
+</script>
+
+<script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+<script type="text/javascript">
+   $("pre").addClass("prettyprint");
+   $("pre").addClass("linenums");
+   $("pre").addClass("lang-html");
+   $("pre").addClass("prettyprinted");
+   prettyPrint();
+</script>
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
 </html>
