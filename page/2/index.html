@@ -107,13 +107,17 @@ ActiveWeight(缺省)
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-19-motan-spi.html" title="Motan源码解读-SPI机制" itemprop="url">
+    <a href="/2016-09-19-motan-clientMessage.html" title="Motan源码解读-Client异步消息" itemprop="url">
   
-    <h1 itemprop="name">Motan源码解读-SPI机制</h1>
+    <h1 itemprop="name">Motan源码解读-Client异步消息</h1>
     
      
-           <p itemprop="description" >SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provid</p>
+           <p itemprop="description" >如何设计RPC异步消息？异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？
+既然是异步的，我们有一个首要的问题需要解决：
+
+通常异步调用都是一问一答的模式，一个Request拿到一个Response，如果我们做了异步，怎么把这两个消息对应起来呢？
+
+既然需要对应，</p>
         
     
     <time datetime="2016-09-18T16:00:00.000Z" itemprop="datePublished">2016-09-19</time>
@@ -128,17 +132,13 @@ SPI机制SPI的全名为Service Provid</p>
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-19-motan-clientMessage.html" title="Motan源码解读-Client异步消息" itemprop="url">
+    <a href="/2016-09-19-motan-spi.html" title="Motan源码解读-SPI机制" itemprop="url">
   
-    <h1 itemprop="name">Motan源码解读-Client异步消息</h1>
+    <h1 itemprop="name">Motan源码解读-SPI机制</h1>
     
      
-           <p itemprop="description" >如何设计RPC异步消息？异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？
-既然是异步的，我们有一个首要的问题需要解决：
-
-通常异步调用都是一问一答的模式，一个Request拿到一个Response，如果我们做了异步，怎么把这两个消息对应起来呢？
-
-既然需要对应，</p>
+           <p itemprop="description" >SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
+SPI机制SPI的全名为Service Provid</p>
         
     
     <time datetime="2016-09-18T16:00:00.000Z" itemprop="datePublished">2016-09-19</time>
