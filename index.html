@@ -49,7 +49,7 @@
 				<h1 class="site-name"><a href="/" title="郑大侠的博客">郑大侠的博客</a></h1>
 				<h2 class="blog-motto">DempeZheng&#39;S Blog</h2>
 			</div>
-			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
 			</a></div>
 			<nav class="animated">
 				<ul>
@@ -65,7 +65,7 @@
  					
 					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
 						<label>Search</label>
-						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
 						<input type="hidden" name="q" value="site:code.zhizus.com">
 					</form>
 					
@@ -80,12 +80,14 @@
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2017-01-21newyear.html" title="Guava Cache使用示例" itemprop="url">
+    <a href="/2016-11-05guava-cache-info.html" title="Guava Cache使用示例" itemprop="url">
   
     <h1 itemprop="name">Guava Cache使用示例</h1>
     
      
-           <p itemprop="description" >test</p>
+           <p itemprop="description" >guava cache usage1.使用场景
+缓存在很多场景下都是相当有用的。例如，计算或检索一个值的代价很高，并且对同样的输入需要不止一次获取值的时候，就应当考虑使用缓存。
+Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区别是Concurr</p>
         
     
     <time datetime="2016-11-04T16:00:00.000Z" itemprop="datePublished">2016-11-05</time>
@@ -100,14 +102,12 @@
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-11-05guava-cache-info.html" title="Guava Cache使用示例" itemprop="url">
+    <a href="/2017-01-21newyear.html" title="Guava Cache使用示例" itemprop="url">
   
     <h1 itemprop="name">Guava Cache使用示例</h1>
     
      
-           <p itemprop="description" >guava cache usage1.使用场景
-缓存在很多场景下都是相当有用的。例如，计算或检索一个值的代价很高，并且对同样的输入需要不止一次获取值的时候，就应当考虑使用缓存。
-Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区别是Concurr</p>
+           <p itemprop="description" >test</p>
         
     
     <time datetime="2016-11-04T16:00:00.000Z" itemprop="datePublished">2016-11-05</time>
@@ -147,20 +147,13 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-23-motan-rpc.html" title="深入浅出Motan RPC" itemprop="url">
+    <a href="/2016-09-23-motan-codec.html" title="Motan源码解读-codec" itemprop="url">
   
-    <h1 itemprop="name">深入浅出Motan RPC</h1>
+    <h1 itemprop="name">Motan源码解读-codec</h1>
     
      
-           <p itemprop="description" >深入浅出Motan RPC
-目录
-
-TOC{:toc}
-
-motan写在前面本系列文章假设你已经阅读过motan的官方wiki，对motan或者dubbo有一定的了解。对于没有读过wiki的请先阅读官方wiki。
-
-
-Motan是一套基于java开发的RPC框架，除了常规的点对点</p>
+           <p itemprop="description" >motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
+dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目</p>
         
     
     <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished">2016-09-23</time>
@@ -175,13 +168,20 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点</p>
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-23-motan-codec.html" title="Motan源码解读-codec" itemprop="url">
+    <a href="/2016-09-23-motan-rpc.html" title="深入浅出Motan RPC" itemprop="url">
   
-    <h1 itemprop="name">Motan源码解读-codec</h1>
+    <h1 itemprop="name">深入浅出Motan RPC</h1>
     
      
-           <p itemprop="description" >motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
-dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目</p>
+           <p itemprop="description" >深入浅出Motan RPC
+目录
+
+TOC{:toc}
+
+motan写在前面本系列文章假设你已经阅读过motan的官方wiki，对motan或者dubbo有一定的了解。对于没有读过wiki的请先阅读官方wiki。
+
+
+Motan是一套基于java开发的RPC框架，除了常规的点对点</p>
         
     
     <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished">2016-09-23</time>
@@ -219,18 +219,18 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-21-motan-protocol.html" title="Motan源码解读-Protocol" itemprop="url">
+    <a href="/2016-09-21-motan-hastratege.html" title="Motan源码解读-容错策略" itemprop="url">
   
-    <h1 itemprop="name">Motan源码解读-Protocol</h1>
+    <h1 itemprop="name">Motan源码解读-容错策略</h1>
     
      
-           <p itemprop="description" >protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
-@Spi(scope = Scope.SINGLETON)
-public interface Protocol {
-    /**
-     * 暴露服务
-     * 
-     *</p>
+           <p itemprop="description" >Motan的容错策略
+Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
+
+
+Failover 失效切换（缺省）
+
+&amp;lt;motan:protocol ... </p>
         
     
     <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
@@ -266,32 +266,6 @@ motan filter：目前实现的filter</p>
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-21-motan-hastratege.html" title="Motan源码解读-容错策略" itemprop="url">
-  
-    <h1 itemprop="name">Motan源码解读-容错策略</h1>
-    
-     
-           <p itemprop="description" >Motan的容错策略
-Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
-
-
-Failover 失效切换（缺省）
-
-&amp;lt;motan:protocol ... </p>
-        
-    
-    <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
     <a href="/2016-09-21-motan-override.html" title="Motan源码解读-源码结构" itemprop="url">
   
     <h1 itemprop="name">Motan源码解读-源码结构</h1>
@@ -313,16 +287,42 @@ motan-ex</p>
 
 
 
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016-09-21-motan-protocol.html" title="Motan源码解读-Protocol" itemprop="url">
+  
+    <h1 itemprop="name">Motan源码解读-Protocol</h1>
+    
+     
+           <p itemprop="description" >protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
+@Spi(scope = Scope.SINGLETON)
+public interface Protocol {
+    /**
+     * 暴露服务
+     * 
+     *</p>
+        
+    
+    <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
+  </a>
+</section>
+
+
+
+
+
+
 
   <nav id="page-nav" class="clearfix unexpand">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
   </nav>
 
 </div>
-      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
 
 <div id="asidepart">
-<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
 <aside class="clearfix">
 
   
@@ -330,7 +330,7 @@ motan-ex</p>
 
   
 <div class="categorieslist">
-	<p class="asidetitle">分类</p>
+	<p class="asidetitle">Categories</p>
 		<ul>
 		
 		  
@@ -356,7 +356,7 @@ motan-ex</p>
   
 
   <div class="linkslist">
-  <p class="asidetitle">友情链接</p>
+  <p class="asidetitle">Links</p>
     <ul>
         
           <li>
@@ -378,11 +378,11 @@ motan-ex</p>
 
 
   <div class="rsspart">
-	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
 </div>
 
   <div class="weiboshow">
-  <p class="asidetitle">新浪微博</p>
+  <p class="asidetitle">Weibo</p>
     <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
 </div>
 
@@ -512,7 +512,7 @@ $(document).ready(function(){
 
 </script>
 
-<script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+<script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
 <script type="text/javascript">
    $("pre").addClass("prettyprint");
    $("pre").addClass("linenums");
@@ -542,7 +542,7 @@ var _hmt = _hmt || [];
 <!-- Totop Begin -->
 
 	<div id="totop">
-	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
 	</div>
 	<script src="/js/totop.js"></script>
 

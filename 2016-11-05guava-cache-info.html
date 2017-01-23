@@ -56,7 +56,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 				<h1 class="site-name"><a href="/" title="郑大侠的博客">郑大侠的博客</a></h1>
 				<h2 class="blog-motto">DempeZheng&#39;S Blog</h2>
 			</div>
-			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
 			</a></div>
 			<nav class="animated">
 				<ul>
@@ -72,7 +72,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
  					
 					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
 						<label>Search</label>
-						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
 						<input type="hidden" name="q" value="site:code.zhizus.com">
 					</form>
 					
@@ -95,14 +95,14 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 		<a href="/about" title="DempeZheng" target="_blank" itemprop="author">DempeZheng</a>
 		
   <p class="article-time">
-    <time datetime="2016-11-04T16:00:00.000Z" itemprop="datePublished"> 发表于 2016-11-05</time>
+    <time datetime="2016-11-04T16:00:00.000Z" itemprop="datePublished"> Published 2016-11-05</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
 		<div id="toc" class="toc-article">
-			<strong class="toc-title">文章目录</strong>
+			<strong class="toc-title">Contents</strong>
 		
 			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#guava-cache-usage"><span class="toc-number">1.</span> <span class="toc-text">guava cache usage</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-使用场景"><span class="toc-number">1.1.</span> <span class="toc-text">1.使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-如何使用Guava-Cache"><span class="toc-number">1.2.</span> <span class="toc-text">2.如何使用Guava Cache</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-回收策略"><span class="toc-number">1.3.</span> <span class="toc-text">3.回收策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-基于容量的回收-Eviction-by-Size"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1. 基于容量的回收(Eviction by Size)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-定时回收-Eviction-by-Time"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2. 定时回收(Eviction by Time)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-基于引用的回收-Reference-based-Eviction"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3.基于引用的回收(Reference-based Eviction)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-显式清除"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4.显式清除</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-移除监听-RemovalNotification"><span class="toc-number">1.4.</span> <span class="toc-text">4.移除监听(RemovalNotification)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-刷新-Refresh-the-Cache"><span class="toc-number">1.5.</span> <span class="toc-text">5.刷新( Refresh the Cache)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-处理空值-Handle-null-Values"><span class="toc-number">1.6.</span> <span class="toc-text">6. 处理空值(Handle null Values)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-统计"><span class="toc-number">1.7.</span> <span class="toc-text">7. 统计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-Notes"><span class="toc-number">1.8.</span> <span class="toc-text">8. Notes</span></a></li></ol></li></ol>
 		
@@ -401,19 +401,11 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2017-01-21newyear.html" title="Guava Cache使用示例">
-  <strong>上一篇：</strong><br/>
-  <span>
-  Guava Cache使用示例</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2016-11-05-guava-cache.html"  title="Guava Cache 分析">
+<a href="/2017-01-21newyear.html"  title="Guava Cache使用示例">
  <strong>下一篇：</strong><br/> 
- <span>Guava Cache 分析
+ <span>Guava Cache使用示例
 </span>
 </a>
 </div>
@@ -427,17 +419,17 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 
 
 </div>  
-      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
 
   <div id="toc" class="toc-aside">
-  <strong class="toc-title">文章目录</strong>
+  <strong class="toc-title">Contents</strong>
  
  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#guava-cache-usage"><span class="toc-number">1.</span> <span class="toc-text">guava cache usage</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-使用场景"><span class="toc-number">1.1.</span> <span class="toc-text">1.使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-如何使用Guava-Cache"><span class="toc-number">1.2.</span> <span class="toc-text">2.如何使用Guava Cache</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-回收策略"><span class="toc-number">1.3.</span> <span class="toc-text">3.回收策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-基于容量的回收-Eviction-by-Size"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1. 基于容量的回收(Eviction by Size)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-定时回收-Eviction-by-Time"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2. 定时回收(Eviction by Time)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-基于引用的回收-Reference-based-Eviction"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3.基于引用的回收(Reference-based Eviction)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-显式清除"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4.显式清除</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-移除监听-RemovalNotification"><span class="toc-number">1.4.</span> <span class="toc-text">4.移除监听(RemovalNotification)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-刷新-Refresh-the-Cache"><span class="toc-number">1.5.</span> <span class="toc-text">5.刷新( Refresh the Cache)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-处理空值-Handle-null-Values"><span class="toc-number">1.6.</span> <span class="toc-text">6. 处理空值(Handle null Values)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-统计"><span class="toc-number">1.7.</span> <span class="toc-text">7. 统计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-Notes"><span class="toc-number">1.8.</span> <span class="toc-text">8. Notes</span></a></li></ol></li></ol>
  
   </div>
 
 <div id="asidepart">
-<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
 <aside class="clearfix">
 
   
@@ -445,7 +437,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 
   
 <div class="categorieslist">
-	<p class="asidetitle">分类</p>
+	<p class="asidetitle">Categories</p>
 		<ul>
 		
 		  
@@ -471,7 +463,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 
   <div class="linkslist">
-  <p class="asidetitle">友情链接</p>
+  <p class="asidetitle">Links</p>
     <ul>
         
           <li>
@@ -493,11 +485,11 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 
 
   <div class="rsspart">
-	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
 </div>
 
   <div class="weiboshow">
-  <p class="asidetitle">新浪微博</p>
+  <p class="asidetitle">Weibo</p>
     <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
 </div>
 
@@ -716,7 +708,7 @@ $(document).ready(function(){
 
 </script>
 
-<script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+<script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
 <script type="text/javascript">
    $("pre").addClass("prettyprint");
    $("pre").addClass("linenums");
@@ -746,7 +738,7 @@ var _hmt = _hmt || [];
 <!-- Totop Begin -->
 
 	<div id="totop">
-	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
 	</div>
 	<script src="/js/totop.js"></script>
 
