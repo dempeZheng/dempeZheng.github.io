@@ -225,13 +225,10 @@ $(document).ready(function(){
 </script>
 
 <script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
-<script type="text/javascript">
-   $("pre").addClass("prettyprint");
-   $("pre").addClass("linenums");
-   $("pre").addClass("lang-html");
-   $("pre").addClass("prettyprinted");
+$(window).load(function(){
+ $('pre').addClass('prettyprint linenums').attr('style', 'overflow:auto;');
    prettyPrint();
-</script>
+ })
 
 <!-- Analytics Begin -->
 

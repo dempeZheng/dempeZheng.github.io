@@ -150,27 +150,6 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2016-09-23-motan-codec.html" title="Motan源码解读-codec" itemprop="url">
-  
-    <h1 itemprop="name">Motan源码解读-codec</h1>
-    
-     
-           <p itemprop="description" >motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
-dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目</p>
-        
-    
-    <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished">2016-09-23</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
     <a href="/2016-09-23-motan-rpc.html" title="深入浅出Motan RPC" itemprop="url">
   
     <h1 itemprop="name">深入浅出Motan RPC</h1>
@@ -199,6 +178,27 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点</p>
   
 <section class="post" itemscope itemprop="blogitem">
   
+    <a href="/2016-09-23-motan-codec.html" title="Motan源码解读-codec" itemprop="url">
+  
+    <h1 itemprop="name">Motan源码解读-codec</h1>
+    
+     
+           <p itemprop="description" >motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
+dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目</p>
+        
+    
+    <time datetime="2016-09-22T16:00:00.000Z" itemprop="datePublished">2016-09-23</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
     <a href="/2016-09-22-motan-serialize.html" title="Motan源码解读-serialize" itemprop="url">
   
     <h1 itemprop="name">Motan源码解读-serialize</h1>
@@ -211,6 +211,30 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
         
     
     <time datetime="2016-09-21T16:00:00.000Z" itemprop="datePublished">2016-09-22</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016-09-21-motan-override.html" title="Motan源码解读-源码结构" itemprop="url">
+  
+    <h1 itemprop="name">Motan源码解读-源码结构</h1>
+    
+     
+           <p itemprop="description" >旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
+motan包结构motan-benchmark // 压测相关
+motan-core    //motan核心代码，也是源码解析的主要包
+motan-demo    // 示例，快速上手的最佳方法
+motan-ex</p>
+        
+    
+    <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
   </a>
 </section>
 
@@ -281,30 +305,6 @@ Motan 在集群调用失败时，提供了两种容错方案，并支持自定�
 Failover 失效切换（缺省）
 
 &amp;lt;motan:protocol ... </p>
-        
-    
-    <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2016-09-21-motan-override.html" title="Motan源码解读-源码结构" itemprop="url">
-  
-    <h1 itemprop="name">Motan源码解读-源码结构</h1>
-    
-     
-           <p itemprop="description" >旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
-motan包结构motan-benchmark // 压测相关
-motan-core    //motan核心代码，也是源码解析的主要包
-motan-demo    // 示例，快速上手的最佳方法
-motan-ex</p>
         
     
     <time datetime="2016-09-20T16:00:00.000Z" itemprop="datePublished">2016-09-21</time>
@@ -516,13 +516,10 @@ $(document).ready(function(){
 </script>
 
 <script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
-<script type="text/javascript">
-   $("pre").addClass("prettyprint");
-   $("pre").addClass("linenums");
-   $("pre").addClass("lang-html");
-   $("pre").addClass("prettyprinted");
+$(window).load(function(){
+ $('pre').addClass('prettyprint linenums').attr('style', 'overflow:auto;');
    prettyPrint();
-</script>
+ })
 
 <!-- Analytics Begin -->
 

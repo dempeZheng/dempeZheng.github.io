@@ -178,10 +178,10 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2016-09-19-motan-spi.html" title="Motan源码解读-SPI机制">
+ <a href="/2016-09-19-motan-clientMessage.html" title="Motan源码解读-Client异步消息">
   <strong>上一篇：</strong><br/>
   <span>
-  Motan源码解读-SPI机制</span>
+  Motan源码解读-Client异步消息</span>
 </a>
 </div>
 
@@ -493,13 +493,10 @@ $(document).ready(function(){
 </script>
 
 <script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
-<script type="text/javascript">
-   $("pre").addClass("prettyprint");
-   $("pre").addClass("linenums");
-   $("pre").addClass("lang-html");
-   $("pre").addClass("prettyprinted");
+$(window).load(function(){
+ $('pre').addClass('prettyprint linenums').attr('style', 'overflow:auto;');
    prettyPrint();
-</script>
+ })
 
 <!-- Analytics Begin -->
 
