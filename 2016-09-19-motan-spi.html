@@ -39,7 +39,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
     
     <link rel="stylesheet" href="/css/style.css">
 
-    <link href="/js/google-code-prettify/themes/tomorrow-night.min.css" type="text/css" rel="stylesheet" />
+    <link href="/themes/tomorrow-night.min.css" type="text/css" rel="stylesheet" />
 </head>
 
   <body>
@@ -55,7 +55,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 				<h1 class="site-name"><a href="/" title="郑大侠的博客">郑大侠的博客</a></h1>
 				<h2 class="blog-motto">DempeZheng&#39;S Blog</h2>
 			</div>
-			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
 			</a></div>
 			<nav class="animated">
 				<ul>
@@ -71,7 +71,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
  					
 					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
 						<label>Search</label>
-						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
 						<input type="hidden" name="q" value="site:code.zhizus.com">
 					</form>
 					
@@ -94,14 +94,14 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 		<a href="/about" title="DempeZheng" target="_blank" itemprop="author">DempeZheng</a>
 		
   <p class="article-time">
-    <time datetime="2016-09-18T16:00:00.000Z" itemprop="datePublished"> Published 2016-09-19</time>
+    <time datetime="2016-09-18T16:00:00.000Z" itemprop="datePublished"> 发表于 2016-09-19</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
 		<div id="toc" class="toc-article">
-			<strong class="toc-title">Contents</strong>
+			<strong class="toc-title">文章目录</strong>
 		
 			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#SPI机制"><span class="toc-number">1.</span> <span class="toc-text">SPI机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SPI约定"><span class="toc-number">2.</span> <span class="toc-text">SPI约定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#应用场景"><span class="toc-number">3.</span> <span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用示例："><span class="toc-number">4.</span> <span class="toc-text">使用示例：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#JDK-SPI"><span class="toc-number">4.1.</span> <span class="toc-text">JDK SPI</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Motan-SPI"><span class="toc-number">4.2.</span> <span class="toc-text">Motan SPI</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan的扩展"><span class="toc-number">4.3.</span> <span class="toc-text">motan的扩展</span></a></li></ol></li></ol>
 		
@@ -240,17 +240,17 @@ public class SearchTest {
 
 
 </div>  
-      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
 
   <div id="toc" class="toc-aside">
-  <strong class="toc-title">Contents</strong>
+  <strong class="toc-title">文章目录</strong>
  
  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#SPI机制"><span class="toc-number">1.</span> <span class="toc-text">SPI机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SPI约定"><span class="toc-number">2.</span> <span class="toc-text">SPI约定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#应用场景"><span class="toc-number">3.</span> <span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用示例："><span class="toc-number">4.</span> <span class="toc-text">使用示例：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#JDK-SPI"><span class="toc-number">4.1.</span> <span class="toc-text">JDK SPI</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Motan-SPI"><span class="toc-number">4.2.</span> <span class="toc-text">Motan SPI</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#motan的扩展"><span class="toc-number">4.3.</span> <span class="toc-text">motan的扩展</span></a></li></ol></li></ol>
  
   </div>
 
 <div id="asidepart">
-<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
 <aside class="clearfix">
 
   
@@ -258,7 +258,7 @@ public class SearchTest {
 
   
 <div class="categorieslist">
-	<p class="asidetitle">Categories</p>
+	<p class="asidetitle">分类</p>
 		<ul>
 		
 		  
@@ -284,7 +284,7 @@ public class SearchTest {
   
 
   <div class="linkslist">
-  <p class="asidetitle">Links</p>
+  <p class="asidetitle">友情链接</p>
     <ul>
         
           <li>
@@ -306,11 +306,11 @@ public class SearchTest {
 
 
   <div class="rsspart">
-	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
 </div>
 
   <div class="weiboshow">
-  <p class="asidetitle">Weibo</p>
+  <p class="asidetitle">新浪微博</p>
     <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
 </div>
 
@@ -559,7 +559,7 @@ var _hmt = _hmt || [];
 <!-- Totop Begin -->
 
 	<div id="totop">
-	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
 	</div>
 	<script src="/js/totop.js"></script>
 
