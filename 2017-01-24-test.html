@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="DempeZheng" />
+  <meta name="keywords" content="guava,cache,example,示例" />
 
 
 
@@ -84,25 +84,28 @@
 
 
 
-<meta name="description" content="1. 关于 博客很早之前都有写博客的想法，但是写博客真的是件很耗神的事情，陆续的开始过一两次，都以失败告终。今天偶然fork了一个干净清爽的博客主题，甚是喜欢，所以关于博客又有一个新的开始，但愿这个开始不要跪。
-对于博客，我其实是一个有追求的人，少些垃圾，多些干货。无奈，很多事情可能只是一厢情愿。
-既然没把握让博客成为纯粹的，姑且先把它作为我记忆的收纳盒吧。这是个浮躁且没有原则的社会！
-就这样吧。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="about">
-<meta property="og:url" content="http://code.zhizus.com/about/index.html">
+<meta name="description" content="test LoadingCache&amp;lt;String, String&amp;gt; cache;
+    cache = CacheBuilder
+            .newBuilder()
+            .refreshAfterWrite(4L, TimeUnit.SECONDS)
+            .expireAfterWrite(5L, TimeUnit.SECOND">
+<meta property="og:type" content="article">
+<meta property="og:title" content="test">
+<meta property="og:url" content="http://code.zhizus.com/2017-01-24-test.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="1. 关于 博客很早之前都有写博客的想法，但是写博客真的是件很耗神的事情，陆续的开始过一两次，都以失败告终。今天偶然fork了一个干净清爽的博客主题，甚是喜欢，所以关于博客又有一个新的开始，但愿这个开始不要跪。
-对于博客，我其实是一个有追求的人，少些垃圾，多些干货。无奈，很多事情可能只是一厢情愿。
-既然没把握让博客成为纯粹的，姑且先把它作为我记忆的收纳盒吧。这是个浮躁且没有原则的社会！
-就这样吧。">
-<meta property="og:updated_time" content="2016-09-24T04:55:08.339Z">
+<meta property="og:description" content="test LoadingCache&amp;lt;String, String&amp;gt; cache;
+    cache = CacheBuilder
+            .newBuilder()
+            .refreshAfterWrite(4L, TimeUnit.SECONDS)
+            .expireAfterWrite(5L, TimeUnit.SECOND">
+<meta property="og:updated_time" content="2017-01-23T16:11:43.443Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="about">
-<meta name="twitter:description" content="1. 关于 博客很早之前都有写博客的想法，但是写博客真的是件很耗神的事情，陆续的开始过一两次，都以失败告终。今天偶然fork了一个干净清爽的博客主题，甚是喜欢，所以关于博客又有一个新的开始，但愿这个开始不要跪。
-对于博客，我其实是一个有追求的人，少些垃圾，多些干货。无奈，很多事情可能只是一厢情愿。
-既然没把握让博客成为纯粹的，姑且先把它作为我记忆的收纳盒吧。这是个浮躁且没有原则的社会！
-就这样吧。">
+<meta name="twitter:title" content="test">
+<meta name="twitter:description" content="test LoadingCache&amp;lt;String, String&amp;gt; cache;
+    cache = CacheBuilder
+            .newBuilder()
+            .refreshAfterWrite(4L, TimeUnit.SECONDS)
+            .expireAfterWrite(5L, TimeUnit.SECOND">
 
 
 
@@ -123,16 +126,10 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/about/"/>
+  <link rel="canonical" href="http://code.zhizus.com/2017-01-24-test.html"/>
 
 
-  <title>
-  
-
-  
-    about | 郑大侠的博客
-  
-</title>
+  <title> test | 郑大侠的博客 </title>
    <link href="/themes/tranquil-heart.min.css" type="text/css" rel="stylesheet" />
 </head>
 
@@ -164,7 +161,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -264,37 +261,187 @@
 
   <div id="posts" class="posts-expand">
     
-    
-      <h3 id="1-关于-博客"><a href="#1-关于-博客" class="headerlink" title="1. 关于 博客"></a>1. 关于 <code>博客</code></h3><p>很早之前都有写博客的想法，但是写博客真的是件很耗神的事情，陆续的开始过一两次，都以失败告终。今天偶然fork了一个干净清爽的博客主题，甚是喜欢，<br>所以关于博客又有一个新的开始，但愿这个开始不要跪。</p>
-<p>对于博客，我其实是一个有追求的人，少些垃圾，多些干货。无奈，很多事情可能只是一厢情愿。</p>
-<p>既然没把握让博客成为纯粹的，姑且先把它作为我记忆的收纳盒吧。这是个浮躁且没有原则的社会！</p>
-<p>就这样吧。2016-09-02，让博客再次起飞。</p>
-<h3 id="2-关于郑大侠"><a href="#2-关于郑大侠" class="headerlink" title="2. 关于郑大侠"></a>2. 关于郑大侠</h3><pre><code class="java">public class AboutMe {
-    private String name;//郑大侠
-    private Integer age;//**
-    private String address;//Guangzhou
-    private String email;//yinweiniyu@163.com
-    private String profile;//侠之大者，为国为民。
-    private String url;//www.zhizus.com
-}
-</code></pre>
-<p>其实不是什么大侠，只是生活里一个想做<code>好人</code>的渣。</p>
-<blockquote>
-<p>前已无通路，后不见归途</p>
-<p>敌视现实，虚构远方</p>
-<p>东张西望，一无所长</p>
-<p>四体不勤，五谷不分</p>
-<p>文不能测字，武不能防身</p>
-<p>喜欢养狗，不爱洗头</p>
-<p>不事劳作，一无所获</p>
-<p>厌恶争执，不善言说</p>
-</blockquote>
-<p>-by 万青</p>
-<h3 id="3-顺便"><a href="#3-顺便" class="headerlink" title="3. 顺便"></a>3. 顺便</h3><p>顺便立个flag，这个念头立flag要尽量小。比如说先挣一个亿。<br>像我这种渣渣应该还要小些，那就立个“2016余下半年看个两三本书”（时间不要打我脸）</p>
-<h3 id="4-最后"><a href="#4-最后" class="headerlink" title="4. 最后"></a>4. 最后</h3><p>最后，希望没有最后。</p>
-<hr>
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
 
     
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                test
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-05T00:00:00+08:00" content="2016-11-05">
+              2016-11-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/cache/" itemprop="url" rel="index">
+                    <span itemprop="name">cache</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017-01-24-test.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-01-24-test.html" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017-01-24-test.html" class="leancloud_visitors" data-flag-title="test">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="test"><a href="#test" class="headerlink" title="test"></a>test</h2><pre><code class="java"> LoadingCache&lt;String, String&gt; cache;
+    cache = CacheBuilder
+            .newBuilder()
+            .refreshAfterWrite(4L, TimeUnit.SECONDS)
+            .expireAfterWrite(5L, TimeUnit.SECONDS)
+            .build(loader);
+</code></pre>
+<hr>
+<pre><code class="java"> LoadingCache&lt;String, String&gt; cache;
+    cache = CacheBuilder
+            .newBuilder()
+            .refreshAfterWrite(4L, TimeUnit.SECONDS)
+            .expireAfterWrite(5L, TimeUnit.SECONDS)
+            .build(loader);
+</code></pre>
+<p>—————-+++++++++++++++++++++++++++———-</p>
+<pre class="prettyprint">
+ LoadingCache<string, string=""> cache;
+    cache = CacheBuilder
+            .newBuilder()
+            .refreshAfterWrite(4L, TimeUnit.SECONDS)
+            .expireAfterWrite(5L, TimeUnit.SECONDS)
+            .build(loader);
+</string,></pre>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017-01-21-newyear.html" rel="next" title="test">
+                <i class="fa fa-chevron-left"></i> test
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
@@ -303,6 +450,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017-01-24-test.html"
+           data-title="test" data-url="http://code.zhizus.com/2017-01-24-test.html">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -322,8 +477,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
@@ -410,6 +574,17 @@
       </section>
 
       
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#test"><span class="nav-number">1.</span> <span class="nav-text">test</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
 
     </div>
   </aside>
@@ -495,6 +670,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 
