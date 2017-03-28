@@ -84,21 +84,21 @@
 
 
 
-<meta name="description" content="##记一次netty内存溢出的问题最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
-起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内">
+<meta name="description" content="记一次netty内存溢出的问题最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次netty内存溢出的问题">
 <meta property="og:url" content="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="##记一次netty内存溢出的问题最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
-起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内">
+<meta property="og:description" content="记一次netty内存溢出的问题最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也">
 <meta property="og:image" content="http://code.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
 <meta property="og:image" content="http://code.zhizus.com/images/7679748d-5928-4666-9e57-59ceeadb9058.png">
-<meta property="og:updated_time" content="2017-03-28T12:40:24.667Z">
+<meta property="og:updated_time" content="2017-03-28T12:44:25.587Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次netty内存溢出的问题">
-<meta name="twitter:description" content="##记一次netty内存溢出的问题最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
-起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内">
+<meta name="twitter:description" content="记一次netty内存溢出的问题最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也">
 <meta name="twitter:image" content="http://code.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
 
 
@@ -349,7 +349,7 @@
       
 
       
-        <p>##记一次netty内存溢出的问题<br>最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。</p>
+        <h2 id="记一次netty内存溢出的问题"><a href="#记一次netty内存溢出的问题" class="headerlink" title="记一次netty内存溢出的问题"></a>记一次netty内存溢出的问题</h2><p>最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。</p>
 <p>起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。<br>第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。</p>
 <p>通过如下命令</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">sudo jmap -F -heap pid</div></pre></td></tr></table></figure>
@@ -611,7 +611,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-首先dump出bin文件："><span class="nav-number">1.</span> <span class="nav-text">1.首先dump出bin文件：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-dump出bin文件后直接上工具分析："><span class="nav-number">2.</span> <span class="nav-text">2.dump出bin文件后直接上工具分析：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-查找FastThreadLocalThread内存溢出的原因"><span class="nav-number">3.</span> <span class="nav-text">3.查找FastThreadLocalThread内存溢出的原因</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1Recycler相关"><span class="nav-number">3.1.</span> <span class="nav-text">3.1Recycler相关</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-解决方案"><span class="nav-number">4.</span> <span class="nav-text">4.解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化"><span class="nav-number">5.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#延伸阅读"><span class="nav-number">7.</span> <span class="nav-text">延伸阅读</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#记一次netty内存溢出的问题"><span class="nav-number">1.</span> <span class="nav-text">记一次netty内存溢出的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-首先dump出bin文件："><span class="nav-number">1.1.</span> <span class="nav-text">1.首先dump出bin文件：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-dump出bin文件后直接上工具分析："><span class="nav-number">1.2.</span> <span class="nav-text">2.dump出bin文件后直接上工具分析：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-查找FastThreadLocalThread内存溢出的原因"><span class="nav-number">1.3.</span> <span class="nav-text">3.查找FastThreadLocalThread内存溢出的原因</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1Recycler相关"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1Recycler相关</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-解决方案"><span class="nav-number">1.4.</span> <span class="nav-text">4.解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化"><span class="nav-number">1.5.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#延伸阅读"><span class="nav-number">1.7.</span> <span class="nav-text">延伸阅读</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
