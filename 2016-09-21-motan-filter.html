@@ -133,7 +133,7 @@ AccessLogFilter
 
 
   <title> Motan源码解读-Filter | 郑大侠的博客 </title>
-   <link href="/themes/tranquil-heart.min.css" type="text/css" rel="stylesheet" />
+
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -393,54 +393,7 @@ AccessLogFilter
 </ul>
 <p>motan的服务端和客户端都可以添加filter，可以是相同的filter也可以是不同的filter</p>
 <h4 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h4><p>下面我们来看filter的ProtocolFilterDecorator 代码(代码仅保留了分析相关部分)：</p>
-<pre><code class="java">public class ProtocolFilterDecorator implements Protocol {
-    ...
-    private &lt;T&gt; Referer&lt;T&gt; decorateWithFilter(Referer&lt;T&gt; referer, URL url) {
-        List&lt;Filter&gt; filters = getFilters(url, MotanConstants.NODE_TYPE_REFERER);
-        Referer&lt;T&gt; lastRef = referer;
-        for (Filter filter : filters) {
-            final Filter f = filter;
-            final Referer&lt;T&gt; lf = lastRef;
-            lastRef = new Referer&lt;T&gt;() {
-                @Override
-                public Response call(Request request) {
-                    // 这里可以通过配置来控制，对于重试的请求要不要经过filter，比如有些安全校验的，第一次已经校验通过，重试自然不用在校验一次，但是对于有些统计来说，可能会认为不管是不是重试，都需要统计，这里通过配置把这种情况暴露给使用者，把决定权留给使用方
-                    if (!f.getClass().getAnnotation(Activation.class).retry() &amp;&amp; request.getRetries() != 0) {
-                        return lf.call(request);
-                    }
-                    return f.filter(lf, request);
-                }
-
-               ...
-            };
-        }
-        return lastRef;
-    }
-
-    private &lt;T&gt; Provider&lt;T&gt; decorateWithFilter(Provider&lt;T&gt; provider, URL url) {
-        List&lt;Filter&gt; filters = getFilters(url, MotanConstants.NODE_TYPE_SERVICE);
-        if (filters == null || filters.size() == 0) {
-            return provider;
-        }
-        Provider&lt;T&gt; lastProvider = provider;
-        for (Filter filter : filters) {
-            final Filter f = filter;
-            final Provider&lt;T&gt; lp = lastProvider;
-            lastProvider = new Provider&lt;T&gt;() {
-                @Override
-                public Response call(Request request) {
-                    return f.filter(lp, request);
-                }
-
-                ...
-            };
-        }
-        return lastProvider;
-    }
-
-
-}
-</code></pre>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProtocolFilterDecorator</span> <span class="keyword">implements</span> <span class="title">Protocol</span> </span>&#123;</div><div class="line">    ...</div><div class="line">    <span class="keyword">private</span> &lt;T&gt; <span class="function">Referer&lt;T&gt; <span class="title">decorateWithFilter</span><span class="params">(Referer&lt;T&gt; referer, URL url)</span> </span>&#123;</div><div class="line">        List&lt;Filter&gt; filters = getFilters(url, MotanConstants.NODE_TYPE_REFERER);</div><div class="line">        Referer&lt;T&gt; lastRef = referer;</div><div class="line">        <span class="keyword">for</span> (Filter filter : filters) &#123;</div><div class="line">            <span class="keyword">final</span> Filter f = filter;</div><div class="line">            <span class="keyword">final</span> Referer&lt;T&gt; lf = lastRef;</div><div class="line">            lastRef = <span class="keyword">new</span> Referer&lt;T&gt;() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request)</span> </span>&#123;</div><div class="line">	                <span class="comment">// 这里可以通过配置来控制，对于重试的请求要不要经过filter，比如有些安全校验的，第一次已经校验通过，重试自然不用在校验一次，但是对于有些统计来说，可能会认为不管是不是重试，都需要统计，这里通过配置把这种情况暴露给使用者，把决定权留给使用方</span></div><div class="line">                    <span class="keyword">if</span> (!f.getClass().getAnnotation(Activation.class).retry() &amp;&amp; request.getRetries() != <span class="number">0</span>) &#123;</div><div class="line">                        <span class="keyword">return</span> lf.call(request);</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">return</span> f.filter(lf, request);</div><div class="line">                &#125;</div><div class="line"></div><div class="line">               ...</div><div class="line">            &#125;;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> lastRef;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> &lt;T&gt; <span class="function">Provider&lt;T&gt; <span class="title">decorateWithFilter</span><span class="params">(Provider&lt;T&gt; provider, URL url)</span> </span>&#123;</div><div class="line">        List&lt;Filter&gt; filters = getFilters(url, MotanConstants.NODE_TYPE_SERVICE);</div><div class="line">        <span class="keyword">if</span> (filters == <span class="keyword">null</span> || filters.size() == <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">return</span> provider;</div><div class="line">        &#125;</div><div class="line">        Provider&lt;T&gt; lastProvider = provider;</div><div class="line">        <span class="keyword">for</span> (Filter filter : filters) &#123;</div><div class="line">            <span class="keyword">final</span> Filter f = filter;</div><div class="line">            <span class="keyword">final</span> Provider&lt;T&gt; lp = lastProvider;</div><div class="line">            lastProvider = <span class="keyword">new</span> Provider&lt;T&gt;() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request)</span> </span>&#123;</div><div class="line">                    <span class="keyword">return</span> f.filter(lp, request);</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                ...</div><div class="line">            &#125;;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> lastProvider;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>从这个类的名字我们可以可以猜测motan的filter是基于java的<code>装饰模式</code>了，关于java的装饰者模式，（最经典的是jdk的IO部分的用法）</p>
 <blockquote>
 <p><strong>装饰模式：</strong>在不必改变原类文件和使用继承的情况下，动态地扩展一个对象的功能。它是通过创建一个包装对象，也就是装饰来包裹真实的对象。</p>
@@ -499,8 +452,8 @@ AccessLogFilter
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-21-motan-protocol.html" rel="prev" title="Motan源码解读-Protocol">
-                Motan源码解读-Protocol <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-21-motan-override.html" rel="prev" title="Motan源码解读-源码结构">
+                Motan源码解读-源码结构 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -573,7 +526,7 @@ AccessLogFilter
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-count">15</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -581,7 +534,7 @@ AccessLogFilter
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -902,15 +855,6 @@ AccessLogFilter
 
 
   
-
-  <script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
-  <script type="text/javascript">
-     $("pre").addClass("prettyprint");
-     $("pre").addClass("linenums");
-     $("pre").addClass("lang-html");
-     $("pre").addClass("prettyprinted");
-     prettyPrint();
-  </script>
 
 </body>
 </html>

@@ -136,7 +136,7 @@ guava cache解决办法：guava">
 
 
   <title> Guava Cache 分析 | 郑大侠的博客 </title>
-   <link href="/themes/tranquil-heart.min.css" type="text/css" rel="stylesheet" />
+
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -384,21 +384,10 @@ guava cache解决办法：guava">
 <p>refreshAfterWrite通过定时刷新可以让缓存项保持可用。缓存项只有在被检索时才会真正刷新（如果CacheLoader.refresh实现为异步，那么检索不会被刷新拖慢）。也是保证同一个segment的单线程回源，但是与expireAfterWrite不同的是：其他线程访问loading状态的key时，仅仅稍微等一会，没有等到就返回旧值，整个请求就比较平滑。<br>与此同时，也引入了一个问题，refreshAfterWrite策略下，如果一个key长期没有被访问，就有可能会访问到很久之前的旧值。例如refreshAfterWrite(5),5s刷新一次，如果1min内，这个key都没有被访问，那么1min之后访问这个key，仍然有可能访问到旧数据，尽管我们设置了5s刷新一次。（guava cache并没单独的线程来处理刷新的逻辑，而是通过读操作来触发清理工作）</p>
 <p>对于这个问题有没有这种的办法呢？<br>guava cache支持我们同时使用expireAfterWrite&amp;refreshAfterWrite，我们既可以通过组合的策略既保证性能，又保证不要读取到太旧的数据。<br>比如我们有需求：要求请求必须平滑，而且不能读到5s之前的旧数据。</p>
 <p>我们可以如下设置来满足需求：</p>
-<pre><code> LoadingCache&lt;String, String&gt; cache;
-    cache = CacheBuilder
-            .newBuilder()
-            .refreshAfterWrite(4L, TimeUnit.SECONDS)
-            .expireAfterWrite(5L, TimeUnit.SECONDS)
-            .build(loader);
-</code></pre><p> <code>expireAfterWrite(5L, TimeUnit.SECONDS)</code>能保证不会读到5s之前的旧数据，<code>refreshAfterWrite(4L, TimeUnit.SECONDS)</code>能保证大部分请求都在4s左右被刷新，小部分访问量较少的在5s的时候通过expireAfterWrite策略重新被回源。</p>
-<h3 id="guava后台异步刷新"><a href="#guava后台异步刷新" class="headerlink" title="guava后台异步刷新"></a>guava后台异步刷新</h3><p>refreshAfterWrite的刷新调用的是reload，reload的默认实现是在当前线程里面reload，也会造成一些卡顿，如果希望异步reload，需要重载这个方法。</p>
-<pre><code> @GwtIncompatible // Futures
-  public ListenableFuture&lt;V&gt; reload(K key, V oldValue) throws Exception {
-    checkNotNull(key);
-    checkNotNull(oldValue);
-    return Futures.immediateFuture(load(key));//当前线程调用load，会造成当前线程的卡顿，如果不接受卡顿，需要重载这个方法
-  }
-</code></pre>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">LoadingCache&lt;String, String&gt; cache;</div><div class="line">   cache = CacheBuilder</div><div class="line">           .newBuilder()</div><div class="line">           .refreshAfterWrite(4L, TimeUnit.SECONDS)</div><div class="line">           .expireAfterWrite(5L, TimeUnit.SECONDS)</div><div class="line">           .build(loader);</div></pre></td></tr></table></figure>
+<p> <code>expireAfterWrite(5L, TimeUnit.SECONDS)</code>能保证不会读到5s之前的旧数据，<code>refreshAfterWrite(4L, TimeUnit.SECONDS)</code>能保证大部分请求都在4s左右被刷新，小部分访问量较少的在5s的时候通过expireAfterWrite策略重新被回源。</p>
+<h3 id="guava后台异步刷新"><a href="#guava后台异步刷新" class="headerlink" title="guava后台异步刷新"></a>guava后台异步刷新</h3><p>refreshAfterWrite的刷新调用的是reload，reload的默认实现是在当前线程里面reload，也会造成一些卡顿，如果希望异步reload，需要重载这个方法。<br><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@GwtIncompatible // Futures</div><div class="line"> public ListenableFuture&lt;V&gt; reload(K key, V oldValue) throws Exception &#123;</div><div class="line">   checkNotNull(key);</div><div class="line">   checkNotNull(oldValue);</div><div class="line">   return Futures.immediateFuture(load(key));//当前线程调用load，会造成当前线程的卡顿，如果不接受卡顿，需要重载这个方法</div><div class="line"> &#125;</div></pre></td></tr></table></figure></p>
+
       
     </div>
 
@@ -439,16 +428,16 @@ guava cache解决办法：guava">
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-11-05guava-cache-info.html" rel="next" title="Guava Cache使用示例">
-                <i class="fa fa-chevron-left"></i> Guava Cache使用示例
+              <a href="/2016-09-23-motan-codec.html" rel="next" title="Motan源码解读-codec">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-codec
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017-01-21-newyear.html" rel="prev" title="test">
-                test <i class="fa fa-chevron-right"></i>
+              <a href="/2016-11-05guava-cache-info.html" rel="prev" title="Guava Cache使用示例">
+                Guava Cache使用示例 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -521,7 +510,7 @@ guava cache解决办法：guava">
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-count">15</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -529,7 +518,7 @@ guava cache解决办法：guava">
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -850,15 +839,6 @@ guava cache解决办法：guava">
 
 
   
-
-  <script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
-  <script type="text/javascript">
-     $("pre").addClass("prettyprint");
-     $("pre").addClass("linenums");
-     $("pre").addClass("lang-html");
-     $("pre").addClass("prettyprinted");
-     prettyPrint();
-  </script>
 
 </body>
 </html>

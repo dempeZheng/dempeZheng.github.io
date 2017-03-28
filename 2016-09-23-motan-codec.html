@@ -123,7 +123,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
 
   <title> Motan源码解读-codec | 郑大侠的博客 </title>
-   <link href="/themes/tranquil-heart.min.css" type="text/css" rel="stylesheet" />
+
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -353,25 +353,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 <p>codec的类图如下：</p>
 <p><img src="/images/motan/codec.png" alt="Alt text"></p>
 <p>下面 codec interface的定义：</p>
-<pre><code class="java">// 可基于spi扩展
-@Spi(scope=Scope.PROTOTYPE)
-public interface Codec {
-    // channel为motan定义的channel，非netty的channel
-    byte[] encode(Channel channel, Object message) throws IOException;
-
-    /**
-     * 
-     * @param channel
-     * @param remoteIp 用来在server端decode request时能获取到client的ip。
-     * @param buffer
-     * @return
-     * @throws IOException
-     */
-    // 不明白为什么要把remoteIp定义到decode接口里面，channel里面已经包含ip的信息了
-    Object decode(Channel channel, String remoteIp, byte[] buffer) throws IOException;
-
-}
-</code></pre>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">// 可基于spi扩展</span></div><div class="line"><span class="meta">@Spi</span>(scope=Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Codec</span> </span>&#123;</div><div class="line">	<span class="comment">// channel为motan定义的channel，非netty的channel</span></div><div class="line">	<span class="keyword">byte</span>[] encode(Channel channel, Object message) <span class="keyword">throws</span> IOException;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> channel</div><div class="line">	 * <span class="doctag">@param</span> remoteIp 用来在server端decode request时能获取到client的ip。</div><div class="line">	 * <span class="doctag">@param</span> buffer</div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 * <span class="doctag">@throws</span> IOException</div><div class="line">	 */</div><div class="line">	<span class="comment">// 不明白为什么要把remoteIp定义到decode接口里面，channel里面已经包含ip的信息了</span></div><div class="line">	<span class="function">Object <span class="title">decode</span><span class="params">(Channel channel, String remoteIp, <span class="keyword">byte</span>[] buffer)</span> <span class="keyword">throws</span> IOException</span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>AbstractCodec里面实现了创建输入输出流的方法，用来将协议序列化成字节数组或将字节数组反序列化成协议的。（这种方式的性能还没压测，不知道好坏）</p>
 <p>如果我们要实现自己的协议，可以仅仅实现codec的方法。</p>
 <p>实现AbstractCodec的有三个类</p>
@@ -404,29 +386,7 @@ public interface Codec {
 <ul>
 <li>request body</li>
 </ul>
-<pre><code class="java">    /* 
-     * &lt;pre&gt;
-     * 
-     *      body:
-     * 
-     *      byte[] data :  
-     * 
-     *             serialize(interface_name, method_name, method_param_desc, method_param_value, attachments_size, attachments_value) 
-     * 
-     *   method_param_desc:  for_each (string.append(method_param_interface_name))
-     * 
-     *   method_param_value: for_each (method_param_name, method_param_value)
-     * 
-     *      attachments_value:  for_each (attachment_name, attachment_value)
-     * 
-     * &lt;/pre&gt;
-     * 
-     * @param request
-     * @return
-     * @throws IOException
-     */
-    private byte[] encodeRequest(Channel channel, Request request) throws IOException ;
-</code></pre>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line">  <span class="comment">/* </span></div><div class="line">   * &lt;pre&gt;</div><div class="line">* </div><div class="line">* 	 body:</div><div class="line">* </div><div class="line">* 	 byte[] data :  </div><div class="line">* </div><div class="line">* 			serialize(interface_name, method_name, method_param_desc, method_param_value, attachments_size, attachments_value) </div><div class="line">* </div><div class="line">*   method_param_desc:  for_each (string.append(method_param_interface_name))</div><div class="line">* </div><div class="line">*   method_param_value: for_each (method_param_name, method_param_value)</div><div class="line">* </div><div class="line">* 	 attachments_value:  for_each (attachment_name, attachment_value)</div><div class="line">* </div><div class="line">* &lt;/pre&gt;</div><div class="line">   * </div><div class="line">   * @param request</div><div class="line">   * @return</div><div class="line">   * @throws IOException</div><div class="line">   */</div><div class="line">  <span class="keyword">private</span> <span class="keyword">byte</span>[] encodeRequest(Channel channel, Request request) <span class="keyword">throws</span> IOException ;</div></pre></td></tr></table></figure>
 <p>encodeRequest方法的注释很清晰的描述了request 的body部分的序列化，对jvm系列的来说非常友好，基本上把调用相关所有能用到的信息都序列化了。</p>
 <p>我们可以把请求任何一个请求参数都反序列化java对象。所以motan默认的协议是可以支持方法内参数为java任意对象。<br>但是，<code>对于其他语言就不太友好了</code>。其他语言不太容易序列化java的对象。<br>如果希望更好的支持其他的语言，这个请求参数的类型序列化方式可能有所取舍了。</p>
 <ul>
@@ -436,41 +396,7 @@ public interface Codec {
 <p><code>serialize (result) or serialize (exception)</code>：motan的response的message对象是通过hession2或者fastjson序列化生成的字节数组，所以这个地方就是一个字节数组（如果需要了解序列化的部分，可以看上篇博客）</p>
 </blockquote>
 <h4 id="motan协议打包"><a href="#motan协议打包" class="headerlink" title="motan协议打包"></a>motan协议打包</h4><p>协议的打包简单说一下header打包的。</p>
-<pre><code class="java">  private byte[] encode(byte[] body, byte flag, long requestId) throws IOException {
-        // 协议1的header占16个字节，先创建一个长度为16的字节数组
-        byte[] header = new byte[RpcProtocolVersion.VERSION_1.getHeaderLength()];
-        int offset = 0;
-
-        // 0 - 15 bit : magic
-        // 这个方法实际上是把short类型的magic转成两个字节，打包到header
-        ByteUtil.short2bytes(MAGIC, header, offset);
-        offset += 2;
-
-        // 16 - 23 bit : version
-        // 打包version
-        header[offset++] = RpcProtocolVersion.VERSION_1.getVersion();
-
-        // 24 - 31 bit : extend flag
-        // 打包flag
-        header[offset++] = flag;
-
-        // 32 - 95 bit : requestId
-        // 打包requestId
-        ByteUtil.long2bytes(requestId, header, offset);
-        offset += 8;
-
-        // 96 - 127 bit : body content length
-        // 打包body包长
-        ByteUtil.int2bytes(body.length, header, offset);
-
-        byte[] data = new byte[header.length + body.length];
-
-        System.arraycopy(header, 0, data, 0, header.length);
-        System.arraycopy(body, 0, data, header.length, body.length);
-
-        return data;
-    }
-</code></pre>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">byte</span>[] encode(<span class="keyword">byte</span>[] body, <span class="keyword">byte</span> flag, <span class="keyword">long</span> requestId) <span class="keyword">throws</span> IOException &#123;</div><div class="line">      <span class="comment">// 协议1的header占16个字节，先创建一个长度为16的字节数组</span></div><div class="line">      <span class="keyword">byte</span>[] header = <span class="keyword">new</span> <span class="keyword">byte</span>[RpcProtocolVersion.VERSION_1.getHeaderLength()];</div><div class="line">      <span class="keyword">int</span> offset = <span class="number">0</span>;</div><div class="line"></div><div class="line">      <span class="comment">// 0 - 15 bit : magic</span></div><div class="line">      <span class="comment">// 这个方法实际上是把short类型的magic转成两个字节，打包到header</span></div><div class="line">      ByteUtil.short2bytes(MAGIC, header, offset);</div><div class="line">      offset += <span class="number">2</span>;</div><div class="line"></div><div class="line">      <span class="comment">// 16 - 23 bit : version</span></div><div class="line">      <span class="comment">// 打包version</span></div><div class="line">      header[offset++] = RpcProtocolVersion.VERSION_1.getVersion();</div><div class="line"></div><div class="line">      <span class="comment">// 24 - 31 bit : extend flag</span></div><div class="line">      <span class="comment">// 打包flag</span></div><div class="line">      header[offset++] = flag;</div><div class="line"></div><div class="line">      <span class="comment">// 32 - 95 bit : requestId</span></div><div class="line">      <span class="comment">// 打包requestId</span></div><div class="line">      ByteUtil.long2bytes(requestId, header, offset);</div><div class="line">      offset += <span class="number">8</span>;</div><div class="line"></div><div class="line">      <span class="comment">// 96 - 127 bit : body content length</span></div><div class="line">      <span class="comment">// 打包body包长</span></div><div class="line">      ByteUtil.int2bytes(body.length, header, offset);</div><div class="line"></div><div class="line">      <span class="keyword">byte</span>[] data = <span class="keyword">new</span> <span class="keyword">byte</span>[header.length + body.length];</div><div class="line"></div><div class="line">      System.arraycopy(header, <span class="number">0</span>, data, <span class="number">0</span>, header.length);</div><div class="line">      System.arraycopy(body, <span class="number">0</span>, data, header.length, body.length);</div><div class="line"></div><div class="line">      <span class="keyword">return</span> data;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
 <p>到这里motan默认的协议基本分析完，但是还没说到CompresssRpcCodec 压缩的编解码，（这个压缩的类跟协议编解码写到一起，分离出来会不会更好[如果我们能确定哪些地方需要压缩]）</p>
 <h4 id="motan协议的压缩"><a href="#motan协议的压缩" class="headerlink" title="motan协议的压缩"></a>motan协议的压缩</h4><p>数据压缩也是一个完善的rpc框架必备的功能之一，良好的压缩可以减少网络传输数据大小，节省流量，提升响应速度。</p>
 <h5 id="压缩算法比较"><a href="#压缩算法比较" class="headerlink" title="压缩算法比较"></a>压缩算法比较</h5><p>以下是Google几年前发布的一组测试数据（数据有些老了，有人近期做过测试的话希望能共享出来）：</p>
@@ -483,22 +409,7 @@ public interface Codec {
 <p>2）LZO的压缩率居中，比GZIP要低一些，但是压缩和解压速度明显要比GZIP快很多，其中解压速度快的更多；</p>
 <p>3）Zippy/Snappy的压缩率最低，而压缩和解压速度要稍微比LZO要快一些。</p>
 <h4 id="motan中的协议压缩"><a href="#motan中的协议压缩" class="headerlink" title="motan中的协议压缩"></a>motan中的协议压缩</h4><p>motan默认支持的压缩是gzip，这块代码比较杂，不支持扩展，如果要实现自己的压缩方式，得重新实现codec部分（继承defaultRpcCodec，重写部分方法也可以）。</p>
-<pre><code class="java">// 对rpc body进行压缩。
-    public byte[] compress(byte[] org, boolean useGzip, int minGzSize) throws IOException {
-        if (useGzip &amp;&amp; org.length &gt; minGzSize) {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            GZIPOutputStream gos = new GZIPOutputStream(outputStream);
-            gos.write(org);
-            gos.finish();
-            gos.flush();
-            gos.close();
-            byte[] ret = outputStream.toByteArray();
-            return ret;
-        } else {
-            return org;
-        }
-    }
-</code></pre>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">// 对rpc body进行压缩。</span></div><div class="line">    <span class="keyword">public</span> <span class="keyword">byte</span>[] compress(<span class="keyword">byte</span>[] org, <span class="keyword">boolean</span> useGzip, <span class="keyword">int</span> minGzSize) <span class="keyword">throws</span> IOException &#123;</div><div class="line">        <span class="keyword">if</span> (useGzip &amp;&amp; org.length &gt; minGzSize) &#123;</div><div class="line">            ByteArrayOutputStream outputStream = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">            GZIPOutputStream gos = <span class="keyword">new</span> GZIPOutputStream(outputStream);</div><div class="line">            gos.write(org);</div><div class="line">            gos.finish();</div><div class="line">            gos.flush();</div><div class="line">            gos.close();</div><div class="line">            <span class="keyword">byte</span>[] ret = outputStream.toByteArray();</div><div class="line">            <span class="keyword">return</span> ret;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> org;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>就不一一分析motan这块代码，简单总结一下motan compress：</p>
 <p>1）motan压缩的仅仅是rpc 的body部分。header没有压缩的必要。</p>
 <p>2）心跳包没有body，不压缩。</p>
@@ -562,8 +473,8 @@ public interface Codec {
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-11-05guava-cache-info.html" rel="prev" title="Guava Cache使用示例">
-                Guava Cache使用示例 <i class="fa fa-chevron-right"></i>
+              <a href="/2016-11-05-guava-cache.html" rel="prev" title="Guava Cache 分析">
+                Guava Cache 分析 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -636,7 +547,7 @@ public interface Codec {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-count">15</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -644,7 +555,7 @@ public interface Codec {
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -965,15 +876,6 @@ public interface Codec {
 
 
   
-
-  <script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
-  <script type="text/javascript">
-     $("pre").addClass("prettyprint");
-     $("pre").addClass("linenums");
-     $("pre").addClass("lang-html");
-     $("pre").addClass("prettyprinted");
-     prettyPrint();
-  </script>
 
 </body>
 </html>

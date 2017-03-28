@@ -90,9 +90,12 @@ Motan 在集群调用失败时，提供了两种容错方案，并支持自定�
 
 Failover 失效切换（缺省）
 
-&amp;lt;motan:protocol ... haStrategy=&amp;quot;failover&amp;quot;/&amp;gt;
+&amp;lt;motan:protocol ... haStrategy=&quot;failover&quot;/&amp;gt;
 
-失败自动切换，当出现失败，重试其它服务器。">
+失败自动切换，当出现失败，重试其它服务器。
+
+
+Failfast">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Motan源码解读-容错策略">
 <meta property="og:url" content="http://code.zhizus.com/2016-09-21-motan-hastratege.html">
@@ -103,11 +106,13 @@ Motan 在集群调用失败时，提供了两种容错方案，并支持自定�
 
 Failover 失效切换（缺省）
 
-&amp;lt;motan:protocol ... haStrategy=&amp;quot;failover&amp;quot;/&amp;gt;
+&amp;lt;motan:protocol ... haStrategy=&quot;failover&quot;/&amp;gt;
 
-失败自动切换，当出现失败，重试其它服务器。">
-<meta property="og:image" content="http://zhizus.com/code/images//motan/14612385789967.jpg">
-<meta property="og:updated_time" content="2016-09-24T10:06:06.750Z">
+失败自动切换，当出现失败，重试其它服务器。
+
+
+Failfast">
+<meta property="og:updated_time" content="2017-02-06T14:19:20.484Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-容错策略">
 <meta name="twitter:description" content="Motan的容错策略
@@ -116,10 +121,12 @@ Motan 在集群调用失败时，提供了两种容错方案，并支持自定�
 
 Failover 失效切换（缺省）
 
-&amp;lt;motan:protocol ... haStrategy=&amp;quot;failover&amp;quot;/&amp;gt;
+&amp;lt;motan:protocol ... haStrategy=&quot;failover&quot;/&amp;gt;
 
-失败自动切换，当出现失败，重试其它服务器。">
-<meta name="twitter:image" content="http://zhizus.com/code/images//motan/14612385789967.jpg">
+失败自动切换，当出现失败，重试其它服务器。
+
+
+Failfast">
 
 
 
@@ -144,7 +151,7 @@ Failover 失效切换（缺省）
 
 
   <title> Motan源码解读-容错策略 | 郑大侠的博客 </title>
-   <link href="/themes/tranquil-heart.min.css" type="text/css" rel="stylesheet" />
+
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -375,15 +382,15 @@ Failover 失效切换（缺省）
 <ul>
 <li><strong>Failover 失效切换（缺省）</strong></li>
 </ul>
-<pre><code>&lt;motan:protocol ... haStrategy=&quot;failover&quot;/&gt;
-</code></pre><blockquote>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">haStrategy</span>=<span class="string">"failover"</span>/&gt;</span></div></pre></td></tr></table></figure>
+<blockquote>
 <p>失败自动切换，当出现失败，重试其它服务器。</p>
 </blockquote>
 <ul>
 <li><strong>Failfast 快速失败</strong></li>
 </ul>
-<pre><code>&lt;motan:protocol ... haStrategy=&quot;failfast&quot;/&gt;
-</code></pre><blockquote>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">haStrategy</span>=<span class="string">"failfast"</span>/&gt;</span></div></pre></td></tr></table></figure>
+<blockquote>
 <p>快速失败，只发起一次调用，失败立即报错。</p>
 </blockquote>
 <h3 id="dubbo的容错策略"><a href="#dubbo的容错策略" class="headerlink" title="dubbo的容错策略"></a>dubbo的容错策略</h3><p>motan实际上是dubbo的子集，也可以说是阉割版。一下是dubbo支持的容错策略。</p>
@@ -394,118 +401,46 @@ Failover 失效切换（缺省）
 </blockquote>
 </li>
 </ul>
-<pre><code>&lt;dubbo:service retries=&quot;2&quot;&gt;
-</code></pre><ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">retries</span>=<span class="string">"2"</span>&gt;</span></div></pre></td></tr></table></figure>
+<ul>
 <li><strong>2.failfast cluster</strong></li>
 </ul>
 <blockquote>
 <p>快速失效，只发起一次调用，失败立即报错。通常用于非幂等性写操作，比如说新增记录</p>
 </blockquote>
-<pre><code>&lt;dubbo:service cluster=&quot;failfast&quot;&gt;
-</code></pre><ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">cluster</span>=<span class="string">"failfast"</span>&gt;</span></div></pre></td></tr></table></figure>
+<ul>
 <li><p><strong>3.failsaft cluster</strong></p>
 <blockquote>
 <p>失败安全，出现异常时，直接忽略，通常用于写入审计日志等操作</p>
 </blockquote>
 </li>
 </ul>
-<pre><code>&lt;dubbo:service cluster=&quot;failsafe&quot;&gt;
-</code></pre><ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">cluster</span>=<span class="string">"failsafe"</span>&gt;</span></div></pre></td></tr></table></figure>
+<ul>
 <li><strong>4.failback cluster</strong></li>
 </ul>
 <blockquote>
 <p>失败自动恢复，后台记录失败请求，定时重发，通常用于消息通知操作</p>
 </blockquote>
-<pre><code>&lt;dubbo:service cluster=&quot;failback&quot;&gt;
-</code></pre><ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">cluster</span>=<span class="string">"failback"</span>&gt;</span></div></pre></td></tr></table></figure>
+<ul>
 <li><p><strong>5.forking cluster</strong></p>
 <blockquote>
 <p>并行调用多个服务器，只要一个成功即返回。通常用于实时性要求较高的读操作，但需要浪费更多的服务器资源。可通过forks=“2”来设置最大并行数。</p>
 </blockquote>
 </li>
 </ul>
-<pre><code>&lt;dubbo:service cluster=&quot;forking&quot;&gt;
-</code></pre><h3 id="motan容错策略源代码解读"><a href="#motan容错策略源代码解读" class="headerlink" title="motan容错策略源代码解读"></a>motan容错策略源代码解读</h3><p>motan的容错策略尽管支持的不够多，但是对于大部分场景已经够用。而对于一些特殊场景我们可以基于motan 的SPI机制扩展实现自己需要的容错策略。</p>
-<p><img src="http://zhizus.com/code/images//motan/14612385789967.jpg" alt="enter image description here"></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">cluster</span>=<span class="string">"forking"</span>&gt;</span></div></pre></td></tr></table></figure>
+<h3 id="motan容错策略源代码解读"><a href="#motan容错策略源代码解读" class="headerlink" title="motan容错策略源代码解读"></a>motan容错策略源代码解读</h3><p>motan的容错策略尽管支持的不够多，但是对于大部分场景已经够用。而对于一些特殊场景我们可以基于motan 的SPI机制扩展实现自己需要的容错策略。</p>
 <p>motan的容错策略及时基于java的<code>策略模式</code>实现的。</p>
 <blockquote>
 <p>策略模式作为一种软件设计模式，指对象有某个行为，但是在不同的场景中，该行为有不同的实现算法。比如每个人都要“交个人所得税”，但是“在美国交个人所得税”和“在中国交个人所得税”就有不同的算税方法。</p>
 </blockquote>
 <p>motan容错的接口：</p>
-<pre><code class="java">// 可以通过motan的SPI机制扩展
-@Spi(scope = Scope.PROTOTYPE)
-public interface HaStrategy&lt;T&gt; {
-    // 从后面的实现来看，没发现有什么用
-    void setUrl(URL url);
-    //基于具体的LoadBalance调用请求，问答模式，一个request返回一个response，
-    Response call(Request request, LoadBalance&lt;T&gt; loadBalance);
-}
-</code></pre>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">// 可以通过motan的SPI机制扩展</span></div><div class="line"><span class="meta">@Spi</span>(scope = Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HaStrategy</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="comment">// 从后面的实现来看，没发现有什么用</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setUrl</span><span class="params">(URL url)</span></span>;</div><div class="line">    <span class="comment">//基于具体的LoadBalance调用请求，问答模式，一个request返回一个response，</span></div><div class="line">    <span class="function">Response <span class="title">call</span><span class="params">(Request request, LoadBalance&lt;T&gt; loadBalance)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>AbstractHaStrategy这个抽象方法做的事情貌似没什么用，直接看具体的实现：<br>failfast很简单，直接略去。看failover的实现：</p>
-<pre><code class="java">@SpiMeta(name = &quot;failover&quot;)
-public class FailoverHaStrategy&lt;T&gt; extends AbstractHaStrategy&lt;T&gt; {
-
-    //确保每个线程持有一份单独的ArrayList&lt;Referer&lt;T&gt;（FailoverHaStrategy，会有单个实例被多个线程调用）
-    protected ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt; referersHolder = new ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt;() {
-        @Override
-        protected java.util.List&lt;com.weibo.api.motan.rpc.Referer&lt;T&gt;&gt; initialValue() {
-            return new ArrayList&lt;Referer&lt;T&gt;&gt;();
-        }
-    };
-
-    @Override
-    public Response call(Request request, LoadBalance&lt;T&gt; loadBalance) {
-
-        List&lt;Referer&lt;T&gt;&gt; referers = selectReferers(request, loadBalance);
-        if (referers.isEmpty()) {
-            throw new MotanServiceException(String.format(&quot;FailoverHaStrategy No referers for request:%s, loadbalance:%s&quot;, request,
-                    loadBalance));
-        }
-        URL refUrl = referers.get(0).getUrl();
-        // 先使用method的配置
-        int tryCount =
-                refUrl.getMethodParameter(request.getMethodName(), request.getParamtersDesc(), URLParamType.retries.getName(),
-                        URLParamType.retries.getIntValue());
-        // 如果有问题，则设置为不重试
-        if (tryCount &lt; 0) {
-            tryCount = 0;
-        }
-
-        for (int i = 0; i &lt;= tryCount; i++) {
-            Referer&lt;T&gt; refer = referers.get(i % referers.size());
-            try {
-                request.setRetries(i);
-                return refer.call(request);
-            } catch (RuntimeException e) {
-                // 对于业务异常，直接抛出
-                if (ExceptionUtil.isBizException(e)) {
-                    throw e;
-                } else if (i &gt;= tryCount) {
-                    throw e;
-                }
-                LoggerUtil.warn(String.format(&quot;FailoverHaStrategy Call false for request:%s error=%s&quot;, request, e.getMessage()));
-            }
-        }
-      // 从逻辑来看 代码不会到这个地方（如果是业务逻辑直接抛出，如果达到重试次数，也直接抛出异常了二中断了）
-        throw new MotanFrameworkException(&quot;FailoverHaStrategy.call should not come here!&quot;);
-    }
-
-    /**
-     * 先从threadLocal拿到当前线程持有的List&lt;Referer&lt;T&gt;&gt; referers，然后清除，再从loadbalance哪里复制一份最新的引用添加进去
-     * haStratege能感知到引用列表的实时变化
-     * @param request
-     * @param loadBalance
-     * @return
-     */
-    protected List&lt;Referer&lt;T&gt;&gt; selectReferers(Request request, LoadBalance&lt;T&gt; loadBalance) {
-        List&lt;Referer&lt;T&gt;&gt; referers = referersHolder.get();
-        referers.clear();
-        loadBalance.selectToHolder(request, referers);
-        return referers;
-    }
-
-}
-</code></pre>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"></div><div class="line"><span class="meta">@SpiMeta</span>(name = <span class="string">"failover"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FailoverHaStrategy</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractHaStrategy</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">//确保每个线程持有一份单独的ArrayList&lt;Referer&lt;T&gt;（FailoverHaStrategy，会有单个实例被多个线程调用）</span></div><div class="line">    <span class="keyword">protected</span> ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt; referersHolder = <span class="keyword">new</span> ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt;() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="keyword">protected</span> java.util.List&lt;com.weibo.api.motan.rpc.Referer&lt;T&gt;&gt; initialValue() &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;Referer&lt;T&gt;&gt;();</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request, LoadBalance&lt;T&gt; loadBalance)</span> </span>&#123;</div><div class="line"></div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = selectReferers(request, loadBalance);</div><div class="line">        <span class="keyword">if</span> (referers.isEmpty()) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(String.format(<span class="string">"FailoverHaStrategy No referers for request:%s, loadbalance:%s"</span>, request,</div><div class="line">                    loadBalance));</div><div class="line">        &#125;</div><div class="line">        URL refUrl = referers.get(<span class="number">0</span>).getUrl();</div><div class="line">        <span class="comment">// 先使用method的配置</span></div><div class="line">        <span class="keyword">int</span> tryCount =</div><div class="line">                refUrl.getMethodParameter(request.getMethodName(), request.getParamtersDesc(), URLParamType.retries.getName(),</div><div class="line">                        URLParamType.retries.getIntValue());</div><div class="line">        <span class="comment">// 如果有问题，则设置为不重试</span></div><div class="line">        <span class="keyword">if</span> (tryCount &lt; <span class="number">0</span>) &#123;</div><div class="line">            tryCount = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= tryCount; i++) &#123;</div><div class="line">            Referer&lt;T&gt; refer = referers.get(i % referers.size());</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                request.setRetries(i);</div><div class="line">                <span class="keyword">return</span> refer.call(request);</div><div class="line">            &#125; <span class="keyword">catch</span> (RuntimeException e) &#123;</div><div class="line">                <span class="comment">// 对于业务异常，直接抛出</span></div><div class="line">                <span class="keyword">if</span> (ExceptionUtil.isBizException(e)) &#123;</div><div class="line">                    <span class="keyword">throw</span> e;</div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i &gt;= tryCount) &#123;</div><div class="line">                    <span class="keyword">throw</span> e;</div><div class="line">                &#125;</div><div class="line">                LoggerUtil.warn(String.format(<span class="string">"FailoverHaStrategy Call false for request:%s error=%s"</span>, request, e.getMessage()));</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">      <span class="comment">// 从逻辑来看 代码不会到这个地方（如果是业务逻辑直接抛出，如果达到重试次数，也直接抛出异常了二中断了）</span></div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> MotanFrameworkException(<span class="string">"FailoverHaStrategy.call should not come here!"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 先从threadLocal拿到当前线程持有的List&lt;Referer&lt;T&gt;&gt; referers，然后清除，再从loadbalance哪里复制一份最新的引用添加进去</div><div class="line">     * haStratege能感知到引用列表的实时变化</div><div class="line">     * <span class="doctag">@param</span> request</div><div class="line">     * <span class="doctag">@param</span> loadBalance</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    <span class="keyword">protected</span> List&lt;Referer&lt;T&gt;&gt; selectReferers(Request request, LoadBalance&lt;T&gt; loadBalance) &#123;</div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = referersHolder.get();</div><div class="line">        referers.clear();</div><div class="line">        loadBalance.selectToHolder(request, referers);</div><div class="line">        <span class="keyword">return</span> referers;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>这段代码花费了些时间理解。</p>
 <ul>
 <li>1.为什么要将引用放到new ThreadLocal<list<referer<t>&gt;&gt;()?</list<referer<t></li>
@@ -580,8 +515,8 @@ public class FailoverHaStrategy&lt;T&gt; extends AbstractHaStrategy&lt;T&gt; {
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-override.html" rel="next" title="Motan源码解读-源码结构">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-源码结构
+              <a href="/2016-09-20-motan-loadbalance.html" rel="next" title="Motan源码解读-负载均衡">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-负载均衡
               </a>
             
           </div>
@@ -662,7 +597,7 @@ public class FailoverHaStrategy&lt;T&gt; extends AbstractHaStrategy&lt;T&gt; {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-count">15</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -670,7 +605,7 @@ public class FailoverHaStrategy&lt;T&gt; extends AbstractHaStrategy&lt;T&gt; {
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -991,15 +926,6 @@ public class FailoverHaStrategy&lt;T&gt; extends AbstractHaStrategy&lt;T&gt; {
 
 
   
-
-  <script type="text/javascript" src="/google-code-prettify/prettify.js"></script>
-  <script type="text/javascript">
-     $("pre").addClass("prettyprint");
-     $("pre").addClass("linenums");
-     $("pre").addClass("lang-html");
-     $("pre").addClass("prettyprinted");
-     prettyPrint();
-  </script>
 
 </body>
 </html>

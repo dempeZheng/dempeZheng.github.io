@@ -1,0 +1,863 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="netty,ByteBuf,pool,outOfMemory" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="##记一次netty内存溢出的问题最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次netty内存溢出的问题">
+<meta property="og:url" content="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="##记一次netty内存溢出的问题最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内">
+<meta property="og:image" content="http://code.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
+<meta property="og:image" content="http://code.zhizus.com/images/7679748d-5928-4666-9e57-59ceeadb9058.png">
+<meta property="og:updated_time" content="2017-03-28T12:40:24.667Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次netty内存溢出的问题">
+<meta name="twitter:description" content="##记一次netty内存溢出的问题最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内">
+<meta name="twitter:image" content="http://code.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://code.zhizus.com/2017-03-28-netty-outofmemory.html"/>
+
+
+  <title> 记一次netty内存溢出的问题 | 郑大侠的博客 </title>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">郑大侠的博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">DempeZheng'S Blog</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                记一次netty内存溢出的问题
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-28T00:00:00+08:00" content="2017-03-28">
+              2017-03-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/netty/" itemprop="url" rel="index">
+                    <span itemprop="name">netty</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017-03-28-netty-outofmemory.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-03-28-netty-outofmemory.html" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017-03-28-netty-outofmemory.html" class="leancloud_visitors" data-flag-title="记一次netty内存溢出的问题">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>##记一次netty内存溢出的问题<br>最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。</p>
+<p>起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。<br>第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。</p>
+<p>通过如下命令</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">sudo jmap -F -heap pid</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">Heap Configuration:</div><div class="line">   MinHeapFreeRatio = 40</div><div class="line">   MaxHeapFreeRatio = 70</div><div class="line">   MaxHeapSize      = 1073741824 (1024.0MB)</div><div class="line">   NewSize          = 536870912 (512.0MB)</div><div class="line">   MaxNewSize       = 536870912 (512.0MB)</div><div class="line">   OldSize          = 5439488 (5.1875MB)</div><div class="line">   NewRatio         = 2</div><div class="line">   SurvivorRatio    = 8</div><div class="line">   PermSize         = 201326592 (192.0MB)</div><div class="line">   MaxPermSize      = 201326592 (192.0MB)</div><div class="line">   G1HeapRegionSize = 0 (0.0MB)</div><div class="line"></div><div class="line">Heap Usage:</div><div class="line">New Generation (Eden + 1 Survivor Space):</div><div class="line">   capacity = 483196928 (460.8125MB)</div><div class="line">   used     = 120514736 (114.93180847167969MB)</div><div class="line">   free     = 362682192 (345.8806915283203MB)</div><div class="line">   24.941122142233485% used</div><div class="line">Eden Space:</div><div class="line">   capacity = 429522944 (409.625MB)</div><div class="line">   used     = 120514736 (114.93180847167969MB)</div><div class="line">   free     = 309008208 (294.6931915283203MB)</div><div class="line">   28.057811039775327% used</div><div class="line">From Space:</div><div class="line">   capacity = 53673984 (51.1875MB)</div><div class="line">   used     = 0 (0.0MB)</div><div class="line">   free     = 53673984 (51.1875MB)</div><div class="line">   0.0% used</div><div class="line">To Space:</div><div class="line">   capacity = 53673984 (51.1875MB)</div><div class="line">   used     = 0 (0.0MB)</div><div class="line">   free     = 53673984 (51.1875MB)</div><div class="line">   0.0% used</div><div class="line">concurrent mark-sweep generation:</div><div class="line">   capacity = 536870912 (512.0MB)</div><div class="line">   used     = 532637504 (507.96270751953125MB)</div><div class="line">   free     = 4233408 (4.03729248046875MB)</div><div class="line">   99.21146631240845% used</div><div class="line">Perm Generation:</div><div class="line">   capacity = 201326592 (192.0MB)</div><div class="line">   used     = 21220648 (20.237586975097656MB)</div><div class="line">   free     = 180105944 (171.76241302490234MB)</div><div class="line">   10.540409882863363% used</div></pre></td></tr></table></figure>
+<p>发现concurrent mark-sweep generation（老生代）已经满了，而且基本不会回收。</p>
+<p>然后，继续压测，不出几分钟就内存溢出了。（有的时候如果不是正儿八经的做做压测或者经历高并发场景还真的很难发现问题。）</p>
+<p>对于这种好处理内存溢出的机会，当然不能放过。</p>
+<h3 id="1-首先dump出bin文件："><a href="#1-首先dump出bin文件：" class="headerlink" title="1.首先dump出bin文件："></a>1.首先dump出bin文件：</h3><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">sudo jmap -F -dump:live,format=b,file=server_dump.bin pid</div></pre></td></tr></table></figure>
+<blockquote>
+<p><code>-F</code>是强制的意思，在进程启动用户和jmap脚本执行用户不是同一用户的时候需要<code>-F</code><br><code>live</code>参数会强制full gc</p>
+</blockquote>
+<h3 id="2-dump出bin文件后直接上工具分析："><a href="#2-dump出bin文件后直接上工具分析：" class="headerlink" title="2.dump出bin文件后直接上工具分析："></a>2.dump出bin文件后直接上工具分析：</h3><p>这里使用的是eclipse旗下的工具，<a href="http://www.eclipse.org/mat/downloads.php" target="_blank" rel="external">Memory Analyzer (MAT)</a> ，将bin文件用mat打开分析，如下图：<br><img src="/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png" alt="Alt text"><br>这个图已经能很清晰的说明问题了，netty自己实现的FastThreadLocalThread占据了88%的内存。<br><img src="/images/7679748d-5928-4666-9e57-59ceeadb9058.png" alt="Alt text"></p>
+<p>dump bin文件是一个比较耗方案，但是往往能很清晰直观的发现问题。很多线上问题不一定等得及dump bin文件分析，如果需要轻量一点的解决方式，可以考虑直接使jmap -histo查看对象占用内存的情况。（当分配的内存过大时，dump bin文件一方面很耗时，一方面很难分析，大部分工具包括MAT都是java实现的分析工具，加载超过3g的bin文件可能直接打不开）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">sudo jmap -F -histo pid</div></pre></td></tr></table></figure>
+<p>[注]-F和live不能同时使用，也就是不可以<code>sudo jmap -F -histo:live pid</code>,所以最好能用进程启动的用户来执行如下命令：<code>jmap -histo:live pid</code> （如果不加live强制full gc会看到很多unreachable对象，这些对象暂时还没被垃圾回收，很容易干扰到分析）</p>
+<h3 id="3-查找FastThreadLocalThread内存溢出的原因"><a href="#3-查找FastThreadLocalThread内存溢出的原因" class="headerlink" title="3.查找FastThreadLocalThread内存溢出的原因"></a>3.查找FastThreadLocalThread内存溢出的原因</h3><p>netty在Recycler中会用到这个FastThreadLocalThread，用来缓存对象。<br>简单来说Recycler提供了一个对象池，目的是为了减少gc的频率，提升性能。<br>对于这个Recycler引起的内存泄漏，网上一搜一大把。但是大家产生内存泄漏的原因基本是由于内存的 allocate 和 release 不再同一个线程，造成的内存泄漏。</p>
+<p>仔细的查看了项目的代码，发现内存的分配释放都是在decoder里面处理的，也就是netty的IO线程。既然这样压测的时候为什么会内存溢出呢？</p>
+<p>这个就绕不开Recycler的实现了。还是得好好看看Recycler的机制。</p>
+<h4 id="3-1Recycler相关"><a href="#3-1Recycler相关" class="headerlink" title="3.1Recycler相关"></a>3.1Recycler相关</h4><blockquote>
+<p>Recycler是netty轻量内存池技术的核心实现，Recycler是一个抽象类，向外部提供了两个公共方法get和recycle分别用于从对象池中获取对象和回收对象<br>Recycler内部主要包含三个核心组件，各个组件负责对象池实现的具体部分，Recycler向外部提供统一的对象创建和回收接口：</p>
+<ul>
+<li><p>Handle</p>
+</li>
+<li><p>WeakOrderQueue</p>
+</li>
+<li><p>Stack</p>
+</li>
+</ul>
+<p><strong>各组件的功能如下</strong></p>
+<p>Handle</p>
+<p>Recycler在内部类中给出了Handle的一个默认实现：DefaultHandle，Handle主要提供一个recycle接口，用于提供对象回收的具体实现，每个Handle关联一个value字段，用于存放具体的池化对象，记住，在对象池中，所有的池化对象都被这个Handle包装，Handle是对象池管理的基本单位。另外Handle指向这对应的Stack，对象存储也就是Handle存储的具体地方由Stack维护和管理。</p>
+<p>Stack</p>
+<p>Stack具体维护着对象池数据，向Recycler提供push和pop两个主要访问接口，pop用于从内部弹出一个可被重复使用的对象，push用于回收以后可以重复使用的对象。</p>
+<p>WeakOrderQueue</p>
+<p>WeakOrderQueue的功能可以由两个接口体现，add和transfer。add用于将handler（对象池管理的基本单位）放入队列，transfer用于向stack输入可以被重复使用的对象。我们可以把WeakOrderQueue看做一个对象仓库，stack内只维护一个Handle数组用于直接向Recycler提供服务，当从这个数组中拿不到对象的时候则会寻找对应WeakOrderQueue并调用其transfer方法向stack供给对象。</p>
+</blockquote>
+<p>首先第一点，Recylcler机制和线程绑定，一个线程会有一个ThreadLocal，<strong>对应的对象的申请和回收如果不在同一个线程一定会内存泄漏。</strong><br>第二点:如果对象申请的速度大于对象回收的速度，那么对象一定会在Recycler的queue中堆积。那么，我们来看看queue的size，如果queue上限过大，那么大量对象堆积，肯定会造成内存溢出。<br>通过阅读Recycler的代码我们看到，默认情况，这个上限是32k。那么我们基本可通过线程的数量来判断出实例堆积的上限基本就是线程数量×32k。而我们项目中用到这个Recycler的就是内存的分配是释放，这个都是在IO的线程里面处理的，而IO的线程数就是通过核数×2来获取的，线上压测的核数是24核，故IO线程数量为48。 48×32k已经不是一个小数目了。至于占用内存的上限要通过压测得出。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">private static final int DEFAULT_INITIAL_MAX_CAPACITY = 32768; // Use 32k instances as default max capacity.</div><div class="line"> int maxCapacity = SystemPropertyUtil.getInt(&quot;io.netty.recycler.maxCapacity&quot;, DEFAULT_INITIAL_MAX_CAPACITY);</div></pre></td></tr></table></figure>
+<p>当然，还有一个问题需要确认，内存的申请和回收速度是否同步，如果是同步的那么这个queue里面的对象就不会膨胀。</p>
+<h3 id="4-解决方案"><a href="#4-解决方案" class="headerlink" title="4.解决方案"></a>4.解决方案</h3><p>严格来说，这种情况不能算内存泄漏，如果内存分配再大点，IO线程数量设置少些，也是没什么问题的。但是netty也给我们提供了一些解决方案。</p>
+<p><strong>第一种：直接禁用掉Recycler的功能，功过设置<code>-Dio.netty.recycler.maxCapacity.default=0</code></strong><br>当然如果禁用 Recycler可惜的话，可以将maxCapcity设置一个合适的值。</p>
+<blockquote>
+<p>Netty的另一个得意设计是对象可以在线程内无锁的被回收重用。但有些场景里，某线程只创建对象，要到另一个线程里释放，一不小心，你就会发现应用缓缓变慢，heap dump时看到好多RecyleHandler对象。所以这块的设计其实在4.0.x的各个版本里变动了无数遍，貌似4.0.40版才终于在我的测试里不再泄漏了。</p>
+<p>但有时觉得这么辛苦的重用一个对象（而不是ByteBuffer内存本身），不如干脆禁止掉这个功能，所以4.0.0.33里，我会在启动参数里加入 <code>-Dio.netty.recycler.maxCapacity.default=0</code>。无语的是，也几乎从这个版本开始，才能通过设为0禁止它。</p>
+</blockquote>
+<p><strong>第二种：异步系统限流</strong></p>
+<p>netty提供了通过设置高低水位的方式进行限流，</p>
+<blockquote>
+<p>onfigure high and low write watermarks<br>Set sane WRITE_BUFFER_HIGH_WATER_MARK and WRITE_BUFFER_LOW_WATER_MARK</p>
+</blockquote>
+<p><strong>Server</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line">ServerBootstrap bootstrap = <span class="keyword">new</span> ServerBootstrap();</div><div class="line">bootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, <span class="number">32</span> * <span class="number">1024</span>);</div><div class="line">bootstrap.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, <span class="number">8</span> * <span class="number">1024</span>);</div></pre></td></tr></table></figure>
+<p><strong>Client</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line">Bootstrap bootstrap = <span class="keyword">new</span> Bootstrap();</div><div class="line">bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, <span class="number">32</span> * <span class="number">1024</span>);</div><div class="line">bootstrap.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, <span class="number">8</span> * <span class="number">1024</span>);</div></pre></td></tr></table></figure>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>压测过程中发现内存老生代将要耗尽的时候会频繁的触发cms gc，而短时间内可回收的对象又相对将少，效率低下。而gc反过来又会影响系统的吞吐，造成更多的对象的堆积。<br>所以设置合理的堆栈大小很有必要。<br>不同的环境会有不同的最佳值，那么如何调整到一个合适值呢？<br>1.打印出gc日志，根据日志来调整</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:/data/log/java/gc.log</div></pre></td></tr></table></figure>
+<p>2.通过jdk自带工具，jconsole等来查看gc的情况<br>暴露jmx端口，给jdk自带工具连接</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=15214 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=yourip</div></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>1.netty 4 内存分配和释放一定要在同一个线程，如果自己使用netty的bufferpool更是要谨慎。<br>2.Recycler是个好东西，对于大量使用的重量级对象提升性能是很显著的，重要的是还减少了gc频率。当然也是有代价的，你得额外花费一些内存。<br>3.合理运用工具，MAT分析堆栈文件真的很靠谱，<br>4.对于内存泄漏，cpu 100%这种问题还是得多用实际问题练练手，不然只能停留在理论阶段。<br>5.netty确实是一个优秀的框架</p>
+<h3 id="延伸阅读"><a href="#延伸阅读" class="headerlink" title="延伸阅读"></a>延伸阅读</h3><p><a href="https://caorong.github.io/2016/08/27/netty-hole/" target="_blank" rel="external">Netty 踩坑记</a><br><a href="https://my.oschina.net/andylucc/blog/614589" target="_blank" rel="external">Netty精粹之轻量级内存池技术实现原理与应用</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016-11-05guava-cache-info.html" rel="next" title="Guava Cache使用示例">
+                <i class="fa fa-chevron-left"></i> Guava Cache使用示例
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017-03-28-netty-outofmemory.html"
+           data-title="记一次netty内存溢出的问题" data-url="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+          <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a rel="external nofollow" href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a rel="external nofollow" href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a rel="external nofollow" href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-首先dump出bin文件："><span class="nav-number">1.</span> <span class="nav-text">1.首先dump出bin文件：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-dump出bin文件后直接上工具分析："><span class="nav-number">2.</span> <span class="nav-text">2.dump出bin文件后直接上工具分析：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-查找FastThreadLocalThread内存溢出的原因"><span class="nav-number">3.</span> <span class="nav-text">3.查找FastThreadLocalThread内存溢出的原因</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1Recycler相关"><span class="nav-number">3.1.</span> <span class="nav-text">3.1Recycler相关</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-解决方案"><span class="nav-number">4.</span> <span class="nav-text">4.解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化"><span class="nav-number">5.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#延伸阅读"><span class="nav-number">7.</span> <span class="nav-text">延伸阅读</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"zhizus"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
