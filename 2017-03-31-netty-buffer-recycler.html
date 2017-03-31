@@ -84,25 +84,22 @@
 
 
 
-<meta name="description" content="##netty内存分配Recycler容量膨胀问题跟踪
-在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
+<meta name="description" content="netty内存分配Recycler容量膨胀问题跟踪在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
 
-Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread">
+Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次netty内存溢出的问题(下)">
 <meta property="og:url" content="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="##netty内存分配Recycler容量膨胀问题跟踪
-在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
+<meta property="og:description" content="netty内存分配Recycler容量膨胀问题跟踪在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
 
-Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread">
-<meta property="og:updated_time" content="2017-03-31T12:02:05.845Z">
+Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取">
+<meta property="og:updated_time" content="2017-03-31T12:03:40.477Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次netty内存溢出的问题(下)">
-<meta name="twitter:description" content="##netty内存分配Recycler容量膨胀问题跟踪
-在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
+<meta name="twitter:description" content="netty内存分配Recycler容量膨胀问题跟踪在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
 
-Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread">
+Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取">
 
 
 
@@ -352,8 +349,7 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
       
 
       
-        <p>##netty内存分配Recycler容量膨胀问题跟踪</p>
-<p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
+        <h2 id="netty内存分配Recycler容量膨胀问题跟踪"><a href="#netty内存分配Recycler容量膨胀问题跟踪" class="headerlink" title="netty内存分配Recycler容量膨胀问题跟踪"></a>netty内存分配Recycler容量膨胀问题跟踪</h2><p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
 <blockquote>
 <p>Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取，如果有便不重新分配。内存的release()的时候又会调用recycler()将对象回收。netty采用这种机制减少对象创建的损耗和减少垃圾回收从而提升性能。</p>
 </blockquote>
@@ -578,7 +574,7 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#首先来理一理项目内存分配和释放的几个地方。"><span class="nav-number">1.</span> <span class="nav-text">首先来理一理项目内存分配和释放的几个地方。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看源代码"><span class="nav-number">2.</span> <span class="nav-text">查看源代码</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#netty内存分配Recycler容量膨胀问题跟踪"><span class="nav-number">1.</span> <span class="nav-text">netty内存分配Recycler容量膨胀问题跟踪</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#首先来理一理项目内存分配和释放的几个地方。"><span class="nav-number">1.1.</span> <span class="nav-text">首先来理一理项目内存分配和释放的几个地方。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看源代码"><span class="nav-number">1.2.</span> <span class="nav-text">查看源代码</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
