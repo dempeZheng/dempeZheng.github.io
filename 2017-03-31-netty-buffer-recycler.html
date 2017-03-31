@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="netty,ByteBuf,pool,outOfMemory，Recycler" />
+  <meta name="keywords" content="netty,ByteBuf,pool,outOfMemory,Recycler" />
 
 
 
@@ -96,7 +96,7 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
 
 Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread">
-<meta property="og:updated_time" content="2017-03-31T11:57:09.446Z">
+<meta property="og:updated_time" content="2017-03-31T12:02:05.845Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次netty内存溢出的问题(下)">
 <meta name="twitter:description" content="##netty内存分配Recycler容量膨胀问题跟踪
