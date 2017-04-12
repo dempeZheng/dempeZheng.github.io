@@ -159,7 +159,9 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
+      <div class="header-inner">
+
+<div class="site-meta ">
   
 
   <div class="custom-logo-site-title">
@@ -356,22 +358,242 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 <h3 id="首先来理一理项目内存分配和释放的几个地方。"><a href="#首先来理一理项目内存分配和释放的几个地方。" class="headerlink" title="首先来理一理项目内存分配和释放的几个地方。"></a>首先来理一理项目内存分配和释放的几个地方。</h3><p>项目中仅仅在encoder&amp;decoder中用到了内存的分配和释放，而且非常确定这两个地方用到的是netty的IO线程。分配释放都是同一个线程。</p>
 <p>既然用到netty的IO线程，那么recycler的容量就应该是约等于 IO线程数，（netty的NioEventLoop继承的是SingleThreadEventLoop，也就是说在每个EventLoop里面encoder&amp;decoder都是串行） 按照这么来说，肯定不会内存溢出才对。</p>
 <h3 id="查看源代码"><a href="#查看源代码" class="headerlink" title="查看源代码"></a>查看源代码</h3><p>仔细看来netty的源代码，确认decoder这块肯定是没问题，ReadEvent事件触发了，一条线程处理内存的申请和释放。<br>encoder这块就稍稍复杂一些。首先，项目是在自己的业务线程中 调用ctx.writeAndFlush(message)来写消息的。<br>这个方法会先判断是否在IO线程中，如果不再则会包装成一个WriteAndFlushTask丢到IO线程处理。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(Object msg, <span class="keyword">boolean</span> flush, ChannelPromise promise)</span> </span>&#123;</div><div class="line">    AbstractChannelHandlerContext next = findContextOutbound();</div><div class="line">    <span class="keyword">final</span> Object m = pipeline.touch(msg, next);</div><div class="line">    EventExecutor executor = next.executor();</div><div class="line">    <span class="keyword">if</span> (executor.inEventLoop()) &#123;</div><div class="line">        <span class="keyword">if</span> (flush) &#123;</div><div class="line">            next.invokeWriteAndFlush(m, promise);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            next.invokeWrite(m, promise);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        AbstractWriteTask task;</div><div class="line">        <span class="keyword">if</span> (flush) &#123;</div><div class="line">           <span class="comment">//包装成WriteAndFlushTask</span></div><div class="line">            task = WriteAndFlushTask.newInstance(next, m, promise);</div><div class="line">        &#125;  <span class="keyword">else</span> &#123;</div><div class="line">            task = WriteTask.newInstance(next, m, promise);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 丢到EventLoop线程中执行，即IO线程</span></div><div class="line">        <span class="comment">//顺便说一下，如果这里不这样包装，业务开发者很容易在其他非IO线程中来write，这样很可能会造成多线程往同一条channel里面写数据，造成并发问题。早期的版本是在write的地方加锁的。这样实际上跟netty标榜的串行无所话设计相违背。</span></div><div class="line">        safeExecute(executor, task, promise, m);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">private void write(Object msg, boolean flush, ChannelPromise promise) {
+    AbstractChannelHandlerContext next = findContextOutbound();
+    final Object m = pipeline.touch(msg, next);
+    EventExecutor executor = next.executor();
+    if (executor.inEventLoop()) {
+        if (flush) {
+            next.invokeWriteAndFlush(m, promise);
+        } else {
+            next.invokeWrite(m, promise);
+        }
+    } else {
+        AbstractWriteTask task;
+        if (flush) {
+           //包装成WriteAndFlushTask
+            task = WriteAndFlushTask.newInstance(next, m, promise);
+        }  else {
+            task = WriteTask.newInstance(next, m, promise);
+        }
+        // 丢到EventLoop线程中执行，即IO线程
+        //顺便说一下，如果这里不这样包装，业务开发者很容易在其他非IO线程中来write，这样很可能会造成多线程往同一条channel里面写数据，造成并发问题。早期的版本是在write的地方加锁的。这样实际上跟netty标榜的串行无所话设计相违背。
+        safeExecute(executor, task, promise, m);
+    }
+}
+</code></pre>
 <p>那么可以确认 decoder也一定是在IO线程中完成的，也就是decoder的内存申请和释放理论上是在同一个线程中来完成的。</p>
 <p><strong>既然这样 问题会出现在哪里呢</strong>？</p>
 <p>跟进WriteAndFlushTask，一步一步看他怎么处理的，既然出现了问题，那么顺着问题一定能找到原因。<br>跟进去我们发现 实际上writeAndFlushTask分成了两个动作，一个是write，一个是flush。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(AbstractChannelHandlerContext ctx, Object msg, ChannelPromise promise)</span> </span>&#123;</div><div class="line">          <span class="comment">// write 方法将会循环调用handler中的write方法，最后会调用HeadContext中write，将buffer写到ChannelOutBoundBuffer中，这一个过程中不会release buffer，因为他还没有真正的写入流中</span></div><div class="line">          <span class="keyword">super</span>.write(ctx, msg, promise);</div><div class="line">          <span class="comment">// flush才是 真正的将数据写入流</span></div><div class="line">          ctx.invokeFlush();</div><div class="line">      &#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">  public void write(AbstractChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+            // write 方法将会循环调用handler中的write方法，最后会调用HeadContext中write，将buffer写到ChannelOutBoundBuffer中，这一个过程中不会release buffer，因为他还没有真正的写入流中
+            super.write(ctx, msg, promise);
+            // flush才是 真正的将数据写入流
+            ctx.invokeFlush();
+        }
+</code></pre>
 <p>write部分并未将数据真正的写出去，而是将数据丢到ChannelOutBoundBuffer中，等到flush的时候才会调用NioSocketChannel中的doWrite来写入数据。<br>内存的是在MessageToByteDecoder中申请的，这个也是通过IO线程中，而内存的释放是在flush中，即真正将数据写入后才释放的。也就是在NioSocketChannel的doWrite方法中释放的。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@Override</div><div class="line"> protected void doWrite(ChannelOutboundBuffer in) throws Exception &#123;</div><div class="line">     for (;;) &#123;</div><div class="line">         int size = in.size();</div><div class="line">         if (size == 0) &#123;</div><div class="line">             // All written so clear OP_WRITE</div><div class="line">             clearOpWrite();</div><div class="line">             break;</div><div class="line">         &#125;</div><div class="line">         long writtenBytes = 0;</div><div class="line">         boolean done = false;</div><div class="line">         boolean setOpWrite = false;</div><div class="line"></div><div class="line">         // Ensure the pending writes are made of ByteBufs only.</div><div class="line">         ByteBuffer[] nioBuffers = in.nioBuffers();</div><div class="line">         int nioBufferCnt = in.nioBufferCount();</div><div class="line">         long expectedWrittenBytes = in.nioBufferSize();</div><div class="line">         SocketChannel ch = javaChannel();</div><div class="line"></div><div class="line">         // Always us nioBuffers() to workaround data-corruption.</div><div class="line">         // See https://github.com/netty/netty/issues/2761</div><div class="line">         switch (nioBufferCnt) &#123;</div><div class="line">             case 0:</div><div class="line">                 // We have something else beside ByteBuffers to write so fallback to normal writes.</div><div class="line">                 super.doWrite(in);</div><div class="line">                 return;</div><div class="line">             case 1:</div><div class="line">                 // Only one ByteBuf so use non-gathering write</div><div class="line">                 ByteBuffer nioBuffer = nioBuffers[0];</div><div class="line">                 for (int i = config().getWriteSpinCount() - 1; i &gt;= 0; i --) &#123;</div><div class="line">                     final int localWrittenBytes = ch.write(nioBuffer);</div><div class="line">                     if (localWrittenBytes == 0) &#123;</div><div class="line">                         setOpWrite = true;</div><div class="line">                         break;</div><div class="line">                     &#125;</div><div class="line">                     expectedWrittenBytes -= localWrittenBytes;</div><div class="line">                     writtenBytes += localWrittenBytes;</div><div class="line">                     if (expectedWrittenBytes == 0) &#123;</div><div class="line">                         done = true;</div><div class="line">                         break;</div><div class="line">                     &#125;</div><div class="line">                 &#125;</div><div class="line">                 break;</div><div class="line">             default:</div><div class="line">                 for (int i = config().getWriteSpinCount() - 1; i &gt;= 0; i --) &#123;</div><div class="line">                     final long localWrittenBytes = ch.write(nioBuffers, 0, nioBufferCnt);</div><div class="line">                     if (localWrittenBytes == 0) &#123;</div><div class="line">                         setOpWrite = true;</div><div class="line">                         break;</div><div class="line">                     &#125;</div><div class="line">                     expectedWrittenBytes -= localWrittenBytes;</div><div class="line">                     writtenBytes += localWrittenBytes;</div><div class="line">                     if (expectedWrittenBytes == 0) &#123;</div><div class="line">                         done = true;</div><div class="line">                         break;</div><div class="line">                     &#125;</div><div class="line">                 &#125;</div><div class="line">                 break;</div><div class="line">         &#125;</div><div class="line"></div><div class="line">         // Release the fully written buffers, and update the indexes of the partially written buffer.</div><div class="line">         // 这个方法包装了释放buffer的操作，调用这个才会真正的释放buffer，才会通过recycler方法回收buffer</div><div class="line">         in.removeBytes(writtenBytes);</div><div class="line"></div><div class="line">         if (!done) &#123;</div><div class="line">             // Did not write all buffers completely.</div><div class="line">             incompleteWrite(setOpWrite);</div><div class="line">             break;</div><div class="line">         &#125;</div><div class="line">     &#125;</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
-<p>乍一看 也发现不了什么问题，虽然write的时候先写到了ChannelOutBoundBuffer，但是随即我们在同一线程中调用了flush，flush之后，我们也将引用的内存释放了。<br><strong>我们回过头看看flush方法，看看是不是有什么情况，不会调用flush了</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">protected void flush0() &#123;</div><div class="line">           if (inFlush0) &#123;</div><div class="line">               // Avoid re-entrance</div><div class="line">               return;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           final ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;</div><div class="line">           if (outboundBuffer == null || outboundBuffer.isEmpty()) &#123;</div><div class="line">               return;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           inFlush0 = true;</div><div class="line"></div><div class="line">           // Mark all pending write requests as failure if the channel is inactive.</div><div class="line">           // 上面注释说标记所有的pending wirte request as failure if channel is inactive，也就说所如果channel is inactive的是所有的pending write request is failure了，这个时候也不会调用flush了。</div><div class="line">           //但是跟进去看failFlushed方法的时候发现这里也释放了buffer。。。。。。。</div><div class="line">           if (!isActive()) &#123;</div><div class="line">               try &#123;</div><div class="line">                   if (isOpen()) &#123;</div><div class="line">                       outboundBuffer.failFlushed(FLUSH0_NOT_YET_CONNECTED_EXCEPTION, true);</div><div class="line">                   &#125; else &#123;</div><div class="line">                       // Do not trigger channelWritabilityChanged because the channel is closed already.</div><div class="line">                       outboundBuffer.failFlushed(FLUSH0_CLOSED_CHANNEL_EXCEPTION, false);</div><div class="line">                   &#125;</div><div class="line">               &#125; finally &#123;</div><div class="line">                   inFlush0 = false;</div><div class="line">               &#125;</div><div class="line">               return;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           try &#123;</div><div class="line">               doWrite(outboundBuffer);</div><div class="line">           &#125; catch (Throwable t) &#123;</div><div class="line">               if (t instanceof IOException &amp;&amp; config().isAutoClose()) &#123;</div><div class="line">                   /**</div><div class="line">                    * Just call &#123;@link #close(ChannelPromise, Throwable, boolean)&#125; here which will take care of</div><div class="line">                    * failing all flushed messages and also ensure the actual close of the underlying transport</div><div class="line">                    * will happen before the promises are notified.</div><div class="line">                    *</div><div class="line">                    * This is needed as otherwise &#123;@link #isActive()&#125; , &#123;@link #isOpen()&#125; and &#123;@link #isWritable()&#125;</div><div class="line">                    * may still return &#123;@code true&#125; even if the channel should be closed as result of the exception.</div><div class="line">                    */</div><div class="line">                   close(voidPromise(), t, FLUSH0_CLOSED_CHANNEL_EXCEPTION, false);</div><div class="line">               &#125; else &#123;</div><div class="line">                   outboundBuffer.failFlushed(t, true);</div><div class="line">               &#125;</div><div class="line">           &#125; finally &#123;</div><div class="line">               inFlush0 = false;</div><div class="line">           &#125;</div><div class="line">       &#125;</div></pre></td></tr></table></figure>
-<p>上面的代码可以看出，<code>if (!isActive())</code>这个时候直接就return了，不会调用flush了。<br>即便这种情况 netty也是通过failFlushed这个方法release了buffer。<br>细想一下，如果没有release buffer 那么肯定是内存泄漏了，一定是bug。项目用的是4.1xxRelease版本的，应该不可能有这种版本。</p>
+<pre><code>   @Override
+    protected void doWrite(ChannelOutboundBuffer in) throws Exception {
+        for (;;) {
+            int size = in.size();
+            if (size == 0) {
+                // All written so clear OP_WRITE
+                clearOpWrite();
+                break;
+            }
+            long writtenBytes = 0;
+            boolean done = false;
+            boolean setOpWrite = false;
+
+            // Ensure the pending writes are made of ByteBufs only.
+            ByteBuffer[] nioBuffers = in.nioBuffers();
+            int nioBufferCnt = in.nioBufferCount();
+            long expectedWrittenBytes = in.nioBufferSize();
+            SocketChannel ch = javaChannel();
+
+            // Always us nioBuffers() to workaround data-corruption.
+            // See https://github.com/netty/netty/issues/2761
+            switch (nioBufferCnt) {
+                case 0:
+                    // We have something else beside ByteBuffers to write so fallback to normal writes.
+                    super.doWrite(in);
+                    return;
+                case 1:
+                    // Only one ByteBuf so use non-gathering write
+                    ByteBuffer nioBuffer = nioBuffers[0];
+                    for (int i = config().getWriteSpinCount() - 1; i &gt;= 0; i --) {
+                        final int localWrittenBytes = ch.write(nioBuffer);
+                        if (localWrittenBytes == 0) {
+                            setOpWrite = true;
+                            break;
+                        }
+                        expectedWrittenBytes -= localWrittenBytes;
+                        writtenBytes += localWrittenBytes;
+                        if (expectedWrittenBytes == 0) {
+                            done = true;
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    for (int i = config().getWriteSpinCount() - 1; i &gt;= 0; i --) {
+                        final long localWrittenBytes = ch.write(nioBuffers, 0, nioBufferCnt);
+                        if (localWrittenBytes == 0) {
+                            setOpWrite = true;
+                            break;
+                        }
+                        expectedWrittenBytes -= localWrittenBytes;
+                        writtenBytes += localWrittenBytes;
+                        if (expectedWrittenBytes == 0) {
+                            done = true;
+                            break;
+                        }
+                    }
+                    break;
+            }
+
+            // Release the fully written buffers, and update the indexes of the partially written buffer.
+            // 这个方法包装了释放buffer的操作，调用这个才会真正的释放buffer，才会通过recycler方法回收buffer
+            in.removeBytes(writtenBytes);
+
+            if (!done) {
+                // Did not write all buffers completely.
+                incompleteWrite(setOpWrite);
+                break;
+            }
+        }
+    }
+</code></pre><p>乍一看 也发现不了什么问题，虽然write的时候先写到了ChannelOutBoundBuffer，但是随即我们在同一线程中调用了flush，flush之后，我们也将引用的内存释放了。<br><strong>我们回过头看看flush方法，看看是不是有什么情况，不会调用flush了</strong></p>
+<pre><code> protected void flush0() {
+            if (inFlush0) {
+                // Avoid re-entrance
+                return;
+            }
+
+            final ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;
+            if (outboundBuffer == null || outboundBuffer.isEmpty()) {
+                return;
+            }
+
+            inFlush0 = true;
+
+            // Mark all pending write requests as failure if the channel is inactive.
+            // 上面注释说标记所有的pending wirte request as failure if channel is inactive，也就说所如果channel is inactive的是所有的pending write request is failure了，这个时候也不会调用flush了。
+            //但是跟进去看failFlushed方法的时候发现这里也释放了buffer。。。。。。。
+            if (!isActive()) {
+                try {
+                    if (isOpen()) {
+                        outboundBuffer.failFlushed(FLUSH0_NOT_YET_CONNECTED_EXCEPTION, true);
+                    } else {
+                        // Do not trigger channelWritabilityChanged because the channel is closed already.
+                        outboundBuffer.failFlushed(FLUSH0_CLOSED_CHANNEL_EXCEPTION, false);
+                    }
+                } finally {
+                    inFlush0 = false;
+                }
+                return;
+            }
+
+            try {
+                doWrite(outboundBuffer);
+            } catch (Throwable t) {
+                if (t instanceof IOException &amp;&amp; config().isAutoClose()) {
+                    /**
+                     * Just call {@link #close(ChannelPromise, Throwable, boolean)} here which will take care of
+                     * failing all flushed messages and also ensure the actual close of the underlying transport
+                     * will happen before the promises are notified.
+                     *
+                     * This is needed as otherwise {@link #isActive()} , {@link #isOpen()} and {@link #isWritable()}
+                     * may still return {@code true} even if the channel should be closed as result of the exception.
+                     */
+                    close(voidPromise(), t, FLUSH0_CLOSED_CHANNEL_EXCEPTION, false);
+                } else {
+                    outboundBuffer.failFlushed(t, true);
+                }
+            } finally {
+                inFlush0 = false;
+            }
+        }
+</code></pre><p>上面的代码可以看出，<code>if (!isActive())</code>这个时候直接就return了，不会调用flush了。<br>即便这种情况 netty也是通过failFlushed这个方法release了buffer。<br>细想一下，如果没有release buffer 那么肯定是内存泄漏了，一定是bug。项目用的是4.1xxRelease版本的，应该不可能有这种版本。</p>
 <p>既然这样只能换条思路推导。<br>所有的buffer都会被release，而且只能在同一线程里面release，那么出现recycler膨胀的可能只有是在一些极端情况，netty将这些情况包装成Task（这些task里面会包含一些释放buffer的动作），然后丢到对应的EventLoop来处理。</p>
 <p>好了片刻，没发现这样的task。</p>
 <p> 打算将标题改为从查找×××到放弃了。</p>
 <p>最后终于发现ChannelOutBoundBuffer中的close是包装在Task中，而且有释放buffer的操作。代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">private void close(final ChannelPromise promise, final Throwable cause,</div><div class="line">                          final ClosedChannelException closeCause, final boolean notify) &#123;</div><div class="line">           if (!promise.setUncancellable()) &#123;</div><div class="line">               return;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           final ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;</div><div class="line">           if (outboundBuffer == null) &#123;</div><div class="line">               // Only needed if no VoidChannelPromise.</div><div class="line">               if (!(promise instanceof VoidChannelPromise)) &#123;</div><div class="line">                   // This means close() was called before so we just register a listener and return</div><div class="line">                   closeFuture.addListener(new ChannelFutureListener() &#123;</div><div class="line">                       @Override</div><div class="line">                       public void operationComplete(ChannelFuture future) throws Exception &#123;</div><div class="line">                           promise.setSuccess();</div><div class="line">                       &#125;</div><div class="line">                   &#125;);</div><div class="line">               &#125;</div><div class="line">               return;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           if (closeFuture.isDone()) &#123;</div><div class="line">               // Closed already.</div><div class="line">               safeSetSuccess(promise);</div><div class="line">               return;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           final boolean wasActive = isActive();</div><div class="line">           this.outboundBuffer = null; // Disallow adding any messages and flushes to outboundBuffer.</div><div class="line">           Executor closeExecutor = prepareToClose();</div><div class="line">           if (closeExecutor != null) &#123;</div><div class="line">               closeExecutor.execute(new Runnable() &#123;</div><div class="line">                   @Override</div><div class="line">                   public void run() &#123;</div><div class="line">                       try &#123;</div><div class="line">                           // Execute the close.</div><div class="line">                           doClose0(promise);</div><div class="line">                       &#125; finally &#123;</div><div class="line">                           // Call invokeLater so closeAndDeregister is executed in the EventLoop again!</div><div class="line">                           invokeLater(new Runnable() &#123;</div><div class="line">                               @Override</div><div class="line">                               public void run() &#123;</div><div class="line">                                   // Fail all the queued messages</div><div class="line">                                   outboundBuffer.failFlushed(cause, notify);</div><div class="line">                                   // 这里的close里面会调用 ReferenceCountUtil.safeRelease(e.msg);这个来释放buffer，这个task可能会在eventLoop的任务队列中挤压，释放buffer的跟分配buffer就变成了异步的。</div><div class="line">                                   outboundBuffer.close(closeCause);</div><div class="line">                                   fireChannelInactiveAndDeregister(wasActive);</div><div class="line">                               &#125;</div><div class="line">                           &#125;);</div><div class="line">                       &#125;</div><div class="line">                   &#125;</div><div class="line">               &#125;);</div><div class="line">           &#125; else &#123;</div><div class="line">               try &#123;</div><div class="line">                   // Close the channel and fail the queued messages in all cases.</div><div class="line">                   doClose0(promise);</div><div class="line">               &#125; finally &#123;</div><div class="line">                   // Fail all the queued messages.</div><div class="line">                   outboundBuffer.failFlushed(cause, notify);</div><div class="line">                   outboundBuffer.close(closeCause);</div><div class="line">               &#125;</div><div class="line">               if (inFlush0) &#123;</div><div class="line">                   invokeLater(new Runnable() &#123;</div><div class="line">                       @Override</div><div class="line">                       public void run() &#123;</div><div class="line">                           fireChannelInactiveAndDeregister(wasActive);</div><div class="line">                       &#125;</div><div class="line">                   &#125;);</div><div class="line">               &#125; else &#123;</div><div class="line">                   fireChannelInactiveAndDeregister(wasActive);</div><div class="line">               &#125;</div><div class="line">           &#125;</div><div class="line">       &#125;</div></pre></td></tr></table></figure>
-<p>当然这里只找到了一个可能造成问题的点，至于是不是我代码里面造成recycler膨胀的原因暂时还不得而知，只能下次有空再分析了。</p>
+<pre><code> private void close(final ChannelPromise promise, final Throwable cause,
+                           final ClosedChannelException closeCause, final boolean notify) {
+            if (!promise.setUncancellable()) {
+                return;
+            }
+
+            final ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;
+            if (outboundBuffer == null) {
+                // Only needed if no VoidChannelPromise.
+                if (!(promise instanceof VoidChannelPromise)) {
+                    // This means close() was called before so we just register a listener and return
+                    closeFuture.addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            promise.setSuccess();
+                        }
+                    });
+                }
+                return;
+            }
+
+            if (closeFuture.isDone()) {
+                // Closed already.
+                safeSetSuccess(promise);
+                return;
+            }
+
+            final boolean wasActive = isActive();
+            this.outboundBuffer = null; // Disallow adding any messages and flushes to outboundBuffer.
+            Executor closeExecutor = prepareToClose();
+            if (closeExecutor != null) {
+                closeExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // Execute the close.
+                            doClose0(promise);
+                        } finally {
+                            // Call invokeLater so closeAndDeregister is executed in the EventLoop again!
+                            invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Fail all the queued messages
+                                    outboundBuffer.failFlushed(cause, notify);
+                                    // 这里的close里面会调用 ReferenceCountUtil.safeRelease(e.msg);这个来释放buffer，这个task可能会在eventLoop的任务队列中挤压，释放buffer的跟分配buffer就变成了异步的。
+                                    outboundBuffer.close(closeCause);
+                                    fireChannelInactiveAndDeregister(wasActive);
+                                }
+                            });
+                        }
+                    }
+                });
+            } else {
+                try {
+                    // Close the channel and fail the queued messages in all cases.
+                    doClose0(promise);
+                } finally {
+                    // Fail all the queued messages.
+                    outboundBuffer.failFlushed(cause, notify);
+                    outboundBuffer.close(closeCause);
+                }
+                if (inFlush0) {
+                    invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            fireChannelInactiveAndDeregister(wasActive);
+                        }
+                    });
+                } else {
+                    fireChannelInactiveAndDeregister(wasActive);
+                }
+            }
+        }
+</code></pre><p>当然这里只找到了一个可能造成问题的点，至于是不是我代码里面造成recycler膨胀的原因暂时还不得而知，只能下次有空再分析了。</p>
 <p>##总结<br>尽管在正常情况下recycler的容量不会增加，但是在一些极端的情况，比如压测环境，recycler是非常有可能会膨胀的。而且一旦膨胀那么这些对象将会在老生代里面存活，不会被回收。<br>所以在使用netty的内存分配的时候还是要谨慎，前期的压测工作不可以省。</p>
 
       

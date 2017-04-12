@@ -508,8 +508,8 @@ code {
 code {
   padding: 2px 4px;
   word-break: break-all;
-  color: #555;
-  background: #eee;
+  color: #c82829;
+  background: #f9f2f4;
   border-radius: 4px;
   font-size: 13px;
 }
@@ -1020,6 +1020,14 @@ pre .javascript .function {
   color: #999;
   font-weight: bold;
   line-height: 1;
+}
+.post-body p a {
+  color: #0593d3;
+  border-bottom: none;
+}
+.post-body p a:hover {
+  color: #0477ab;
+  text-decoration: underline;
 }
 .post-sticky-flag {
   display: inline-block;
@@ -1578,10 +1586,11 @@ pre .javascript .function {
 .site-author-image {
   display: block;
   margin: 0 auto;
-  padding: 2px;
   max-width: 96px;
   height: auto;
   border: 2px solid #333;
+  padding: 2px;
+  border-radius: 50%;
 }
 .site-author-name {
   margin: 5px 0 0;
@@ -1663,7 +1672,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #f2f6da;
+  background: #b0c3d1;
 }
 .links-of-blogroll {
   font-size: 13px;

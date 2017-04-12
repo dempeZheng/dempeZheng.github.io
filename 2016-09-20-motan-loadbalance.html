@@ -184,7 +184,9 @@ ActiveWeight(缺省)
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
+      <div class="header-inner">
+
+<div class="site-meta ">
   
 
   <div class="custom-logo-site-title">
@@ -381,43 +383,43 @@ ActiveWeight(缺省)
 <ul>
 <li>ActiveWeight(缺省)</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;activeWeight&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;activeWeight&quot;/&gt;
+</code></pre><blockquote>
 <p>低并发度优先： referer 的某时刻的 call 数越小优先级越高<br>由于 Referer List 可能很多，比如上百台，如果每次都要从这上百个 Referer 或者最低并发的几个，性能有些损耗，因此 random.nextInt(list.size()) 获取一个起始的 index，然后获取最多不超过 MAX_REFERER_COUNT 的状态是 isAvailable 的 referer 进行判断 activeCount.</p>
 </blockquote>
 <ul>
 <li>Random</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;random&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;random&quot;/&gt;
+</code></pre><blockquote>
 <p>随机，按权重设置随机概率。<br>在一个截面上碰撞的概率高，但调用量越大分布越均匀，而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。</p>
 </blockquote>
 <ul>
 <li>RoundRobin</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;roundrobin&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;roundrobin&quot;/&gt;
+</code></pre><blockquote>
 <p>轮循，按公约后的权重设置轮循比率</p>
 </blockquote>
 <ul>
 <li>LocalFirst</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;localFirst&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;localFirst&quot;/&gt;
+</code></pre><blockquote>
 <p>本地服务优先获取策略，对referers根据ip顺序查找本地服务，多存在多个本地服务，获取Active最小的本地服务进行服务。<br>当不存在本地服务，但是存在远程RPC服务，则根据ActivWeight获取远程RPC服务<br>当两者都存在，所有本地服务都应优先于远程服务，本地RPC服务与远程RPC服务内部则根据ActiveWeight进行</p>
 </blockquote>
 <ul>
 <li>Consistent</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;consistent&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;consistent&quot;/&gt;
+</code></pre><blockquote>
 <p>一致性 Hash，相同参数的请求总是发到同一提供者</p>
 </blockquote>
 <ul>
 <li>ConfigurableWeight</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;configurableWeight&quot;/&gt;</div></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>&lt;motan:protocol ... loadbalance=&quot;configurableWeight&quot;/&gt;
+</code></pre><blockquote>
 <p>权重可配置的负载均衡策略</p>
 </blockquote>
 <h4 id="motan加载loadbalance策略的机制"><a href="#motan加载loadbalance策略的机制" class="headerlink" title="motan加载loadbalance策略的机制"></a>motan加载loadbalance策略的机制</h4><p>上面我们了解了motan支持的负载均衡的策略，下面我们来剖析一下motan怎么实现的。</p>
@@ -427,18 +429,214 @@ ActiveWeight(缺省)
 <p><img src="/images/motan/motan-lb.png" alt=""></p>
 <h4 id="motan-LoadBalance实现"><a href="#motan-LoadBalance实现" class="headerlink" title="motan LoadBalance实现"></a>motan LoadBalance实现</h4><p><img src="/images/motan/loadbalance.png" alt=""></p>
 <p>接下来，我们看loadbalance接口</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">// 可以基于SPI扩展，使用方可以实现自己的LoadBalance</span></div><div class="line"><span class="meta">@Spi</span>(scope = Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">LoadBalance</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">//当可用的应用列表变化时会调用这个方法刷新（motan的可用引用列表是基于服务发现这种模式实现，目前实现了consul&amp;zk）</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onRefresh</span><span class="params">(List&lt;Referer&lt;T&gt;&gt; referers)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// 基于负载均衡的策略选择可用的引用</span></div><div class="line">    <span class="function">Referer&lt;T&gt; <span class="title">select</span><span class="params">(Request request)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// FailoverHaStrategy会使用到这个，多线程场景</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">selectToHolder</span><span class="params">(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// ?? 仅仅属于WeightLoadBalance的特性，定义在最上层接口是否合适？？</span></div><div class="line">    <span class="comment">//cluster.getLoadBalance().setWeightString(weights); 这里使用的时候判断一下类型，对WeightLoadBalance这种类型单独处理向下转型是否可以？</span></div><div class="line">    <span class="comment">// 或者是否有其他更好的办法？？</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setWeightString</span><span class="params">(String weightString)</span></span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">// 可以基于SPI扩展，使用方可以实现自己的LoadBalance
+@Spi(scope = Scope.PROTOTYPE)
+public interface LoadBalance&lt;T&gt; {
+
+    //当可用的应用列表变化时会调用这个方法刷新（motan的可用引用列表是基于服务发现这种模式实现，目前实现了consul&amp;zk）
+    void onRefresh(List&lt;Referer&lt;T&gt;&gt; referers);
+
+    // 基于负载均衡的策略选择可用的引用
+    Referer&lt;T&gt; select(Request request);
+
+    // FailoverHaStrategy会使用到这个，多线程场景
+    void selectToHolder(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder);
+
+    // ?? 仅仅属于WeightLoadBalance的特性，定义在最上层接口是否合适？？
+    //cluster.getLoadBalance().setWeightString(weights); 这里使用的时候判断一下类型，对WeightLoadBalance这种类型单独处理向下转型是否可以？
+    // 或者是否有其他更好的办法？？
+    void setWeightString(String weightString);
+
+}
+</code></pre>
 <p>下面我们AbstractLoadBalance,实现了公有的基础逻辑。将不同的策略交由子类去实现，实际上应用到了java设计模式的模板模式。</p>
 <blockquote>
 <p>模板模式在模板模式（Template Pattern）中，一个抽象类公开定义了执行它的方法的方式/模板。它的子类可以按需要重写方法实现，但调用将以抽象类中定义的方式进行。这种类型的设计模式属于行为型模式。</p>
 </blockquote>
 <p>下面我们看代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractLoadBalance</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">LoadBalance</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> List&lt;Referer&lt;T&gt;&gt; referers;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRefresh</span><span class="params">(List&lt;Referer&lt;T&gt;&gt; referers)</span> </span>&#123;</div><div class="line">        <span class="comment">// 只能引用替换，不能进行referers update。</span></div><div class="line">        <span class="keyword">this</span>.referers = referers;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Referer&lt;T&gt; <span class="title">select</span><span class="params">(Request request)</span> </span>&#123;</div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = <span class="keyword">this</span>.referers;</div><div class="line"></div><div class="line">        Referer&lt;T&gt; ref = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">if</span> (referers.size() &gt; <span class="number">1</span>) &#123;</div><div class="line">            ref = doSelect(request);</div><div class="line"></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (referers.size() == <span class="number">1</span>) &#123;</div><div class="line">            ref = referers.get(<span class="number">0</span>).isAvailable() ? referers.get(<span class="number">0</span>) : <span class="keyword">null</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (ref != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">return</span> ref;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(<span class="keyword">this</span>.getClass().getSimpleName() + <span class="string">" No available referers for call request:"</span> + request);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">selectToHolder</span><span class="params">(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder)</span> </span>&#123;</div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = <span class="keyword">this</span>.referers;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (referers == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(<span class="keyword">this</span>.getClass().getSimpleName() + <span class="string">" No available referers for call : referers_size= 0 "</span></div><div class="line">                    + MotanFrameworkUtil.toString(request));</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (referers.size() &gt; <span class="number">1</span>) &#123;</div><div class="line">            doSelectToHolder(request, refersHolder);</div><div class="line"></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (referers.size() == <span class="number">1</span> &amp;&amp; referers.get(<span class="number">0</span>).isAvailable()) &#123;</div><div class="line">            refersHolder.add(referers.get(<span class="number">0</span>));</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (refersHolder.isEmpty()) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(<span class="keyword">this</span>.getClass().getSimpleName() + <span class="string">" No available referers for call : referers_size="</span></div><div class="line">                    + referers.size() + <span class="string">" "</span> + MotanFrameworkUtil.toString(request));</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">protected</span> List&lt;Referer&lt;T&gt;&gt; getReferers() &#123;</div><div class="line">        <span class="keyword">return</span> referers;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setWeightString</span><span class="params">(String weightString)</span> </span>&#123;</div><div class="line">        LoggerUtil.info(<span class="string">"ignore weightString:"</span> + weightString);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> Referer&lt;T&gt; <span class="title">doSelect</span><span class="params">(Request request)</span></span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">doSelectToHolder</span><span class="params">(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public abstract class AbstractLoadBalance&lt;T&gt; implements LoadBalance&lt;T&gt; {
+
+    private List&lt;Referer&lt;T&gt;&gt; referers;
+
+    @Override
+    public void onRefresh(List&lt;Referer&lt;T&gt;&gt; referers) {
+        // 只能引用替换，不能进行referers update。
+        this.referers = referers;
+    }
+
+    @Override
+    public Referer&lt;T&gt; select(Request request) {
+        List&lt;Referer&lt;T&gt;&gt; referers = this.referers;
+
+        Referer&lt;T&gt; ref = null;
+        if (referers.size() &gt; 1) {
+            ref = doSelect(request);
+
+        } else if (referers.size() == 1) {
+            ref = referers.get(0).isAvailable() ? referers.get(0) : null;
+        }
+
+        if (ref != null) {
+            return ref;
+        }
+        throw new MotanServiceException(this.getClass().getSimpleName() + &quot; No available referers for call request:&quot; + request);
+    }
+
+    @Override
+    public void selectToHolder(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder) {
+        List&lt;Referer&lt;T&gt;&gt; referers = this.referers;
+
+        if (referers == null) {
+            throw new MotanServiceException(this.getClass().getSimpleName() + &quot; No available referers for call : referers_size= 0 &quot;
+                    + MotanFrameworkUtil.toString(request));
+        }
+
+        if (referers.size() &gt; 1) {
+            doSelectToHolder(request, refersHolder);
+
+        } else if (referers.size() == 1 &amp;&amp; referers.get(0).isAvailable()) {
+            refersHolder.add(referers.get(0));
+        }
+        if (refersHolder.isEmpty()) {
+            throw new MotanServiceException(this.getClass().getSimpleName() + &quot; No available referers for call : referers_size=&quot;
+                    + referers.size() + &quot; &quot; + MotanFrameworkUtil.toString(request));
+        }
+    }
+
+    protected List&lt;Referer&lt;T&gt;&gt; getReferers() {
+        return referers;
+    }
+
+    @Override
+    public void setWeightString(String weightString) {
+        LoggerUtil.info(&quot;ignore weightString:&quot; + weightString);
+    }
+
+    protected abstract Referer&lt;T&gt; doSelect(Request request);
+
+    protected abstract void doSelectToHolder(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder);
+}
+</code></pre>
 <p>子类重写<code>doSelect(Request request)</code>方法就是实现自己的策略。(里面还有一个doSelectToHolder(Request request, List<referer<t>&gt; refersHolder)方法，这个FailoverHaStrategy会涉及到，我们下一篇在讨论)</referer<t></p>
 <p>看了一遍各种策略具体实现，貌似没什么好说的。有兴趣可以直接看motan源代码。</p>
 <p>下面贴出一个另外一种的实现，仅供学习参考，<code>非线程安全</code>，使用时需要注意.</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LoadBalance</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> i = <span class="number">0</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> cw = <span class="number">0</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span>[] weight;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LoadBalance</span><span class="params">(<span class="keyword">int</span> count)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.count = count;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LoadBalance</span><span class="params">(<span class="keyword">int</span>[] weight)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.count = weight.length;</div><div class="line">        <span class="keyword">this</span>.weight = weight;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashIndex</span><span class="params">(String key)</span> </span>&#123;</div><div class="line">        <span class="keyword">long</span> hash = <span class="number">5381L</span>;</div><div class="line"></div><div class="line">        <span class="keyword">int</span> index;</div><div class="line">        <span class="keyword">for</span>(index = <span class="number">0</span>; index &lt; key.length(); ++index) &#123;</div><div class="line">            hash = (hash &lt;&lt; <span class="number">5</span>) + hash + (<span class="keyword">long</span>)key.charAt(index);</div><div class="line">            hash &amp;= <span class="number">4294967295L</span>;</div><div class="line">        &#125;</div><div class="line">        index = (<span class="keyword">int</span>)hash % <span class="keyword">this</span>.count;</div><div class="line">        index = Math.abs(index);</div><div class="line">        <span class="keyword">return</span> index;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">roundIndexByWeight</span><span class="params">()</span> </span>&#123;</div><div class="line">        do &#123;</div><div class="line">            <span class="keyword">this</span>.i = (<span class="keyword">this</span>.i + <span class="number">1</span>) % <span class="keyword">this</span>.count;</div><div class="line">            <span class="keyword">if</span>(<span class="keyword">this</span>.i == <span class="number">0</span>) &#123;</div><div class="line">                <span class="keyword">this</span>.cw -= <span class="keyword">this</span>.gcd();</div><div class="line">                <span class="keyword">if</span>(<span class="keyword">this</span>.cw &lt;= <span class="number">0</span>) &#123;</div><div class="line">                    <span class="keyword">this</span>.cw = <span class="keyword">this</span>.max();</div><div class="line">                    <span class="keyword">if</span>(<span class="keyword">this</span>.cw == <span class="number">0</span>) &#123;</div><div class="line">                        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">while</span>(<span class="keyword">this</span>.weight[<span class="keyword">this</span>.i] &lt; <span class="keyword">this</span>.cw);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.i;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">roundIndex</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> j = <span class="keyword">this</span>.i;</div><div class="line">        j = (j + <span class="number">1</span>) % <span class="keyword">this</span>.count;</div><div class="line">        <span class="keyword">this</span>.i = j;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.i;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">gcd</span><span class="params">()</span> </span>&#123;</div><div class="line">        BigInteger value = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.weight.length &gt; <span class="number">0</span>) &#123;</div><div class="line">            value = BigInteger.valueOf((<span class="keyword">long</span>)<span class="keyword">this</span>.weight[<span class="keyword">this</span>.i]);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.weight.length - <span class="number">1</span>; ++i) &#123;</div><div class="line">            BigInteger tmp = BigInteger.valueOf((<span class="keyword">long</span>)<span class="keyword">this</span>.weight[i]);</div><div class="line">            tmp = tmp.gcd(BigInteger.valueOf((<span class="keyword">long</span>)<span class="keyword">this</span>.weight[i + <span class="number">1</span>]));</div><div class="line">            <span class="keyword">if</span>(value.compareTo(tmp) &gt; <span class="number">0</span>) &#123;</div><div class="line">                value = tmp;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">null</span> != value) &#123;</div><div class="line">            <span class="keyword">return</span> value.intValue();</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">max</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> value = <span class="number">0</span>;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.weight.length &gt; <span class="number">0</span>) &#123;</div><div class="line">            value = <span class="keyword">this</span>.weight[<span class="number">0</span>];</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.weight.length - <span class="number">1</span>; ++i) &#123;</div><div class="line">            <span class="keyword">int</span> tmp = <span class="keyword">this</span>.weight[i];</div><div class="line">            <span class="keyword">if</span>(value &lt; tmp) &#123;</div><div class="line">                value = tmp;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> value;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">HALBProxy</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> HALBProxy.Strategy strategy;</div><div class="line">    <span class="keyword">private</span> LoadBalance lb;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">HALBProxy</span><span class="params">(HALBProxy.Strategy strategy)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.logger = Logger.getLogger(<span class="keyword">this</span>.getClass());</div><div class="line">        <span class="keyword">this</span>.availServers = <span class="keyword">new</span> CopyOnWriteArrayList();</div><div class="line">        <span class="keyword">this</span>.unavailServers = <span class="keyword">new</span> CopyOnWriteArrayList();</div><div class="line">        <span class="keyword">this</span>.listeners = <span class="keyword">new</span> HashSet();</div><div class="line">        <span class="keyword">this</span>.strategy = strategy;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getIndex</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">switch</span>(strategy) &#123;</div><div class="line">        <span class="keyword">case</span> <span class="number">1</span>:</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        <span class="keyword">case</span> <span class="number">2</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.lb.roundIndex();</div><div class="line">        <span class="keyword">case</span> <span class="number">3</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.lb.roundIndexByWeight();</div><div class="line">        <span class="keyword">default</span>:</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getIndex</span><span class="params">(String key)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.lb.hashIndex(key);</div><div class="line">    &#125;</div><div class="line">     <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">enum</span> Strategy &#123;</div><div class="line">        DEFAULT,</div><div class="line">        RR,</div><div class="line">        WRR,</div><div class="line">        HASH;</div><div class="line">        <span class="function"><span class="keyword">private</span> <span class="title">Strategy</span><span class="params">()</span> </span>&#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public class LoadBalance {
+    private int i = 0;
+    private int cw = 0;
+    private int[] weight;
+    private int count;
+
+    public LoadBalance(int count) {
+        this.count = count;
+    }
+
+    public LoadBalance(int[] weight) {
+        this.count = weight.length;
+        this.weight = weight;
+    }
+
+    public int hashIndex(String key) {
+        long hash = 5381L;
+
+        int index;
+        for(index = 0; index &lt; key.length(); ++index) {
+            hash = (hash &lt;&lt; 5) + hash + (long)key.charAt(index);
+            hash &amp;= 4294967295L;
+        }
+        index = (int)hash % this.count;
+        index = Math.abs(index);
+        return index;
+    }
+    public int roundIndexByWeight() {
+        do {
+            this.i = (this.i + 1) % this.count;
+            if(this.i == 0) {
+                this.cw -= this.gcd();
+                if(this.cw &lt;= 0) {
+                    this.cw = this.max();
+                    if(this.cw == 0) {
+                        return 0;
+                    }
+                }
+            }
+        } while(this.weight[this.i] &lt; this.cw);
+        return this.i;
+    }
+    public int roundIndex() {
+        int j = this.i;
+        j = (j + 1) % this.count;
+        this.i = j;
+        return this.i;
+    }
+    private int gcd() {
+        BigInteger value = null;
+        if(this.weight.length &gt; 0) {
+            value = BigInteger.valueOf((long)this.weight[this.i]);
+        }
+        for(int i = 0; i &lt; this.weight.length - 1; ++i) {
+            BigInteger tmp = BigInteger.valueOf((long)this.weight[i]);
+            tmp = tmp.gcd(BigInteger.valueOf((long)this.weight[i + 1]));
+            if(value.compareTo(tmp) &gt; 0) {
+                value = tmp;
+            }
+        }
+        if(null != value) {
+            return value.intValue();
+        } else {
+            return 0;
+        }
+    }
+    private int max() {
+        int value = 0;
+        if(this.weight.length &gt; 0) {
+            value = this.weight[0];
+        }
+
+        for(int i = 0; i &lt; this.weight.length - 1; ++i) {
+            int tmp = this.weight[i];
+            if(value &lt; tmp) {
+                value = tmp;
+            }
+        }
+        return value;
+    }
+}
+</code></pre>
+<pre><code class="java">public abstract class HALBProxy {
+    private HALBProxy.Strategy strategy;
+    private LoadBalance lb;
+    public HALBProxy(HALBProxy.Strategy strategy) {
+        this.logger = Logger.getLogger(this.getClass());
+        this.availServers = new CopyOnWriteArrayList();
+        this.unavailServers = new CopyOnWriteArrayList();
+        this.listeners = new HashSet();
+        this.strategy = strategy;
+    }
+    public int getIndex() {
+        switch(strategy) {
+        case 1:
+            return 0;
+        case 2:
+            return this.lb.roundIndex();
+        case 3:
+            return this.lb.roundIndexByWeight();
+        default:
+            return 0;
+        }
+    }
+    public int getIndex(String key) {
+        return this.lb.hashIndex(key);
+    }
+     public static enum Strategy {
+        DEFAULT,
+        RR,
+        WRR,
+        HASH;
+        private Strategy() {
+        }
+    }
+}
+</code></pre>
 <h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>总的来说负载均衡部分还算比较简单，LocalFirst优先读取本机的服务这个策略还是很不错的。</p>
 <hr>
 <p>关于更多loadbalance请看<a href="http://tutorials.jenkov.com/software-architecture/load-balancing.html" target="_blank" rel="external">老外的文章(直戳loadbalance本质)</a></p>
@@ -491,8 +689,8 @@ ActiveWeight(缺省)
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-21-motan-override.html" rel="prev" title="Motan源码解读-源码结构">
-                Motan源码解读-源码结构 <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-21-motan-hastratege.html" rel="prev" title="Motan源码解读-容错策略">
+                Motan源码解读-容错策略 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>

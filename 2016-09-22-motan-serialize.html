@@ -168,7 +168,9 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
+      <div class="header-inner">
+
+<div class="site-meta ">
   
 
   <div class="custom-logo-site-title">
@@ -368,14 +370,22 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
 <h4 id="motan目前支持两种序列化："><a href="#motan目前支持两种序列化：" class="headerlink" title="motan目前支持两种序列化："></a>motan目前支持两种序列化：</h4><ul>
 <li>hession2</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">&lt;motan:protocol serialization=&quot;hessian2&quot; /&gt;</div></pre></td></tr></table></figure>
-<ul>
+<pre><code>&lt;motan:protocol serialization=&quot;hessian2&quot; /&gt;
+</code></pre><ul>
 <li>fastjson</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">&lt;motan:protocol serialization=&quot;fastjson&quot; /&gt;</div></pre></td></tr></table></figure>
-<h3 id="各种序列化性能对比"><a href="#各种序列化性能对比" class="headerlink" title="各种序列化性能对比"></a>各种序列化性能对比</h3><p><img src="/images/motan/serialize.png" alt=""></p>
+<pre><code>&lt;motan:protocol serialization=&quot;fastjson&quot; /&gt;
+</code></pre><h3 id="各种序列化性能对比"><a href="#各种序列化性能对比" class="headerlink" title="各种序列化性能对比"></a>各种序列化性能对比</h3><p><img src="/images/motan/serialize.png" alt=""></p>
 <p>我们可以发现fastjson的序列化性能和thrift和protobuf差异已经不太大了，明显好过hession（当然上图比较的不知道hession的版本，可能不准确）<br>dubbo是有针对hession单独做优化的，但是motan默认使用hession，且没做优化。</p>
-<h3 id="motan序列化的实现"><a href="#motan序列化的实现" class="headerlink" title="motan序列化的实现"></a>motan序列化的实现</h3><figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">// 这个可以可以扩展的，也就是你可以扩展motan用你想要的序列化方式</span></div><div class="line"><span class="meta">@Spi</span>(scope=Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Serialization</span> </span>&#123;</div><div class="line">	<span class="comment">// 将对象序列话称字节数组</span></div><div class="line">	<span class="keyword">byte</span>[] serialize(Object obj) <span class="keyword">throws</span> IOException;</div><div class="line">	<span class="comment">// 将字节数组反序列化成对象</span></div><div class="line">	&lt;T&gt; <span class="function">T <span class="title">deserialize</span><span class="params">(<span class="keyword">byte</span>[] bytes, Class&lt;T&gt; clz)</span> <span class="keyword">throws</span> IOException</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="motan序列化的实现"><a href="#motan序列化的实现" class="headerlink" title="motan序列化的实现"></a>motan序列化的实现</h3><pre><code class="java">// 这个可以可以扩展的，也就是你可以扩展motan用你想要的序列化方式
+@Spi(scope=Scope.PROTOTYPE)
+public interface Serialization {
+    // 将对象序列话称字节数组
+    byte[] serialize(Object obj) throws IOException;
+    // 将字节数组反序列化成对象
+    &lt;T&gt; T deserialize(byte[] bytes, Class&lt;T&gt; clz) throws IOException;
+}
+</code></pre>
 <p>具体的实现要看hession2和fastjson了。</p>
 <p>motan序列化&amp;反序列化仅仅包含了请求参数和返回对象，其他对象的编解码，我们且看下一篇文章。</p>
 <hr>
@@ -424,8 +434,8 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-filter.html" rel="next" title="Motan源码解读-Filter">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-Filter
+              <a href="/2016-09-21-motan-override.html" rel="next" title="Motan源码解读-源码结构">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-源码结构
               </a>
             
           </div>

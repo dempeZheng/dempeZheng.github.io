@@ -168,7 +168,9 @@
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
+      <div class="header-inner">
+
+<div class="site-meta ">
   
 
   <div class="custom-logo-site-title">
@@ -366,9 +368,128 @@
 <p>既然需要对应，那么只有一种思路就是通过一种方式把两者联系起来，所以我们在设计协议的时候必须包含一个messageID，唯一的，这个唯一性是在客户端维护（多是自增）。</p>
 <p>客户端发送请求的req的时候，先req.setMessageId(messageID)，然后在发送；服务端拿到这个messageID的时候，把messageID原封不动的包装在Response中，这样客户端就可以把request和response对应起来。</p>
 <h3 id="纸上得来终觉浅，我们试着来撸一个"><a href="#纸上得来终觉浅，我们试着来撸一个" class="headerlink" title="纸上得来终觉浅，我们试着来撸一个"></a>纸上得来终觉浅，我们试着来撸一个</h3><p>我们写一个简单的DefaultClient</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultClient</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">protected</span> Map&lt;Integer, Context&gt; contextMap = <span class="keyword">new</span> ConcurrentHashMap&lt;Integer, Context&gt;();</div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initClientChannel</span><span class="params">(SocketChannel ch)</span> </span>&#123;</div><div class="line">        ChannelPipeline pipeline = ch.pipeline();</div><div class="line">        pipeline.</div><div class="line">                .addLast(<span class="string">"ClientHandler"</span>, <span class="keyword">new</span> ChannelHandlerAdapter() &#123;</div><div class="line">                    <span class="comment">/**</span></div><div class="line">                    * 收到服务端消息</div><div class="line">                    **/</div><div class="line">                    <span class="meta">@Override</span></div><div class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRead</span><span class="params">(ChannelHandlerContext ctx, Response resp)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">                    </div><div class="line">                        <span class="comment">// 收到服务端消息，找出对应包含context的request上下文，然后移除</span></div><div class="line">                        Context context = contextMap.remove(id);</div><div class="line">                        <span class="keyword">if</span> (context == <span class="keyword">null</span>) &#123;</div><div class="line">                            LOGGER.debug(<span class="string">"messageID:&#123;&#125;, take Context null"</span>, id);</div><div class="line">                            <span class="keyword">return</span>;</div><div class="line">                        &#125;</div><div class="line">                        <span class="comment">//异步通知结果返回</span></div><div class="line">                        context.cb.onReceive(resp);</div><div class="line">                    &#125;</div><div class="line">                &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 发送消息，并等待Response</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> request</div><div class="line">     * <span class="doctag">@return</span> Response</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> Callback <span class="title">call</span><span class="params">(Request request, Callback callback)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="keyword">int</span> id = getNextMessageId();</div><div class="line">        request.setMessageID(id);</div><div class="line">        Context context = <span class="keyword">new</span> Context(id, request, callback);</div><div class="line">        <span class="comment">// 发送消息前先把request上下文保存起来，</span></div><div class="line">        contextMap.put(id, context);</div><div class="line">        writeAndFlush(request);</div><div class="line">        <span class="comment">// 消息发送出去就直接返回callback，不会阻塞等待服务端结果返回</span></div><div class="line">        <span class="comment">// 当客户端收到服务端返回的response首先会通过messageID找到对应的request上下文，然后调用callback的onReceive(resp)方法通知</span></div><div class="line">        <span class="keyword">return</span> callback;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Future&lt;Response&gt; <span class="title">send</span><span class="params">(Request request)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Promise&lt;Response&gt; future = <span class="keyword">new</span> Promise&lt;Response&gt;();</div><div class="line">        call(request, future);</div><div class="line">        <span class="keyword">return</span> future;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Response <span class="title">sendAnWait</span><span class="params">(Request request)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Future&lt;Response&gt; future = send(request);</div><div class="line">        <span class="keyword">return</span> future.await();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Response <span class="title">sendAnWait</span><span class="params">(Request request, <span class="keyword">long</span> amount, TimeUnit unit)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Future&lt;Response&gt; future = send(request);</div><div class="line">        <span class="keyword">return</span> future.await(amount, unit);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Context</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> Request request;</div><div class="line">        <span class="keyword">final</span> Callback cb;</div><div class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">short</span> id;</div><div class="line"></div><div class="line">        Context(<span class="keyword">short</span> id, Request request, Callback cb) &#123;</div><div class="line">            <span class="keyword">this</span>.id = id;</div><div class="line">            <span class="keyword">this</span>.cb = cb;</div><div class="line">            <span class="keyword">this</span>.request = request;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">
+public class DefaultClient {
+
+    protected Map&lt;Integer, Context&gt; contextMap = new ConcurrentHashMap&lt;Integer, Context&gt;();
+
+    public void initClientChannel(SocketChannel ch) {
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.
+                .addLast(&quot;ClientHandler&quot;, new ChannelHandlerAdapter() {
+                    /**
+                    * 收到服务端消息
+                    **/
+                    @Override
+                    public void channelRead(ChannelHandlerContext ctx, Response resp) throws Exception {
+
+                        // 收到服务端消息，找出对应包含context的request上下文，然后移除
+                        Context context = contextMap.remove(id);
+                        if (context == null) {
+                            LOGGER.debug(&quot;messageID:{}, take Context null&quot;, id);
+                            return;
+                        }
+                        //异步通知结果返回
+                        context.cb.onReceive(resp);
+                    }
+                });
+    }
+
+    /**
+     * 发送消息，并等待Response
+     *
+     * @param request
+     * @return Response
+     */
+    public Callback call(Request request, Callback callback) throws Exception {
+        int id = getNextMessageId();
+        request.setMessageID(id);
+        Context context = new Context(id, request, callback);
+        // 发送消息前先把request上下文保存起来，
+        contextMap.put(id, context);
+        writeAndFlush(request);
+        // 消息发送出去就直接返回callback，不会阻塞等待服务端结果返回
+        // 当客户端收到服务端返回的response首先会通过messageID找到对应的request上下文，然后调用callback的onReceive(resp)方法通知
+        return callback;
+    }
+
+    public Future&lt;Response&gt; send(Request request) throws Exception {
+        Promise&lt;Response&gt; future = new Promise&lt;Response&gt;();
+        call(request, future);
+        return future;
+    }
+
+    public Response sendAnWait(Request request) throws Exception {
+        Future&lt;Response&gt; future = send(request);
+        return future.await();
+    }
+
+    public Response sendAnWait(Request request, long amount, TimeUnit unit) throws Exception {
+        Future&lt;Response&gt; future = send(request);
+        return future.await(amount, unit);
+    }
+
+    public static class Context {
+        final Request request;
+        final Callback cb;
+        private final short id;
+
+        Context(short id, Request request, Callback cb) {
+            this.id = id;
+            this.cb = cb;
+            this.request = request;
+        }
+    }
+
+}
+</code></pre>
 <p>DefaultClient做的事情就是在发送Request消息时候先保存request的上下文，等到服务端消息返回，然后通过callback异步通知。<br>接下来我们要看看callback的实现了：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Promise</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Callback</span>&lt;<span class="title">T</span>&gt;, <span class="title">Future</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> CountDownLatch latch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</div><div class="line">    Throwable error;</div><div class="line">    <span class="keyword">private</span> T message;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(T message)</span> </span>&#123;</div><div class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">            <span class="keyword">this</span>.message = message;</div><div class="line">            latch.countDown();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 当onReceive调用之前，await方法会阻塞，一直到timeout</span></div><div class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">await</span><span class="params">(<span class="keyword">long</span> amount, TimeUnit unit)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="keyword">if</span> (latch.await(amount, unit)) &#123;</div><div class="line">            <span class="keyword">return</span> get();</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> TimeoutException();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">await</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        latch.await();</div><div class="line">        <span class="keyword">return</span> get();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> T <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Throwable e = error;</div><div class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (e <span class="keyword">instanceof</span> RuntimeException) &#123;</div><div class="line">                <span class="keyword">throw</span> (RuntimeException) e;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> Exception) &#123;</div><div class="line">                <span class="keyword">throw</span> (Exception) e;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> Error) &#123;</div><div class="line">                <span class="keyword">throw</span> (Error) e;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="comment">// don'M expect to hit this case.</span></div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> message;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">
+public class Promise&lt;T&gt; implements Callback&lt;T&gt;, Future&lt;T&gt; {
+    private final CountDownLatch latch = new CountDownLatch(1);
+    Throwable error;
+    private T message;
+
+    @Override
+    public void onReceive(T message) {
+        synchronized (this) {
+            this.message = message;
+            latch.countDown();
+        }
+    }
+
+    // 当onReceive调用之前，await方法会阻塞，一直到timeout
+    public T await(long amount, TimeUnit unit) throws Exception {
+        if (latch.await(amount, unit)) {
+            return get();
+        } else {
+            throw new TimeoutException();
+        }
+    }
+
+    public T await() throws Exception {
+        latch.await();
+        return get();
+    }
+
+    private T get() throws Exception {
+        Throwable e = error;
+        if (e != null) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            } else if (e instanceof Exception) {
+                throw (Exception) e;
+            } else if (e instanceof Error) {
+                throw (Error) e;
+            } else {
+                // don&#39;M expect to hit this case.
+                throw new RuntimeException(e);
+            }
+        }
+        return message;
+    }
+}
+</code></pre>
 <p>利用java的CountDownLatch可以非常轻松的实现：当回调方法调用之前，获取结果的await方法一直阻塞的。</p>
 <p>到此为止，我们基本实现异步消息调用的核心<code>伪代码</code>，但是是不是万事大吉了呢？</p>
 <h3 id="But，还有一个大bug"><a href="#But，还有一个大bug" class="headerlink" title="But，还有一个大bug"></a>But，还有一个大bug</h3><p>还有什么问题？</p>
@@ -382,7 +503,22 @@
 <li>2.服务端超时或者异常情况，contextMap又如何回收？</li>
 </ul>
 <p>问题1很要解决，在发送的时候捕获一下发送的异常，出现异常主动将contextMap的对象移除。伪代码如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Callback <span class="title">call</span><span class="params">(Request request, Callback callback)</span>  </span>&#123;</div><div class="line">    <span class="keyword">int</span> id = getNextMessageId();</div><div class="line">    request.setMessageID(id);</div><div class="line">    Context context = <span class="keyword">new</span> Context(id, request, callback);</div><div class="line">    <span class="comment">// 发送消息前先把request上下文保存起来，</span></div><div class="line">    contextMap.put(id, context);</div><div class="line">    <span class="keyword">try</span>&#123;</div><div class="line">         writeAndFlush(request);</div><div class="line">    &#125;<span class="keyword">catch</span>(Exception e)&#123;</div><div class="line">         contextMap.remove(id);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 消息发送出去就直接返回callback，不会阻塞等待服务端结果返回</span></div><div class="line">    <span class="comment">// 当客户端收到服务端返回的response首先会通过messageID找到对应的request上下文，然后调用callback的onReceive(resp)方法通知</span></div><div class="line">    <span class="keyword">return</span> callback;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">    public Callback call(Request request, Callback callback)  {
+        int id = getNextMessageId();
+        request.setMessageID(id);
+        Context context = new Context(id, request, callback);
+        // 发送消息前先把request上下文保存起来，
+        contextMap.put(id, context);
+        try{
+             writeAndFlush(request);
+        }catch(Exception e){
+             contextMap.remove(id);
+        }
+        // 消息发送出去就直接返回callback，不会阻塞等待服务端结果返回
+        // 当客户端收到服务端返回的response首先会通过messageID找到对应的request上下文，然后调用callback的onReceive(resp)方法通知
+        return callback;
+    }
+</code></pre>
 <p>关键是问题2，服务端超时，或者异常，这时候客户端收不到任何消息，那么上面的代码中contextMap的request上下文就没办法清理掉。</p>
 <p>这个时候该如何处理呢？<br>我们先讨论RPC一个很重的点：<code>TimeOut机制</code>。<br>如果没有timeout，假设某个服务响应慢或者不可用，可能造成客户端所有的connection都在等待请求响应，其他可用的服务也无法提供服务。<br>客户端请求分配的资源是有限的，我们不能因为某个业务不可用或者响应慢而让他占用了所有的资源。<code>对于每个异步调用的请求，我们最好都能给他一个默认的超时时间</code>。</p>
 <p>既然RPC有timeout机制，那么处理问题2最自然的思路就是定时去扫描contextMap，将里面超时的context清理掉。<code>motan也是这么做的</code></p>
@@ -392,13 +528,194 @@
 <p>这个不是本文的重点，暂不详细展开。</p>
 <h3 id="言归正传，我们来说Motan怎么实现"><a href="#言归正传，我们来说Motan怎么实现" class="headerlink" title="言归正传，我们来说Motan怎么实现"></a>言归正传，我们来说Motan怎么实现</h3><p>上面说了一堆，貌似跑题了，不过接下来，我们来剖析Motan 的源代码，看Motan是怎么实现这个逻辑的。</p>
 <p>直接看源代码，（为了简洁，略掉不相关逻辑代码）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NettyClient</span> <span class="keyword">extends</span> <span class="title">AbstractPoolClient</span> <span class="keyword">implements</span> <span class="title">StatisticCallback</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="comment">// 回收过期任务</span></div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(<span class="number">4</span>);</div><div class="line"></div><div class="line">	<span class="comment">// 异步的request，需要注册callback future</span></div><div class="line">	<span class="comment">// 触发remove的操作有： 1) service的返回结果处理。 2) timeout thread cancel</span></div><div class="line">	<span class="keyword">protected</span> ConcurrentMap&lt;Long, NettyResponseFuture&gt; callbackMap = <span class="keyword">new</span> ConcurrentHashMap&lt;Long, NettyResponseFuture&gt;();</div><div class="line"></div><div class="line">	<span class="keyword">private</span> ScheduledFuture&lt;?&gt; timeMonitorFuture = <span class="keyword">null</span>;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">NettyClient</span><span class="params">(URL url)</span> </span>&#123;</div><div class="line">			timeMonitorFuture = scheduledExecutor.scheduleWithFixedDelay(</div><div class="line">				<span class="keyword">new</span> TimeoutMonitor(<span class="string">"timeout_monitor_"</span> + url.getHost() + <span class="string">"_"</span> + url.getPort()),</div><div class="line">				MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD, MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD,</div><div class="line">				TimeUnit.MILLISECONDS);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 请求remote service</div><div class="line">	 * </div><div class="line">	 * &lt;pre&gt;</div><div class="line">	 * 		1)  get connection from pool</div><div class="line">	 * 		2)  async requset</div><div class="line">	 * 		3)  return connection to pool</div><div class="line">	 * 		4)  check if async return response, true: return ResponseFuture;  false: return result</div><div class="line">	 * &lt;/pre&gt;</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> request</div><div class="line">	 * <span class="doctag">@param</span> async</div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 * <span class="doctag">@throws</span> TransportException</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> Response <span class="title">request</span><span class="params">(Request request, <span class="keyword">boolean</span> async)</span> <span class="keyword">throws</span> TransportException </span>&#123;</div><div class="line">		...</div><div class="line">		<span class="comment">// async request</span></div><div class="line">		response = channel.request(request);</div><div class="line">		response = asyncResponse(response, async);</div><div class="line">		<span class="keyword">return</span> response;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 初始化 netty clientBootstrap</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initClientBootstrap</span><span class="params">()</span> </span>&#123;</div><div class="line">		</div><div class="line">		bootstrap.setPipelineFactory(<span class="keyword">new</span> ChannelPipelineFactory() &#123;</div><div class="line">			...</div><div class="line">			<span class="function"><span class="keyword">public</span> ChannelPipeline <span class="title">getPipeline</span><span class="params">()</span> </span>&#123;</div><div class="line">				ChannelPipeline pipeline = Channels.pipeline();</div><div class="line">				pipeline.addLast(<span class="string">"decoder"</span>, <span class="keyword">new</span> NettyDecoder(codec, NettyClient.<span class="keyword">this</span>, maxContentLength));</div><div class="line">				pipeline.addLast(<span class="string">"encoder"</span>, <span class="keyword">new</span> NettyEncoder(codec, NettyClient.<span class="keyword">this</span>));</div><div class="line">				pipeline.addLast(<span class="string">"handler"</span>, <span class="keyword">new</span> NettyChannelHandler(NettyClient.<span class="keyword">this</span>, <span class="keyword">new</span> MessageHandler() &#123;</div><div class="line">					<span class="meta">@Override</span></div><div class="line">					<span class="function"><span class="keyword">public</span> Object <span class="title">handle</span><span class="params">(Channel channel, Object message)</span> </span>&#123;</div><div class="line">						Response response = (Response) message;</div><div class="line"></div><div class="line">						NettyResponseFuture responseFuture = NettyClient.<span class="keyword">this</span>.removeCallback(response.getRequestId());</div><div class="line"></div><div class="line">						<span class="keyword">if</span> (responseFuture == <span class="keyword">null</span>) &#123;</div><div class="line">							LoggerUtil.warn(</div><div class="line">									<span class="string">"NettyClient has response from server, but resonseFuture not exist,  requestId=&#123;&#125;"</span>,</div><div class="line">									response.getRequestId());</div><div class="line">							<span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">						&#125;</div><div class="line"></div><div class="line">						<span class="keyword">if</span> (response.getException() != <span class="keyword">null</span>) &#123;</div><div class="line">							responseFuture.onFailure(response);</div><div class="line">						&#125; <span class="keyword">else</span> &#123;</div><div class="line">							responseFuture.onSuccess(response);</div><div class="line">						&#125;</div><div class="line"></div><div class="line">						<span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">					&#125;</div><div class="line">				&#125;));</div><div class="line">				<span class="keyword">return</span> pipeline;</div><div class="line">			&#125;</div><div class="line">		&#125;);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 注册回调的resposne</div><div class="line">	 * </div><div class="line">	 * &lt;pre&gt;</div><div class="line">	 * </div><div class="line">	 * 		进行最大的请求并发数的控制，如果超过NETTY_CLIENT_MAX_REQUEST的话，那么throw reject exception</div><div class="line">	 * </div><div class="line">	 * &lt;/pre&gt;</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@throws</span> MotanServiceException</div><div class="line">	 * <span class="doctag">@param</span> requestId</div><div class="line">	 * <span class="doctag">@param</span> nettyResponseFuture</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerCallback</span><span class="params">(<span class="keyword">long</span> requestId, NettyResponseFuture nettyResponseFuture)</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.callbackMap.size() &gt;= MotanConstants.NETTY_CLIENT_MAX_REQUEST) &#123;</div><div class="line">			<span class="comment">// reject request, prevent from OutOfMemoryError</span></div><div class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(<span class="string">"NettyClient over of max concurrent request, drop request, url: "</span></div><div class="line">					+ url.getUri() + <span class="string">" requestId="</span> + requestId, MotanErrorMsgConstant.SERVICE_REJECT);</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		<span class="keyword">this</span>.callbackMap.put(requestId, nettyResponseFuture);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 移除回调的response</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> requestId</div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">public</span> NettyResponseFuture <span class="title">removeCallback</span><span class="params">(<span class="keyword">long</span> requestId)</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> callbackMap.remove(requestId);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 回收超时任务</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@author</span> maijunsheng</div><div class="line">	 * </div><div class="line">	 */</div><div class="line">	<span class="class"><span class="keyword">class</span> <span class="title">TimeoutMonitor</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</div><div class="line">		<span class="keyword">private</span> String name;</div><div class="line">		<span class="function"><span class="keyword">public</span> <span class="title">TimeoutMonitor</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">			<span class="keyword">this</span>.name = name;</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">			<span class="keyword">long</span> currentTime = System.currentTimeMillis();</div><div class="line">			<span class="keyword">for</span> (Map.Entry&lt;Long, NettyResponseFuture&gt; entry : callbackMap.entrySet()) &#123;</div><div class="line">				<span class="keyword">try</span> &#123;</div><div class="line">					NettyResponseFuture future = entry.getValue();</div><div class="line"></div><div class="line">					<span class="keyword">if</span> (future.getCreateTime() + future.getTimeout() &lt; currentTime) &#123;</div><div class="line">						<span class="comment">// timeout: remove from callback list, and then cancel</span></div><div class="line">						removeCallback(entry.getKey());</div><div class="line">						future.cancel();</div><div class="line">					&#125; </div><div class="line">				&#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">					LoggerUtil.error(</div><div class="line">							name + <span class="string">" clear timeout future Error: uri="</span> + url.getUri() + <span class="string">" requestId="</span> + entry.getKey(),</div><div class="line">							e);</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public class NettyClient extends AbstractPoolClient implements StatisticCallback {
+
+    // 回收过期任务
+    private static ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(4);
+
+    // 异步的request，需要注册callback future
+    // 触发remove的操作有： 1) service的返回结果处理。 2) timeout thread cancel
+    protected ConcurrentMap&lt;Long, NettyResponseFuture&gt; callbackMap = new ConcurrentHashMap&lt;Long, NettyResponseFuture&gt;();
+
+    private ScheduledFuture&lt;?&gt; timeMonitorFuture = null;
+    public NettyClient(URL url) {
+            timeMonitorFuture = scheduledExecutor.scheduleWithFixedDelay(
+                new TimeoutMonitor(&quot;timeout_monitor_&quot; + url.getHost() + &quot;_&quot; + url.getPort()),
+                MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD, MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD,
+                TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 请求remote service
+     * 
+     * &lt;pre&gt;
+     *         1)  get connection from pool
+     *         2)  async requset
+     *         3)  return connection to pool
+     *         4)  check if async return response, true: return ResponseFuture;  false: return result
+     * &lt;/pre&gt;
+     * 
+     * @param request
+     * @param async
+     * @return
+     * @throws TransportException
+     */
+    private Response request(Request request, boolean async) throws TransportException {
+        ...
+        // async request
+        response = channel.request(request);
+        response = asyncResponse(response, async);
+        return response;
+    }
+
+    /**
+     * 初始化 netty clientBootstrap
+     */
+    private void initClientBootstrap() {
+
+        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            ...
+            public ChannelPipeline getPipeline() {
+                ChannelPipeline pipeline = Channels.pipeline();
+                pipeline.addLast(&quot;decoder&quot;, new NettyDecoder(codec, NettyClient.this, maxContentLength));
+                pipeline.addLast(&quot;encoder&quot;, new NettyEncoder(codec, NettyClient.this));
+                pipeline.addLast(&quot;handler&quot;, new NettyChannelHandler(NettyClient.this, new MessageHandler() {
+                    @Override
+                    public Object handle(Channel channel, Object message) {
+                        Response response = (Response) message;
+
+                        NettyResponseFuture responseFuture = NettyClient.this.removeCallback(response.getRequestId());
+
+                        if (responseFuture == null) {
+                            LoggerUtil.warn(
+                                    &quot;NettyClient has response from server, but resonseFuture not exist,  requestId={}&quot;,
+                                    response.getRequestId());
+                            return null;
+                        }
+
+                        if (response.getException() != null) {
+                            responseFuture.onFailure(response);
+                        } else {
+                            responseFuture.onSuccess(response);
+                        }
+
+                        return null;
+                    }
+                }));
+                return pipeline;
+            }
+        });
+    }
+
+    /**
+     * 注册回调的resposne
+     * 
+     * &lt;pre&gt;
+     * 
+     *         进行最大的请求并发数的控制，如果超过NETTY_CLIENT_MAX_REQUEST的话，那么throw reject exception
+     * 
+     * &lt;/pre&gt;
+     * 
+     * @throws MotanServiceException
+     * @param requestId
+     * @param nettyResponseFuture
+     */
+    public void registerCallback(long requestId, NettyResponseFuture nettyResponseFuture) {
+        if (this.callbackMap.size() &gt;= MotanConstants.NETTY_CLIENT_MAX_REQUEST) {
+            // reject request, prevent from OutOfMemoryError
+            throw new MotanServiceException(&quot;NettyClient over of max concurrent request, drop request, url: &quot;
+                    + url.getUri() + &quot; requestId=&quot; + requestId, MotanErrorMsgConstant.SERVICE_REJECT);
+        }
+
+        this.callbackMap.put(requestId, nettyResponseFuture);
+    }
+
+    /**
+     * 移除回调的response
+     * 
+     * @param requestId
+     * @return
+     */
+    public NettyResponseFuture removeCallback(long requestId) {
+        return callbackMap.remove(requestId);
+    }
+
+    /**
+     * 回收超时任务
+     * 
+     * @author maijunsheng
+     * 
+     */
+    class TimeoutMonitor implements Runnable {
+        private String name;
+        public TimeoutMonitor(String name) {
+            this.name = name;
+        }
+
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            for (Map.Entry&lt;Long, NettyResponseFuture&gt; entry : callbackMap.entrySet()) {
+                try {
+                    NettyResponseFuture future = entry.getValue();
+
+                    if (future.getCreateTime() + future.getTimeout() &lt; currentTime) {
+                        // timeout: remove from callback list, and then cancel
+                        removeCallback(entry.getKey());
+                        future.cancel();
+                    } 
+                } catch (Exception e) {
+                    LoggerUtil.error(
+                            name + &quot; clear timeout future Error: uri=&quot; + url.getUri() + &quot; requestId=&quot; + entry.getKey(),
+                            e);
+                }
+            }
+        }
+    }
+}
+</code></pre>
 <p>这个里面的callbackMap就是存储request上下文的map，（TimeoutMonitor就是清理超时的请求上下文的）发送request请求的时候会调用到下面的方法：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Response <span class="title">request</span><span class="params">(Request request)</span> <span class="keyword">throws</span> TransportException </span>&#123;</div><div class="line"> </div><div class="line">  ...</div><div class="line">	<span class="keyword">boolean</span> result = writeFuture.awaitUninterruptibly(timeout, TimeUnit.MILLISECONDS);</div><div class="line"></div><div class="line">	<span class="keyword">if</span> (result &amp;&amp; writeFuture.isSuccess()) &#123;</div><div class="line">		response.addListener(<span class="keyword">new</span> FutureListener() &#123;</div><div class="line">			<span class="meta">@Override</span></div><div class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future future)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">				<span class="keyword">if</span> (future.isSuccess() || (future.isDone() &amp;&amp; ExceptionUtil.isBizException(future.getException()))) &#123;</div><div class="line">					<span class="comment">// 成功的调用 </span></div><div class="line">					nettyClient.resetErrorCount();</div><div class="line">				&#125; <span class="keyword">else</span> &#123;</div><div class="line">					<span class="comment">// 失败的调用 </span></div><div class="line">					nettyClient.incrErrorCount();</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;);</div><div class="line">		<span class="comment">// 如果正常情况，就直接返回response</span></div><div class="line">		<span class="keyword">return</span> response;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	writeFuture.cancel();</div><div class="line">	<span class="comment">// 异常情况 将任务移除</span></div><div class="line">	response = <span class="keyword">this</span>.nettyClient.removeCallback(request.getRequestId());</div><div class="line"></div><div class="line">	<span class="keyword">if</span> (response != <span class="keyword">null</span>) &#123;</div><div class="line">		response.cancel();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">    public Response request(Request request) throws TransportException {
+
+      ...
+        boolean result = writeFuture.awaitUninterruptibly(timeout, TimeUnit.MILLISECONDS);
+
+        if (result &amp;&amp; writeFuture.isSuccess()) {
+            response.addListener(new FutureListener() {
+                @Override
+                public void operationComplete(Future future) throws Exception {
+                    if (future.isSuccess() || (future.isDone() &amp;&amp; ExceptionUtil.isBizException(future.getException()))) {
+                        // 成功的调用 
+                        nettyClient.resetErrorCount();
+                    } else {
+                        // 失败的调用 
+                        nettyClient.incrErrorCount();
+                    }
+                }
+            });
+            // 如果正常情况，就直接返回response
+            return response;
+        }
+
+        writeFuture.cancel();
+        // 异常情况 将任务移除
+        response = this.nettyClient.removeCallback(request.getRequestId());
+
+        if (response != null) {
+            response.cancel();
+        }
+    }
+</code></pre>
 <p>我们可以看到在正常情况下会直接返回response，异常情况下则是直接调用removeCallback(request.getRequestId())清除了callbackMap中的无用request。<br>接下来我们看正常情况下，motan是在哪里清理callbackMap中内容的？<br>这个时候我们又需要回到上面的NettyClient中去看NettyChannelHandler了。<br>收到服务器的返回的response的时候会触发NettyChannelHandler的handle方法，而handle方法中首先就是:<br>通过消息id，移除callbackMap中的对象。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line">NettyResponseFuture responseFuture = NettyClient.<span class="keyword">this</span>.removeCallback(response.getRequestId());</div></pre></td></tr></table></figure>
+<pre><code class="java">NettyResponseFuture responseFuture = NettyClient.this.removeCallback(response.getRequestId());
+</code></pre>
 <p>最后，我们看NettyClient中的TimeoutMonitor,它所做的的事情就是定时清理callbackMap超时的request上下文,NettyClient在初始化的时候就初始化了这个timeoutMonitor</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">NettyClient</span><span class="params">(URL url)</span> </span>&#123;</div><div class="line">			timeMonitorFuture = scheduledExecutor.scheduleWithFixedDelay(</div><div class="line">				<span class="keyword">new</span> TimeoutMonitor(<span class="string">"timeout_monitor_"</span> + url.getHost() + <span class="string">"_"</span> + url.getPort()),</div><div class="line">				MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD, MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD,</div><div class="line">				TimeUnit.MILLISECONDS);</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public NettyClient(URL url) {
+            timeMonitorFuture = scheduledExecutor.scheduleWithFixedDelay(
+                new TimeoutMonitor(&quot;timeout_monitor_&quot; + url.getHost() + &quot;_&quot; + url.getPort()),
+                MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD, MotanConstants.NETTY_TIMEOUT_TIMER_PERIOD,
+                TimeUnit.MILLISECONDS);
+    }
+</code></pre>
 <p>接下来我们总结一下motan中callbackMap的逻辑：</p>
 <ul>
 <li>client发送request前先将request register到callbackMap中，如果发送前连接异常，则直接remove掉。</li>

@@ -159,7 +159,9 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
+      <div class="header-inner">
+
+<div class="site-meta ">
   
 
   <div class="custom-logo-site-title">
@@ -363,20 +365,122 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 <p>如同范例代码展示的一样，Cache实例通过CacheBuilder生成器模式获取，但是自定义你的缓存才是最有趣的部分。</p>
 <p>注：如果你不需要Cache中的特性，使用ConcurrentHashMap有更好的内存效率——但Cache的大多数特性都很难基于旧有的ConcurrentMap复制，甚至根本不可能做到。</p>
 <h3 id="2-如何使用Guava-Cache"><a href="#2-如何使用Guava-Cache" class="headerlink" title="2.如何使用Guava Cache"></a>2.如何使用Guava Cache</h3><p>下面我们以一个简单的例子开始，缓存大写的字符串key。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@Test</div><div class="line">   public void whenCacheMiss_thenValueIsComputed() throws InterruptedException &#123;</div><div class="line">       CacheLoader&lt;String, String&gt; loader;</div><div class="line">       loader = new CacheLoader&lt;String, String&gt;() &#123;</div><div class="line">           // 当guava cache中不存在，则会调用load方法</div><div class="line">           @Override</div><div class="line">           public String load(String key) &#123;</div><div class="line">               return key.toUpperCase();</div><div class="line">           &#125;</div><div class="line">       &#125;;</div><div class="line"></div><div class="line">       LoadingCache&lt;String, String&gt; cache;</div><div class="line">       cache = CacheBuilder</div><div class="line">               .newBuilder()</div><div class="line">               // 写数据1s后重新加载缓存</div><div class="line">               .refreshAfterWrite(1L, TimeUnit.SECONDS)</div><div class="line">               .build(loader);</div><div class="line"></div><div class="line">       assertEquals(0, cache.size());</div><div class="line">       cache.put(&quot;test&quot;, &quot;test&quot;);</div><div class="line">       assertEquals(&quot;test&quot;, cache.getUnchecked(&quot;test&quot;));</div><div class="line">       assertEquals(&quot;HELLO&quot;, cache.getUnchecked(&quot;hello&quot;));</div><div class="line">       assertEquals(2, cache.size());</div><div class="line"></div><div class="line">       TimeUnit.SECONDS.sleep(2);</div><div class="line">       assertEquals(&quot;TEST&quot;, cache.getUnchecked(&quot;test&quot;));</div><div class="line"></div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<h3 id="3-回收策略"><a href="#3-回收策略" class="headerlink" title="3.回收策略"></a>3.回收策略</h3><p>所有的cache都需要定期remove value，下面我们看看guava cache的回收策略。</p>
-<h4 id="3-1-基于容量的回收-Eviction-by-Size"><a href="#3-1-基于容量的回收-Eviction-by-Size" class="headerlink" title="3.1. 基于容量的回收(Eviction by Size)"></a>3.1. 基于容量的回收(Eviction by Size)</h4><p>我们可以通过<code>maximumSize()</code>方法限制cache的size，如果cache达到了最大限制，oldest items 将会被回收。<br><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@Test</div><div class="line">   public void whenCacheReachMaxSize_thenEviction() &#123;</div><div class="line">       CacheLoader&lt;String, String&gt; loader;</div><div class="line">       loader = new CacheLoader&lt;String, String&gt;() &#123;</div><div class="line">           @Override</div><div class="line">           public String load(String key) &#123;</div><div class="line">               return key.toUpperCase();</div><div class="line">           &#125;</div><div class="line">       &#125;;</div><div class="line">       LoadingCache&lt;String, String&gt; cache;</div><div class="line">       cache = CacheBuilder.newBuilder().maximumSize(3).build(loader);</div><div class="line"></div><div class="line">       cache.getUnchecked(&quot;first&quot;);</div><div class="line">       cache.getUnchecked(&quot;second&quot;);</div><div class="line">       cache.getUnchecked(&quot;third&quot;);</div><div class="line">       cache.getUnchecked(&quot;forth&quot;);</div><div class="line">       assertEquals(3, cache.size());</div><div class="line">       assertNull(cache.getIfPresent(&quot;first&quot;));</div><div class="line">       assertEquals(&quot;FORTH&quot;, cache.getIfPresent(&quot;forth&quot;));</div><div class="line">   &#125;</div></pre></td></tr></table></figure></p>
-<p>我们也可以限制cache size通过定制<code>weight function</code>，以下为自定义<code>weight function</code>实现的限制cache size 的示例：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@Test</div><div class="line">  public void whenCacheReachMaxWeight_thenEviction() &#123;</div><div class="line">      CacheLoader&lt;String, String&gt; loader;</div><div class="line">      loader = new CacheLoader&lt;String, String&gt;() &#123;</div><div class="line">          @Override</div><div class="line">          public String load(String key) &#123;</div><div class="line">              return key.toUpperCase();</div><div class="line">          &#125;</div><div class="line">      &#125;;</div><div class="line"></div><div class="line">      Weigher&lt;String, String&gt; weighByLength;</div><div class="line">      weighByLength = new Weigher&lt;String, String&gt;() &#123;</div><div class="line">          @Override</div><div class="line">          public int weigh(String key, String value) &#123;</div><div class="line">              return value.length();</div><div class="line">          &#125;</div><div class="line">      &#125;;</div><div class="line"></div><div class="line">      LoadingCache&lt;String, String&gt; cache;</div><div class="line">      cache = CacheBuilder.newBuilder()</div><div class="line">              .maximumWeight(16)</div><div class="line">              .weigher(weighByLength)</div><div class="line">              .build(loader);</div><div class="line"></div><div class="line">      cache.getUnchecked(&quot;first&quot;);</div><div class="line">      cache.getUnchecked(&quot;second&quot;);</div><div class="line">      cache.getUnchecked(&quot;third&quot;);</div><div class="line">      cache.getUnchecked(&quot;last&quot;);</div><div class="line">      assertEquals(3, cache.size());</div><div class="line">      assertNull(cache.getIfPresent(&quot;first&quot;));</div><div class="line">      assertEquals(&quot;LAST&quot;, cache.getIfPresent(&quot;last&quot;));</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
-<h4 id="3-2-定时回收-Eviction-by-Time"><a href="#3-2-定时回收-Eviction-by-Time" class="headerlink" title="3.2. 定时回收(Eviction by Time)"></a>3.2. 定时回收(Eviction by Time)</h4><p>除了通过size来回收记录，我们也可以选择定时回收</p>
+<pre><code> @Test
+    public void whenCacheMiss_thenValueIsComputed() throws InterruptedException {
+        CacheLoader&lt;String, String&gt; loader;
+        loader = new CacheLoader&lt;String, String&gt;() {
+            // 当guava cache中不存在，则会调用load方法
+            @Override
+            public String load(String key) {
+                return key.toUpperCase();
+            }
+        };
+
+        LoadingCache&lt;String, String&gt; cache;
+        cache = CacheBuilder
+                .newBuilder()
+                // 写数据1s后重新加载缓存
+                .refreshAfterWrite(1L, TimeUnit.SECONDS)
+                .build(loader);
+
+        assertEquals(0, cache.size());
+        cache.put(&quot;test&quot;, &quot;test&quot;);
+        assertEquals(&quot;test&quot;, cache.getUnchecked(&quot;test&quot;));
+        assertEquals(&quot;HELLO&quot;, cache.getUnchecked(&quot;hello&quot;));
+        assertEquals(2, cache.size());
+
+        TimeUnit.SECONDS.sleep(2);
+        assertEquals(&quot;TEST&quot;, cache.getUnchecked(&quot;test&quot;));
+
+    }
+</code></pre><h3 id="3-回收策略"><a href="#3-回收策略" class="headerlink" title="3.回收策略"></a>3.回收策略</h3><p>所有的cache都需要定期remove value，下面我们看看guava cache的回收策略。</p>
+<h4 id="3-1-基于容量的回收-Eviction-by-Size"><a href="#3-1-基于容量的回收-Eviction-by-Size" class="headerlink" title="3.1. 基于容量的回收(Eviction by Size)"></a>3.1. 基于容量的回收(Eviction by Size)</h4><p>我们可以通过<code>maximumSize()</code>方法限制cache的size，如果cache达到了最大限制，oldest items 将会被回收。</p>
+<pre><code> @Test
+    public void whenCacheReachMaxSize_thenEviction() {
+        CacheLoader&lt;String, String&gt; loader;
+        loader = new CacheLoader&lt;String, String&gt;() {
+            @Override
+            public String load(String key) {
+                return key.toUpperCase();
+            }
+        };
+        LoadingCache&lt;String, String&gt; cache;
+        cache = CacheBuilder.newBuilder().maximumSize(3).build(loader);
+
+        cache.getUnchecked(&quot;first&quot;);
+        cache.getUnchecked(&quot;second&quot;);
+        cache.getUnchecked(&quot;third&quot;);
+        cache.getUnchecked(&quot;forth&quot;);
+        assertEquals(3, cache.size());
+        assertNull(cache.getIfPresent(&quot;first&quot;));
+        assertEquals(&quot;FORTH&quot;, cache.getIfPresent(&quot;forth&quot;));
+    }
+</code></pre><p>我们也可以限制cache size通过定制<code>weight function</code>，以下为自定义<code>weight function</code>实现的限制cache size 的示例：</p>
+<pre><code>  @Test
+    public void whenCacheReachMaxWeight_thenEviction() {
+        CacheLoader&lt;String, String&gt; loader;
+        loader = new CacheLoader&lt;String, String&gt;() {
+            @Override
+            public String load(String key) {
+                return key.toUpperCase();
+            }
+        };
+
+        Weigher&lt;String, String&gt; weighByLength;
+        weighByLength = new Weigher&lt;String, String&gt;() {
+            @Override
+            public int weigh(String key, String value) {
+                return value.length();
+            }
+        };
+
+        LoadingCache&lt;String, String&gt; cache;
+        cache = CacheBuilder.newBuilder()
+                .maximumWeight(16)
+                .weigher(weighByLength)
+                .build(loader);
+
+        cache.getUnchecked(&quot;first&quot;);
+        cache.getUnchecked(&quot;second&quot;);
+        cache.getUnchecked(&quot;third&quot;);
+        cache.getUnchecked(&quot;last&quot;);
+        assertEquals(3, cache.size());
+        assertNull(cache.getIfPresent(&quot;first&quot;));
+        assertEquals(&quot;LAST&quot;, cache.getIfPresent(&quot;last&quot;));
+    }
+</code></pre><h4 id="3-2-定时回收-Eviction-by-Time"><a href="#3-2-定时回收-Eviction-by-Time" class="headerlink" title="3.2. 定时回收(Eviction by Time)"></a>3.2. 定时回收(Eviction by Time)</h4><p>除了通过size来回收记录，我们也可以选择定时回收</p>
 <p><code>CacheBuilder</code>提供两种定时回收的方法：</p>
 <ul>
 <li><code>expireAfterAccess(long, TimeUnit)</code>：缓存项在给定时间内没有被读/写访问，则回收。请注意这种缓存的回收顺序和基于大小回收一样。</li>
 <li><code>expireAfterWrite(long, TimeUnit)</code>：缓存项在给定时间内没有被写访问（创建或覆盖），则回收。如果认为缓存数据总是在固定时候后变得陈旧不可用，这种回收方式是可取的。</li>
 </ul>
 <p>下面代码 将示例<code>expireAfterAccess</code>的用法：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@Test</div><div class="line">   public void whenEntryIdle_thenEviction() throws InterruptedException &#123;</div><div class="line">       CacheLoader&lt;String, String&gt; loader;</div><div class="line">       loader = new CacheLoader&lt;String, String&gt;() &#123;</div><div class="line">           @Override</div><div class="line">           public String load(String key) &#123;</div><div class="line">               return key.toUpperCase();</div><div class="line">           &#125;</div><div class="line">       &#125;;</div><div class="line"></div><div class="line">       LoadingCache&lt;String, String&gt; cache;</div><div class="line">       cache = CacheBuilder.newBuilder()</div><div class="line">               .expireAfterAccess(2, TimeUnit.MILLISECONDS)</div><div class="line">               .build(loader);</div><div class="line"></div><div class="line">       cache.getUnchecked(&quot;hello&quot;);</div><div class="line">       assertEquals(1, cache.size());</div><div class="line"></div><div class="line">       cache.getUnchecked(&quot;hello&quot;);</div><div class="line">       Thread.sleep(300);</div><div class="line"></div><div class="line">       cache.getUnchecked(&quot;test&quot;);</div><div class="line">       assertEquals(1, cache.size());</div><div class="line">       assertNull(cache.getIfPresent(&quot;hello&quot;));</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<h4 id="3-3-基于引用的回收-Reference-based-Eviction"><a href="#3-3-基于引用的回收-Reference-based-Eviction" class="headerlink" title="3.3.基于引用的回收(Reference-based Eviction)"></a>3.3.基于引用的回收(Reference-based Eviction)</h4><p>通过使用弱引用的键、或弱引用的值、或软引用的值，Guava Cache可以把缓存设置为允许垃圾回收：</p>
+<pre><code> @Test
+    public void whenEntryIdle_thenEviction() throws InterruptedException {
+        CacheLoader&lt;String, String&gt; loader;
+        loader = new CacheLoader&lt;String, String&gt;() {
+            @Override
+            public String load(String key) {
+                return key.toUpperCase();
+            }
+        };
+
+        LoadingCache&lt;String, String&gt; cache;
+        cache = CacheBuilder.newBuilder()
+                .expireAfterAccess(2, TimeUnit.MILLISECONDS)
+                .build(loader);
+
+        cache.getUnchecked(&quot;hello&quot;);
+        assertEquals(1, cache.size());
+
+        cache.getUnchecked(&quot;hello&quot;);
+        Thread.sleep(300);
+
+        cache.getUnchecked(&quot;test&quot;);
+        assertEquals(1, cache.size());
+        assertNull(cache.getIfPresent(&quot;hello&quot;));
+    }
+</code></pre><h4 id="3-3-基于引用的回收-Reference-based-Eviction"><a href="#3-3-基于引用的回收-Reference-based-Eviction" class="headerlink" title="3.3.基于引用的回收(Reference-based Eviction)"></a>3.3.基于引用的回收(Reference-based Eviction)</h4><p>通过使用弱引用的键、或弱引用的值、或软引用的值，Guava Cache可以把缓存设置为允许垃圾回收：</p>
 <ul>
 <li>CacheBuilder.weakKeys()：使用弱引用存储键。当键没有其它（强或软）引用时，缓存项可以被垃圾回收。因为垃圾回收仅依赖恒等式（==），使用弱引用键的缓存用==而不是equals比较键。</li>
 <li>CacheBuilder.softValues()：使用软引用存储值。软引用只有在响应内存需要时，才按照全局最近最少使用的顺序回收。考虑到使用软引用的性能影响，我们通常建议使用更有性能预测性的缓存大小限定（见上文，基于容量回收）。使用软引用值的缓存同样用==而不是equals比较值。</li>
@@ -391,20 +495,114 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 <p>通过CacheBuilder.removalListener(RemovalListener)，你可以声明一个监听器，以便缓存项被移除时做一些额外操作。缓存项被移除时，RemovalListener会获取移除通知[RemovalNotification]，其中包含移除原因[RemovalCause]、键和值。</p>
 </blockquote>
 <p><strong>请注意，RemovalListener抛出的任何异常都会在记录到日志后被丢弃[swallowed]。</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@Test</div><div class="line">   public void whenEntryRemovedFromCache_thenNotify() &#123;</div><div class="line">       CacheLoader&lt;String, String&gt; loader;</div><div class="line">       loader = new CacheLoader&lt;String, String&gt;() &#123;</div><div class="line">           @Override</div><div class="line">           public String load(final String key) &#123;</div><div class="line">               return key.toUpperCase();</div><div class="line">           &#125;</div><div class="line">       &#125;;</div><div class="line"></div><div class="line">       RemovalListener&lt;String, String&gt; listener;</div><div class="line">       listener = new RemovalListener&lt;String, String&gt;() &#123;</div><div class="line">           @Override</div><div class="line">           public void onRemoval(RemovalNotification&lt;String, String&gt; n) &#123;</div><div class="line">               if (n.wasEvicted()) &#123;</div><div class="line">                   String cause = n.getCause().name();</div><div class="line">                   assertEquals(RemovalCause.SIZE.toString(), cause);</div><div class="line">               &#125;</div><div class="line">           &#125;</div><div class="line">       &#125;;</div><div class="line"></div><div class="line">       LoadingCache&lt;String, String&gt; cache;</div><div class="line">       cache = CacheBuilder.newBuilder()</div><div class="line">               .maximumSize(3)</div><div class="line">               .removalListener(listener)</div><div class="line">               .build(loader);</div><div class="line"></div><div class="line">       cache.getUnchecked(&quot;first&quot;);</div><div class="line">       cache.getUnchecked(&quot;second&quot;);</div><div class="line">       cache.getUnchecked(&quot;third&quot;);</div><div class="line">       cache.getUnchecked(&quot;last&quot;);</div><div class="line">       assertEquals(3, cache.size());</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<h3 id="5-刷新-Refresh-the-Cache"><a href="#5-刷新-Refresh-the-Cache" class="headerlink" title="5.刷新( Refresh the Cache)"></a>5.刷新( Refresh the Cache)</h3><p>刷新和回收不太一样。正如LoadingCache.refresh(K)所声明，刷新表示为键加载新值，这个过程可以是异步的。在刷新操作进行时，缓存仍然可以向其他线程返回旧值，而不像回收操作，读缓存的线程必须等待新值加载完成。</p>
+<pre><code> @Test
+    public void whenEntryRemovedFromCache_thenNotify() {
+        CacheLoader&lt;String, String&gt; loader;
+        loader = new CacheLoader&lt;String, String&gt;() {
+            @Override
+            public String load(final String key) {
+                return key.toUpperCase();
+            }
+        };
+
+        RemovalListener&lt;String, String&gt; listener;
+        listener = new RemovalListener&lt;String, String&gt;() {
+            @Override
+            public void onRemoval(RemovalNotification&lt;String, String&gt; n) {
+                if (n.wasEvicted()) {
+                    String cause = n.getCause().name();
+                    assertEquals(RemovalCause.SIZE.toString(), cause);
+                }
+            }
+        };
+
+        LoadingCache&lt;String, String&gt; cache;
+        cache = CacheBuilder.newBuilder()
+                .maximumSize(3)
+                .removalListener(listener)
+                .build(loader);
+
+        cache.getUnchecked(&quot;first&quot;);
+        cache.getUnchecked(&quot;second&quot;);
+        cache.getUnchecked(&quot;third&quot;);
+        cache.getUnchecked(&quot;last&quot;);
+        assertEquals(3, cache.size());
+    }
+</code></pre><h3 id="5-刷新-Refresh-the-Cache"><a href="#5-刷新-Refresh-the-Cache" class="headerlink" title="5.刷新( Refresh the Cache)"></a>5.刷新( Refresh the Cache)</h3><p>刷新和回收不太一样。正如LoadingCache.refresh(K)所声明，刷新表示为键加载新值，这个过程可以是异步的。在刷新操作进行时，缓存仍然可以向其他线程返回旧值，而不像回收操作，读缓存的线程必须等待新值加载完成。</p>
 <p>如果刷新过程抛出异常，缓存将保留旧值，而异常会在记录到日志后被丢弃[swallowed]。</p>
 <p>重载CacheLoader.reload(K, V)可以扩展刷新时的行为，这个方法允许开发者在计算新值时使用旧的值。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@Test</div><div class="line">public void cache_reLoad() &#123;</div><div class="line">    CacheLoader&lt;String, String&gt; loader;</div><div class="line">    loader = new CacheLoader&lt;String, String&gt;() &#123;</div><div class="line">        @Override</div><div class="line">        public String load(String key) &#123;</div><div class="line">            return key.toUpperCase();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 重写reload方法可以定制自己的reload策略</div><div class="line">         * @param key</div><div class="line">         * @param oldValue</div><div class="line">         * @return</div><div class="line">         * @throws Exception</div><div class="line">         */</div><div class="line">        @Override</div><div class="line">        public ListenableFuture&lt;String&gt; reload(String key, String oldValue) throws Exception &#123;</div><div class="line">            return super.reload(key, oldValue);</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    LoadingCache&lt;String, String&gt; cache;</div><div class="line">    cache = CacheBuilder.newBuilder()</div><div class="line">            .build(loader);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>CacheBuilder.refreshAfterWrite(long, TimeUnit)可以为缓存增加自动定时刷新功能。和expireAfterWrite相反，refreshAfterWrite通过定时刷新可以让缓存项保持可用，但请注意：缓存项只有在被检索时才会真正刷新（如果CacheLoader.refresh实现为异步，那么检索不会被刷新拖慢）。因此，如果你在缓存上同时声明expireAfterWrite和refreshAfterWrite，缓存并不会因为刷新盲目地定时重置，如果缓存项没有被检索，那刷新就不会真的发生，缓存项在过期时间后也变得可以回收。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@Test</div><div class="line">   public void whenLiveTimeEnd_thenRefresh() &#123;</div><div class="line">       CacheLoader&lt;String, String&gt; loader;</div><div class="line">       loader = new CacheLoader&lt;String, String&gt;() &#123;</div><div class="line">           @Override</div><div class="line">           public String load(String key) &#123;</div><div class="line">               return key.toUpperCase();</div><div class="line">           &#125;</div><div class="line">       &#125;;</div><div class="line"></div><div class="line">       LoadingCache&lt;String, String&gt; cache;</div><div class="line">       cache = CacheBuilder.newBuilder()</div><div class="line">               .refreshAfterWrite(1, TimeUnit.MINUTES)</div><div class="line">               .build(loader);</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<h3 id="6-处理空值-Handle-null-Values"><a href="#6-处理空值-Handle-null-Values" class="headerlink" title="6. 处理空值(Handle null Values)"></a>6. 处理空值(Handle null Values)</h3><blockquote>
+<pre><code>    @Test
+    public void cache_reLoad() {
+        CacheLoader&lt;String, String&gt; loader;
+        loader = new CacheLoader&lt;String, String&gt;() {
+            @Override
+            public String load(String key) {
+                return key.toUpperCase();
+            }
+
+            /**
+             * 重写reload方法可以定制自己的reload策略
+             * @param key
+             * @param oldValue
+             * @return
+             * @throws Exception
+             */
+            @Override
+            public ListenableFuture&lt;String&gt; reload(String key, String oldValue) throws Exception {
+                return super.reload(key, oldValue);
+            }
+        };
+
+        LoadingCache&lt;String, String&gt; cache;
+        cache = CacheBuilder.newBuilder()
+                .build(loader);
+    }
+</code></pre><p>CacheBuilder.refreshAfterWrite(long, TimeUnit)可以为缓存增加自动定时刷新功能。和expireAfterWrite相反，refreshAfterWrite通过定时刷新可以让缓存项保持可用，但请注意：缓存项只有在被检索时才会真正刷新（如果CacheLoader.refresh实现为异步，那么检索不会被刷新拖慢）。因此，如果你在缓存上同时声明expireAfterWrite和refreshAfterWrite，缓存并不会因为刷新盲目地定时重置，如果缓存项没有被检索，那刷新就不会真的发生，缓存项在过期时间后也变得可以回收。</p>
+<pre><code> @Test
+    public void whenLiveTimeEnd_thenRefresh() {
+        CacheLoader&lt;String, String&gt; loader;
+        loader = new CacheLoader&lt;String, String&gt;() {
+            @Override
+            public String load(String key) {
+                return key.toUpperCase();
+            }
+        };
+
+        LoadingCache&lt;String, String&gt; cache;
+        cache = CacheBuilder.newBuilder()
+                .refreshAfterWrite(1, TimeUnit.MINUTES)
+                .build(loader);
+    }
+</code></pre><h3 id="6-处理空值-Handle-null-Values"><a href="#6-处理空值-Handle-null-Values" class="headerlink" title="6. 处理空值(Handle null Values)"></a>6. 处理空值(Handle null Values)</h3><blockquote>
 <p>实际上Guava整体设计思想就是拒绝null的，很多地方都会执行com.google.common.base.Preconditions.checkNotNull的检查。 </p>
 </blockquote>
 <p>By default, Guava Cache will throw exceptions if you try to load a null value – as it doesn’t make any sense to cache a null.</p>
 <p>But if null value means something in your code, then you can make good use of the Optional class as in the following example:<br>默认情况guava cache将会抛出异常，如果试图加载null value–因为cache null 是没有任何意义的。<br>但是如果null value 对你的代码而已有一些特殊的含义，你可以尝试用Optional来表达，像下面这个例子：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">@Test</div><div class="line">    public void whenNullValue_thenOptional() &#123;</div><div class="line">        CacheLoader&lt;String, Optional&lt;String&gt;&gt; loader;</div><div class="line">        loader = new CacheLoader&lt;String, Optional&lt;String&gt;&gt;() &#123;</div><div class="line">            @Override</div><div class="line">            public Optional&lt;String&gt; load(String key) &#123;</div><div class="line">                return Optional.fromNullable(getSuffix(key));</div><div class="line">            &#125;</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        LoadingCache&lt;String, Optional&lt;String&gt;&gt; cache;</div><div class="line">        cache = CacheBuilder.newBuilder().build(loader);</div><div class="line"></div><div class="line">        assertEquals(&quot;txt&quot;, cache.getUnchecked(&quot;text.txt&quot;).get());</div><div class="line">        assertFalse(cache.getUnchecked(&quot;hello&quot;).isPresent());</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private String getSuffix(final String str) &#123;</div><div class="line">        int lastIndex = str.lastIndexOf(&apos;.&apos;);</div><div class="line">        if (lastIndex == -1) &#123;</div><div class="line">            return null;</div><div class="line">        &#125;</div><div class="line">        return str.substring(lastIndex + 1);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<h3 id="7-统计"><a href="#7-统计" class="headerlink" title="7. 统计"></a>7. 统计</h3><p>CacheBuilder.recordStats()用来开启Guava Cache的统计功能。统计打开后，Cache.stats()方法会返回CacheStats对象以提供如下统计信息：</p>
+<pre><code>@Test
+    public void whenNullValue_thenOptional() {
+        CacheLoader&lt;String, Optional&lt;String&gt;&gt; loader;
+        loader = new CacheLoader&lt;String, Optional&lt;String&gt;&gt;() {
+            @Override
+            public Optional&lt;String&gt; load(String key) {
+                return Optional.fromNullable(getSuffix(key));
+            }
+        };
+
+        LoadingCache&lt;String, Optional&lt;String&gt;&gt; cache;
+        cache = CacheBuilder.newBuilder().build(loader);
+
+        assertEquals(&quot;txt&quot;, cache.getUnchecked(&quot;text.txt&quot;).get());
+        assertFalse(cache.getUnchecked(&quot;hello&quot;).isPresent());
+    }
+
+    private String getSuffix(final String str) {
+        int lastIndex = str.lastIndexOf(&#39;.&#39;);
+        if (lastIndex == -1) {
+            return null;
+        }
+        return str.substring(lastIndex + 1);
+    }
+</code></pre><h3 id="7-统计"><a href="#7-统计" class="headerlink" title="7. 统计"></a>7. 统计</h3><p>CacheBuilder.recordStats()用来开启Guava Cache的统计功能。统计打开后，Cache.stats()方法会返回CacheStats对象以提供如下统计信息：</p>
 <ul>
 <li>hitRate()：缓存命中率；</li>
 <li>averageLoadPenalty()：加载新值的平均时间，单位为纳秒；</li>

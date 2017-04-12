@@ -156,7 +156,9 @@
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
+      <div class="header-inner">
+
+<div class="site-meta ">
   
 
   <div class="custom-logo-site-title">
@@ -349,7 +351,18 @@
         <h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h3><p>好的软件设计不建议手动创建和销毁线程。线程的创建和销毁是非常耗 CPU 和内存的，因为这需要 JVM 和操作系统的参与。64位 JVM 默认线程栈是大小1 MB。这就是为什么说在请求频繁时为每个小的请求创建线程是一种资源的浪费。线程池可以根据创建时选择的策略自动处理线程的生命周期。重点在于：在资源（如内存、CPU）充足的情况下，线程池没有明显的优势，否则没有线程池将导致服务器奔溃。有很多的理由可以解释为什么没有更多的资源。例如，在拒绝服务（denial-of-service）攻击时会引起的许多线程并行执行，从而导致线程饥饿（thread starvation）。除此之外，手动执行线程时，可能会因为异常导致线程死亡，程序员必须记得处理这种异常情况。</p>
 <p>即使在你的应用中没有显式地使用线程池，但是像 Tomcat、Undertow这样的web服务器，都大量使用了线程池。所以了解线程池是如何工作的，怎样调整，对系统性能优化非常有帮助。</p>
 <h3 id="2线程池的基础知识"><a href="#2线程池的基础知识" class="headerlink" title="2线程池的基础知识"></a>2线程池的基础知识</h3><h4 id="2-1线程池的构造方法"><a href="#2-1线程池的构造方法" class="headerlink" title="2.1线程池的构造方法"></a>2.1线程池的构造方法</h4><p>Java提供了Executor框架提供了一套完善的多线程编程api，包括对线程生命周期，统计信息，程序管理机制，性能监控等功能。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutor</span> <span class="keyword">extends</span> <span class="title">AbstractExecutorService</span> </span>&#123;</div><div class="line">    .....</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,<span class="keyword">int</span> maximumPoolSize,<span class="keyword">long</span> keepAliveTime,TimeUnit unit,BlockingQueue&lt;Runnable&gt; workQueue)</span></span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,<span class="keyword">int</span> maximumPoolSize,<span class="keyword">long</span> keepAliveTime,TimeUnit unit,BlockingQueue&lt;Runnable&gt; workQueue,ThreadFactory threadFactory)</span></span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,<span class="keyword">int</span> maximumPoolSize,<span class="keyword">long</span> keepAliveTime,TimeUnit unit,BlockingQueue&lt;Runnable&gt; workQueue,RejectedExecutionHandler handler)</span></span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,<span class="keyword">int</span> maximumPoolSize,<span class="keyword">long</span> keepAliveTime,TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue,ThreadFactory threadFactory,RejectedExecutionHandler handler)</span></span>;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public class ThreadPoolExecutor extends AbstractExecutorService {
+    .....
+    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,BlockingQueue&lt;Runnable&gt; workQueue);
+
+    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,BlockingQueue&lt;Runnable&gt; workQueue,ThreadFactory threadFactory);
+
+    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,BlockingQueue&lt;Runnable&gt; workQueue,RejectedExecutionHandler handler);
+
+    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue,ThreadFactory threadFactory,RejectedExecutionHandler handler);
+    ...
+}
+</code></pre>
 <ul>
 <li><p><code>corePoolSize</code>：核心池的大小，这个参数跟后面讲述的线程池的实现原理有非常大的关系。在创建了线程池后，默认情况下，线程池中并没有任何线程，而是等待有任务到来才创建线程去执行任务，除非调用了prestartAllCoreThreads()或者<code>prestartCoreThread</code>()方法，从这2个方法的名字就可以看出，是预创建线程的意思，即在没有任务到来之前就创建corePoolSize个线程或者一个线程。默认情况下，在创建了线程池后，线程池中的线程数为0，当有任务来之后，就会创建一个线程去执行任务，当线程池中的线程数目达到corePoolSize后，就会把到达的任务放到缓存队列当中；</p>
 </li>
@@ -358,13 +371,18 @@
 <li><code>unit</code>：参数keepAliveTime的时间单位，有7种取值，在TimeUnit类中有7种静态属性：</li>
 <li><code>workQueue</code>：一个阻塞队列，用来存储等待执行的任务，这个参数的选择也很重要，会对线程池的运行过程产生重大影响，一般来说，这里的阻塞队列有以下几种选择：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">ArrayBlockingQueue;//</div><div class="line">LinkedBlockingQueue;//链式结构的阻塞队列，作为Executors.newFixThreadPool()生成线程池的默认队列，入列出列快，但是同时会产生Node对象</div><div class="line">SynchronousQueue;//同步队列，没有存储能力，作为Executors.newCacheThreadPool()线程池的默认队列</div></pre></td></tr></table></figure>
-<ul>
+<pre><code>ArrayBlockingQueue;//
+LinkedBlockingQueue;//链式结构的阻塞队列，作为Executors.newFixThreadPool()生成线程池的默认队列，入列出列快，但是同时会产生Node对象
+SynchronousQueue;//同步队列，没有存储能力，作为Executors.newCacheThreadPool()线程池的默认队列
+</code></pre><ul>
 <li><code>threadFactory</code>：线程工厂，主要用来创建线程；</li>
 <li><code>handler</code>：表示当拒绝处理任务时的策略，有以下四种饱和策略：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">ThreadPoolExecutor.AbortPolicy://丢弃任务并抛出RejectedExecutionException异常。</div><div class="line">ThreadPoolExecutor.DiscardPolicy：//也是丢弃任务，但是不抛出异常。</div><div class="line">ThreadPoolExecutor.DiscardOldestPolicy：//丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）</div><div class="line">ThreadPoolExecutor.CallerRunsPolicy：//由调用线程处理该任务</div></pre></td></tr></table></figure>
-<h4 id="2-2-线程池的整体流程"><a href="#2-2-线程池的整体流程" class="headerlink" title="2.2 线程池的整体流程"></a>2.2 线程池的整体流程</h4><p>了解完线程池的参数，下面这张线程架构图能够很好的帮助我们深入理解Java的线程池：</p>
+<pre><code>ThreadPoolExecutor.AbortPolicy://丢弃任务并抛出RejectedExecutionException异常。
+ThreadPoolExecutor.DiscardPolicy：//也是丢弃任务，但是不抛出异常。
+ThreadPoolExecutor.DiscardOldestPolicy：//丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）
+ThreadPoolExecutor.CallerRunsPolicy：//由调用线程处理该任务
+</code></pre><h4 id="2-2-线程池的整体流程"><a href="#2-2-线程池的整体流程" class="headerlink" title="2.2 线程池的整体流程"></a>2.2 线程池的整体流程</h4><p>了解完线程池的参数，下面这张线程架构图能够很好的帮助我们深入理解Java的线程池：</p>
 <p><img src="/images/threadPoolFramworkNew.png" alt=""></p>
 <p><strong>ExecuteService简单的理解可以认为是：</strong></p>
 <p>1.通过消费者模式来解耦线程资源和任务。（消费者模式真的是非常有用的模式，java的框架中大量使用到（logback也有使用，一个线程作为消费者来写日志，多个生产者将日志放入队列），只要涉及到需要解耦的可能都会考虑这个设计模式）</p>
@@ -375,7 +393,53 @@
 <p><strong>2.其次线程池判断工作队列是否已满？没满，则将新提交的任务存储在工作队列里。满了，则进入下个流程。</strong></p>
 <p><strong>3.最后线程池判断整个线程池是否已满？没满，则创建一个新的工作线程来执行任务，满了，则交给饱和策略来处理这个任务。</strong></p>
 <h4 id="2-3如何创建一个线程池"><a href="#2-3如何创建一个线程池" class="headerlink" title="2.3如何创建一个线程池"></a>2.3如何创建一个线程池</h4><p>我们可以通过构造函数初始化一个自己想要的线程池，但是一般不推荐这么做，除非Executors工厂方法构造的线程池不能满足我们的要求。<br>下面介绍一下Executos的api创建的线程池的特点：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Executors</span> </span>&#123;</div><div class="line"></div><div class="line">   <span class="comment">/**</span></div><div class="line">   *创建一个固定大小的线程池，每当提交一个任务就创建一个线程，知道达到线程池的最大数量，这时线程规模不在变化</div><div class="line">   （如果某个线程发生了未知Exception，那么线程池将补充一个线程）</div><div class="line">   **/</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> nThreads)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(nThreads, nThreads,</div><div class="line">                                      <span class="number">0L</span>, TimeUnit.MILLISECONDS,</div><div class="line">                                      <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;());</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">    *创建一个可缓存的线程池，如果线程当前规模超过处理的需求，那么回收空闲线程（默认60s回收一次），</div><div class="line">    当需求增加时，则可以添加新的线程，线程池的规模不存在任何限制</div><div class="line">    **/</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,</div><div class="line">                                      <span class="number">60L</span>, TimeUnit.SECONDS,</div><div class="line">                                      <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;());</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">    *是一个单线程的Executors，如果这个线程意外结束，则会创建另一个线程替代，newSingleThreadExecutor能保证任</div><div class="line">    务串行执行，例如（FIFO，LIFO，优先级）</div><div class="line">    *Netty中的NioEventLoop就是一个单线程的Executors，保证业务逻辑串行无锁执行</div><div class="line">    **/</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FinalizableDelegatedExecutorService</div><div class="line">            (<span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>,</div><div class="line">                                    <span class="number">0L</span>, TimeUnit.MILLISECONDS,</div><div class="line">                                    <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;()));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">    *创建定时执行的线程池，功能类似Timer，建议使用newSingleThreadScheduledExecutor来取代Timer（</div><div class="line">    1.Timer异常处理糟糕；2.Timer只会创建一个线程，不能保证定时的精确性）</div><div class="line">    **/</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScheduledExecutorService <span class="title">newSingleThreadScheduledExecutor</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DelegatedScheduledExecutorService</div><div class="line">            (<span class="keyword">new</span> ScheduledThreadPoolExecutor(<span class="number">1</span>));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">
+public class Executors {
+
+   /**
+   *创建一个固定大小的线程池，每当提交一个任务就创建一个线程，知道达到线程池的最大数量，这时线程规模不在变化
+   （如果某个线程发生了未知Exception，那么线程池将补充一个线程）
+   **/
+    public static ExecutorService newFixedThreadPool(int nThreads) {
+        return new ThreadPoolExecutor(nThreads, nThreads,
+                                      0L, TimeUnit.MILLISECONDS,
+                                      new LinkedBlockingQueue&lt;Runnable&gt;());
+    }
+
+    /**
+    *创建一个可缓存的线程池，如果线程当前规模超过处理的需求，那么回收空闲线程（默认60s回收一次），
+    当需求增加时，则可以添加新的线程，线程池的规模不存在任何限制
+    **/
+    public static ExecutorService newCachedThreadPool() {
+        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                      60L, TimeUnit.SECONDS,
+                                      new SynchronousQueue&lt;Runnable&gt;());
+    }
+
+
+    /**
+    *是一个单线程的Executors，如果这个线程意外结束，则会创建另一个线程替代，newSingleThreadExecutor能保证任
+    务串行执行，例如（FIFO，LIFO，优先级）
+    *Netty中的NioEventLoop就是一个单线程的Executors，保证业务逻辑串行无锁执行
+    **/
+    public static ExecutorService newSingleThreadExecutor() {
+        return new FinalizableDelegatedExecutorService
+            (new ThreadPoolExecutor(1, 1,
+                                    0L, TimeUnit.MILLISECONDS,
+                                    new LinkedBlockingQueue&lt;Runnable&gt;()));
+    }
+
+    /**
+    *创建定时执行的线程池，功能类似Timer，建议使用newSingleThreadScheduledExecutor来取代Timer（
+    1.Timer异常处理糟糕；2.Timer只会创建一个线程，不能保证定时的精确性）
+    **/
+    public static ScheduledExecutorService newSingleThreadScheduledExecutor() {
+        return new DelegatedScheduledExecutorService
+            (new ScheduledThreadPoolExecutor(1));
+    }
+
+}
+</code></pre>
 <h4 id="2-3对比newFixedThreadPool-amp-newCachedThreadPool"><a href="#2-3对比newFixedThreadPool-amp-newCachedThreadPool" class="headerlink" title="2.3对比newFixedThreadPool&amp;newCachedThreadPool"></a>2.3对比newFixedThreadPool&amp;newCachedThreadPool</h4><p>了解newFixedThreadPool&amp;newCachedThreadPool的区别有助于我们更好的理解和使用线程池，那么这两者到底有什么不同呢？</p>
 <p>默认newCachedThreadPool会创建一个corePoolSize为0，maximumPoolSize为Integer.maxValue，队列为SynchronousQueue的线程池，默认60s回收一次空闲线程。这意味着newCachedThreadPool创建的线程池能够自动适应，有效的避免了由于任务依赖而造成的饥饿问题。线程编程实战书上推荐为默认的选择。<br>当然，newCachedThreadPool也会有缺点，当程序处理速度跟不上任务进入队列的速度时候会造成大量的线程，可能会耗完程序CPU。</p>
 <p>这个时候newFixedThreadPool使我们另外一个选择，默认会创建一个corePoolSize为nThread，maximumPoolSize也为nThread，线程队列为LinkedBlockingQueue的线程池，<code>队列大小为Integer.maxValue，也就是说是一个无界队列</code>，这个很危险，当程序处理速度跟不上任务进入队列的速度时候会造成大量的线程，会有大量的对象积压在任务队列里面，直到耗完程序内存。<br>所以，如果我们的线程池有可能会面临高并发访问的场景，我们在创建的时候一定要小心，一定要用构造好合适的初始化值。</p>
@@ -385,18 +449,37 @@
 <p>“抛弃最旧的（Discard-Oldest）”将会抛弃下一个将被执行的任务，然后尝试重新提交新的任务。<strong>如果工作队列是一个优先队列，那么“抛弃最旧” 的饱和策略则是抛弃优先级最高的任务，因此最好不要将“抛弃最旧的”饱和策略和优先队列一起使用</strong>。</p>
 <p>“调用者运行（Caller-Runs）”实现了一种调节机制，该策略既不会抛弃任务，也不会抛出异常，而是将某些任务回退调用者，从而降低新任务流量。它不会在线程池的某个线程中执行新提交的任务，而是在一个调用了execute的线程中执行该任务。<br>我们可以将WebServer为例说明“调用者运行（Caller-Runs）”饱和策略。<br>当线程池中所有的线程都被占用，并且工作队列被填满后，下一个任务会调用executor时在主线程中执行。由于执行任务需要一定的时间，因此主线程至少在一段时间内不能提交任何任务，从而使得工作者线程有时间来处理正在执行的任务。在这期间主线程不会调用accept，因此到达的请求将被保存在TCP层的队列中而不是在应用程序的队列中。如果持续过载，那么TCP层将最终发现他的请求队列被填满，因此同样会开始抛弃请求。<strong>当服务器过载时，这种过载情况会逐渐想外蔓延开来–从线程池到工作队列到应用程序到TCP层队列，最终到达客户端，导致服务器在高负载下实现一种平缓的性能降低。</strong></p>
 <p>调用者运行饱和策略示例：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line">ThreadPoolExecutor executor = <span class="keyword">new</span> ThreadPoolExecutor(N_THREADS, N_HREADS, <span class="number">0L</span>, TimeUnit.MILLISECONDS, <span class="keyword">new</span> LinkedBlockingQueue&lt;Runable&gt;(CAPCITY));</div><div class="line">executor.setRejectedExecutionHandler(<span class="keyword">new</span> ThreadPoolExecutor.CallerRansPolicy());</div></pre></td></tr></table></figure>
+<pre><code class="java">ThreadPoolExecutor executor = new ThreadPoolExecutor(N_THREADS, N_HREADS, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue&lt;Runable&gt;(CAPCITY));
+executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRansPolicy());
+</code></pre>
 <h4 id="2-5线程池的workQueue"><a href="#2-5线程池的workQueue" class="headerlink" title="2.5线程池的workQueue"></a>2.5线程池的workQueue</h4><p>线程池基本的任务排队方法有三种：无界队列，有界队列，和同步移交。</p>
 <p>无界队列&amp;有界队列对应的都是<code>LinkListBlockingQueue</code>，即是链式结构的阻塞队列，比较容易理解，暂不作详细探讨。</p>
 <p>这里重点说明<code>SynchronousQueue</code>：基于BlockingQueue实现的，但实际上它不是一个真正的队列。因为他不会为队列中的元素维护存储空间，与其他的队列不同，它维护一组线程，这些线程在等待着把元素加入或者移除队列。这种队列的实现看似奇怪，但由于它可以直接交付工作，从而降低了数据从生产移动到消费者的延迟。直接交付的方式还可以将更多关于任务的状态反馈给生产者。</p>
 <p><strong>注意，仅当有足够的消费者，并且总有一个消费者准备好获取交付的工作时，才适合使用同步队列。（只有当线程池是无界队列或者可以拒绝任务，同步队列才有使用价值）</strong><br>[newCacheThreadPool线程数量没有上线，所以newCacheThreadPool工厂方法使用了SynchronousQueue，]</p>
 <h4 id="2-6-线程池的关闭"><a href="#2-6-线程池的关闭" class="headerlink" title="2.6 线程池的关闭"></a>2.6 线程池的关闭</h4><p>线程池的关闭我们就要交给ExecutorService了，这也是为什么推荐使用Executors框架来替代线程（即便是单个的线程，也建议使用Executos框架）。</p>
 <p>ExecutorService 提供了两个方法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">*正常关闭</div><div class="line">*/</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">shutdown</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line">*首先关闭当前正在执行的任务，然后返回未启动的任务清单</div><div class="line">**/</div><div class="line"><span class="function">List&lt;Runnable&gt; <span class="title">shutdownNow</span><span class="params">()</span></span>;</div></pre></td></tr></table></figure>
+<pre><code class="java">/**
+*正常关闭
+*/
+void shutdown();
+
+/**
+*首先关闭当前正在执行的任务，然后返回未启动的任务清单
+**/
+List&lt;Runnable&gt; shutdownNow();
+</code></pre>
 <p>两种关闭的差异来自安全性和响应性。强行关闭响应快，风险大。一般，没特殊要求，建议使用shutdown();</p>
 <p>虽然调用shutdown程序会在关闭前执行完所有启动的线程，但是有的时候我们希望队列中所有的task都不要漏掉，不妨加一个个Jvm hook：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">Runtime.getRuntime().addShutdownHook(new Thread()&#123;</div><div class="line">   public void run()&#123;</div><div class="line">    try&#123;</div><div class="line">     //处理一些未完成的工作</div><div class="line">    &#125;catch (Exception e) &#123;</div><div class="line">     e.printStackTrace();</div><div class="line">    &#125;</div><div class="line">   &#125;</div><div class="line">  &#125;);</div></pre></td></tr></table></figure>
-<h3 id="3-线程池的配置"><a href="#3-线程池的配置" class="headerlink" title="3 线程池的配置"></a>3 线程池的配置</h3><h4 id="3-1线程池大小"><a href="#3-1线程池大小" class="headerlink" title="3.1线程池大小"></a>3.1线程池大小</h4><p>一般说来，大家认为线程池的大小经验值应该这样设置：（其中N为CPU的个数）</p>
+<pre><code>Runtime.getRuntime().addShutdownHook(new Thread(){
+   public void run(){
+    try{
+     //处理一些未完成的工作
+    }catch (Exception e) {
+     e.printStackTrace();
+    }
+   }
+  });
+</code></pre><h3 id="3-线程池的配置"><a href="#3-线程池的配置" class="headerlink" title="3 线程池的配置"></a>3 线程池的配置</h3><h4 id="3-1线程池大小"><a href="#3-1线程池大小" class="headerlink" title="3.1线程池大小"></a>3.1线程池大小</h4><p>一般说来，大家认为线程池的大小经验值应该这样设置：（其中N为CPU的个数）</p>
 <p><strong>如果是CPU密集型应用，则线程池大小设置为N+1</strong></p>
 <p><strong>如果是IO密集型应用，则线程池大小设置为2N+1</strong></p>
 <p>如果一台服务器上只部署这一个应用并且只有这一个线程池，那么这种估算或许合理，具体还需自行测试验证。<br>但是，IO优化中，这样的估算公式可能更适合：<br>最佳线程数目 = （（线程等待时间+线程CPU时间）/线程CPU时间 ）* CPU数目<br>因为很显然，线程等待时间所占比例越高，需要越多线程。线程CPU时间所占比例越高，需要越少线程。</p>
@@ -416,8 +499,193 @@
 <p>建议使用有界队列，有界队列能增加系统的稳定性和预警能力，可以根据需要设大一点，比如几千。有一次我们组使用的后台任务线程池的队列和线程池全满了，不断的抛出抛弃任务的异常，通过排查发现是数据库出现了问题，导致执行SQL变得非常缓慢，因为后台任务线程池里的任务全是需要向数据库查询和插入数据的，所以导致线程池里的工作线程全部阻塞住，任务积压在线程池里。如果当时我们设置成无界队列，线程池的队列就会越来越多，有可能会撑满内存，导致整个系统不可用，而不只是后台任务出现问题。当然我们的系统所有的任务是用的单独的服务器部署的，而我们使用不同规模的线程池跑不同类型的任务，但是出现这样问题时也会影响到其他任务。</p>
 <h3 id="4-线程池的应用与扩展"><a href="#4-线程池的应用与扩展" class="headerlink" title="4.线程池的应用与扩展"></a>4.线程池的应用与扩展</h3><p>很多服务器都扩展的jdk自带的线程池来满足自己的需求，例如tomcat，motan…<br>通常，我们自己实现rpc服务器不可避免的用到线程池，参考借鉴他人的代码可以使我们少走很多弯路。</p>
 <p>下面贴出motan中使用线程池的源代码供研究学习:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">	/*</div><div class="line">	 *  Copyright 2009-2016 Weibo, Inc.</div><div class="line">	 *</div><div class="line">	 *    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</div><div class="line">	 *    you may not use this file except in compliance with the License.</div><div class="line">	 *    You may obtain a copy of the License at</div><div class="line">	 *</div><div class="line">	 *        http://www.apache.org/licenses/LICENSE-2.0</div><div class="line">	 *</div><div class="line">	 *    Unless required by applicable law or agreed to in writing, software</div><div class="line">	 *    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</div><div class="line">	 *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</div><div class="line">	 *    See the License for the specific language governing permissions and</div><div class="line">	 *    limitations under the License.</div><div class="line">	 */</div><div class="line"></div><div class="line">	package com.weibo.api.motan.transport.netty;</div><div class="line"></div><div class="line">	import java.util.concurrent.Executors;</div><div class="line">	import java.util.concurrent.RejectedExecutionException;</div><div class="line">	import java.util.concurrent.RejectedExecutionHandler;</div><div class="line">	import java.util.concurrent.ThreadFactory;</div><div class="line">	import java.util.concurrent.ThreadPoolExecutor;</div><div class="line">	import java.util.concurrent.TimeUnit;</div><div class="line">	import java.util.concurrent.atomic.AtomicInteger;</div><div class="line"></div><div class="line">	import org.jboss.netty.util.internal.LinkedTransferQueue;</div><div class="line"></div><div class="line">	/**</div><div class="line">	 * &lt;pre&gt;</div><div class="line">	 *</div><div class="line">	 * 代码和思路主要来自于：</div><div class="line">	 *</div><div class="line">	 * tomcat :</div><div class="line">	 * 		org.apache.catalina.core.StandardThreadExecutor</div><div class="line">	 *</div><div class="line">	 * java.util.concurrent</div><div class="line">	 * threadPoolExecutor execute执行策略： 		优先offer到queue，queue满后再扩充线程到maxThread，如果已经到了maxThread就reject</div><div class="line">	 * 						   		比较适合于CPU密集型应用（比如runnable内部执行的操作都在JVM内部，memory copy, or compute等等）</div><div class="line">	 *</div><div class="line">	 * StandardThreadExecutor execute执行策略：	优先扩充线程到maxThread，再offer到queue，如果满了就reject</div><div class="line">	 * 						      	比较适合于业务处理需要远程资源的场景</div><div class="line">	 *</div><div class="line">	 * &lt;/pre&gt;</div><div class="line">	 *</div><div class="line">	 * @author maijunsheng</div><div class="line">	 * @version 创建时间：2013-6-20</div><div class="line">	 *</div><div class="line">	 */</div><div class="line">	public class StandardThreadExecutor extends ThreadPoolExecutor &#123;</div><div class="line"></div><div class="line">	public static final int DEFAULT_MIN_THREADS = 20;</div><div class="line">	public static final int DEFAULT_MAX_THREADS = 200;</div><div class="line">	public static final int DEFAULT_MAX_IDLE_TIME = 60 * 1000; // 1 minutes</div><div class="line"></div><div class="line">	protected AtomicInteger submittedTasksCount;	// 正在处理的任务数</div><div class="line">	private int maxSubmittedTaskCount;				// 最大允许同时处理的任务数</div><div class="line"></div><div class="line">	public StandardThreadExecutor() &#123;</div><div class="line">		this(DEFAULT_MIN_THREADS, DEFAULT_MAX_THREADS);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public StandardThreadExecutor(int coreThread, int maxThreads) &#123;</div><div class="line">		this(coreThread, maxThreads, maxThreads);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public StandardThreadExecutor(int coreThread, int maxThreads, long keepAliveTime, TimeUnit unit) &#123;</div><div class="line">		this(coreThread, maxThreads, keepAliveTime, unit, maxThreads);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public StandardThreadExecutor(int coreThreads, int maxThreads, int queueCapacity) &#123;</div><div class="line">		this(coreThreads, maxThreads, queueCapacity, Executors.defaultThreadFactory());</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public StandardThreadExecutor(int coreThreads, int maxThreads, int queueCapacity, ThreadFactory threadFactory) &#123;</div><div class="line">		this(coreThreads, maxThreads, DEFAULT_MAX_IDLE_TIME, TimeUnit.MILLISECONDS, queueCapacity, threadFactory);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public StandardThreadExecutor(int coreThreads, int maxThreads, long keepAliveTime, TimeUnit unit, int queueCapacity) &#123;</div><div class="line">		this(coreThreads, maxThreads, keepAliveTime, unit, queueCapacity, Executors.defaultThreadFactory());</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public StandardThreadExecutor(int coreThreads, int maxThreads, long keepAliveTime, TimeUnit unit,</div><div class="line">			int queueCapacity, ThreadFactory threadFactory) &#123;</div><div class="line">		this(coreThreads, maxThreads, keepAliveTime, unit, queueCapacity, threadFactory, new AbortPolicy());</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public StandardThreadExecutor(int coreThreads, int maxThreads, long keepAliveTime, TimeUnit unit,</div><div class="line">			int queueCapacity, ThreadFactory threadFactory, RejectedExecutionHandler handler) &#123;</div><div class="line">		super(coreThreads, maxThreads, keepAliveTime, unit, new ExecutorQueue(), threadFactory, handler);</div><div class="line">		((ExecutorQueue) getQueue()).setStandardThreadExecutor(this);</div><div class="line"></div><div class="line">		submittedTasksCount = new AtomicInteger(0);</div><div class="line"></div><div class="line">		// 最大并发任务限制： 队列buffer数 + 最大线程数</div><div class="line">		maxSubmittedTaskCount = queueCapacity + maxThreads;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public void execute(Runnable command) &#123;</div><div class="line">		int count = submittedTasksCount.incrementAndGet();</div><div class="line"></div><div class="line">		// 超过最大的并发任务限制，进行 reject</div><div class="line">		// 依赖的LinkedTransferQueue没有长度限制，因此这里进行控制</div><div class="line">		if (count &gt; maxSubmittedTaskCount) &#123;</div><div class="line">			submittedTasksCount.decrementAndGet();</div><div class="line">			getRejectedExecutionHandler().rejectedExecution(command, this);</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		try &#123;</div><div class="line">			super.execute(command);</div><div class="line">		&#125; catch (RejectedExecutionException rx) &#123;</div><div class="line">			// there could have been contention around the queue</div><div class="line">			if (!((ExecutorQueue) getQueue()).force(command)) &#123;</div><div class="line">				submittedTasksCount.decrementAndGet();</div><div class="line"></div><div class="line">				getRejectedExecutionHandler().rejectedExecution(command, this);</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public int getSubmittedTasksCount() &#123;</div><div class="line">		return this.submittedTasksCount.get();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public int getMaxSubmittedTaskCount() &#123;</div><div class="line">		return maxSubmittedTaskCount;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	protected void afterExecute(Runnable r, Throwable t) &#123;</div><div class="line">		submittedTasksCount.decrementAndGet();</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">/**</div><div class="line"> * LinkedTransferQueue 能保证更高性能，相比与LinkedBlockingQueue有明显提升</div><div class="line"> *</div><div class="line"> * &lt;pre&gt;</div><div class="line"> * 		1) 不过LinkedTransferQueue的缺点是没有队列长度控制，需要在外层协助控制</div><div class="line"> * &lt;/pre&gt;</div><div class="line"> *</div><div class="line"> * @author maijunsheng</div><div class="line"> *</div><div class="line"> */</div><div class="line">class ExecutorQueue extends LinkedTransferQueue&lt;Runnable&gt; &#123;</div><div class="line">	private static final long serialVersionUID = -265236426751004839L;</div><div class="line">	StandardThreadExecutor threadPoolExecutor;</div><div class="line"></div><div class="line">	public ExecutorQueue() &#123;</div><div class="line">		super();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public void setStandardThreadExecutor(StandardThreadExecutor threadPoolExecutor) &#123;</div><div class="line">		this.threadPoolExecutor = threadPoolExecutor;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	// 注：代码来源于 tomcat</div><div class="line">	public boolean force(Runnable o) &#123;</div><div class="line">		if (threadPoolExecutor.isShutdown()) &#123;</div><div class="line">			throw new RejectedExecutionException(&quot;Executor not running, can&apos;t force a command into the queue&quot;);</div><div class="line">		&#125;</div><div class="line">		// forces the item onto the queue, to be used if the task is rejected</div><div class="line">		return super.offer(o);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	// 注：tomcat的代码进行一些小变更</div><div class="line">	public boolean offer(Runnable o) &#123;</div><div class="line">		int poolSize = threadPoolExecutor.getPoolSize();</div><div class="line"></div><div class="line">		// we are maxed out on threads, simply queue the object</div><div class="line">		if (poolSize == threadPoolExecutor.getMaximumPoolSize()) &#123;</div><div class="line">			return super.offer(o);</div><div class="line">		&#125;</div><div class="line">		// we have idle threads, just add it to the queue</div><div class="line">		// note that we don&apos;t use getActiveCount(), see BZ 49730</div><div class="line">		if (threadPoolExecutor.getSubmittedTasksCount() &lt;= poolSize) &#123;</div><div class="line">			return super.offer(o);</div><div class="line">		&#125;</div><div class="line">		// if we have less threads than maximum force creation of a new</div><div class="line">		// thread</div><div class="line">		if (poolSize &lt; threadPoolExecutor.getMaximumPoolSize()) &#123;</div><div class="line">			return false;</div><div class="line">		&#125;</div><div class="line">		// if we reached here, we need to add it to the queue</div><div class="line">		return super.offer(o);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="5-一些问题"><a href="#5-一些问题" class="headerlink" title="5.一些问题"></a>5.一些问题</h3><h4 id="5-1什么时候线程池能够最有效的提升性能？"><a href="#5-1什么时候线程池能够最有效的提升性能？" class="headerlink" title="5.1什么时候线程池能够最有效的提升性能？"></a>5.1什么时候线程池能够最有效的提升性能？</h4><blockquote>
+<pre><code>    /*
+     *  Copyright 2009-2016 Weibo, Inc.
+     *
+     *    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+     *    you may not use this file except in compliance with the License.
+     *    You may obtain a copy of the License at
+     *
+     *        http://www.apache.org/licenses/LICENSE-2.0
+     *
+     *    Unless required by applicable law or agreed to in writing, software
+     *    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+     *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     *    See the License for the specific language governing permissions and
+     *    limitations under the License.
+     */
+
+    package com.weibo.api.motan.transport.netty;
+
+    import java.util.concurrent.Executors;
+    import java.util.concurrent.RejectedExecutionException;
+    import java.util.concurrent.RejectedExecutionHandler;
+    import java.util.concurrent.ThreadFactory;
+    import java.util.concurrent.ThreadPoolExecutor;
+    import java.util.concurrent.TimeUnit;
+    import java.util.concurrent.atomic.AtomicInteger;
+
+    import org.jboss.netty.util.internal.LinkedTransferQueue;
+
+    /**
+     * &lt;pre&gt;
+     *
+     * 代码和思路主要来自于：
+     *
+     * tomcat :
+     *         org.apache.catalina.core.StandardThreadExecutor
+     *
+     * java.util.concurrent
+     * threadPoolExecutor execute执行策略：         优先offer到queue，queue满后再扩充线程到maxThread，如果已经到了maxThread就reject
+     *                                    比较适合于CPU密集型应用（比如runnable内部执行的操作都在JVM内部，memory copy, or compute等等）
+     *
+     * StandardThreadExecutor execute执行策略：    优先扩充线程到maxThread，再offer到queue，如果满了就reject
+     *                                   比较适合于业务处理需要远程资源的场景
+     *
+     * &lt;/pre&gt;
+     *
+     * @author maijunsheng
+     * @version 创建时间：2013-6-20
+     *
+     */
+    public class StandardThreadExecutor extends ThreadPoolExecutor {
+
+    public static final int DEFAULT_MIN_THREADS = 20;
+    public static final int DEFAULT_MAX_THREADS = 200;
+    public static final int DEFAULT_MAX_IDLE_TIME = 60 * 1000; // 1 minutes
+
+    protected AtomicInteger submittedTasksCount;    // 正在处理的任务数
+    private int maxSubmittedTaskCount;                // 最大允许同时处理的任务数
+
+    public StandardThreadExecutor() {
+        this(DEFAULT_MIN_THREADS, DEFAULT_MAX_THREADS);
+    }
+
+    public StandardThreadExecutor(int coreThread, int maxThreads) {
+        this(coreThread, maxThreads, maxThreads);
+    }
+
+    public StandardThreadExecutor(int coreThread, int maxThreads, long keepAliveTime, TimeUnit unit) {
+        this(coreThread, maxThreads, keepAliveTime, unit, maxThreads);
+    }
+
+    public StandardThreadExecutor(int coreThreads, int maxThreads, int queueCapacity) {
+        this(coreThreads, maxThreads, queueCapacity, Executors.defaultThreadFactory());
+    }
+
+    public StandardThreadExecutor(int coreThreads, int maxThreads, int queueCapacity, ThreadFactory threadFactory) {
+        this(coreThreads, maxThreads, DEFAULT_MAX_IDLE_TIME, TimeUnit.MILLISECONDS, queueCapacity, threadFactory);
+    }
+
+    public StandardThreadExecutor(int coreThreads, int maxThreads, long keepAliveTime, TimeUnit unit, int queueCapacity) {
+        this(coreThreads, maxThreads, keepAliveTime, unit, queueCapacity, Executors.defaultThreadFactory());
+    }
+
+    public StandardThreadExecutor(int coreThreads, int maxThreads, long keepAliveTime, TimeUnit unit,
+            int queueCapacity, ThreadFactory threadFactory) {
+        this(coreThreads, maxThreads, keepAliveTime, unit, queueCapacity, threadFactory, new AbortPolicy());
+    }
+
+    public StandardThreadExecutor(int coreThreads, int maxThreads, long keepAliveTime, TimeUnit unit,
+            int queueCapacity, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
+        super(coreThreads, maxThreads, keepAliveTime, unit, new ExecutorQueue(), threadFactory, handler);
+        ((ExecutorQueue) getQueue()).setStandardThreadExecutor(this);
+
+        submittedTasksCount = new AtomicInteger(0);
+
+        // 最大并发任务限制： 队列buffer数 + 最大线程数
+        maxSubmittedTaskCount = queueCapacity + maxThreads;
+    }
+
+    public void execute(Runnable command) {
+        int count = submittedTasksCount.incrementAndGet();
+
+        // 超过最大的并发任务限制，进行 reject
+        // 依赖的LinkedTransferQueue没有长度限制，因此这里进行控制
+        if (count &gt; maxSubmittedTaskCount) {
+            submittedTasksCount.decrementAndGet();
+            getRejectedExecutionHandler().rejectedExecution(command, this);
+        }
+
+        try {
+            super.execute(command);
+        } catch (RejectedExecutionException rx) {
+            // there could have been contention around the queue
+            if (!((ExecutorQueue) getQueue()).force(command)) {
+                submittedTasksCount.decrementAndGet();
+
+                getRejectedExecutionHandler().rejectedExecution(command, this);
+            }
+        }
+    }
+
+    public int getSubmittedTasksCount() {
+        return this.submittedTasksCount.get();
+    }
+
+    public int getMaxSubmittedTaskCount() {
+        return maxSubmittedTaskCount;
+    }
+
+    protected void afterExecute(Runnable r, Throwable t) {
+        submittedTasksCount.decrementAndGet();
+    }
+}
+
+/**
+ * LinkedTransferQueue 能保证更高性能，相比与LinkedBlockingQueue有明显提升
+ *
+ * &lt;pre&gt;
+ *         1) 不过LinkedTransferQueue的缺点是没有队列长度控制，需要在外层协助控制
+ * &lt;/pre&gt;
+ *
+ * @author maijunsheng
+ *
+ */
+class ExecutorQueue extends LinkedTransferQueue&lt;Runnable&gt; {
+    private static final long serialVersionUID = -265236426751004839L;
+    StandardThreadExecutor threadPoolExecutor;
+
+    public ExecutorQueue() {
+        super();
+    }
+
+    public void setStandardThreadExecutor(StandardThreadExecutor threadPoolExecutor) {
+        this.threadPoolExecutor = threadPoolExecutor;
+    }
+
+    // 注：代码来源于 tomcat
+    public boolean force(Runnable o) {
+        if (threadPoolExecutor.isShutdown()) {
+            throw new RejectedExecutionException(&quot;Executor not running, can&#39;t force a command into the queue&quot;);
+        }
+        // forces the item onto the queue, to be used if the task is rejected
+        return super.offer(o);
+    }
+
+    // 注：tomcat的代码进行一些小变更
+    public boolean offer(Runnable o) {
+        int poolSize = threadPoolExecutor.getPoolSize();
+
+        // we are maxed out on threads, simply queue the object
+        if (poolSize == threadPoolExecutor.getMaximumPoolSize()) {
+            return super.offer(o);
+        }
+        // we have idle threads, just add it to the queue
+        // note that we don&#39;t use getActiveCount(), see BZ 49730
+        if (threadPoolExecutor.getSubmittedTasksCount() &lt;= poolSize) {
+            return super.offer(o);
+        }
+        // if we have less threads than maximum force creation of a new
+        // thread
+        if (poolSize &lt; threadPoolExecutor.getMaximumPoolSize()) {
+            return false;
+        }
+        // if we reached here, we need to add it to the queue
+        return super.offer(o);
+    }
+}
+</code></pre><h3 id="5-一些问题"><a href="#5-一些问题" class="headerlink" title="5.一些问题"></a>5.一些问题</h3><h4 id="5-1什么时候线程池能够最有效的提升性能？"><a href="#5-1什么时候线程池能够最有效的提升性能？" class="headerlink" title="5.1什么时候线程池能够最有效的提升性能？"></a>5.1什么时候线程池能够最有效的提升性能？</h4><blockquote>
 <p>当大量任务相互独立且同构时才能体现出程序的工作负载分配到多个任务带来的真正性能提升。所以如果任务队列里面的任务有相互依赖，或者存在不同的任务，我们需要谨慎的处理。<br>netty中的线程池就会同时处理IO任务和少量的定时任务，我们可以通过分配适当的执行比例ratio来优化。<br>当线程中的任务出现依赖的情况，我们尤其要适当的增大线程池的大小，以防止任务阻塞，造成的线程饥饿。</p>
 </blockquote>
 <h4 id="5-2-如何处理线程池中部分运行时间较长的任务？"><a href="#5-2-如何处理线程池中部分运行时间较长的任务？" class="headerlink" title="5.2 如何处理线程池中部分运行时间较长的任务？"></a>5.2 如何处理线程池中部分运行时间较长的任务？</h4><blockquote>

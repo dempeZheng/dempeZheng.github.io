@@ -158,7 +158,9 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
+      <div class="header-inner">
+
+<div class="site-meta ">
   
 
   <div class="custom-logo-site-title">
@@ -359,16 +361,47 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 </li>
 </ul>
 <h3 id="使用示例："><a href="#使用示例：" class="headerlink" title="使用示例："></a>使用示例：</h3><p>接口定义</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">package my.xyz.spi;  </div><div class="line">import java.util.List;  </div><div class="line">public interface Search &#123;  </div><div class="line">   public List serch(String keyword);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>A公司采用文件系统搜索的方式实现了 Search接口，B公司采用了数据库系统的方式实现了Search接口</p>
+<pre><code>package my.xyz.spi;  
+import java.util.List;  
+public interface Search {  
+   public List serch(String keyword);  
+}
+</code></pre><p>A公司采用文件系统搜索的方式实现了 Search接口，B公司采用了数据库系统的方式实现了Search接口</p>
 <ul>
 <li>A公司实现的类  com.A.spi.impl.FileSearch  </li>
 <li>B公司实现的类  com.B.spi.impl.DatabaseSearch  </li>
 </ul>
 <p>那么A公司发布 实现jar包时，则要在jar包中META-INF/services/my.xyz.spi.Search文件中写下如下内容<br>    com.A.spi.impl.FileSearch<br>那么B公司发布 实现jar包时，则要在jar包中META-INF/services/my.xyz.spi.Search文件中写下如下内容</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line"> com.B.spi.impl.DatabaseSearch</div><div class="line">package com.xyz.factory;  </div><div class="line">import java.util.Iterator;  </div><div class="line">import java.util.ServiceLoader;  </div><div class="line">import my.xyz.spi.Search;  </div><div class="line">public class SearchFactory &#123;  </div><div class="line">    private SearchFactory() &#123;  </div><div class="line">    &#125;  </div><div class="line">    public static Search newSearch() &#123;  </div><div class="line">        Search search = null;  </div><div class="line">        ServiceLoader&lt;Search&gt; serviceLoader = ServiceLoader.load(Search.class);  </div><div class="line">        Iterator&lt;Search&gt; searchs = serviceLoader.iterator();  </div><div class="line">        if (searchs.hasNext()) &#123;  </div><div class="line">            search = searchs.next();  </div><div class="line">        &#125;  </div><div class="line">        return search;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">package my.xyz.test;  </div><div class="line">import java.util.Iterator;  </div><div class="line">import java.util.ServiceLoader;  </div><div class="line">import com.xyz.factory.SearchFactory;  </div><div class="line">import my.xyz.spi.Search;  </div><div class="line">public class SearchTest &#123;  </div><div class="line">    public static void main(String[] args) &#123;  </div><div class="line">        Search search = SearchFactory.newSearch();  </div><div class="line">        search.serch(&quot;java spi test&quot;);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="JDK-SPI"><a href="#JDK-SPI" class="headerlink" title="JDK SPI"></a>JDK SPI</h4><p><strong>JDK自带的ServiceLoader功能比较弱，只提供了如下几个方法：</strong></p>
+<pre><code> com.B.spi.impl.DatabaseSearch
+package com.xyz.factory;  
+import java.util.Iterator;  
+import java.util.ServiceLoader;  
+import my.xyz.spi.Search;  
+public class SearchFactory {  
+    private SearchFactory() {  
+    }  
+    public static Search newSearch() {  
+        Search search = null;  
+        ServiceLoader&lt;Search&gt; serviceLoader = ServiceLoader.load(Search.class);  
+        Iterator&lt;Search&gt; searchs = serviceLoader.iterator();  
+        if (searchs.hasNext()) {  
+            search = searchs.next();  
+        }  
+        return search;  
+    }  
+}
+</code></pre><pre><code>package my.xyz.test;  
+import java.util.Iterator;  
+import java.util.ServiceLoader;  
+import com.xyz.factory.SearchFactory;  
+import my.xyz.spi.Search;  
+public class SearchTest {  
+    public static void main(String[] args) {  
+        Search search = SearchFactory.newSearch();  
+        search.serch(&quot;java spi test&quot;);  
+    }  
+}
+</code></pre><h4 id="JDK-SPI"><a href="#JDK-SPI" class="headerlink" title="JDK SPI"></a>JDK SPI</h4><p><strong>JDK自带的ServiceLoader功能比较弱，只提供了如下几个方法：</strong></p>
 <ul>
 <li><p>reload：清除服务实例缓存，重新加载；</p>
 </li>
@@ -388,8 +421,8 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 <p><code>@SpiMeta</code>设定服务别名，没配置则用实现类的类名为别名</p>
 <p>ExtensionLoader兼容JDK自带的ServiceLoader，也就是说跟ServiceLoader的配置方式是一样的，在META-INF/services创建服务接口文件，内容为实现类的完整包路径列表。</p>
 <p>实现：<br>ClassLoader.getSystemResources(“”)根据路径获取所有加载的URL</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">Enumeration&lt;URL&gt; urls = ClassLoader.getSystemResources(&quot;META-INF/services/com.dempe.spi.Search&quot;);</div></pre></td></tr></table></figure>
-<p>基于上面的注解扩展SPI的语义已经很清晰了，暂时不再深入研究。如果兴趣可co下来淘宝的<a href="https://github.com/alibaba/cooma/wiki" target="_blank" rel="external">Cooma</a>  (Cooma是一个极简、灵活的开源Java微容器（microcontainer）实现。)</p>
+<pre><code>Enumeration&lt;URL&gt; urls = ClassLoader.getSystemResources(&quot;META-INF/services/com.dempe.spi.Search&quot;);
+</code></pre><p>基于上面的注解扩展SPI的语义已经很清晰了，暂时不再深入研究。如果兴趣可co下来淘宝的<a href="https://github.com/alibaba/cooma/wiki" target="_blank" rel="external">Cooma</a>  (Cooma是一个极简、灵活的开源Java微容器（microcontainer）实现。)</p>
 <h4 id="motan的扩展"><a href="#motan的扩展" class="headerlink" title="motan的扩展"></a>motan的扩展</h4><p>motan是一个轻量的RPC框架，同时motan的扩展性也是非常好的，你几乎可以扩展它实现任何你希望RPC框架可以有的能力。</p>
 <p>我们大致看看包含SPI注解的类：</p>
 <p><img src="/images/motan/SPI.png" alt="Alt text"></p>
