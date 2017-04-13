@@ -5,10 +5,10 @@
   
 
 
-<html class="theme-next mist use-motion">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
 
@@ -27,9 +27,12 @@
 
 
 
+
+
+
   
   
-  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
 
 
 
@@ -63,9 +66,9 @@
 
 
 
-<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
 
-<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
   <meta name="keywords" content="guava,cache,expireAfterWrite,refreshAfterWrite" />
@@ -77,7 +80,7 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
 
 
 
@@ -102,7 +105,7 @@ guava cache解决办法：guava">
 
 在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。
 guava cache解决办法：guava">
-<meta property="og:updated_time" content="2016-11-05T12:41:29.800Z">
+<meta property="og:updated_time" content="2017-04-13T14:38:15.994Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Guava Cache 分析">
 <meta name="twitter:description" content="Guava Cache 分析guava的单线程回源缓存的更新有两种方法:
@@ -115,28 +118,37 @@ guava cache解决办法：guava">
 
 
 
-<script type="text/javascript" id="hexo.configuration">
+<script type="text/javascript" id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
+    root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"hide"},
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
     fancybox: true,
     motion: true,
     duoshuo: {
-      userId: 0,
+      userId: '0',
       author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
     }
   };
 </script>
 
 
 
-
   <link rel="canonical" href="http://code.zhizus.com/2016-11-05-guava-cache.html"/>
 
 
-  <title> Guava Cache 分析 | 郑大侠的博客 </title>
 
+
+
+  <title> Guava Cache 分析 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -145,15 +157,19 @@ guava cache解决办法：guava">
 
 
 
+
+
   <script type="text/javascript">
     var _hmt = _hmt || [];
     (function() {
       var hm = document.createElement("script");
-      hm.src = "//hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
       var s = document.getElementsByTagName("script")[0];
       s.parentNode.insertBefore(hm, s);
     })();
   </script>
+
+
 
 
 
@@ -167,31 +183,33 @@ guava cache解决办法：guava">
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
 
-<div class="site-meta ">
-  
-
-  <div class="custom-logo-site-title">
-    <a href="/"  class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <span class="site-title">郑大侠的博客</span>
-      <span class="logo-line-after"><i></i></span>
-    </a>
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
   </div>
-  <p class="site-subtitle">DempeZheng'S Blog</p>
-</div>
 
-<div class="site-nav-toggle">
-  <button>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-  </button>
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
 </div>
 
 <nav class="site-nav">
@@ -221,32 +239,12 @@ guava cache解决办法：guava">
         </li>
       
         
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
             
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-crossed">
-          <a href="http://zhizus.com" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
-            
-            穿越
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
+            标签
           </a>
         </li>
       
@@ -257,6 +255,8 @@ guava cache解决办法：guava">
 
   
 </nav>
+
+
 
  </div>
     </header>
@@ -271,13 +271,23 @@ guava cache解决办法：guava">
     
 
   
-  
 
   
   
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-11-05-guava-cache.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
 
     
       <header class="post-header">
@@ -296,24 +306,36 @@ guava cache解决办法：guava">
 
         <div class="post-meta">
           <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-11-05T00:00:00+08:00" content="2016-11-05">
-              2016-11-05
-            </time>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-05T00:00:00+08:00">
+                2016-11-05
+              </time>
+            
+
+            
+
+            
           </span>
 
           
             <span class="post-category" >
-              &nbsp; | &nbsp;
+            
+              <span class="post-meta-divider">|</span>
+            
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
-              <span class="post-meta-item-text">分类于</span>
               
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/cache/" itemprop="url" rel="index">
                     <span itemprop="name">cache</span>
                   </a>
@@ -321,7 +343,6 @@ guava cache解决办法：guava">
 
                 
                 
-
               
             </span>
           
@@ -329,29 +350,26 @@ guava cache解决办法：guava">
           
             
               <span class="post-comments-count">
-                &nbsp; | &nbsp;
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
                 <a href="/2016-11-05-guava-cache.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-11-05-guava-cache.html" itemprop="commentsCount"></span>
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-11-05-guava-cache.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
           
 
           
-
-          
-          
-             <span id="/2016-11-05-guava-cache.html" class="leancloud_visitors" data-flag-title="Guava Cache 分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
           
 
           
+
+          
+
+          
+
         </div>
       </header>
     
@@ -375,6 +393,7 @@ guava cache解决办法：guava">
 <blockquote>
 <p>guava cache实现类似ConcurrentHashMap，维护segment数组，每个segment独享一个锁，ConcurrentHashMap是通过这种机制来实现分段锁，ConcurrentHashMap默认分了16个segment；<br>guava Cache默认是4个segment，故guava cache的并发级别默认是4个，也就是说默认情况下，即便是大量不同的key同时过期，最多只也有4个线程并发回源，理论上不会给后端造成过大的压力。</p>
 </blockquote>
+<a id="more"></a>
 <h3 id="guava-refresh和expire刷新机制"><a href="#guava-refresh和expire刷新机制" class="headerlink" title="guava refresh和expire刷新机制"></a>guava refresh和expire刷新机制</h3><ul>
 <li>expireAfterAccess: 当缓存项在指定的时间段内没有被读或写就会被回收。</li>
 <li>expireAfterWrite：当缓存项在指定的时间段内没有更新就会被回收。</li>
@@ -386,21 +405,10 @@ guava cache解决办法：guava">
 <p>refreshAfterWrite通过定时刷新可以让缓存项保持可用。缓存项只有在被检索时才会真正刷新（如果CacheLoader.refresh实现为异步，那么检索不会被刷新拖慢）。也是保证同一个segment的单线程回源，但是与expireAfterWrite不同的是：其他线程访问loading状态的key时，仅仅稍微等一会，没有等到就返回旧值，整个请求就比较平滑。<br>与此同时，也引入了一个问题，refreshAfterWrite策略下，如果一个key长期没有被访问，就有可能会访问到很久之前的旧值。例如refreshAfterWrite(5),5s刷新一次，如果1min内，这个key都没有被访问，那么1min之后访问这个key，仍然有可能访问到旧数据，尽管我们设置了5s刷新一次。（guava cache并没单独的线程来处理刷新的逻辑，而是通过读操作来触发清理工作）</p>
 <p>对于这个问题有没有这种的办法呢？<br>guava cache支持我们同时使用expireAfterWrite&amp;refreshAfterWrite，我们既可以通过组合的策略既保证性能，又保证不要读取到太旧的数据。<br>比如我们有需求：要求请求必须平滑，而且不能读到5s之前的旧数据。</p>
 <p>我们可以如下设置来满足需求：</p>
-<pre><code> LoadingCache&lt;String, String&gt; cache;
-    cache = CacheBuilder
-            .newBuilder()
-            .refreshAfterWrite(4L, TimeUnit.SECONDS)
-            .expireAfterWrite(5L, TimeUnit.SECONDS)
-            .build(loader);
-</code></pre><p> <code>expireAfterWrite(5L, TimeUnit.SECONDS)</code>能保证不会读到5s之前的旧数据，<code>refreshAfterWrite(4L, TimeUnit.SECONDS)</code>能保证大部分请求都在4s左右被刷新，小部分访问量较少的在5s的时候通过expireAfterWrite策略重新被回源。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">LoadingCache&lt;String, String&gt; cache = CacheBuilder</div><div class="line">           .newBuilder()</div><div class="line">           .refreshAfterWrite(<span class="number">4L</span>, TimeUnit.SECONDS)</div><div class="line">           .expireAfterWrite(<span class="number">5L</span>, TimeUnit.SECONDS)</div><div class="line">           .build(loader);</div></pre></td></tr></table></figure>
+<p> <code>expireAfterWrite(5L, TimeUnit.SECONDS)</code>能保证不会读到5s之前的旧数据，<code>refreshAfterWrite(4L, TimeUnit.SECONDS)</code>能保证大部分请求都在4s左右被刷新，小部分访问量较少的在5s的时候通过expireAfterWrite策略重新被回源。</p>
 <h3 id="guava后台异步刷新"><a href="#guava后台异步刷新" class="headerlink" title="guava后台异步刷新"></a>guava后台异步刷新</h3><p>refreshAfterWrite的刷新调用的是reload，reload的默认实现是在当前线程里面reload，也会造成一些卡顿，如果希望异步reload，需要重载这个方法。</p>
-<pre><code> @GwtIncompatible // Futures
-  public ListenableFuture&lt;V&gt; reload(K key, V oldValue) throws Exception {
-    checkNotNull(key);
-    checkNotNull(oldValue);
-    return Futures.immediateFuture(load(key));//当前线程调用load，会造成当前线程的卡顿，如果不接受卡顿，需要重载这个方法
-  }
-</code></pre>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@GwtIncompatible</span> <span class="comment">// Futures</span></div><div class="line"> <span class="function"><span class="keyword">public</span> ListenableFuture&lt;V&gt; <span class="title">reload</span><span class="params">(K key, V oldValue)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">   checkNotNull(key);</div><div class="line">   checkNotNull(oldValue);</div><div class="line">   <span class="keyword">return</span> Futures.immediateFuture(load(key));<span class="comment">//当前线程调用load，会造成当前线程的卡顿，如果不接受卡顿，需要重载这个方法</span></div><div class="line"> &#125;</div></pre></td></tr></table></figure>
       
     </div>
 
@@ -414,22 +422,13 @@ guava cache解决办法：guava">
     <div>
       
         
-  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-    <div>大侠劫富济贫啦！</div>
-    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-      <span>赏</span>
-    </button>
-    <div id="QR" style="display: none;">
-      
-        <div id="wechat" style="display: inline-block">
-          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
-          <p>微信打赏</p>
-        </div>
-      
+
       
     </div>
-  </div>
 
+    <div>
+      
+        
 
       
     </div>
@@ -438,14 +437,20 @@ guava cache解决办法：guava">
       
 
       
+        
+      
+
+      
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-23-motan-rpc.html" rel="next" title="深入浅出Motan RPC">
-                <i class="fa fa-chevron-left"></i> 深入浅出Motan RPC
+              <a href="/2016-09-23-motan-codec.html" rel="next" title="Motan源码解读-codec">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-codec
               </a>
             
           </div>
+
+          <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
@@ -512,25 +517,32 @@ guava cache解决办法：guava">
         </ul>
       
 
-      <section class="site-overview sidebar-panel ">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               src="/images/avatar.gif"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
-          <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
         </div>
         <nav class="site-state motion-element">
-          <div class="site-state-item site-state-posts">
-            <a href="/archives">
-              <span class="site-state-item-count">16</span>
-              <span class="site-state-item-name">日志</span>
-            </a>
-          </div>
 
           
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
             <div class="site-state-item site-state-categories">
-              <a href="/categories">
+              <a href="/categories/index.html">
                 <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
@@ -545,35 +557,6 @@ guava cache解决办法：guava">
 
         <div class="links-of-author motion-element">
           
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="https://github.com/dempeZheng" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                  GitHub
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                  网易云音乐
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                  知乎
-                </a>
-              </span>
-            
-          
         </div>
 
         
@@ -581,34 +564,30 @@ guava cache解决办法：guava">
 
         
         
-          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
-            <div class="links-of-blogroll-title">
-              <i class="fa  fa-fw fa-globe"></i>
-              Links
-            </div>
-            <ul class="links-of-blogroll-list">
-              
-                <li class="links-of-blogroll-item">
-                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
-                </li>
-              
-            </ul>
-          </div>
+
         
+
 
       </section>
 
       
+      <!--noindex-->
         <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
           <div class="post-toc">
+
             
               
             
+
             
               <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Guava-Cache-分析"><span class="nav-number">1.</span> <span class="nav-text">Guava Cache 分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#guava的单线程回源"><span class="nav-number">1.1.</span> <span class="nav-text">guava的单线程回源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#guava-refresh和expire刷新机制"><span class="nav-number">1.2.</span> <span class="nav-text">guava refresh和expire刷新机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#guava后台异步刷新"><span class="nav-number">1.3.</span> <span class="nav-text">guava后台异步刷新</span></a></li></ol></li></ol></div>
             
+
           </div>
         </section>
+      <!--/noindex-->
+      
+
       
 
     </div>
@@ -632,15 +611,31 @@ guava cache解决办法：guava">
 </div>
 
 
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
         
 
         
       </div>
     </footer>
 
-    <div class="back-to-top">
-      <i class="fa fa-arrow-up"></i>
-    </div>
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
   </div>
 
   
@@ -663,47 +658,50 @@ guava cache解决办法：guava">
 
 
 
-  
-  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
 
 
 
   
-  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
 
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
 
 
   
 
 
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
 
 
 
@@ -728,7 +726,8 @@ guava cache解决办法：guava">
 
   
     
-    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
     <script src="/js/src/hook-duoshuo.js"></script>
   
 
@@ -737,119 +736,27 @@ guava cache解决办法：guava">
 
 
 
+
+
+
+
+
+
+
+
+
+
   
-  
+
+
+
+
 
   
 
   
 
   
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
-  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
-    }
-
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
-    }
-
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
-    });
-  </script>
-
-
 
   
 

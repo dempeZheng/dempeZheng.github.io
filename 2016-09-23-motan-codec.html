@@ -5,10 +5,10 @@
   
 
 
-<html class="theme-next mist use-motion">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
 
@@ -27,9 +27,12 @@
 
 
 
+
+
+
   
   
-  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
 
 
 
@@ -63,9 +66,9 @@
 
 
 
-<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
 
-<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
   <meta name="keywords" content="motan,源码,code,编解码" />
@@ -77,7 +80,7 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
 
 
 
@@ -93,7 +96,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 <meta property="og:description" content="motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
 dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前仅支持默认motan的协议，所以很多时候我们可能会扩展motan支持自己的协议，那么我们就得从codec入手了（有的时">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/codec.png">
-<meta property="og:updated_time" content="2016-09-25T05:54:49.159Z">
+<meta property="og:updated_time" content="2017-04-13T14:02:21.899Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-codec">
 <meta name="twitter:description" content="motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
@@ -102,28 +105,37 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
 
 
-<script type="text/javascript" id="hexo.configuration">
+<script type="text/javascript" id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
+    root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"hide"},
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
     fancybox: true,
     motion: true,
     duoshuo: {
-      userId: 0,
+      userId: '0',
       author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
     }
   };
 </script>
 
 
 
-
   <link rel="canonical" href="http://code.zhizus.com/2016-09-23-motan-codec.html"/>
 
 
-  <title> Motan源码解读-codec | 郑大侠的博客 </title>
 
+
+
+  <title> Motan源码解读-codec | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -132,15 +144,19 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
 
 
+
+
   <script type="text/javascript">
     var _hmt = _hmt || [];
     (function() {
       var hm = document.createElement("script");
-      hm.src = "//hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
       var s = document.getElementsByTagName("script")[0];
       s.parentNode.insertBefore(hm, s);
     })();
   </script>
+
+
 
 
 
@@ -154,31 +170,33 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
 
-<div class="site-meta ">
-  
-
-  <div class="custom-logo-site-title">
-    <a href="/"  class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <span class="site-title">郑大侠的博客</span>
-      <span class="logo-line-after"><i></i></span>
-    </a>
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
   </div>
-  <p class="site-subtitle">DempeZheng'S Blog</p>
-</div>
 
-<div class="site-nav-toggle">
-  <button>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-  </button>
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
 </div>
 
 <nav class="site-nav">
@@ -208,32 +226,12 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
         </li>
       
         
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
             
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-crossed">
-          <a href="http://zhizus.com" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
-            
-            穿越
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
+            标签
           </a>
         </li>
       
@@ -244,6 +242,8 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
   
 </nav>
+
+
 
  </div>
     </header>
@@ -258,13 +258,23 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
     
 
   
-  
 
   
   
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-23-motan-codec.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
 
     
       <header class="post-header">
@@ -283,24 +293,36 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
         <div class="post-meta">
           <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-23T00:00:00+08:00" content="2016-09-23">
-              2016-09-23
-            </time>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-23T00:00:00+08:00">
+                2016-09-23
+              </time>
+            
+
+            
+
+            
           </span>
 
           
             <span class="post-category" >
-              &nbsp; | &nbsp;
+            
+              <span class="post-meta-divider">|</span>
+            
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
-              <span class="post-meta-item-text">分类于</span>
               
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
                     <span itemprop="name">Motan源码解读</span>
                   </a>
@@ -308,7 +330,6 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
                 
                 
-
               
             </span>
           
@@ -316,29 +337,26 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
           
             
               <span class="post-comments-count">
-                &nbsp; | &nbsp;
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
                 <a href="/2016-09-23-motan-codec.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-23-motan-codec.html" itemprop="commentsCount"></span>
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-23-motan-codec.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
           
 
           
-
-          
-          
-             <span id="/2016-09-23-motan-codec.html" class="leancloud_visitors" data-flag-title="Motan源码解读-codec">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
           
 
           
+
+          
+
+          
+
         </div>
       </header>
     
@@ -354,26 +372,9 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 <p>dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前仅支持默认motan的协议，所以很多时候我们可能会扩展motan支持自己的协议，那么我们就得从codec入手了（有的时候甚至还会涉及到protocol）。</p>
 <p>codec的类图如下：</p>
 <p><img src="/images/motan/codec.png" alt="Alt text"></p>
+<a id="more"></a>
 <p>下面 codec interface的定义：</p>
-<pre><code class="java">// 可基于spi扩展
-@Spi(scope=Scope.PROTOTYPE)
-public interface Codec {
-    // channel为motan定义的channel，非netty的channel
-    byte[] encode(Channel channel, Object message) throws IOException;
-
-    /**
-     * 
-     * @param channel
-     * @param remoteIp 用来在server端decode request时能获取到client的ip。
-     * @param buffer
-     * @return
-     * @throws IOException
-     */
-    // 不明白为什么要把remoteIp定义到decode接口里面，channel里面已经包含ip的信息了
-    Object decode(Channel channel, String remoteIp, byte[] buffer) throws IOException;
-
-}
-</code></pre>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 可基于spi扩展</span></div><div class="line"><span class="meta">@Spi</span>(scope=Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Codec</span> </span>&#123;</div><div class="line">	<span class="comment">// channel为motan定义的channel，非netty的channel</span></div><div class="line">	<span class="keyword">byte</span>[] encode(Channel channel, Object message) <span class="keyword">throws</span> IOException;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> channel</div><div class="line">	 * <span class="doctag">@param</span> remoteIp 用来在server端decode request时能获取到client的ip。</div><div class="line">	 * <span class="doctag">@param</span> buffer</div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 * <span class="doctag">@throws</span> IOException</div><div class="line">	 */</div><div class="line">	<span class="comment">// 不明白为什么要把remoteIp定义到decode接口里面，channel里面已经包含ip的信息了</span></div><div class="line">	<span class="function">Object <span class="title">decode</span><span class="params">(Channel channel, String remoteIp, <span class="keyword">byte</span>[] buffer)</span> <span class="keyword">throws</span> IOException</span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>AbstractCodec里面实现了创建输入输出流的方法，用来将协议序列化成字节数组或将字节数组反序列化成协议的。（这种方式的性能还没压测，不知道好坏）</p>
 <p>如果我们要实现自己的协议，可以仅仅实现codec的方法。</p>
 <p>实现AbstractCodec的有三个类</p>
@@ -406,29 +407,7 @@ public interface Codec {
 <ul>
 <li>request body</li>
 </ul>
-<pre><code class="java">    /* 
-     * &lt;pre&gt;
-     * 
-     *      body:
-     * 
-     *      byte[] data :  
-     * 
-     *             serialize(interface_name, method_name, method_param_desc, method_param_value, attachments_size, attachments_value) 
-     * 
-     *   method_param_desc:  for_each (string.append(method_param_interface_name))
-     * 
-     *   method_param_value: for_each (method_param_name, method_param_value)
-     * 
-     *      attachments_value:  for_each (attachment_name, attachment_value)
-     * 
-     * &lt;/pre&gt;
-     * 
-     * @param request
-     * @return
-     * @throws IOException
-     */
-    private byte[] encodeRequest(Channel channel, Request request) throws IOException ;
-</code></pre>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">  <span class="comment">/* </span></div><div class="line">   * &lt;pre&gt;</div><div class="line">* </div><div class="line">* 	 body:</div><div class="line">* </div><div class="line">* 	 byte[] data :  </div><div class="line">* </div><div class="line">* 			serialize(interface_name, method_name, method_param_desc, method_param_value, attachments_size, attachments_value) </div><div class="line">* </div><div class="line">*   method_param_desc:  for_each (string.append(method_param_interface_name))</div><div class="line">* </div><div class="line">*   method_param_value: for_each (method_param_name, method_param_value)</div><div class="line">* </div><div class="line">* 	 attachments_value:  for_each (attachment_name, attachment_value)</div><div class="line">* </div><div class="line">* &lt;/pre&gt;</div><div class="line">   * </div><div class="line">   * @param request</div><div class="line">   * @return</div><div class="line">   * @throws IOException</div><div class="line">   */</div><div class="line">  <span class="keyword">private</span> <span class="keyword">byte</span>[] encodeRequest(Channel channel, Request request) <span class="keyword">throws</span> IOException ;</div></pre></td></tr></table></figure>
 <p>encodeRequest方法的注释很清晰的描述了request 的body部分的序列化，对jvm系列的来说非常友好，基本上把调用相关所有能用到的信息都序列化了。</p>
 <p>我们可以把请求任何一个请求参数都反序列化java对象。所以motan默认的协议是可以支持方法内参数为java任意对象。<br>但是，<code>对于其他语言就不太友好了</code>。其他语言不太容易序列化java的对象。<br>如果希望更好的支持其他的语言，这个请求参数的类型序列化方式可能有所取舍了。</p>
 <ul>
@@ -438,41 +417,7 @@ public interface Codec {
 <p><code>serialize (result) or serialize (exception)</code>：motan的response的message对象是通过hession2或者fastjson序列化生成的字节数组，所以这个地方就是一个字节数组（如果需要了解序列化的部分，可以看上篇博客）</p>
 </blockquote>
 <h4 id="motan协议打包"><a href="#motan协议打包" class="headerlink" title="motan协议打包"></a>motan协议打包</h4><p>协议的打包简单说一下header打包的。</p>
-<pre><code class="java">  private byte[] encode(byte[] body, byte flag, long requestId) throws IOException {
-        // 协议1的header占16个字节，先创建一个长度为16的字节数组
-        byte[] header = new byte[RpcProtocolVersion.VERSION_1.getHeaderLength()];
-        int offset = 0;
-
-        // 0 - 15 bit : magic
-        // 这个方法实际上是把short类型的magic转成两个字节，打包到header
-        ByteUtil.short2bytes(MAGIC, header, offset);
-        offset += 2;
-
-        // 16 - 23 bit : version
-        // 打包version
-        header[offset++] = RpcProtocolVersion.VERSION_1.getVersion();
-
-        // 24 - 31 bit : extend flag
-        // 打包flag
-        header[offset++] = flag;
-
-        // 32 - 95 bit : requestId
-        // 打包requestId
-        ByteUtil.long2bytes(requestId, header, offset);
-        offset += 8;
-
-        // 96 - 127 bit : body content length
-        // 打包body包长
-        ByteUtil.int2bytes(body.length, header, offset);
-
-        byte[] data = new byte[header.length + body.length];
-
-        System.arraycopy(header, 0, data, 0, header.length);
-        System.arraycopy(body, 0, data, header.length, body.length);
-
-        return data;
-    }
-</code></pre>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">byte</span>[] encode(<span class="keyword">byte</span>[] body, <span class="keyword">byte</span> flag, <span class="keyword">long</span> requestId) <span class="keyword">throws</span> IOException &#123;</div><div class="line">      <span class="comment">// 协议1的header占16个字节，先创建一个长度为16的字节数组</span></div><div class="line">      <span class="keyword">byte</span>[] header = <span class="keyword">new</span> <span class="keyword">byte</span>[RpcProtocolVersion.VERSION_1.getHeaderLength()];</div><div class="line">      <span class="keyword">int</span> offset = <span class="number">0</span>;</div><div class="line"></div><div class="line">      <span class="comment">// 0 - 15 bit : magic</span></div><div class="line">      <span class="comment">// 这个方法实际上是把short类型的magic转成两个字节，打包到header</span></div><div class="line">      ByteUtil.short2bytes(MAGIC, header, offset);</div><div class="line">      offset += <span class="number">2</span>;</div><div class="line"></div><div class="line">      <span class="comment">// 16 - 23 bit : version</span></div><div class="line">      <span class="comment">// 打包version</span></div><div class="line">      header[offset++] = RpcProtocolVersion.VERSION_1.getVersion();</div><div class="line"></div><div class="line">      <span class="comment">// 24 - 31 bit : extend flag</span></div><div class="line">      <span class="comment">// 打包flag</span></div><div class="line">      header[offset++] = flag;</div><div class="line"></div><div class="line">      <span class="comment">// 32 - 95 bit : requestId</span></div><div class="line">      <span class="comment">// 打包requestId</span></div><div class="line">      ByteUtil.long2bytes(requestId, header, offset);</div><div class="line">      offset += <span class="number">8</span>;</div><div class="line"></div><div class="line">      <span class="comment">// 96 - 127 bit : body content length</span></div><div class="line">      <span class="comment">// 打包body包长</span></div><div class="line">      ByteUtil.int2bytes(body.length, header, offset);</div><div class="line"></div><div class="line">      <span class="keyword">byte</span>[] data = <span class="keyword">new</span> <span class="keyword">byte</span>[header.length + body.length];</div><div class="line"></div><div class="line">      System.arraycopy(header, <span class="number">0</span>, data, <span class="number">0</span>, header.length);</div><div class="line">      System.arraycopy(body, <span class="number">0</span>, data, header.length, body.length);</div><div class="line"></div><div class="line">      <span class="keyword">return</span> data;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
 <p>到这里motan默认的协议基本分析完，但是还没说到CompresssRpcCodec 压缩的编解码，（这个压缩的类跟协议编解码写到一起，分离出来会不会更好[如果我们能确定哪些地方需要压缩]）</p>
 <h4 id="motan协议的压缩"><a href="#motan协议的压缩" class="headerlink" title="motan协议的压缩"></a>motan协议的压缩</h4><p>数据压缩也是一个完善的rpc框架必备的功能之一，良好的压缩可以减少网络传输数据大小，节省流量，提升响应速度。</p>
 <h5 id="压缩算法比较"><a href="#压缩算法比较" class="headerlink" title="压缩算法比较"></a>压缩算法比较</h5><p>以下是Google几年前发布的一组测试数据（数据有些老了，有人近期做过测试的话希望能共享出来）：</p>
@@ -485,22 +430,7 @@ public interface Codec {
 <p>2）LZO的压缩率居中，比GZIP要低一些，但是压缩和解压速度明显要比GZIP快很多，其中解压速度快的更多；</p>
 <p>3）Zippy/Snappy的压缩率最低，而压缩和解压速度要稍微比LZO要快一些。</p>
 <h4 id="motan中的协议压缩"><a href="#motan中的协议压缩" class="headerlink" title="motan中的协议压缩"></a>motan中的协议压缩</h4><p>motan默认支持的压缩是gzip，这块代码比较杂，不支持扩展，如果要实现自己的压缩方式，得重新实现codec部分（继承defaultRpcCodec，重写部分方法也可以）。</p>
-<pre><code class="java">// 对rpc body进行压缩。
-    public byte[] compress(byte[] org, boolean useGzip, int minGzSize) throws IOException {
-        if (useGzip &amp;&amp; org.length &gt; minGzSize) {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            GZIPOutputStream gos = new GZIPOutputStream(outputStream);
-            gos.write(org);
-            gos.finish();
-            gos.flush();
-            gos.close();
-            byte[] ret = outputStream.toByteArray();
-            return ret;
-        } else {
-            return org;
-        }
-    }
-</code></pre>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 对rpc body进行压缩。</span></div><div class="line">    <span class="keyword">public</span> <span class="keyword">byte</span>[] compress(<span class="keyword">byte</span>[] org, <span class="keyword">boolean</span> useGzip, <span class="keyword">int</span> minGzSize) <span class="keyword">throws</span> IOException &#123;</div><div class="line">        <span class="keyword">if</span> (useGzip &amp;&amp; org.length &gt; minGzSize) &#123;</div><div class="line">            ByteArrayOutputStream outputStream = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">            GZIPOutputStream gos = <span class="keyword">new</span> GZIPOutputStream(outputStream);</div><div class="line">            gos.write(org);</div><div class="line">            gos.finish();</div><div class="line">            gos.flush();</div><div class="line">            gos.close();</div><div class="line">            <span class="keyword">byte</span>[] ret = outputStream.toByteArray();</div><div class="line">            <span class="keyword">return</span> ret;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> org;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>就不一一分析motan这块代码，简单总结一下motan compress：</p>
 <p>1）motan压缩的仅仅是rpc 的body部分。header没有压缩的必要。</p>
 <p>2）心跳包没有body，不压缩。</p>
@@ -529,22 +459,13 @@ public interface Codec {
     <div>
       
         
-  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-    <div>大侠劫富济贫啦！</div>
-    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-      <span>赏</span>
-    </button>
-    <div id="QR" style="display: none;">
-      
-        <div id="wechat" style="display: inline-block">
-          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
-          <p>微信打赏</p>
-        </div>
-      
+
       
     </div>
-  </div>
 
+    <div>
+      
+        
 
       
     </div>
@@ -553,19 +474,25 @@ public interface Codec {
       
 
       
+        
+      
+
+      
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-22-motan-serialize.html" rel="next" title="Motan源码解读-serialize">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-serialize
+              <a href="/2016-09-23-motan-rpc.html" rel="next" title="深入浅出Motan RPC">
+                <i class="fa fa-chevron-left"></i> 深入浅出Motan RPC
               </a>
             
           </div>
 
+          <span class="post-nav-divider"></span>
+
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-23-motan-rpc.html" rel="prev" title="深入浅出Motan RPC">
-                深入浅出Motan RPC <i class="fa fa-chevron-right"></i>
+              <a href="/2016-11-05-guava-cache.html" rel="prev" title="Guava Cache 分析">
+                Guava Cache 分析 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -627,25 +554,32 @@ public interface Codec {
         </ul>
       
 
-      <section class="site-overview sidebar-panel ">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               src="/images/avatar.gif"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
-          <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
         </div>
         <nav class="site-state motion-element">
-          <div class="site-state-item site-state-posts">
-            <a href="/archives">
-              <span class="site-state-item-count">16</span>
-              <span class="site-state-item-name">日志</span>
-            </a>
-          </div>
 
           
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
             <div class="site-state-item site-state-categories">
-              <a href="/categories">
+              <a href="/categories/index.html">
                 <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
@@ -660,35 +594,6 @@ public interface Codec {
 
         <div class="links-of-author motion-element">
           
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="https://github.com/dempeZheng" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                  GitHub
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                  网易云音乐
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                  知乎
-                </a>
-              </span>
-            
-          
         </div>
 
         
@@ -696,34 +601,30 @@ public interface Codec {
 
         
         
-          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
-            <div class="links-of-blogroll-title">
-              <i class="fa  fa-fw fa-globe"></i>
-              Links
-            </div>
-            <ul class="links-of-blogroll-list">
-              
-                <li class="links-of-blogroll-item">
-                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
-                </li>
-              
-            </ul>
-          </div>
+
         
+
 
       </section>
 
       
+      <!--noindex-->
         <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
           <div class="post-toc">
+
             
               
             
+
             
               <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#motan协议格式"><span class="nav-number">1.</span> <span class="nav-text">motan协议格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan协议打包"><span class="nav-number">2.</span> <span class="nav-text">motan协议打包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan协议的压缩"><span class="nav-number">3.</span> <span class="nav-text">motan协议的压缩</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#压缩算法比较"><span class="nav-number">3.1.</span> <span class="nav-text">压缩算法比较</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan中的协议压缩"><span class="nav-number">4.</span> <span class="nav-text">motan中的协议压缩</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方法签名"><span class="nav-number">5.</span> <span class="nav-text">方法签名</span></a></li></ol></div>
             
+
           </div>
         </section>
+      <!--/noindex-->
+      
+
       
 
     </div>
@@ -747,15 +648,31 @@ public interface Codec {
 </div>
 
 
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
         
 
         
       </div>
     </footer>
 
-    <div class="back-to-top">
-      <i class="fa fa-arrow-up"></i>
-    </div>
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
   </div>
 
   
@@ -778,47 +695,50 @@ public interface Codec {
 
 
 
-  
-  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
 
 
 
   
-  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
 
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
 
 
   
 
 
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
 
 
 
@@ -843,7 +763,8 @@ public interface Codec {
 
   
     
-    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
     <script src="/js/src/hook-duoshuo.js"></script>
   
 
@@ -852,119 +773,27 @@ public interface Codec {
 
 
 
+
+
+
+
+
+
+
+
+
+
   
-  
+
+
+
+
 
   
 
   
 
   
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
-  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
-    }
-
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
-    }
-
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
-    });
-  </script>
-
-
 
   
 

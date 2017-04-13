@@ -5,10 +5,10 @@
   
 
 
-<html class="theme-next mist use-motion">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
 
@@ -27,9 +27,12 @@
 
 
 
+
+
+
   
   
-  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
 
 
 
@@ -63,9 +66,9 @@
 
 
 
-<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
 
-<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
   <meta name="keywords" content="netty,ByteBuf,pool,outOfMemory,Recycler" />
@@ -77,54 +80,60 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
 
 
 
 
 
 
-<meta name="description" content="netty内存分配Recycler容量膨胀问题跟踪在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
-
-Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取">
+<meta name="description" content="在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
+Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取，如果有便不重新分配。内存的release()的时候">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次netty内存溢出的问题(下)">
 <meta property="og:url" content="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="netty内存分配Recycler容量膨胀问题跟踪在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
-
-Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取">
-<meta property="og:updated_time" content="2017-03-31T12:03:40.477Z">
+<meta property="og:description" content="在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
+Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取，如果有便不重新分配。内存的release()的时候">
+<meta property="og:updated_time" content="2017-04-13T14:20:33.202Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次netty内存溢出的问题(下)">
-<meta name="twitter:description" content="netty内存分配Recycler容量膨胀问题跟踪在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
-
-Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取">
-
+<meta name="twitter:description" content="在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
+Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取，如果有便不重新分配。内存的release()的时候">
 
 
-<script type="text/javascript" id="hexo.configuration">
+
+<script type="text/javascript" id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
+    root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"hide"},
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
     fancybox: true,
     motion: true,
     duoshuo: {
-      userId: 0,
+      userId: '0',
       author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
     }
   };
 </script>
 
 
 
-
   <link rel="canonical" href="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html"/>
 
 
-  <title> 记一次netty内存溢出的问题(下) | 郑大侠的博客 </title>
 
+
+
+  <title> 记一次netty内存溢出的问题(下) | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -133,15 +142,19 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
 
 
+
+
   <script type="text/javascript">
     var _hmt = _hmt || [];
     (function() {
       var hm = document.createElement("script");
-      hm.src = "//hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
       var s = document.getElementsByTagName("script")[0];
       s.parentNode.insertBefore(hm, s);
     })();
   </script>
+
+
 
 
 
@@ -155,31 +168,33 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
 
-<div class="site-meta ">
-  
-
-  <div class="custom-logo-site-title">
-    <a href="/"  class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <span class="site-title">郑大侠的博客</span>
-      <span class="logo-line-after"><i></i></span>
-    </a>
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
   </div>
-  <p class="site-subtitle">DempeZheng'S Blog</p>
-</div>
 
-<div class="site-nav-toggle">
-  <button>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-  </button>
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
 </div>
 
 <nav class="site-nav">
@@ -209,32 +224,12 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
         </li>
       
         
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
             
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-crossed">
-          <a href="http://zhizus.com" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
-            
-            穿越
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
+            标签
           </a>
         </li>
       
@@ -245,6 +240,8 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
   
 </nav>
+
+
 
  </div>
     </header>
@@ -259,13 +256,23 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
     
 
   
-  
 
   
   
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
 
     
       <header class="post-header">
@@ -284,24 +291,36 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
         <div class="post-meta">
           <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-31T00:00:00+08:00" content="2017-03-31">
-              2017-03-31
-            </time>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-31T00:00:00+08:00">
+                2017-03-31
+              </time>
+            
+
+            
+
+            
           </span>
 
           
             <span class="post-category" >
-              &nbsp; | &nbsp;
+            
+              <span class="post-meta-divider">|</span>
+            
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
-              <span class="post-meta-item-text">分类于</span>
               
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/netty/" itemprop="url" rel="index">
                     <span itemprop="name">netty</span>
                   </a>
@@ -309,7 +328,6 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
                 
                 
-
               
             </span>
           
@@ -317,29 +335,26 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
           
             
               <span class="post-comments-count">
-                &nbsp; | &nbsp;
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
                 <a href="/2017-03-31-netty-buffer-recycler.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-03-31-netty-buffer-recycler.html" itemprop="commentsCount"></span>
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-03-31-netty-buffer-recycler.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
           
 
           
-
-          
-          
-             <span id="/2017-03-31-netty-buffer-recycler.html" class="leancloud_visitors" data-flag-title="记一次netty内存溢出的问题(下)">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
           
 
           
+
+          
+
+          
+
         </div>
       </header>
     
@@ -351,250 +366,30 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
       
 
       
-        <h2 id="netty内存分配Recycler容量膨胀问题跟踪"><a href="#netty内存分配Recycler容量膨胀问题跟踪" class="headerlink" title="netty内存分配Recycler容量膨胀问题跟踪"></a>netty内存分配Recycler容量膨胀问题跟踪</h2><p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
-<blockquote>
-<p>Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取，如果有便不重新分配。内存的release()的时候又会调用recycler()将对象回收。netty采用这种机制减少对象创建的损耗和减少垃圾回收从而提升性能。</p>
-</blockquote>
-<h3 id="首先来理一理项目内存分配和释放的几个地方。"><a href="#首先来理一理项目内存分配和释放的几个地方。" class="headerlink" title="首先来理一理项目内存分配和释放的几个地方。"></a>首先来理一理项目内存分配和释放的几个地方。</h3><p>项目中仅仅在encoder&amp;decoder中用到了内存的分配和释放，而且非常确定这两个地方用到的是netty的IO线程。分配释放都是同一个线程。</p>
+        <p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
+<div class="note default"><p>Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中<code>get()</code>,实际上是从FastLocalThread中获取，如果有便不重新分配。内存的<code>release()</code>的时候又会调用recycler()将对象回收。netty采用这种机制减少对象创建的损耗和减少垃圾回收从而提升性能。</p>
+</div>
+<h2 id="首先来理一理项目内存分配和释放的几个地方。"><a href="#首先来理一理项目内存分配和释放的几个地方。" class="headerlink" title="首先来理一理项目内存分配和释放的几个地方。"></a>首先来理一理项目内存分配和释放的几个地方。</h2><p>项目中仅仅在encoder&amp;decoder中用到了内存的分配和释放，而且非常确定这两个地方用到的是netty的IO线程。分配释放都是同一个线程。</p>
 <p>既然用到netty的IO线程，那么recycler的容量就应该是约等于 IO线程数，（netty的NioEventLoop继承的是SingleThreadEventLoop，也就是说在每个EventLoop里面encoder&amp;decoder都是串行） 按照这么来说，肯定不会内存溢出才对。</p>
-<h3 id="查看源代码"><a href="#查看源代码" class="headerlink" title="查看源代码"></a>查看源代码</h3><p>仔细看来netty的源代码，确认decoder这块肯定是没问题，ReadEvent事件触发了，一条线程处理内存的申请和释放。<br>encoder这块就稍稍复杂一些。首先，项目是在自己的业务线程中 调用ctx.writeAndFlush(message)来写消息的。<br>这个方法会先判断是否在IO线程中，如果不再则会包装成一个WriteAndFlushTask丢到IO线程处理。</p>
-<pre><code class="java">private void write(Object msg, boolean flush, ChannelPromise promise) {
-    AbstractChannelHandlerContext next = findContextOutbound();
-    final Object m = pipeline.touch(msg, next);
-    EventExecutor executor = next.executor();
-    if (executor.inEventLoop()) {
-        if (flush) {
-            next.invokeWriteAndFlush(m, promise);
-        } else {
-            next.invokeWrite(m, promise);
-        }
-    } else {
-        AbstractWriteTask task;
-        if (flush) {
-           //包装成WriteAndFlushTask
-            task = WriteAndFlushTask.newInstance(next, m, promise);
-        }  else {
-            task = WriteTask.newInstance(next, m, promise);
-        }
-        // 丢到EventLoop线程中执行，即IO线程
-        //顺便说一下，如果这里不这样包装，业务开发者很容易在其他非IO线程中来write，这样很可能会造成多线程往同一条channel里面写数据，造成并发问题。早期的版本是在write的地方加锁的。这样实际上跟netty标榜的串行无所话设计相违背。
-        safeExecute(executor, task, promise, m);
-    }
-}
-</code></pre>
+<h2 id="查看源代码"><a href="#查看源代码" class="headerlink" title="查看源代码"></a>查看源代码</h2><p>仔细看来netty的源代码，确认decoder这块肯定是没问题，ReadEvent事件触发了，一条线程处理内存的申请和释放。<br>encoder这块就稍稍复杂一些。首先，项目是在自己的业务线程中 调用<code>ctx.writeAndFlush(message)</code>来写消息的。<br>这个方法会先判断是否在IO线程中，如果不再则会包装成一个<code>WriteAndFlushTask</code>丢到IO线程处理。</p>
+<a id="more"></a>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(Object msg, <span class="keyword">boolean</span> flush, ChannelPromise promise)</span> </span>&#123;</div><div class="line">    AbstractChannelHandlerContext next = findContextOutbound();</div><div class="line">    <span class="keyword">final</span> Object m = pipeline.touch(msg, next);</div><div class="line">    EventExecutor executor = next.executor();</div><div class="line">    <span class="keyword">if</span> (executor.inEventLoop()) &#123;</div><div class="line">        <span class="keyword">if</span> (flush) &#123;</div><div class="line">            next.invokeWriteAndFlush(m, promise);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            next.invokeWrite(m, promise);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        AbstractWriteTask task;</div><div class="line">        <span class="keyword">if</span> (flush) &#123;</div><div class="line">           <span class="comment">//包装成WriteAndFlushTask</span></div><div class="line">            task = WriteAndFlushTask.newInstance(next, m, promise);</div><div class="line">        &#125;  <span class="keyword">else</span> &#123;</div><div class="line">            task = WriteTask.newInstance(next, m, promise);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 丢到EventLoop线程中执行，即IO线程</span></div><div class="line">        <span class="comment">//顺便说一下，如果这里不这样包装，业务开发者很容易在其他非IO线程中来write，这样很可能会造成多线程往同一条channel里面写数据，造成并发问题。早期的版本是在write的地方加锁的。这样实际上跟netty标榜的串行无所话设计相违背。</span></div><div class="line">        safeExecute(executor, task, promise, m);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>那么可以确认 decoder也一定是在IO线程中完成的，也就是decoder的内存申请和释放理论上是在同一个线程中来完成的。</p>
 <p><strong>既然这样 问题会出现在哪里呢</strong>？</p>
 <p>跟进WriteAndFlushTask，一步一步看他怎么处理的，既然出现了问题，那么顺着问题一定能找到原因。<br>跟进去我们发现 实际上writeAndFlushTask分成了两个动作，一个是write，一个是flush。</p>
-<pre><code class="java">  public void write(AbstractChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-            // write 方法将会循环调用handler中的write方法，最后会调用HeadContext中write，将buffer写到ChannelOutBoundBuffer中，这一个过程中不会release buffer，因为他还没有真正的写入流中
-            super.write(ctx, msg, promise);
-            // flush才是 真正的将数据写入流
-            ctx.invokeFlush();
-        }
-</code></pre>
-<p>write部分并未将数据真正的写出去，而是将数据丢到ChannelOutBoundBuffer中，等到flush的时候才会调用NioSocketChannel中的doWrite来写入数据。<br>内存的是在MessageToByteDecoder中申请的，这个也是通过IO线程中，而内存的释放是在flush中，即真正将数据写入后才释放的。也就是在NioSocketChannel的doWrite方法中释放的。</p>
-<pre><code>   @Override
-    protected void doWrite(ChannelOutboundBuffer in) throws Exception {
-        for (;;) {
-            int size = in.size();
-            if (size == 0) {
-                // All written so clear OP_WRITE
-                clearOpWrite();
-                break;
-            }
-            long writtenBytes = 0;
-            boolean done = false;
-            boolean setOpWrite = false;
-
-            // Ensure the pending writes are made of ByteBufs only.
-            ByteBuffer[] nioBuffers = in.nioBuffers();
-            int nioBufferCnt = in.nioBufferCount();
-            long expectedWrittenBytes = in.nioBufferSize();
-            SocketChannel ch = javaChannel();
-
-            // Always us nioBuffers() to workaround data-corruption.
-            // See https://github.com/netty/netty/issues/2761
-            switch (nioBufferCnt) {
-                case 0:
-                    // We have something else beside ByteBuffers to write so fallback to normal writes.
-                    super.doWrite(in);
-                    return;
-                case 1:
-                    // Only one ByteBuf so use non-gathering write
-                    ByteBuffer nioBuffer = nioBuffers[0];
-                    for (int i = config().getWriteSpinCount() - 1; i &gt;= 0; i --) {
-                        final int localWrittenBytes = ch.write(nioBuffer);
-                        if (localWrittenBytes == 0) {
-                            setOpWrite = true;
-                            break;
-                        }
-                        expectedWrittenBytes -= localWrittenBytes;
-                        writtenBytes += localWrittenBytes;
-                        if (expectedWrittenBytes == 0) {
-                            done = true;
-                            break;
-                        }
-                    }
-                    break;
-                default:
-                    for (int i = config().getWriteSpinCount() - 1; i &gt;= 0; i --) {
-                        final long localWrittenBytes = ch.write(nioBuffers, 0, nioBufferCnt);
-                        if (localWrittenBytes == 0) {
-                            setOpWrite = true;
-                            break;
-                        }
-                        expectedWrittenBytes -= localWrittenBytes;
-                        writtenBytes += localWrittenBytes;
-                        if (expectedWrittenBytes == 0) {
-                            done = true;
-                            break;
-                        }
-                    }
-                    break;
-            }
-
-            // Release the fully written buffers, and update the indexes of the partially written buffer.
-            // 这个方法包装了释放buffer的操作，调用这个才会真正的释放buffer，才会通过recycler方法回收buffer
-            in.removeBytes(writtenBytes);
-
-            if (!done) {
-                // Did not write all buffers completely.
-                incompleteWrite(setOpWrite);
-                break;
-            }
-        }
-    }
-</code></pre><p>乍一看 也发现不了什么问题，虽然write的时候先写到了ChannelOutBoundBuffer，但是随即我们在同一线程中调用了flush，flush之后，我们也将引用的内存释放了。<br><strong>我们回过头看看flush方法，看看是不是有什么情况，不会调用flush了</strong></p>
-<pre><code> protected void flush0() {
-            if (inFlush0) {
-                // Avoid re-entrance
-                return;
-            }
-
-            final ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;
-            if (outboundBuffer == null || outboundBuffer.isEmpty()) {
-                return;
-            }
-
-            inFlush0 = true;
-
-            // Mark all pending write requests as failure if the channel is inactive.
-            // 上面注释说标记所有的pending wirte request as failure if channel is inactive，也就说所如果channel is inactive的是所有的pending write request is failure了，这个时候也不会调用flush了。
-            //但是跟进去看failFlushed方法的时候发现这里也释放了buffer。。。。。。。
-            if (!isActive()) {
-                try {
-                    if (isOpen()) {
-                        outboundBuffer.failFlushed(FLUSH0_NOT_YET_CONNECTED_EXCEPTION, true);
-                    } else {
-                        // Do not trigger channelWritabilityChanged because the channel is closed already.
-                        outboundBuffer.failFlushed(FLUSH0_CLOSED_CHANNEL_EXCEPTION, false);
-                    }
-                } finally {
-                    inFlush0 = false;
-                }
-                return;
-            }
-
-            try {
-                doWrite(outboundBuffer);
-            } catch (Throwable t) {
-                if (t instanceof IOException &amp;&amp; config().isAutoClose()) {
-                    /**
-                     * Just call {@link #close(ChannelPromise, Throwable, boolean)} here which will take care of
-                     * failing all flushed messages and also ensure the actual close of the underlying transport
-                     * will happen before the promises are notified.
-                     *
-                     * This is needed as otherwise {@link #isActive()} , {@link #isOpen()} and {@link #isWritable()}
-                     * may still return {@code true} even if the channel should be closed as result of the exception.
-                     */
-                    close(voidPromise(), t, FLUSH0_CLOSED_CHANNEL_EXCEPTION, false);
-                } else {
-                    outboundBuffer.failFlushed(t, true);
-                }
-            } finally {
-                inFlush0 = false;
-            }
-        }
-</code></pre><p>上面的代码可以看出，<code>if (!isActive())</code>这个时候直接就return了，不会调用flush了。<br>即便这种情况 netty也是通过failFlushed这个方法release了buffer。<br>细想一下，如果没有release buffer 那么肯定是内存泄漏了，一定是bug。项目用的是4.1xxRelease版本的，应该不可能有这种版本。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(AbstractChannelHandlerContext ctx, Object msg, ChannelPromise promise)</span> </span>&#123;</div><div class="line">          <span class="comment">// write 方法将会循环调用handler中的write方法，最后会调用HeadContext中write，将buffer写到ChannelOutBoundBuffer中，这一个过程中不会release buffer，因为他还没有真正的写入流中</span></div><div class="line">          <span class="keyword">super</span>.write(ctx, msg, promise);</div><div class="line">          <span class="comment">// flush才是 真正的将数据写入流</span></div><div class="line">          ctx.invokeFlush();</div><div class="line">      &#125;</div></pre></td></tr></table></figure>
+<p>write部分并未将数据真正的写出去，而是将数据丢到ChannelOutBoundBuffer中，等到flush的时候才会调用NioSocketChannel中的doWrite来写入数据。<br>内存的是在<code>MessageToByteDecoder</code>中申请的，这个也是通过IO线程中，而内存的释放是在flush中，即真正将数据写入后才释放的。也就是在NioSocketChannel的doWrite方法中释放的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"> <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doWrite</span><span class="params">(ChannelOutboundBuffer in)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">     <span class="keyword">for</span> (;;) &#123;</div><div class="line">         <span class="keyword">int</span> size = in.size();</div><div class="line">         <span class="keyword">if</span> (size == <span class="number">0</span>) &#123;</div><div class="line">             <span class="comment">// All written so clear OP_WRITE</span></div><div class="line">             clearOpWrite();</div><div class="line">             <span class="keyword">break</span>;</div><div class="line">         &#125;</div><div class="line">         <span class="keyword">long</span> writtenBytes = <span class="number">0</span>;</div><div class="line">         <span class="keyword">boolean</span> done = <span class="keyword">false</span>;</div><div class="line">         <span class="keyword">boolean</span> setOpWrite = <span class="keyword">false</span>;</div><div class="line"></div><div class="line">         <span class="comment">// Ensure the pending writes are made of ByteBufs only.</span></div><div class="line">         ByteBuffer[] nioBuffers = in.nioBuffers();</div><div class="line">         <span class="keyword">int</span> nioBufferCnt = in.nioBufferCount();</div><div class="line">         <span class="keyword">long</span> expectedWrittenBytes = in.nioBufferSize();</div><div class="line">         SocketChannel ch = javaChannel();</div><div class="line"></div><div class="line">         <span class="comment">// Always us nioBuffers() to workaround data-corruption.</span></div><div class="line">         <span class="comment">// See https://github.com/netty/netty/issues/2761</span></div><div class="line">         <span class="keyword">switch</span> (nioBufferCnt) &#123;</div><div class="line">             <span class="keyword">case</span> <span class="number">0</span>:</div><div class="line">                 <span class="comment">// We have something else beside ByteBuffers to write so fallback to normal writes.</span></div><div class="line">                 <span class="keyword">super</span>.doWrite(in);</div><div class="line">                 <span class="keyword">return</span>;</div><div class="line">             <span class="keyword">case</span> <span class="number">1</span>:</div><div class="line">                 <span class="comment">// Only one ByteBuf so use non-gathering write</span></div><div class="line">                 ByteBuffer nioBuffer = nioBuffers[<span class="number">0</span>];</div><div class="line">                 <span class="keyword">for</span> (<span class="keyword">int</span> i = config().getWriteSpinCount() - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i --) &#123;</div><div class="line">                     <span class="keyword">final</span> <span class="keyword">int</span> localWrittenBytes = ch.write(nioBuffer);</div><div class="line">                     <span class="keyword">if</span> (localWrittenBytes == <span class="number">0</span>) &#123;</div><div class="line">                         setOpWrite = <span class="keyword">true</span>;</div><div class="line">                         <span class="keyword">break</span>;</div><div class="line">                     &#125;</div><div class="line">                     expectedWrittenBytes -= localWrittenBytes;</div><div class="line">                     writtenBytes += localWrittenBytes;</div><div class="line">                     <span class="keyword">if</span> (expectedWrittenBytes == <span class="number">0</span>) &#123;</div><div class="line">                         done = <span class="keyword">true</span>;</div><div class="line">                         <span class="keyword">break</span>;</div><div class="line">                     &#125;</div><div class="line">                 &#125;</div><div class="line">                 <span class="keyword">break</span>;</div><div class="line">             <span class="keyword">default</span>:</div><div class="line">                 <span class="keyword">for</span> (<span class="keyword">int</span> i = config().getWriteSpinCount() - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i --) &#123;</div><div class="line">                     <span class="keyword">final</span> <span class="keyword">long</span> localWrittenBytes = ch.write(nioBuffers, <span class="number">0</span>, nioBufferCnt);</div><div class="line">                     <span class="keyword">if</span> (localWrittenBytes == <span class="number">0</span>) &#123;</div><div class="line">                         setOpWrite = <span class="keyword">true</span>;</div><div class="line">                         <span class="keyword">break</span>;</div><div class="line">                     &#125;</div><div class="line">                     expectedWrittenBytes -= localWrittenBytes;</div><div class="line">                     writtenBytes += localWrittenBytes;</div><div class="line">                     <span class="keyword">if</span> (expectedWrittenBytes == <span class="number">0</span>) &#123;</div><div class="line">                         done = <span class="keyword">true</span>;</div><div class="line">                         <span class="keyword">break</span>;</div><div class="line">                     &#125;</div><div class="line">                 &#125;</div><div class="line">                 <span class="keyword">break</span>;</div><div class="line">         &#125;</div><div class="line"></div><div class="line">         <span class="comment">// Release the fully written buffers, and update the indexes of the partially written buffer.</span></div><div class="line">         <span class="comment">// 这个方法包装了释放buffer的操作，调用这个才会真正的释放buffer，才会通过recycler方法回收buffer</span></div><div class="line">         in.removeBytes(writtenBytes);</div><div class="line"></div><div class="line">         <span class="keyword">if</span> (!done) &#123;</div><div class="line">             <span class="comment">// Did not write all buffers completely.</span></div><div class="line">             incompleteWrite(setOpWrite);</div><div class="line">             <span class="keyword">break</span>;</div><div class="line">         &#125;</div><div class="line">     &#125;</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>乍一看 也发现不了什么问题，虽然write的时候先写到了<code>ChannelOutBoundBuffer</code>，但是随即我们在同一线程中调用了flush，flush之后，我们也将引用的内存释放了。<br><strong>我们回过头看看flush方法，看看是不是有什么情况，不会调用flush了</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">flush0</span><span class="params">()</span> </span>&#123;</div><div class="line">           <span class="keyword">if</span> (inFlush0) &#123;</div><div class="line">               <span class="comment">// Avoid re-entrance</span></div><div class="line">               <span class="keyword">return</span>;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="keyword">final</span> ChannelOutboundBuffer outboundBuffer = <span class="keyword">this</span>.outboundBuffer;</div><div class="line">           <span class="keyword">if</span> (outboundBuffer == <span class="keyword">null</span> || outboundBuffer.isEmpty()) &#123;</div><div class="line">               <span class="keyword">return</span>;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           inFlush0 = <span class="keyword">true</span>;</div><div class="line"></div><div class="line">           <span class="comment">// Mark all pending write requests as failure if the channel is inactive.</span></div><div class="line">           <span class="comment">// 上面注释说标记所有的pending wirte request as failure if channel is inactive，也就说所如果channel is inactive的是所有的pending write request is failure了，这个时候也不会调用flush了。</span></div><div class="line">           <span class="comment">//但是跟进去看failFlushed方法的时候发现这里也释放了buffer。。。。。。。</span></div><div class="line">           <span class="keyword">if</span> (!isActive()) &#123;</div><div class="line">               <span class="keyword">try</span> &#123;</div><div class="line">                   <span class="keyword">if</span> (isOpen()) &#123;</div><div class="line">                       outboundBuffer.failFlushed(FLUSH0_NOT_YET_CONNECTED_EXCEPTION, <span class="keyword">true</span>);</div><div class="line">                   &#125; <span class="keyword">else</span> &#123;</div><div class="line">                       <span class="comment">// Do not trigger channelWritabilityChanged because the channel is closed already.</span></div><div class="line">                       outboundBuffer.failFlushed(FLUSH0_CLOSED_CHANNEL_EXCEPTION, <span class="keyword">false</span>);</div><div class="line">                   &#125;</div><div class="line">               &#125; <span class="keyword">finally</span> &#123;</div><div class="line">                   inFlush0 = <span class="keyword">false</span>;</div><div class="line">               &#125;</div><div class="line">               <span class="keyword">return</span>;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="keyword">try</span> &#123;</div><div class="line">               doWrite(outboundBuffer);</div><div class="line">           &#125; <span class="keyword">catch</span> (Throwable t) &#123;</div><div class="line">               <span class="keyword">if</span> (t <span class="keyword">instanceof</span> IOException &amp;&amp; config().isAutoClose()) &#123;</div><div class="line">                   <span class="comment">/**</span></div><div class="line">                    * Just call &#123;<span class="doctag">@link</span> #close(ChannelPromise, Throwable, boolean)&#125; here which will take care of</div><div class="line">                    * failing all flushed messages and also ensure the actual close of the underlying transport</div><div class="line">                    * will happen before the promises are notified.</div><div class="line">                    *</div><div class="line">                    * This is needed as otherwise &#123;<span class="doctag">@link</span> #isActive()&#125; , &#123;<span class="doctag">@link</span> #isOpen()&#125; and &#123;<span class="doctag">@link</span> #isWritable()&#125;</div><div class="line">                    * may still return &#123;<span class="doctag">@code</span> true&#125; even if the channel should be closed as result of the exception.</div><div class="line">                    */</div><div class="line">                   close(voidPromise(), t, FLUSH0_CLOSED_CHANNEL_EXCEPTION, <span class="keyword">false</span>);</div><div class="line">               &#125; <span class="keyword">else</span> &#123;</div><div class="line">                   outboundBuffer.failFlushed(t, <span class="keyword">true</span>);</div><div class="line">               &#125;</div><div class="line">           &#125; <span class="keyword">finally</span> &#123;</div><div class="line">               inFlush0 = <span class="keyword">false</span>;</div><div class="line">           &#125;</div><div class="line">       &#125;</div></pre></td></tr></table></figure>
+<p>上面的代码可以看出，<code>if (!isActive())</code>这个时候直接就return了，不会调用flush了。<br>即便这种情况 netty也是通过failFlushed这个方法release了buffer。<br>细想一下，如果没有release buffer 那么肯定是内存泄漏了，一定是bug。项目用的是4.1xxRelease版本的，应该不可能有这种版本。</p>
 <p>既然这样只能换条思路推导。<br>所有的buffer都会被release，而且只能在同一线程里面release，那么出现recycler膨胀的可能只有是在一些极端情况，netty将这些情况包装成Task（这些task里面会包含一些释放buffer的动作），然后丢到对应的EventLoop来处理。</p>
 <p>好了片刻，没发现这样的task。</p>
 <p> 打算将标题改为从查找×××到放弃了。</p>
-<p>最后终于发现ChannelOutBoundBuffer中的close是包装在Task中，而且有释放buffer的操作。代码如下：</p>
-<pre><code> private void close(final ChannelPromise promise, final Throwable cause,
-                           final ClosedChannelException closeCause, final boolean notify) {
-            if (!promise.setUncancellable()) {
-                return;
-            }
-
-            final ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;
-            if (outboundBuffer == null) {
-                // Only needed if no VoidChannelPromise.
-                if (!(promise instanceof VoidChannelPromise)) {
-                    // This means close() was called before so we just register a listener and return
-                    closeFuture.addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            promise.setSuccess();
-                        }
-                    });
-                }
-                return;
-            }
-
-            if (closeFuture.isDone()) {
-                // Closed already.
-                safeSetSuccess(promise);
-                return;
-            }
-
-            final boolean wasActive = isActive();
-            this.outboundBuffer = null; // Disallow adding any messages and flushes to outboundBuffer.
-            Executor closeExecutor = prepareToClose();
-            if (closeExecutor != null) {
-                closeExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            // Execute the close.
-                            doClose0(promise);
-                        } finally {
-                            // Call invokeLater so closeAndDeregister is executed in the EventLoop again!
-                            invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // Fail all the queued messages
-                                    outboundBuffer.failFlushed(cause, notify);
-                                    // 这里的close里面会调用 ReferenceCountUtil.safeRelease(e.msg);这个来释放buffer，这个task可能会在eventLoop的任务队列中挤压，释放buffer的跟分配buffer就变成了异步的。
-                                    outboundBuffer.close(closeCause);
-                                    fireChannelInactiveAndDeregister(wasActive);
-                                }
-                            });
-                        }
-                    }
-                });
-            } else {
-                try {
-                    // Close the channel and fail the queued messages in all cases.
-                    doClose0(promise);
-                } finally {
-                    // Fail all the queued messages.
-                    outboundBuffer.failFlushed(cause, notify);
-                    outboundBuffer.close(closeCause);
-                }
-                if (inFlush0) {
-                    invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            fireChannelInactiveAndDeregister(wasActive);
-                        }
-                    });
-                } else {
-                    fireChannelInactiveAndDeregister(wasActive);
-                }
-            }
-        }
-</code></pre><p>当然这里只找到了一个可能造成问题的点，至于是不是我代码里面造成recycler膨胀的原因暂时还不得而知，只能下次有空再分析了。</p>
-<p>##总结<br>尽管在正常情况下recycler的容量不会增加，但是在一些极端的情况，比如压测环境，recycler是非常有可能会膨胀的。而且一旦膨胀那么这些对象将会在老生代里面存活，不会被回收。<br>所以在使用netty的内存分配的时候还是要谨慎，前期的压测工作不可以省。</p>
+<p>最后终于发现<code>ChannelOutBoundBuffer</code>中的close是包装在Task中，而且有释放buffer的操作。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">(<span class="keyword">final</span> ChannelPromise promise, <span class="keyword">final</span> Throwable cause,</span></span></div><div class="line">                          <span class="keyword">final</span> ClosedChannelException closeCause, <span class="keyword">final</span> <span class="keyword">boolean</span> notify) &#123;</div><div class="line">           <span class="keyword">if</span> (!promise.setUncancellable()) &#123;</div><div class="line">               <span class="keyword">return</span>;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="keyword">final</span> ChannelOutboundBuffer outboundBuffer = <span class="keyword">this</span>.outboundBuffer;</div><div class="line">           <span class="keyword">if</span> (outboundBuffer == <span class="keyword">null</span>) &#123;</div><div class="line">               <span class="comment">// Only needed if no VoidChannelPromise.</span></div><div class="line">               <span class="keyword">if</span> (!(promise <span class="keyword">instanceof</span> VoidChannelPromise)) &#123;</div><div class="line">                   <span class="comment">// This means close() was called before so we just register a listener and return</span></div><div class="line">                   closeFuture.addListener(<span class="keyword">new</span> ChannelFutureListener() &#123;</div><div class="line">                       <span class="meta">@Override</span></div><div class="line">                       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(ChannelFuture future)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">                           promise.setSuccess();</div><div class="line">                       &#125;</div><div class="line">                   &#125;);</div><div class="line">               &#125;</div><div class="line">               <span class="keyword">return</span>;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="keyword">if</span> (closeFuture.isDone()) &#123;</div><div class="line">               <span class="comment">// Closed already.</span></div><div class="line">               safeSetSuccess(promise);</div><div class="line">               <span class="keyword">return</span>;</div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="keyword">final</span> <span class="keyword">boolean</span> wasActive = isActive();</div><div class="line">           <span class="keyword">this</span>.outboundBuffer = <span class="keyword">null</span>; <span class="comment">// Disallow adding any messages and flushes to outboundBuffer.</span></div><div class="line">           Executor closeExecutor = prepareToClose();</div><div class="line">           <span class="keyword">if</span> (closeExecutor != <span class="keyword">null</span>) &#123;</div><div class="line">               closeExecutor.execute(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">                   <span class="meta">@Override</span></div><div class="line">                   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                       <span class="keyword">try</span> &#123;</div><div class="line">                           <span class="comment">// Execute the close.</span></div><div class="line">                           doClose0(promise);</div><div class="line">                       &#125; <span class="keyword">finally</span> &#123;</div><div class="line">                           <span class="comment">// Call invokeLater so closeAndDeregister is executed in the EventLoop again!</span></div><div class="line">                           invokeLater(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">                               <span class="meta">@Override</span></div><div class="line">                               <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                                   <span class="comment">// Fail all the queued messages</span></div><div class="line">                                   outboundBuffer.failFlushed(cause, notify);</div><div class="line">                                   <span class="comment">// 这里的close里面会调用 ReferenceCountUtil.safeRelease(e.msg);这个来释放buffer，这个task可能会在eventLoop的任务队列中挤压，释放buffer的跟分配buffer就变成了异步的。</span></div><div class="line">                                   outboundBuffer.close(closeCause);</div><div class="line">                                   fireChannelInactiveAndDeregister(wasActive);</div><div class="line">                               &#125;</div><div class="line">                           &#125;);</div><div class="line">                       &#125;</div><div class="line">                   &#125;</div><div class="line">               &#125;);</div><div class="line">           &#125; <span class="keyword">else</span> &#123;</div><div class="line">               <span class="keyword">try</span> &#123;</div><div class="line">                   <span class="comment">// Close the channel and fail the queued messages in all cases.</span></div><div class="line">                   doClose0(promise);</div><div class="line">               &#125; <span class="keyword">finally</span> &#123;</div><div class="line">                   <span class="comment">// Fail all the queued messages.</span></div><div class="line">                   outboundBuffer.failFlushed(cause, notify);</div><div class="line">                   outboundBuffer.close(closeCause);</div><div class="line">               &#125;</div><div class="line">               <span class="keyword">if</span> (inFlush0) &#123;</div><div class="line">                   invokeLater(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">                       <span class="meta">@Override</span></div><div class="line">                       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                           fireChannelInactiveAndDeregister(wasActive);</div><div class="line">                       &#125;</div><div class="line">                   &#125;);</div><div class="line">               &#125; <span class="keyword">else</span> &#123;</div><div class="line">                   fireChannelInactiveAndDeregister(wasActive);</div><div class="line">               &#125;</div><div class="line">           &#125;</div><div class="line">       &#125;</div></pre></td></tr></table></figure>
+<p>当然这里只找到了一个可能造成问题的点，至于是不是我代码里面造成recycler膨胀的原因暂时还不得而知，只能下次有空再分析了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>尽管在正常情况下recycler的容量不会增加，但是在一些极端的情况，比如压测环境，recycler是非常有可能会膨胀的。而且一旦膨胀那么这些对象将会在老生代里面存活，不会被回收。<br>所以在使用netty的内存分配的时候还是要谨慎，前期的压测工作不可以省。</p>
 
       
     </div>
@@ -609,27 +404,22 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
     <div>
       
         
-  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-    <div>大侠劫富济贫啦！</div>
-    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-      <span>赏</span>
-    </button>
-    <div id="QR" style="display: none;">
-      
-        <div id="wechat" style="display: inline-block">
-          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
-          <p>微信打赏</p>
-        </div>
-      
+
       
     </div>
-  </div>
 
+    <div>
+      
+        
 
       
     </div>
 
     <footer class="post-footer">
+      
+
+      
+        
       
 
       
@@ -641,6 +431,8 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
               </a>
             
           </div>
+
+          <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
@@ -703,25 +495,32 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
         </ul>
       
 
-      <section class="site-overview sidebar-panel ">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               src="/images/avatar.gif"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
-          <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
         </div>
         <nav class="site-state motion-element">
-          <div class="site-state-item site-state-posts">
-            <a href="/archives">
-              <span class="site-state-item-count">16</span>
-              <span class="site-state-item-name">日志</span>
-            </a>
-          </div>
 
           
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
             <div class="site-state-item site-state-categories">
-              <a href="/categories">
+              <a href="/categories/index.html">
                 <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
@@ -736,35 +535,6 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
         <div class="links-of-author motion-element">
           
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="https://github.com/dempeZheng" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                  GitHub
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                  网易云音乐
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                  知乎
-                </a>
-              </span>
-            
-          
         </div>
 
         
@@ -772,34 +542,30 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
         
         
-          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
-            <div class="links-of-blogroll-title">
-              <i class="fa  fa-fw fa-globe"></i>
-              Links
-            </div>
-            <ul class="links-of-blogroll-list">
-              
-                <li class="links-of-blogroll-item">
-                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
-                </li>
-              
-            </ul>
-          </div>
+
         
+
 
       </section>
 
       
+      <!--noindex-->
         <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
           <div class="post-toc">
+
             
               
             
+
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#netty内存分配Recycler容量膨胀问题跟踪"><span class="nav-number">1.</span> <span class="nav-text">netty内存分配Recycler容量膨胀问题跟踪</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#首先来理一理项目内存分配和释放的几个地方。"><span class="nav-number">1.1.</span> <span class="nav-text">首先来理一理项目内存分配和释放的几个地方。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看源代码"><span class="nav-number">1.2.</span> <span class="nav-text">查看源代码</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#首先来理一理项目内存分配和释放的几个地方。"><span class="nav-number">1.</span> <span class="nav-text">首先来理一理项目内存分配和释放的几个地方。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查看源代码"><span class="nav-number">2.</span> <span class="nav-text">查看源代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
+
           </div>
         </section>
+      <!--/noindex-->
+      
+
       
 
     </div>
@@ -823,15 +589,31 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 </div>
 
 
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
         
 
         
       </div>
     </footer>
 
-    <div class="back-to-top">
-      <i class="fa fa-arrow-up"></i>
-    </div>
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
   </div>
 
   
@@ -854,47 +636,50 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
 
 
-  
-  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
 
 
 
   
-  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
 
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
 
 
   
 
 
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
 
 
 
@@ -919,7 +704,8 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
   
     
-    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
     <script src="/js/src/hook-duoshuo.js"></script>
   
 
@@ -928,119 +714,27 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
 
 
+
+
+
+
+
+
+
+
+
+
   
-  
+
+
+
+
 
   
 
   
 
   
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
-  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
-    }
-
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
-    }
-
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
-    });
-  </script>
-
-
 
   
 

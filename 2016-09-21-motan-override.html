@@ -5,10 +5,10 @@
   
 
 
-<html class="theme-next mist use-motion">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
 
@@ -27,9 +27,12 @@
 
 
 
+
+
+
   
   
-  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
 
 
 
@@ -63,9 +66,9 @@
 
 
 
-<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
 
-<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
   <meta name="keywords" content="motan,源码,包结构,概述" />
@@ -77,7 +80,7 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
 
 
 
@@ -102,7 +105,7 @@ motan-demo    // 示例，快速上手的最佳方法
 motan-extension // 扩展
 motan-manager // 管理后台
 motan-registry-consul">
-<meta property="og:updated_time" content="2016-09-24T10:06:06.757Z">
+<meta property="og:updated_time" content="2017-04-13T14:02:38.410Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-源码结构">
 <meta name="twitter:description" content="旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
@@ -115,28 +118,37 @@ motan-registry-consul">
 
 
 
-<script type="text/javascript" id="hexo.configuration">
+<script type="text/javascript" id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
+    root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"hide"},
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
     fancybox: true,
     motion: true,
     duoshuo: {
-      userId: 0,
+      userId: '0',
       author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
     }
   };
 </script>
 
 
 
-
   <link rel="canonical" href="http://code.zhizus.com/2016-09-21-motan-override.html"/>
 
 
-  <title> Motan源码解读-源码结构 | 郑大侠的博客 </title>
 
+
+
+  <title> Motan源码解读-源码结构 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -145,15 +157,19 @@ motan-registry-consul">
 
 
 
+
+
   <script type="text/javascript">
     var _hmt = _hmt || [];
     (function() {
       var hm = document.createElement("script");
-      hm.src = "//hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
       var s = document.getElementsByTagName("script")[0];
       s.parentNode.insertBefore(hm, s);
     })();
   </script>
+
+
 
 
 
@@ -167,31 +183,33 @@ motan-registry-consul">
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
 
-<div class="site-meta ">
-  
-
-  <div class="custom-logo-site-title">
-    <a href="/"  class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <span class="site-title">郑大侠的博客</span>
-      <span class="logo-line-after"><i></i></span>
-    </a>
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
   </div>
-  <p class="site-subtitle">DempeZheng'S Blog</p>
-</div>
 
-<div class="site-nav-toggle">
-  <button>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-  </button>
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
 </div>
 
 <nav class="site-nav">
@@ -221,32 +239,12 @@ motan-registry-consul">
         </li>
       
         
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
             
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-crossed">
-          <a href="http://zhizus.com" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
-            
-            穿越
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
+            标签
           </a>
         </li>
       
@@ -257,6 +255,8 @@ motan-registry-consul">
 
   
 </nav>
+
+
 
  </div>
     </header>
@@ -271,13 +271,23 @@ motan-registry-consul">
     
 
   
-  
 
   
   
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-override.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
 
     
       <header class="post-header">
@@ -296,24 +306,36 @@ motan-registry-consul">
 
         <div class="post-meta">
           <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-21T00:00:00+08:00" content="2016-09-21">
-              2016-09-21
-            </time>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-21T00:00:00+08:00">
+                2016-09-21
+              </time>
+            
+
+            
+
+            
           </span>
 
           
             <span class="post-category" >
-              &nbsp; | &nbsp;
+            
+              <span class="post-meta-divider">|</span>
+            
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
-              <span class="post-meta-item-text">分类于</span>
               
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
                     <span itemprop="name">Motan源码解读</span>
                   </a>
@@ -321,7 +343,6 @@ motan-registry-consul">
 
                 
                 
-
               
             </span>
           
@@ -329,29 +350,26 @@ motan-registry-consul">
           
             
               <span class="post-comments-count">
-                &nbsp; | &nbsp;
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
                 <a href="/2016-09-21-motan-override.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-override.html" itemprop="commentsCount"></span>
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-override.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
           
 
           
-
-          
-          
-             <span id="/2016-09-21-motan-override.html" class="leancloud_visitors" data-flag-title="Motan源码解读-源码结构">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
           
 
           
+
+          
+
+          
+
         </div>
       </header>
     
@@ -373,40 +391,9 @@ motan-registry-consul    //基于consul的服务发现实现
 motan-registry-zookeeper // 基于zookeeper的服务发现实现
 motan-springsupport // spring容器的支持，也支持springboot
 motan-transport-netty // netty传输的封装
-</code></pre><h4 id="motan-core"><a href="#motan-core" class="headerlink" title="motan-core"></a>motan-core</h4><pre><code>└─com
-    └─weibo
-        └─api
-            └─motan
-                ├─cluster
-                │  ├─ha //①容灾策略
-                │  ├─loadbalanc //②负载均衡
-                │  └─support
-                ├─codec //③编解码
-                ├─common
-                ├─config //④配置
-                │  ├─annotation
-                │  └─handler
-                ├─core
-                │  └─extension //⑤ SPI机制扩展
-                ├─exception // ⑥异常
-                ├─filter //⑦过滤器
-                ├─log //⑧日志
-                ├─protocol //⑨责点到点的通讯(有别于我们理解的protocol)
-                │  ├─injvm
-                │  ├─rpc
-                │  └─support
-                ├─proxy //⑩代理
-                │  └─spi
-                ├─registry //⑪服务注册
-                │  └─support
-                │      └─comman
-                ├─rpc
-                ├─serialize //⑫序列化
-                ├─switcher
-                ├─transport
-                │  └─support
-                └─util
-</code></pre><p>这个包是motan的核心实现，里面的大部分代码，接下的文章都会涉及到。</p>
+</code></pre><a id="more"></a>
+<h4 id="motan-core"><a href="#motan-core" class="headerlink" title="motan-core"></a>motan-core</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">└─com</div><div class="line">    └─weibo</div><div class="line">        └─api</div><div class="line">            └─motan</div><div class="line">                ├─cluster</div><div class="line">                │  ├─ha //①容灾策略</div><div class="line">                │  ├─loadbalanc //②负载均衡</div><div class="line">                │  └─support</div><div class="line">                ├─codec //③编解码</div><div class="line">                ├─common</div><div class="line">                ├─config //④配置</div><div class="line">                │  ├─annotation</div><div class="line">                │  └─handler</div><div class="line">                ├─core</div><div class="line">                │  └─extension //⑤ SPI机制扩展</div><div class="line">                ├─exception // ⑥异常</div><div class="line">                ├─filter //⑦过滤器</div><div class="line">                ├─log //⑧日志</div><div class="line">                ├─protocol //⑨责点到点的通讯(有别于我们理解的protocol)</div><div class="line">                │  ├─injvm</div><div class="line">                │  ├─rpc</div><div class="line">                │  └─support</div><div class="line">                ├─proxy //⑩代理</div><div class="line">                │  └─spi</div><div class="line">                ├─registry //⑪服务注册</div><div class="line">                │  └─support</div><div class="line">                │      └─comman</div><div class="line">                ├─rpc</div><div class="line">                ├─serialize //⑫序列化</div><div class="line">                ├─switcher</div><div class="line">                ├─transport</div><div class="line">                │  └─support</div><div class="line">                └─util</div></pre></td></tr></table></figure>
+<p>这个包是motan的核心实现，里面的大部分代码，接下的文章都会涉及到。</p>
 <p>①<a href="http://zhizus.com/code/motan-hastratege" target="_blank" rel="external">motan-容灾策略</a></p>
 <p>②<a href="http://zhizus.com/code/motan-loadbalance" target="_blank" rel="external">motan-负载均衡</a></p>
 <p>⑤<a href="http://zhizus.com/code/motan-spi" target="_blank" rel="external">motan-SPI机制扩展</a></p>
@@ -427,22 +414,13 @@ motan-transport-netty // netty传输的封装
     <div>
       
         
-  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-    <div>大侠劫富济贫啦！</div>
-    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-      <span>赏</span>
-    </button>
-    <div id="QR" style="display: none;">
-      
-        <div id="wechat" style="display: inline-block">
-          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
-          <p>微信打赏</p>
-        </div>
-      
+
       
     </div>
-  </div>
 
+    <div>
+      
+        
 
       
     </div>
@@ -451,19 +429,25 @@ motan-transport-netty // netty传输的封装
       
 
       
+        
+      
+
+      
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-filter.html" rel="next" title="Motan源码解读-Filter">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-Filter
+              <a href="/2016-09-20-motan-loadbalance.html" rel="next" title="Motan源码解读-负载均衡">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-负载均衡
               </a>
             
           </div>
 
+          <span class="post-nav-divider"></span>
+
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-22-motan-serialize.html" rel="prev" title="Motan源码解读-serialize">
-                Motan源码解读-serialize <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-21-motan-filter.html" rel="prev" title="Motan源码解读-Filter">
+                Motan源码解读-Filter <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -525,25 +509,32 @@ motan-transport-netty // netty传输的封装
         </ul>
       
 
-      <section class="site-overview sidebar-panel ">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               src="/images/avatar.gif"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
-          <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
         </div>
         <nav class="site-state motion-element">
-          <div class="site-state-item site-state-posts">
-            <a href="/archives">
-              <span class="site-state-item-count">16</span>
-              <span class="site-state-item-name">日志</span>
-            </a>
-          </div>
 
           
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
             <div class="site-state-item site-state-categories">
-              <a href="/categories">
+              <a href="/categories/index.html">
                 <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
@@ -558,35 +549,6 @@ motan-transport-netty // netty传输的封装
 
         <div class="links-of-author motion-element">
           
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="https://github.com/dempeZheng" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                  GitHub
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                  网易云音乐
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a rel="external nofollow" href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                  知乎
-                </a>
-              </span>
-            
-          
         </div>
 
         
@@ -594,34 +556,30 @@ motan-transport-netty // netty传输的封装
 
         
         
-          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
-            <div class="links-of-blogroll-title">
-              <i class="fa  fa-fw fa-globe"></i>
-              Links
-            </div>
-            <ul class="links-of-blogroll-list">
-              
-                <li class="links-of-blogroll-item">
-                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
-                </li>
-              
-            </ul>
-          </div>
+
         
+
 
       </section>
 
       
+      <!--noindex-->
         <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
           <div class="post-toc">
+
             
               
             
+
             
               <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#motan包结构"><span class="nav-number">1.</span> <span class="nav-text">motan包结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#motan-core"><span class="nav-number">1.1.</span> <span class="nav-text">motan-core</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan-transport-netty"><span class="nav-number">1.2.</span> <span class="nav-text">motan-transport-netty</span></a></li></ol></li></ol></div>
             
+
           </div>
         </section>
+      <!--/noindex-->
+      
+
       
 
     </div>
@@ -645,15 +603,31 @@ motan-transport-netty // netty传输的封装
 </div>
 
 
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
         
 
         
       </div>
     </footer>
 
-    <div class="back-to-top">
-      <i class="fa fa-arrow-up"></i>
-    </div>
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
   </div>
 
   
@@ -676,47 +650,50 @@ motan-transport-netty // netty传输的封装
 
 
 
-  
-  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
 
 
 
   
-  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
 
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
 
 
   
 
 
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
 
 
 
@@ -741,7 +718,8 @@ motan-transport-netty // netty传输的封装
 
   
     
-    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
     <script src="/js/src/hook-duoshuo.js"></script>
   
 
@@ -750,119 +728,27 @@ motan-transport-netty // netty传输的封装
 
 
 
+
+
+
+
+
+
+
+
+
+
   
-  
+
+
+
+
 
   
 
   
 
   
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
-  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
-    }
-
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
-    }
-
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
-    });
-  </script>
-
-
 
   
 
