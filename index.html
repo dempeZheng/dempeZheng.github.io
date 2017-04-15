@@ -1250,7 +1250,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-filter.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-override.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1272,8 +1272,8 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-filter.html" itemprop="url">
-                  Motan源码解读-Filter
+                <a class="post-title-link" href="/2016-09-21-motan-override.html" itemprop="url">
+                  Motan源码解读-源码结构
                 </a>
               
             
@@ -1298,8 +1298,8 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2016-09-21-motan-filter.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-filter.html" itemprop="commentCount"></span>
+                <a href="/2016-09-21-motan-override.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-override.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1307,7 +1307,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 
           
           
-             <span id="/2016-09-21-motan-filter.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Filter">
+             <span id="/2016-09-21-motan-override.html" class="leancloud_visitors" data-flag-title="Motan源码解读-源码结构">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1336,155 +1336,12 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
       
         
           
-          很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter
-AccessLog
+          旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
+motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码，也是源码解析的主要包motan-demo    // 示例，快速上手的最佳方法motan-extension // 扩展
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-filter.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-hastratege.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016-09-21-motan-hastratege.html" itemprop="url">
-                  Motan源码解读-容错策略
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016-09-21-motan-hastratege.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-hastratege.html" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2016-09-21-motan-hastratege.html" class="leancloud_visitors" data-flag-title="Motan源码解读-容错策略">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          Motan的容错策略
-Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
-
-
-Failover 失效切换（缺省）
-
-1&lt;motan:protocol ... haStrateg
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-hastratege.html#more" rel="contents">
+            <a class="btn" href="/2016-09-21-motan-override.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1615,11 +1472,151 @@ Failover 失效切换（缺省）
 
       
         
-          <p>protocol可以说是motan最重要的部分之一。<br>暴露一个服务引用一个服务都是在这块实现的。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Spi</span>(scope = Scope.SINGLETON)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Protocol</span> </span>&#123;</div><div class="line">    <span class="comment">/**</div><div class="line">     * 暴露服务</div><div class="line">     * </div><div class="line">     * <span class="doctag">@param</span> &lt;T&gt;</div><div class="line">     * <span class="doctag">@param</span> provider</div><div class="line">     * <span class="doctag">@param</span> url</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</span></div><div class="line">    &lt;T&gt; <span class="function">Exporter&lt;T&gt; <span class="title">export</span><span class="params">(Provider&lt;T&gt; provider, URL url)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</div><div class="line">     * 引用服务</div><div class="line">     * </div><div class="line">     * <span class="doctag">@param</span> &lt;T&gt;</div><div class="line">     * <span class="doctag">@param</span> clz</div><div class="line">     * <span class="doctag">@param</span> url</div><div class="line">     * <span class="doctag">@param</span> serviceUrl</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</span></div><div class="line">    &lt;T&gt; <span class="function">Referer&lt;T&gt; <span class="title">refer</span><span class="params">(Class&lt;T&gt; clz, URL url, URL serviceUrl)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</div><div class="line">     * &lt;pre&gt;</div><div class="line">	 * 		1） exporter destroy</div><div class="line">	 * 		2） referer destroy</div><div class="line">	 * &lt;/pre&gt;</div><div class="line">     * </div><div class="line">     */</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+          
+          protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
+1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface P
+          ...
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2016-09-21-motan-protocol.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-filter.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016-09-21-motan-filter.html" itemprop="url">
+                  Motan源码解读-Filter
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016-09-21-motan-filter.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-filter.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2016-09-21-motan-filter.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Filter">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
+motan filter：目前实现的filter
+AccessLog
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016-09-21-motan-filter.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>

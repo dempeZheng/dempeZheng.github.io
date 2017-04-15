@@ -96,7 +96,7 @@
 <meta property="og:description" content="protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
 1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface Protocol &amp;#123;    /**     * 暴露服务     *      * @par">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/Protocol.png">
-<meta property="og:updated_time" content="2017-04-15T13:35:49.097Z">
+<meta property="og:updated_time" content="2017-04-15T13:40:58.998Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-Protocol">
 <meta name="twitter:description" content="protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
@@ -367,7 +367,6 @@
       
         <p>protocol可以说是motan最重要的部分之一。<br>暴露一个服务引用一个服务都是在这块实现的。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Spi</span>(scope = Scope.SINGLETON)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Protocol</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 暴露服务</div><div class="line">     * </div><div class="line">     * <span class="doctag">@param</span> &lt;T&gt;</div><div class="line">     * <span class="doctag">@param</span> provider</div><div class="line">     * <span class="doctag">@param</span> url</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    &lt;T&gt; <span class="function">Exporter&lt;T&gt; <span class="title">export</span><span class="params">(Provider&lt;T&gt; provider, URL url)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 引用服务</div><div class="line">     * </div><div class="line">     * <span class="doctag">@param</span> &lt;T&gt;</div><div class="line">     * <span class="doctag">@param</span> clz</div><div class="line">     * <span class="doctag">@param</span> url</div><div class="line">     * <span class="doctag">@param</span> serviceUrl</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    &lt;T&gt; <span class="function">Referer&lt;T&gt; <span class="title">refer</span><span class="params">(Class&lt;T&gt; clz, URL url, URL serviceUrl)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * &lt;pre&gt;</div><div class="line">	 * 		1） exporter destroy</div><div class="line">	 * 		2） referer destroy</div><div class="line">	 * &lt;/pre&gt;</div><div class="line">     * </div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<a id="more"></a>
 <ul>
 <li>Provider</li>
 </ul>
@@ -452,8 +451,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-override.html" rel="next" title="Motan源码解读-源码结构">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-源码结构
+              <a href="/2016-09-21-motan-filter.html" rel="next" title="Motan源码解读-Filter">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-Filter
               </a>
             
           </div>
@@ -462,8 +461,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-21-motan-hastratege.html" rel="prev" title="Motan源码解读-容错策略">
-                Motan源码解读-容错策略 <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-21-motan-override.html" rel="prev" title="Motan源码解读-源码结构">
+                Motan源码解读-源码结构 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
