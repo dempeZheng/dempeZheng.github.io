@@ -96,7 +96,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 <meta property="og:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
 SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/SPI.png">
-<meta property="og:updated_time" content="2017-04-13T14:03:11.666Z">
+<meta property="og:updated_time" content="2017-04-15T13:35:49.092Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-SPI机制">
 <meta name="twitter:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
@@ -110,7 +110,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
   var CONFIG = {
     root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    sidebar: {"position":"left","display":"post"},
     fancybox: true,
     motion: true,
     duoshuo: {
@@ -121,8 +121,8 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
       applicationID: '',
       apiKey: '',
       indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+      hits: "",
+      labels: ""
     }
   };
 </script>
@@ -226,12 +226,32 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
         </li>
       
         
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            标签
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            menu.crossed
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -269,7 +289,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -294,44 +314,12 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-19T00:00:00+08:00">
-                2016-09-19
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -349,6 +337,15 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
           
 
           
+          
+             <span id="/2016-09-19-motan-spi.html" class="leancloud_visitors" data-flag-title="Motan源码解读-SPI机制">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -369,27 +366,26 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 
       
         <p>SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。<br>motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。</p>
-<h3 id="SPI机制"><a href="#SPI机制" class="headerlink" title="SPI机制"></a>SPI机制</h3><p>SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceLoader的文档里有比较详细的介绍。简单的总结下java spi机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案，比如日志模块的方案，xml解析模块、jdbc模块的方案等。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。 java spi就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。</p>
-<h3 id="SPI约定"><a href="#SPI约定" class="headerlink" title="SPI约定"></a>SPI约定</h3><p>java spi的具体约定为:当服务的提供者，提供了服务接口的一种实现之后，在jar包的META-INF/services/目录里同时创建一个以服务接口命名的文件。该文件里就是实现该服务接口的具体实现类。而当外部程序装配这个模块的时候，就能通过该jar包META-INF/services/里的配置文件找到具体的实现类名，并装载实例化，完成模块的注入。 基于这样一个约定就能很好的找到服务接口的实现类，而不需要再代码里制定。jdk提供服务实现查找的一个工具类：java.util.ServiceLoader</p>
-<a id="more"></a>
-<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><ul>
+<h2 id="SPI机制"><a href="#SPI机制" class="headerlink" title="SPI机制"></a>SPI机制</h2><p>SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceLoader的文档里有比较详细的介绍。简单的总结下java spi机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案，比如日志模块的方案，xml解析模块、jdbc模块的方案等。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。 java spi就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。</p>
+<h2 id="SPI约定"><a href="#SPI约定" class="headerlink" title="SPI约定"></a>SPI约定</h2><p>java spi的具体约定为:当服务的提供者，提供了服务接口的一种实现之后，在jar包的META-INF/services/目录里同时创建一个以服务接口命名的文件。该文件里就是实现该服务接口的具体实现类。而当外部程序装配这个模块的时候，就能通过该jar包META-INF/services/里的配置文件找到具体的实现类名，并装载实例化，完成模块的注入。 基于这样一个约定就能很好的找到服务接口的实现类，而不需要再代码里制定。jdk提供服务实现查找的一个工具类：java.util.ServiceLoader</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ul>
 <li><strong>common-logging</strong><br>apache最早提供的日志的门面接口。只有接口，没有实现。具体方案由各提供商实现， 发现日志提供商是通过扫描 META-INF/services/org.apache.commons.logging.LogFactory配置文件，通过读取该文件的内容找到日志提工商实现类。只要我们的日志实现里包含了这个文件，并在文件里制定 LogFactory工厂接口的实现类即可。</li>
 <li><p><strong>jdbc</strong><br>jdbc4.0以前， 开发人员还需要基于Class.forName(“xxx”)的方式来装载驱动，jdbc4也基于spi的机制来发现驱动提供商了，可以通过META-INF/services/java.sql.Driver文件里指定实现类的方式来暴露驱动提供者。</p>
 </li>
 <li><p><strong>dubbo&amp;motan</strong><br>dubbo和motan也扩展了spi作为框架的主要扩展机制。</p>
 </li>
 </ul>
-<h3 id="使用示例："><a href="#使用示例：" class="headerlink" title="使用示例："></a>使用示例：</h3><p>接口定义</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">package my.xyz.spi;  </div><div class="line">import java.util.List;  </div><div class="line">public interface Search &#123;  </div><div class="line">   public List serch(String keyword);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="使用示例："><a href="#使用示例：" class="headerlink" title="使用示例："></a>使用示例：</h2><p>接口定义</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> my.xyz.spi;  </div><div class="line"><span class="keyword">import</span> java.util.List;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Search</span> </span>&#123;  </div><div class="line">   <span class="function"><span class="keyword">public</span> List <span class="title">serch</span><span class="params">(String keyword)</span></span>;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>A公司采用文件系统搜索的方式实现了 Search接口，B公司采用了数据库系统的方式实现了Search接口</p>
 <ul>
-<li>A公司实现的类  com.A.spi.impl.FileSearch  </li>
-<li>B公司实现的类  com.B.spi.impl.DatabaseSearch  </li>
+<li>A公司实现的类  <code>com.A.spi.impl.FileSearch</code></li>
+<li>B公司实现的类  <code>com.B.spi.impl.DatabaseSearch</code></li>
 </ul>
-<p>那么A公司发布 实现jar包时，则要在jar包中META-INF/services/my.xyz.spi.Search文件中写下如下内容<br>    com.A.spi.impl.FileSearch<br>那么B公司发布 实现jar包时，则要在jar包中META-INF/services/my.xyz.spi.Search文件中写下如下内容</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"> com.B.spi.impl.DatabaseSearch</div><div class="line">package com.xyz.factory;  </div><div class="line">import java.util.Iterator;  </div><div class="line">import java.util.ServiceLoader;  </div><div class="line">import my.xyz.spi.Search;  </div><div class="line">public class SearchFactory &#123;  </div><div class="line">    private SearchFactory() &#123;  </div><div class="line">    &#125;  </div><div class="line">    public static Search newSearch() &#123;  </div><div class="line">        Search search = null;  </div><div class="line">        ServiceLoader&lt;Search&gt; serviceLoader = ServiceLoader.load(Search.class);  </div><div class="line">        Iterator&lt;Search&gt; searchs = serviceLoader.iterator();  </div><div class="line">        if (searchs.hasNext()) &#123;  </div><div class="line">            search = searchs.next();  </div><div class="line">        &#125;  </div><div class="line">        return search;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">package my.xyz.test;  </div><div class="line">import java.util.Iterator;  </div><div class="line">import java.util.ServiceLoader;  </div><div class="line">import com.xyz.factory.SearchFactory;  </div><div class="line">import my.xyz.spi.Search;  </div><div class="line">public class SearchTest &#123;  </div><div class="line">    public static void main(String[] args) &#123;  </div><div class="line">        Search search = SearchFactory.newSearch();  </div><div class="line">        search.serch(&quot;java spi test&quot;);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="JDK-SPI"><a href="#JDK-SPI" class="headerlink" title="JDK SPI"></a>JDK SPI</h4><p><strong>JDK自带的ServiceLoader功能比较弱，只提供了如下几个方法：</strong></p>
+<p>那么A公司发布 实现jar包时，则要在jar包中<code>META-INF/services/my.xyz.spi.Search</code>文件中写下如下内容<br>    <code>com.A.spi.impl.FileSearch</code><br>那么B公司发布 实现jar包时，则要在jar包中<code>META-INF/services/my.xyz.spi.Search</code>文件中写下如下内容</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"> com.B.spi.impl.DatabaseSearch</div><div class="line"><span class="keyword">package</span> com.xyz.factory;  </div><div class="line"><span class="keyword">import</span> java.util.Iterator;  </div><div class="line"><span class="keyword">import</span> java.util.ServiceLoader;  </div><div class="line"><span class="keyword">import</span> my.xyz.spi.Search;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SearchFactory</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SearchFactory</span><span class="params">()</span> </span>&#123;  </div><div class="line">    &#125;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Search <span class="title">newSearch</span><span class="params">()</span> </span>&#123;  </div><div class="line">        Search search = <span class="keyword">null</span>;  </div><div class="line">        ServiceLoader&lt;Search&gt; serviceLoader = ServiceLoader.load(Search.class);  </div><div class="line">        Iterator&lt;Search&gt; searchs = serviceLoader.iterator();  </div><div class="line">        <span class="keyword">if</span> (searchs.hasNext()) &#123;  </div><div class="line">            search = searchs.next();  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">return</span> search;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> my.xyz.test;  </div><div class="line"><span class="keyword">import</span> java.util.Iterator;  </div><div class="line"><span class="keyword">import</span> java.util.ServiceLoader;  </div><div class="line"><span class="keyword">import</span> com.xyz.factory.SearchFactory;  </div><div class="line"><span class="keyword">import</span> my.xyz.spi.Search;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SearchTest</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </div><div class="line">        Search search = SearchFactory.newSearch();  </div><div class="line">        search.serch(<span class="string">"java spi test"</span>);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="JDK-SPI"><a href="#JDK-SPI" class="headerlink" title="JDK SPI"></a>JDK SPI</h2><p><strong>JDK自带的ServiceLoader功能比较弱，只提供了如下几个方法：</strong></p>
 <ul>
 <li><p>reload：清除服务实例缓存，重新加载；</p>
 </li>
@@ -401,7 +397,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 </li>
 </ul>
 <p>实际上，JDK自带的ServiceLoader并不能满足开发的需求，例如单例服务，按别名使用指定的服务实现，优先级控制等等。</p>
-<h4 id="Motan-SPI"><a href="#Motan-SPI" class="headerlink" title="Motan SPI"></a>Motan SPI</h4><p>Motan底层模块之间调用也是采用SPI模式（com.weibo.api.motan.core.extension.ExtensionLoader），可以根据配置实现调用不同的服务实例。</p>
+<h2 id="Motan-SPI"><a href="#Motan-SPI" class="headerlink" title="Motan SPI"></a>Motan SPI</h2><p>Motan底层模块之间调用也是采用SPI模式（<code>com.weibo.api.motan.core.extension.ExtensionLoader</code>），可以根据配置实现调用不同的服务实例。</p>
 <p><strong>Motan提供了三个注解：</strong></p>
 <p><code>@Spi</code> 声明接口为SPI服务接口；</p>
 <p><code>@Scope</code> 声明单例模式还是多例模式</p>
@@ -409,9 +405,9 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 <p><code>@SpiMeta</code>设定服务别名，没配置则用实现类的类名为别名</p>
 <p>ExtensionLoader兼容JDK自带的ServiceLoader，也就是说跟ServiceLoader的配置方式是一样的，在META-INF/services创建服务接口文件，内容为实现类的完整包路径列表。</p>
 <p>实现：<br>ClassLoader.getSystemResources(“”)根据路径获取所有加载的URL</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Enumeration&lt;URL&gt; urls = ClassLoader.getSystemResources(&quot;META-INF/services/com.dempe.spi.Search&quot;);</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Enumeration&lt;URL&gt; urls = ClassLoader.getSystemResources(<span class="string">"META-INF/services/com.dempe.spi.Search"</span>);</div></pre></td></tr></table></figure>
 <p>基于上面的注解扩展SPI的语义已经很清晰了，暂时不再深入研究。如果兴趣可co下来淘宝的<a href="https://github.com/alibaba/cooma/wiki" target="_blank" rel="external">Cooma</a>  (Cooma是一个极简、灵活的开源Java微容器（microcontainer）实现。)</p>
-<h4 id="motan的扩展"><a href="#motan的扩展" class="headerlink" title="motan的扩展"></a>motan的扩展</h4><p>motan是一个轻量的RPC框架，同时motan的扩展性也是非常好的，你几乎可以扩展它实现任何你希望RPC框架可以有的能力。</p>
+<h2 id="motan的扩展"><a href="#motan的扩展" class="headerlink" title="motan的扩展"></a>motan的扩展</h2><p>motan是一个轻量的RPC框架，同时motan的扩展性也是非常好的，你几乎可以扩展它实现任何你希望RPC框架可以有的能力。</p>
 <p>我们大致看看包含SPI注解的类：</p>
 <p><img src="/images/motan/SPI.png" alt="Alt text"></p>
 <p>我们可以看到基本上在任何地方我们能想到扩展的地方motan都给我们留下了扩展的入口。</p>
@@ -429,6 +425,22 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
     <div>
       
         
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
 
       
     </div>
@@ -527,7 +539,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
       <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
            
@@ -564,12 +576,55 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
         
 
         
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
         
 
         
@@ -587,7 +642,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI机制"><span class="nav-number">1.</span> <span class="nav-text">SPI机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI约定"><span class="nav-number">2.</span> <span class="nav-text">SPI约定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用场景"><span class="nav-number">3.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用示例："><span class="nav-number">4.</span> <span class="nav-text">使用示例：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#JDK-SPI"><span class="nav-number">4.1.</span> <span class="nav-text">JDK SPI</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Motan-SPI"><span class="nav-number">4.2.</span> <span class="nav-text">Motan SPI</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan的扩展"><span class="nav-number">4.3.</span> <span class="nav-text">motan的扩展</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI机制"><span class="nav-number">1.</span> <span class="nav-text">SPI机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI约定"><span class="nav-number">2.</span> <span class="nav-text">SPI约定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">3.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用示例："><span class="nav-number">4.</span> <span class="nav-text">使用示例：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-SPI"><span class="nav-number">5.</span> <span class="nav-text">JDK SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Motan-SPI"><span class="nav-number">6.</span> <span class="nav-text">Motan SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan的扩展"><span class="nav-number">7.</span> <span class="nav-text">motan的扩展</span></a></li></ol></div>
             
 
           </div>
@@ -612,22 +667,11 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
   &copy; 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="fa fa-"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">DempeZheng</span>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
-  </a>
-</div>
 
 
         
@@ -760,6 +804,113 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 
 
   
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
 
   
 

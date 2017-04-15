@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="DempeZheng" />
 
 
 
@@ -104,7 +104,7 @@
   var CONFIG = {
     root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    sidebar: {"position":"left","display":"post"},
     fancybox: true,
     motion: true,
     duoshuo: {
@@ -115,8 +115,8 @@
       applicationID: '',
       apiKey: '',
       indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+      hits: "",
+      labels: ""
     }
   };
 </script>
@@ -222,12 +222,32 @@
         </li>
       
         
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            标签
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            menu.crossed
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -265,7 +285,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -293,44 +313,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-31T00:00:00+08:00">
-                2017-03-31
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/netty/" itemprop="url" rel="index">
-                    <span itemprop="name">netty</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -348,6 +336,15 @@
           
 
           
+          
+             <span id="/2017-03-31-netty-buffer-recycler.html" class="leancloud_visitors" data-flag-title="记一次netty内存溢出的问题(下)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -368,12 +365,10 @@
 
       
         
-          <p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
+          <p>上一篇：<a href="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">记一次netty内存溢出的问题(上)</a></p>
+<p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发<code>full gc</code>也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
 <div class="note default"><p>Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中<code>get()</code>,实际上是从FastLocalThread中获取，如果有便不重新分配。内存的<code>release()</code>的时候又会调用recycler()将对象回收。netty采用这种机制减少对象创建的损耗和减少垃圾回收从而提升性能。</p>
 </div>
-<h2 id="首先来理一理项目内存分配和释放的几个地方。"><a href="#首先来理一理项目内存分配和释放的几个地方。" class="headerlink" title="首先来理一理项目内存分配和释放的几个地方。"></a>首先来理一理项目内存分配和释放的几个地方。</h2><p>项目中仅仅在encoder&amp;decoder中用到了内存的分配和释放，而且非常确定这两个地方用到的是netty的IO线程。分配释放都是同一个线程。</p>
-<p>既然用到netty的IO线程，那么recycler的容量就应该是约等于 IO线程数，（netty的NioEventLoop继承的是SingleThreadEventLoop，也就是说在每个EventLoop里面encoder&amp;decoder都是串行） 按照这么来说，肯定不会内存溢出才对。</p>
-<h2 id="查看源代码"><a href="#查看源代码" class="headerlink" title="查看源代码"></a>查看源代码</h2><p>仔细看来netty的源代码，确认decoder这块肯定是没问题，ReadEvent事件触发了，一条线程处理内存的申请和释放。<br>encoder这块就稍稍复杂一些。首先，项目是在自己的业务线程中 调用<code>ctx.writeAndFlush(message)</code>来写消息的。<br>这个方法会先判断是否在IO线程中，如果不再则会包装成一个<code>WriteAndFlushTask</code>丢到IO线程处理。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017-03-31-netty-buffer-recycler.html#more" rel="contents">
@@ -427,7 +422,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -455,44 +450,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-28T00:00:00+08:00">
-                2017-03-28
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/netty/" itemprop="url" rel="index">
-                    <span itemprop="name">netty</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -510,6 +473,15 @@
           
 
           
+          
+             <span id="/2017-03-28-netty-outofmemory.html" class="leancloud_visitors" data-flag-title="记一次netty内存溢出的问题(上)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -530,8 +502,10 @@
 
       
         
-          <p>最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。</p>
-<p>起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。<br>第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。<br>
+          
+          最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天
+          ...
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017-03-28-netty-outofmemory.html#more" rel="contents">
@@ -585,7 +559,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -613,44 +587,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-05T00:00:00+08:00">
-                2016-11-05
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/cache/" itemprop="url" rel="index">
-                    <span itemprop="name">cache</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -668,6 +610,15 @@
           
 
           
+          
+             <span id="/2016-11-05guava-cache-info.html" class="leancloud_visitors" data-flag-title="Guava Cache使用示例">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -688,19 +639,11 @@
 
       
         
-          <h2 id="guava-cache-usage"><a href="#guava-cache-usage" class="headerlink" title="guava cache usage"></a>guava cache usage</h2><h3 id="1-使用场景"><a href="#1-使用场景" class="headerlink" title="1.使用场景"></a>1.使用场景</h3><blockquote>
-<p>缓存在很多场景下都是相当有用的。例如，计算或检索一个值的代价很高，并且对同样的输入需要不止一次获取值的时候，就应当考虑使用缓存。</p>
-<p>Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区别是ConcurrentMap会一直保存所有添加的元素，直到显式地移除。相对地，Guava Cache为了限制内存占用，通常都设定为自动回收元素。在某些场景下，尽管LoadingCache 不回收元素，它也是很有用的，因为它会自动加载缓存。</p>
-</blockquote>
-<p>通常来说，Guava Cache适用于：</p>
-<ul>
-<li>你愿意消耗一些内存空间来提升速度。</li>
-<li>你预料到某些键会被查询一次以上。</li>
-<li>缓存中存放的数据总量不会超出内存容量。（Guava Cache是单个应用运行时的本地缓存。它不把数据存放到文件或外部服务器。如果这不符合你的需求，请尝试Memcached这类工具）</li>
-</ul>
-<p>如果你的场景符合上述的每一条，Guava Cache就适合你。</p>
-<p>如同范例代码展示的一样，Cache实例通过CacheBuilder生成器模式获取，但是自定义你的缓存才是最有趣的部分。</p>
-<p>注：如果你不需要Cache中的特性，使用ConcurrentHashMap有更好的内存效率——但Cache的大多数特性都很难基于旧有的ConcurrentMap复制，甚至根本不可能做到。</p>
+          
+          guava cache usage1.使用场景
+缓存在很多场景下都是相当有用的。例如，计算或检索一个值的代价很高，并且对同样的输入需要不止一次获取值的时候，就应当考虑使用缓存。
+Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区别是ConcurrentMap会一直保
+          ...
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2016-11-05guava-cache-info.html#more" rel="contents">
@@ -754,7 +697,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -782,44 +725,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-05T00:00:00+08:00">
-                2016-11-05
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/cache/" itemprop="url" rel="index">
-                    <span itemprop="name">cache</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -837,6 +748,15 @@
           
 
           
+          
+             <span id="/2016-11-05-guava-cache.html" class="leancloud_visitors" data-flag-title="Guava Cache 分析">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -857,21 +777,160 @@
 
       
         
-          <h2 id="Guava-Cache-分析"><a href="#Guava-Cache-分析" class="headerlink" title="Guava Cache 分析"></a>Guava Cache 分析</h2><h3 id="guava的单线程回源"><a href="#guava的单线程回源" class="headerlink" title="guava的单线程回源"></a>guava的单线程回源</h3><p>缓存的更新有两种方法:</p>
-<ul>
-<li>被动更新：先从缓存获取，没有则回源获取，再更新缓存；</li>
-<li>主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）</li>
-</ul>
-<p>在高并发环境，被动回源是需要注意的。<br>问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。</p>
-<p>guava cache解决办法：<br>guava cache保证单线程回源，对于同一个key，只让一个请求回源load，其他线程阻塞等待结果。同时，在Guava里可以通过配置expireAfterAccess/expireAfterWrite设定key的过期时间，key过期后就单线程回源加载并放回缓存。</p>
-<p>这样通过Guava Cache简简单单就较为安全地实现了缓存的被动更新操作。</p>
-<p>但是如果对于同一时间大量不同的key同时过期，造成大量不同的key同时回源，这种怎么解决呢？</p>
-<blockquote>
-<p>guava cache实现类似ConcurrentHashMap，维护segment数组，每个segment独享一个锁，ConcurrentHashMap是通过这种机制来实现分段锁，ConcurrentHashMap默认分了16个segment；<br>guava Cache默认是4个segment，故guava cache的并发级别默认是4个，也就是说默认情况下，即便是大量不同的key同时过期，最多只也有4个线程并发回源，理论上不会给后端造成过大的压力。</p>
-</blockquote>
+          
+          guava的单线程回源缓存的更新有两种方法:
+
+被动更新：先从缓存获取，没有则回源获取，再更新缓存；
+主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
+
+在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩
+          ...
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2016-11-05-guava-cache.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-23-motan-rpc.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016-09-23-motan-rpc.html" itemprop="url">
+                  深入浅出Motan RPC
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016-09-23-motan-rpc.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-23-motan-rpc.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2016-09-23-motan-rpc.html" class="leancloud_visitors" data-flag-title="深入浅出Motan RPC">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>本系列文章假设你已经阅读过motan的官方wiki，对motan或者dubbo有一定的了解。对于没有读过wiki的请先阅读<a href="https://github.com/weibocom/motan/wiki/zh_userguide">官方wiki</a>。</p>
+<hr>
+<blockquote>
+<p><code>Motan</code>是一套基于java开发的<code>RPC框架</code>，除了常规的点对点调用外，Motan还提供<code>服务治理功能</code>，包括服务节点的自动发现、摘除、高可用和负载均衡等。Motan具有良好的扩展性，主要模块都提供了多种不同的实现，例如支持多种注册中心，支持多种rpc协议等。</p>
+</blockquote>
+<p><strong>motan定义为一个RPC框架，首先我们看一下RPC的定义：</strong></p>
+<blockquote>
+<p><code>RPC</code> 的全称是 <code>Remote Procedure Call</code> 是一种进程间通信方式。 它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。<strong>即程序员无论是调用本地的还是远程的函数，本质上编写的调用代码基本相同</strong>。</p>
+</blockquote>
+<p>RPC本质上要屏蔽远程调用和本地调用的差异性。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016-09-23-motan-rpc.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -922,7 +981,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -950,44 +1009,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-23T00:00:00+08:00">
-                2016-09-23
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -1005,6 +1032,15 @@
           
 
           
+          
+             <span id="/2016-09-23-motan-codec.html" class="leancloud_visitors" data-flag-title="Motan源码解读-codec">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -1077,183 +1113,12 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-23-motan-rpc.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016-09-23-motan-rpc.html" itemprop="url">
-                  深入浅出Motan RPC
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-23T00:00:00+08:00">
-                2016-09-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016-09-23-motan-rpc.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-23-motan-rpc.html" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>深入浅出Motan RPC</p>
-<p><strong>目录</strong></p>
-<ul>
-<li>TOC<br>{:toc}</li>
-</ul>
-<h3 id="motan"><a href="#motan" class="headerlink" title="motan"></a>motan</h3><h4 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h4><p>本系列文章假设你已经阅读过motan的官方wiki，对motan或者dubbo有一定的了解。对于没有读过wiki的请先阅读<a href="https://github.com/weibocom/motan/wiki/zh_userguide">官方wiki</a>。</p>
-<hr>
-<blockquote>
-<p><code>Motan</code>是一套基于java开发的<code>RPC框架</code>，除了常规的点对点调用外，Motan还提供<code>服务治理功能</code>，包括服务节点的自动发现、摘除、高可用和负载均衡等。Motan具有良好的扩展性，主要模块都提供了多种不同的实现，例如支持多种注册中心，支持多种rpc协议等。</p>
-</blockquote>
-<p><strong>motan定义为一个RPC框架，首先我们看一下RPC的定义：</strong></p>
-<blockquote>
-<p><code>RPC</code> 的全称是 <code>Remote Procedure Call</code> 是一种进程间通信方式。 它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。<strong>即程序员无论是调用本地的还是远程的函数，本质上编写的调用代码基本相同</strong>。</p>
-</blockquote>
-<p>RPC本质上要屏蔽远程调用和本地调用的差异性。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016-09-23-motan-rpc.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-22-motan-serialize.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1281,44 +1146,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-22T00:00:00+08:00">
-                2016-09-22
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -1336,6 +1169,15 @@
           
 
           
+          
+             <span id="/2016-09-22-motan-serialize.html" class="leancloud_visitors" data-flag-title="Motan源码解读-serialize">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -1356,7 +1198,7 @@
 
       
         
-          <h3 id="motan-序列化"><a href="#motan-序列化" class="headerlink" title="motan 序列化"></a>motan 序列化</h3><h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><blockquote>
+          <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote>
 <p><strong>序列化：</strong> 将数据结构或对象转换成二进制串的过程。<br><strong>反序列化：</strong>将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。</p>
 </blockquote>
 <p>motan 将RPC<code>请求中的参数、结果等对象进行序列化与反序列化</code>，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）</p>
@@ -1408,12 +1250,12 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-hastratege.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-override.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1430,8 +1272,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-hastratege.html" itemprop="url">
-                  Motan源码解读-容错策略
+                <a class="post-title-link" href="/2016-09-21-motan-override.html" itemprop="url">
+                  Motan源码解读-源码结构
                 </a>
               
             
@@ -1441,44 +1283,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-21T00:00:00+08:00">
-                2016-09-21
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -1488,14 +1298,23 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2016-09-21-motan-hastratege.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-hastratege.html" itemprop="commentCount"></span>
+                <a href="/2016-09-21-motan-override.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-override.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
           
 
           
+          
+             <span id="/2016-09-21-motan-override.html" class="leancloud_visitors" data-flag-title="Motan源码解读-源码结构">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -1516,74 +1335,13 @@
 
       
         
-          <h3 id="Motan的容错策略"><a href="#Motan的容错策略" class="headerlink" title="Motan的容错策略"></a>Motan的容错策略</h3><blockquote>
-<p>Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：</p>
-</blockquote>
-<ul>
-<li><strong>Failover 失效切换（缺省）</strong></li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">haStrategy</span>=<span class="string">"failover"</span>/&gt;</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p>失败自动切换，当出现失败，重试其它服务器。</p>
-</blockquote>
-<ul>
-<li><strong>Failfast 快速失败</strong></li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">haStrategy</span>=<span class="string">"failfast"</span>/&gt;</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p>快速失败，只发起一次调用，失败立即报错。</p>
-</blockquote>
-<h3 id="dubbo的容错策略"><a href="#dubbo的容错策略" class="headerlink" title="dubbo的容错策略"></a>dubbo的容错策略</h3><p>motan实际上是dubbo的子集，也可以说是阉割版。一下是dubbo支持的容错策略。</p>
-<ul>
-<li><p><strong>1.failover cluster</strong></p>
-<blockquote>
-<p>失败自动切换，当出现失败，重试其他服务器（缺省），通常用于读操作，但重试会带来更长的延时，可通过retries=“2”来设置重试次数（不含第一次）</p>
-</blockquote>
-</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">retries</span>=<span class="string">"2"</span>&gt;</span></div></pre></td></tr></table></figure>
-<ul>
-<li><strong>2.failfast cluster</strong></li>
-</ul>
-<blockquote>
-<p>快速失效，只发起一次调用，失败立即报错。通常用于非幂等性写操作，比如说新增记录</p>
-</blockquote>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">cluster</span>=<span class="string">"failfast"</span>&gt;</span></div></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>3.failsaft cluster</strong></p>
-<blockquote>
-<p>失败安全，出现异常时，直接忽略，通常用于写入审计日志等操作</p>
-</blockquote>
-</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">cluster</span>=<span class="string">"failsafe"</span>&gt;</span></div></pre></td></tr></table></figure>
-<ul>
-<li><strong>4.failback cluster</strong></li>
-</ul>
-<blockquote>
-<p>失败自动恢复，后台记录失败请求，定时重发，通常用于消息通知操作</p>
-</blockquote>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">cluster</span>=<span class="string">"failback"</span>&gt;</span></div></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>5.forking cluster</strong></p>
-<blockquote>
-<p>并行调用多个服务器，只要一个成功即返回。通常用于实时性要求较高的读操作，但需要浪费更多的服务器资源。可通过forks=“2”来设置最大并行数。</p>
-</blockquote>
-</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">cluster</span>=<span class="string">"forking"</span>&gt;</span></div></pre></td></tr></table></figure>
-<h3 id="motan容错策略源代码解读"><a href="#motan容错策略源代码解读" class="headerlink" title="motan容错策略源代码解读"></a>motan容错策略源代码解读</h3><p>motan的容错策略尽管支持的不够多，但是对于大部分场景已经够用。而对于一些特殊场景我们可以基于motan 的SPI机制扩展实现自己需要的容错策略。</p>
-<p>motan的容错策略及时基于java的<code>策略模式</code>实现的。</p>
-<blockquote>
-<p>策略模式作为一种软件设计模式，指对象有某个行为，但是在不同的场景中，该行为有不同的实现算法。比如每个人都要“交个人所得税”，但是“在美国交个人所得税”和“在中国交个人所得税”就有不同的算税方法。</p>
-</blockquote>
-<p>motan容错的接口：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 可以通过motan的SPI机制扩展</span></div><div class="line"><span class="meta">@Spi</span>(scope = Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HaStrategy</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="comment">// 从后面的实现来看，没发现有什么用</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setUrl</span><span class="params">(URL url)</span></span>;</div><div class="line">    <span class="comment">//基于具体的LoadBalance调用请求，问答模式，一个request返回一个response，</span></div><div class="line">    <span class="function">Response <span class="title">call</span><span class="params">(Request request, LoadBalance&lt;T&gt; loadBalance)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>AbstractHaStrategy这个抽象方法做的事情貌似没什么用，直接看具体的实现：<br>failfast很简单，直接略去。看failover的实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="meta">@SpiMeta</span>(name = <span class="string">"failover"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FailoverHaStrategy</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractHaStrategy</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">//确保每个线程持有一份单独的ArrayList&lt;Referer&lt;T&gt;（FailoverHaStrategy，会有单个实例被多个线程调用）</span></div><div class="line">    <span class="keyword">protected</span> ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt; referersHolder = <span class="keyword">new</span> ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt;() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="keyword">protected</span> java.util.List&lt;com.weibo.api.motan.rpc.Referer&lt;T&gt;&gt; initialValue() &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;Referer&lt;T&gt;&gt;();</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request, LoadBalance&lt;T&gt; loadBalance)</span> </span>&#123;</div><div class="line"></div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = selectReferers(request, loadBalance);</div><div class="line">        <span class="keyword">if</span> (referers.isEmpty()) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(String.format(<span class="string">"FailoverHaStrategy No referers for request:%s, loadbalance:%s"</span>, request,</div><div class="line">                    loadBalance));</div><div class="line">        &#125;</div><div class="line">        URL refUrl = referers.get(<span class="number">0</span>).getUrl();</div><div class="line">        <span class="comment">// 先使用method的配置</span></div><div class="line">        <span class="keyword">int</span> tryCount =</div><div class="line">                refUrl.getMethodParameter(request.getMethodName(), request.getParamtersDesc(), URLParamType.retries.getName(),</div><div class="line">                        URLParamType.retries.getIntValue());</div><div class="line">        <span class="comment">// 如果有问题，则设置为不重试</span></div><div class="line">        <span class="keyword">if</span> (tryCount &lt; <span class="number">0</span>) &#123;</div><div class="line">            tryCount = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= tryCount; i++) &#123;</div><div class="line">            Referer&lt;T&gt; refer = referers.get(i % referers.size());</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                request.setRetries(i);</div><div class="line">                <span class="keyword">return</span> refer.call(request);</div><div class="line">            &#125; <span class="keyword">catch</span> (RuntimeException e) &#123;</div><div class="line">                <span class="comment">// 对于业务异常，直接抛出</span></div><div class="line">                <span class="keyword">if</span> (ExceptionUtil.isBizException(e)) &#123;</div><div class="line">                    <span class="keyword">throw</span> e;</div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i &gt;= tryCount) &#123;</div><div class="line">                    <span class="keyword">throw</span> e;</div><div class="line">                &#125;</div><div class="line">                LoggerUtil.warn(String.format(<span class="string">"FailoverHaStrategy Call false for request:%s error=%s"</span>, request, e.getMessage()));</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">      <span class="comment">// 从逻辑来看 代码不会到这个地方（如果是业务逻辑直接抛出，如果达到重试次数，也直接抛出异常了二中断了）</span></div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> MotanFrameworkException(<span class="string">"FailoverHaStrategy.call should not come here!"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</div><div class="line">     * 先从threadLocal拿到当前线程持有的List&lt;Referer&lt;T&gt;&gt; referers，然后清除，再从loadbalance哪里复制一份最新的引用添加进去</div><div class="line">     * haStratege能感知到引用列表的实时变化</div><div class="line">     * <span class="doctag">@param</span> request</div><div class="line">     * <span class="doctag">@param</span> loadBalance</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</span></div><div class="line">    <span class="keyword">protected</span> List&lt;Referer&lt;T&gt;&gt; selectReferers(Request request, LoadBalance&lt;T&gt; loadBalance) &#123;</div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = referersHolder.get();</div><div class="line">        referers.clear();</div><div class="line">        loadBalance.selectToHolder(request, referers);</div><div class="line">        <span class="keyword">return</span> referers;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+          
+          旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
+motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码，也是源码解析的主要包motan-demo    // 示例，快速上手的最佳方法motan-extension // 扩展
+          ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-hastratege.html#more" rel="contents">
+            <a class="btn" href="/2016-09-21-motan-override.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1634,7 +1392,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1662,44 +1420,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-21T00:00:00+08:00">
-                2016-09-21
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -1717,6 +1443,15 @@
           
 
           
+          
+             <span id="/2016-09-21-motan-protocol.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Protocol">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -1792,7 +1527,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1820,44 +1555,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-21T00:00:00+08:00">
-                2016-09-21
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -1875,6 +1578,15 @@
           
 
           
+          
+             <span id="/2016-09-21-motan-filter.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Filter">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -1895,35 +1607,11 @@
 
       
         
-          <p>很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。<br>过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。</p>
-<h3 id="motan-filter："><a href="#motan-filter：" class="headerlink" title="motan filter："></a>motan filter：</h3><h4 id="目前实现的filter"><a href="#目前实现的filter" class="headerlink" title="目前实现的filter"></a>目前实现的filter</h4><ul>
-<li>AccessLogFilter</li>
-</ul>
-<blockquote>
-<p>统计整个call的执行状况，尽量到最上层，最后执行.<br>此filter会对性能产生一定影响，请求量较大时建议关闭。</p>
-</blockquote>
-<ul>
-<li>AccessStatisticFilter</li>
-</ul>
-<p>&gt;</p>
-<ul>
-<li>ActiveLimitFilter</li>
-</ul>
-<blockquote>
-<p>limit active count，判断某个接口并发数是否超限，如果超过限制，则上抛异常,同时做简单的统计。 此filter比较严格，尽量放到底层较早执行。</p>
-</blockquote>
-<ul>
-<li>ServiceMockFilter</li>
-</ul>
-<blockquote>
-<p>mock serivce。测试场景使用</p>
-</blockquote>
-<ul>
-<li>SwitcherFilter</li>
-</ul>
-<blockquote>
-<p>服务降级的filter，</p>
-</blockquote>
+          
+          很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
+motan filter：目前实现的filter
+AccessLog
+          ...
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2016-09-21-motan-filter.html#more" rel="contents">
@@ -2000,7 +1688,7 @@
       <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
            
@@ -2037,12 +1725,55 @@
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
         
 
         
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
         
 
         
@@ -2069,22 +1800,11 @@
   &copy; 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="fa fa-"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">DempeZheng</span>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
-  </a>
-</div>
 
 
         
@@ -2213,6 +1933,113 @@
 
 
   
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
 
   
 

@@ -94,9 +94,9 @@ Motan 在集群负载均衡时，提供了多种方案，缺省为 ActiveWeight�
 
 ActiveWeight(缺省)
 
-1&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
+1&amp;lt;motan:protocol ... loadbalance=&quot;activeWeight&quot;/&amp;gt;
 
-低并发度优先：">
+低并发度优先： referer 的某">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Motan源码解读-负载均衡">
 <meta property="og:url" content="http://code.zhizus.com/2016-09-20-motan-loadbalance.html">
@@ -108,13 +108,13 @@ Motan 在集群负载均衡时，提供了多种方案，缺省为 ActiveWeight�
 
 ActiveWeight(缺省)
 
-1&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
+1&amp;lt;motan:protocol ... loadbalance=&quot;activeWeight&quot;/&amp;gt;
 
-低并发度优先：">
+低并发度优先： referer 的某">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/14612385789967.jpg">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/motan-lb.png">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/loadbalance.png">
-<meta property="og:updated_time" content="2017-04-13T14:02:58.866Z">
+<meta property="og:updated_time" content="2017-04-15T13:35:49.106Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-负载均衡">
 <meta name="twitter:description" content="负载均衡的策略
@@ -124,9 +124,9 @@ Motan 在集群负载均衡时，提供了多种方案，缺省为 ActiveWeight�
 
 ActiveWeight(缺省)
 
-1&amp;lt;motan:protocol ... loadbalance=&amp;quot;activeWeight&amp;quot;/&amp;gt;
+1&amp;lt;motan:protocol ... loadbalance=&quot;activeWeight&quot;/&amp;gt;
 
-低并发度优先：">
+低并发度优先： referer 的某">
 <meta name="twitter:image" content="http://code.zhizus.com/images/motan/14612385789967.jpg">
 
 
@@ -136,7 +136,7 @@ ActiveWeight(缺省)
   var CONFIG = {
     root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    sidebar: {"position":"left","display":"post"},
     fancybox: true,
     motion: true,
     duoshuo: {
@@ -147,8 +147,8 @@ ActiveWeight(缺省)
       applicationID: '',
       apiKey: '',
       indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+      hits: "",
+      labels: ""
     }
   };
 </script>
@@ -252,12 +252,32 @@ ActiveWeight(缺省)
         </li>
       
         
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            标签
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            menu.crossed
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -295,7 +315,7 @@ ActiveWeight(缺省)
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -320,44 +340,12 @@ ActiveWeight(缺省)
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-20T00:00:00+08:00">
-                2016-09-20
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -375,6 +363,15 @@ ActiveWeight(缺省)
           
 
           
+          
+             <span id="/2016-09-20-motan-loadbalance.html" class="leancloud_visitors" data-flag-title="Motan源码解读-负载均衡">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -394,59 +391,58 @@ ActiveWeight(缺省)
       
 
       
-        <h4 id="负载均衡的策略"><a href="#负载均衡的策略" class="headerlink" title="负载均衡的策略"></a>负载均衡的策略</h4><blockquote>
+        <h2 id="负载均衡的策略"><a href="#负载均衡的策略" class="headerlink" title="负载均衡的策略"></a>负载均衡的策略</h2><blockquote>
 <p>Motan 在集群负载均衡时，提供了多种方案，缺省为 ActiveWeight，并支持自定义扩展。 负载均衡策略在Client端生效，因此需在Client端添加配置</p>
 </blockquote>
 <p><strong>目前支持的负载均衡策略有：</strong></p>
 <ul>
 <li>ActiveWeight(缺省)</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;activeWeight&quot;/&gt;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">loadbalance</span>=<span class="string">"activeWeight"</span>/&gt;</span></div></pre></td></tr></table></figure>
 <blockquote>
 <p>低并发度优先： referer 的某时刻的 call 数越小优先级越高<br>由于 Referer List 可能很多，比如上百台，如果每次都要从这上百个 Referer 或者最低并发的几个，性能有些损耗，因此 random.nextInt(list.size()) 获取一个起始的 index，然后获取最多不超过 MAX_REFERER_COUNT 的状态是 isAvailable 的 referer 进行判断 activeCount.</p>
 </blockquote>
 <ul>
 <li>Random</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;random&quot;/&gt;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">loadbalance</span>=<span class="string">"random"</span>/&gt;</span></div></pre></td></tr></table></figure>
 <blockquote>
 <p>随机，按权重设置随机概率。<br>在一个截面上碰撞的概率高，但调用量越大分布越均匀，而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。</p>
 </blockquote>
-<a id="more"></a>
 <ul>
 <li>RoundRobin</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;roundrobin&quot;/&gt;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">loadbalance</span>=<span class="string">"roundrobin"</span>/&gt;</span></div></pre></td></tr></table></figure>
 <blockquote>
 <p>轮循，按公约后的权重设置轮循比率</p>
 </blockquote>
 <ul>
 <li>LocalFirst</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;localFirst&quot;/&gt;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">loadbalance</span>=<span class="string">"localFirst"</span>/&gt;</span></div></pre></td></tr></table></figure>
 <blockquote>
 <p>本地服务优先获取策略，对referers根据ip顺序查找本地服务，多存在多个本地服务，获取Active最小的本地服务进行服务。<br>当不存在本地服务，但是存在远程RPC服务，则根据ActivWeight获取远程RPC服务<br>当两者都存在，所有本地服务都应优先于远程服务，本地RPC服务与远程RPC服务内部则根据ActiveWeight进行</p>
 </blockquote>
 <ul>
 <li>Consistent</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;consistent&quot;/&gt;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">loadbalance</span>=<span class="string">"consistent"</span>/&gt;</span></div></pre></td></tr></table></figure>
 <blockquote>
 <p>一致性 Hash，相同参数的请求总是发到同一提供者</p>
 </blockquote>
 <ul>
 <li>ConfigurableWeight</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol ... loadbalance=&quot;configurableWeight&quot;/&gt;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">loadbalance</span>=<span class="string">"configurableWeight"</span>/&gt;</span></div></pre></td></tr></table></figure>
 <blockquote>
 <p>权重可配置的负载均衡策略</p>
 </blockquote>
-<h4 id="motan加载loadbalance策略的机制"><a href="#motan加载loadbalance策略的机制" class="headerlink" title="motan加载loadbalance策略的机制"></a>motan加载loadbalance策略的机制</h4><p>上面我们了解了motan支持的负载均衡的策略，下面我们来剖析一下motan怎么实现的。</p>
+<h2 id="motan加载loadbalance策略的机制"><a href="#motan加载loadbalance策略的机制" class="headerlink" title="motan加载loadbalance策略的机制"></a>motan加载loadbalance策略的机制</h2><p>上面我们了解了motan支持的负载均衡的策略，下面我们来剖析一下motan怎么实现的。</p>
 <p>RPCClient首先会经过一层HA（这里 motan实现了两种容灾策略，failfast&amp;failover），然后会根据配置的loadbalance的策略选取相应的nettyClient发送请求到RPCServer。流程如下图所示：</p>
 <p><img src="/images/motan/14612385789967.jpg" alt=""></p>
 <p>motan的loadbalance策略实现在客户端，客户端初始化时会根据配置，基于spi机制查找对应的实现（不了解SPI的可以看<a href="http://zhizus.com/code/motan-spi" target="_blank" rel="external">Motan源码解读-SPI机制</a>加载loadbalance的实现。<br>调用链如下图所示：</p>
 <p><img src="/images/motan/motan-lb.png" alt=""></p>
-<h4 id="motan-LoadBalance实现"><a href="#motan-LoadBalance实现" class="headerlink" title="motan LoadBalance实现"></a>motan LoadBalance实现</h4><p><img src="/images/motan/loadbalance.png" alt=""></p>
+<h2 id="motan-LoadBalance实现"><a href="#motan-LoadBalance实现" class="headerlink" title="motan LoadBalance实现"></a>motan LoadBalance实现</h2><p><img src="/images/motan/loadbalance.png" alt=""></p>
 <p>接下来，我们看loadbalance接口</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 可以基于SPI扩展，使用方可以实现自己的LoadBalance</span></div><div class="line"><span class="meta">@Spi</span>(scope = Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">LoadBalance</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">//当可用的应用列表变化时会调用这个方法刷新（motan的可用引用列表是基于服务发现这种模式实现，目前实现了consul&amp;zk）</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onRefresh</span><span class="params">(List&lt;Referer&lt;T&gt;&gt; referers)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// 基于负载均衡的策略选择可用的引用</span></div><div class="line">    <span class="function">Referer&lt;T&gt; <span class="title">select</span><span class="params">(Request request)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// FailoverHaStrategy会使用到这个，多线程场景</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">selectToHolder</span><span class="params">(Request request, List&lt;Referer&lt;T&gt;&gt; refersHolder)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// ?? 仅仅属于WeightLoadBalance的特性，定义在最上层接口是否合适？？</span></div><div class="line">    <span class="comment">//cluster.getLoadBalance().setWeightString(weights); 这里使用的时候判断一下类型，对WeightLoadBalance这种类型单独处理向下转型是否可以？</span></div><div class="line">    <span class="comment">// 或者是否有其他更好的办法？？</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setWeightString</span><span class="params">(String weightString)</span></span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>下面我们AbstractLoadBalance,实现了公有的基础逻辑。将不同的策略交由子类去实现，实际上应用到了java设计模式的模板模式。</p>
@@ -460,7 +456,7 @@ ActiveWeight(缺省)
 <p>下面贴出一个另外一种的实现，仅供学习参考，<code>非线程安全</code>，使用时需要注意.</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LoadBalance</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> i = <span class="number">0</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> cw = <span class="number">0</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span>[] weight;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LoadBalance</span><span class="params">(<span class="keyword">int</span> count)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.count = count;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LoadBalance</span><span class="params">(<span class="keyword">int</span>[] weight)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.count = weight.length;</div><div class="line">        <span class="keyword">this</span>.weight = weight;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashIndex</span><span class="params">(String key)</span> </span>&#123;</div><div class="line">        <span class="keyword">long</span> hash = <span class="number">5381L</span>;</div><div class="line"></div><div class="line">        <span class="keyword">int</span> index;</div><div class="line">        <span class="keyword">for</span>(index = <span class="number">0</span>; index &lt; key.length(); ++index) &#123;</div><div class="line">            hash = (hash &lt;&lt; <span class="number">5</span>) + hash + (<span class="keyword">long</span>)key.charAt(index);</div><div class="line">            hash &amp;= <span class="number">4294967295L</span>;</div><div class="line">        &#125;</div><div class="line">        index = (<span class="keyword">int</span>)hash % <span class="keyword">this</span>.count;</div><div class="line">        index = Math.abs(index);</div><div class="line">        <span class="keyword">return</span> index;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">roundIndexByWeight</span><span class="params">()</span> </span>&#123;</div><div class="line">        do &#123;</div><div class="line">            <span class="keyword">this</span>.i = (<span class="keyword">this</span>.i + <span class="number">1</span>) % <span class="keyword">this</span>.count;</div><div class="line">            <span class="keyword">if</span>(<span class="keyword">this</span>.i == <span class="number">0</span>) &#123;</div><div class="line">                <span class="keyword">this</span>.cw -= <span class="keyword">this</span>.gcd();</div><div class="line">                <span class="keyword">if</span>(<span class="keyword">this</span>.cw &lt;= <span class="number">0</span>) &#123;</div><div class="line">                    <span class="keyword">this</span>.cw = <span class="keyword">this</span>.max();</div><div class="line">                    <span class="keyword">if</span>(<span class="keyword">this</span>.cw == <span class="number">0</span>) &#123;</div><div class="line">                        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">while</span>(<span class="keyword">this</span>.weight[<span class="keyword">this</span>.i] &lt; <span class="keyword">this</span>.cw);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.i;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">roundIndex</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> j = <span class="keyword">this</span>.i;</div><div class="line">        j = (j + <span class="number">1</span>) % <span class="keyword">this</span>.count;</div><div class="line">        <span class="keyword">this</span>.i = j;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.i;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">gcd</span><span class="params">()</span> </span>&#123;</div><div class="line">        BigInteger value = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.weight.length &gt; <span class="number">0</span>) &#123;</div><div class="line">            value = BigInteger.valueOf((<span class="keyword">long</span>)<span class="keyword">this</span>.weight[<span class="keyword">this</span>.i]);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.weight.length - <span class="number">1</span>; ++i) &#123;</div><div class="line">            BigInteger tmp = BigInteger.valueOf((<span class="keyword">long</span>)<span class="keyword">this</span>.weight[i]);</div><div class="line">            tmp = tmp.gcd(BigInteger.valueOf((<span class="keyword">long</span>)<span class="keyword">this</span>.weight[i + <span class="number">1</span>]));</div><div class="line">            <span class="keyword">if</span>(value.compareTo(tmp) &gt; <span class="number">0</span>) &#123;</div><div class="line">                value = tmp;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">null</span> != value) &#123;</div><div class="line">            <span class="keyword">return</span> value.intValue();</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">max</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> value = <span class="number">0</span>;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.weight.length &gt; <span class="number">0</span>) &#123;</div><div class="line">            value = <span class="keyword">this</span>.weight[<span class="number">0</span>];</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.weight.length - <span class="number">1</span>; ++i) &#123;</div><div class="line">            <span class="keyword">int</span> tmp = <span class="keyword">this</span>.weight[i];</div><div class="line">            <span class="keyword">if</span>(value &lt; tmp) &#123;</div><div class="line">                value = tmp;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> value;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">HALBProxy</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> HALBProxy.Strategy strategy;</div><div class="line">    <span class="keyword">private</span> LoadBalance lb;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">HALBProxy</span><span class="params">(HALBProxy.Strategy strategy)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.logger = Logger.getLogger(<span class="keyword">this</span>.getClass());</div><div class="line">        <span class="keyword">this</span>.availServers = <span class="keyword">new</span> CopyOnWriteArrayList();</div><div class="line">        <span class="keyword">this</span>.unavailServers = <span class="keyword">new</span> CopyOnWriteArrayList();</div><div class="line">        <span class="keyword">this</span>.listeners = <span class="keyword">new</span> HashSet();</div><div class="line">        <span class="keyword">this</span>.strategy = strategy;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getIndex</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">switch</span>(strategy) &#123;</div><div class="line">        <span class="keyword">case</span> <span class="number">1</span>:</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        <span class="keyword">case</span> <span class="number">2</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.lb.roundIndex();</div><div class="line">        <span class="keyword">case</span> <span class="number">3</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.lb.roundIndexByWeight();</div><div class="line">        <span class="keyword">default</span>:</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getIndex</span><span class="params">(String key)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.lb.hashIndex(key);</div><div class="line">    &#125;</div><div class="line">     <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">enum</span> Strategy &#123;</div><div class="line">        DEFAULT,</div><div class="line">        RR,</div><div class="line">        WRR,</div><div class="line">        HASH;</div><div class="line">        <span class="function"><span class="keyword">private</span> <span class="title">Strategy</span><span class="params">()</span> </span>&#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>总的来说负载均衡部分还算比较简单，LocalFirst优先读取本机的服务这个策略还是很不错的。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>总的来说负载均衡部分还算比较简单，LocalFirst优先读取本机的服务这个策略还是很不错的。</p>
 <hr>
 <p>关于更多loadbalance请看<a href="http://tutorials.jenkov.com/software-architecture/load-balancing.html" target="_blank" rel="external">老外的文章(直戳loadbalance本质)</a></p>
 
@@ -477,6 +473,22 @@ ActiveWeight(缺省)
     <div>
       
         
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
 
       
     </div>
@@ -509,8 +521,8 @@ ActiveWeight(缺省)
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-21-motan-override.html" rel="prev" title="Motan源码解读-源码结构">
-                Motan源码解读-源码结构 <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-21-motan-hastratege.html" rel="prev" title="Motan源码解读-容错策略">
+                Motan源码解读-容错策略 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -575,7 +587,7 @@ ActiveWeight(缺省)
       <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
            
@@ -612,12 +624,55 @@ ActiveWeight(缺省)
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
         
 
         
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
         
 
         
@@ -635,7 +690,7 @@ ActiveWeight(缺省)
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#负载均衡的策略"><span class="nav-number">1.</span> <span class="nav-text">负载均衡的策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan加载loadbalance策略的机制"><span class="nav-number">2.</span> <span class="nav-text">motan加载loadbalance策略的机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan-LoadBalance实现"><span class="nav-number">3.</span> <span class="nav-text">motan LoadBalance实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#负载均衡的策略"><span class="nav-number">1.</span> <span class="nav-text">负载均衡的策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan加载loadbalance策略的机制"><span class="nav-number">2.</span> <span class="nav-text">motan加载loadbalance策略的机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan-LoadBalance实现"><span class="nav-number">3.</span> <span class="nav-text">motan LoadBalance实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li></ol></div>
             
 
           </div>
@@ -660,22 +715,11 @@ ActiveWeight(缺省)
   &copy; 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="fa fa-"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">DempeZheng</span>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
-  </a>
-</div>
 
 
         
@@ -808,6 +852,113 @@ ActiveWeight(缺省)
 
 
   
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
 
   
 

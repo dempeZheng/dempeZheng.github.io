@@ -88,20 +88,26 @@
 
 
 <meta name="description" content="最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
-起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。">
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。
+通过如下命令
+1su">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次netty内存溢出的问题(上)">
 <meta property="og:url" content="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
-起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。">
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。
+通过如下命令
+1su">
 <meta property="og:image" content="http://code.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
 <meta property="og:image" content="http://code.zhizus.com/images/7679748d-5928-4666-9e57-59ceeadb9058.png">
-<meta property="og:updated_time" content="2017-04-13T14:26:31.754Z">
+<meta property="og:updated_time" content="2017-04-15T12:44:44.132Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次netty内存溢出的问题(上)">
 <meta name="twitter:description" content="最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
-起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。">
+起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。
+通过如下命令
+1su">
 <meta name="twitter:image" content="http://code.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
 
 
@@ -111,7 +117,7 @@
   var CONFIG = {
     root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    sidebar: {"position":"left","display":"post"},
     fancybox: true,
     motion: true,
     duoshuo: {
@@ -122,8 +128,8 @@
       applicationID: '',
       apiKey: '',
       indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+      hits: "",
+      labels: ""
     }
   };
 </script>
@@ -227,12 +233,32 @@
         </li>
       
         
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            标签
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            menu.crossed
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -270,7 +296,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -295,44 +321,12 @@
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-28T00:00:00+08:00">
-                2017-03-28
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/netty/" itemprop="url" rel="index">
-                    <span itemprop="name">netty</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -350,6 +344,15 @@
           
 
           
+          
+             <span id="/2017-03-28-netty-outofmemory.html" class="leancloud_visitors" data-flag-title="记一次netty内存溢出的问题(上)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -370,7 +373,7 @@
 
       
         <p>最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。</p>
-<p>起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。<br>第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。<br><a id="more"></a></p>
+<p>起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。<br>第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。</p>
 <p>通过如下命令</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo jmap -F -heap pid</div></pre></td></tr></table></figure>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">Heap Configuration:</div><div class="line">   MinHeapFreeRatio = <span class="number">40</span></div><div class="line">   MaxHeapFreeRatio = <span class="number">70</span></div><div class="line">   MaxHeapSize      = <span class="number">1073741824</span> (<span class="number">1024.0</span>MB)</div><div class="line">   NewSize          = <span class="number">536870912</span> (<span class="number">512.0</span>MB)</div><div class="line">   MaxNewSize       = <span class="number">536870912</span> (<span class="number">512.0</span>MB)</div><div class="line">   OldSize          = <span class="number">5439488</span> (<span class="number">5.1875</span>MB)</div><div class="line">   NewRatio         = <span class="number">2</span></div><div class="line">   SurvivorRatio    = <span class="number">8</span></div><div class="line">   PermSize         = <span class="number">201326592</span> (<span class="number">192.0</span>MB)</div><div class="line">   MaxPermSize      = <span class="number">201326592</span> (<span class="number">192.0</span>MB)</div><div class="line">   G1HeapRegionSize = <span class="number">0</span> (<span class="number">0.0</span>MB)</div><div class="line"></div><div class="line">Heap Usage:</div><div class="line"><span class="function">New <span class="title">Generation</span> <span class="params">(Eden + <span class="number">1</span> Survivor Space)</span>:</span></div><div class="line">   capacity = <span class="number">483196928</span> (<span class="number">460.8125</span>MB)</div><div class="line">   used     = <span class="number">120514736</span> (<span class="number">114.93180847167969</span>MB)</div><div class="line">   free     = <span class="number">362682192</span> (<span class="number">345.8806915283203</span>MB)</div><div class="line">   <span class="number">24.941122142233485</span>% used</div><div class="line">Eden Space:</div><div class="line">   capacity = <span class="number">429522944</span> (<span class="number">409.625</span>MB)</div><div class="line">   used     = <span class="number">120514736</span> (<span class="number">114.93180847167969</span>MB)</div><div class="line">   free     = <span class="number">309008208</span> (<span class="number">294.6931915283203</span>MB)</div><div class="line">   <span class="number">28.057811039775327</span>% used</div><div class="line">From Space:</div><div class="line">   capacity = <span class="number">53673984</span> (<span class="number">51.1875</span>MB)</div><div class="line">   used     = <span class="number">0</span> (<span class="number">0.0</span>MB)</div><div class="line">   free     = <span class="number">53673984</span> (<span class="number">51.1875</span>MB)</div><div class="line">   <span class="number">0.0</span>% used</div><div class="line">To Space:</div><div class="line">   capacity = <span class="number">53673984</span> (<span class="number">51.1875</span>MB)</div><div class="line">   used     = <span class="number">0</span> (<span class="number">0.0</span>MB)</div><div class="line">   free     = <span class="number">53673984</span> (<span class="number">51.1875</span>MB)</div><div class="line">   <span class="number">0.0</span>% used</div><div class="line">concurrent mark-sweep generation:</div><div class="line">   capacity = <span class="number">536870912</span> (<span class="number">512.0</span>MB)</div><div class="line">   used     = <span class="number">532637504</span> (<span class="number">507.96270751953125</span>MB)</div><div class="line">   free     = <span class="number">4233408</span> (<span class="number">4.03729248046875</span>MB)</div><div class="line">   <span class="number">99.21146631240845</span>% used</div><div class="line">Perm Generation:</div><div class="line">   capacity = <span class="number">201326592</span> (<span class="number">192.0</span>MB)</div><div class="line">   used     = <span class="number">21220648</span> (<span class="number">20.237586975097656</span>MB)</div><div class="line">   free     = <span class="number">180105944</span> (<span class="number">171.76241302490234</span>MB)</div><div class="line">   <span class="number">10.540409882863363</span>% used</div></pre></td></tr></table></figure>
@@ -442,6 +445,22 @@
     <div>
       
         
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
 
       
     </div>
@@ -540,7 +559,7 @@
       <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
            
@@ -577,12 +596,55 @@
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
         
 
         
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
         
 
         
@@ -625,22 +687,11 @@
   &copy; 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="fa fa-"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">DempeZheng</span>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
-  </a>
-</div>
 
 
         
@@ -773,6 +824,113 @@
 
 
   
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
 
   
 

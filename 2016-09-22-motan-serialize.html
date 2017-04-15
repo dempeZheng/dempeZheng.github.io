@@ -87,7 +87,7 @@
 
 
 
-<meta name="description" content="motan 序列化简介
+<meta name="description" content="简介
 序列化： 将数据结构或对象转换成二进制串的过程。反序列化：将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。
 
 motan 将RPC请求中的参数、结果等对象进行序列化与反序列化，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）">
@@ -95,16 +95,16 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
 <meta property="og:title" content="Motan源码解读-serialize">
 <meta property="og:url" content="http://code.zhizus.com/2016-09-22-motan-serialize.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="motan 序列化简介
+<meta property="og:description" content="简介
 序列化： 将数据结构或对象转换成二进制串的过程。反序列化：将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。
 
 motan 将RPC请求中的参数、结果等对象进行序列化与反序列化，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）">
 <meta property="og:image" content="http://code.zhizus.com/code/images//motan/motan-register-server-client.jpg">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/serialize.png">
-<meta property="og:updated_time" content="2017-04-13T14:02:21.911Z">
+<meta property="og:updated_time" content="2017-04-15T13:35:49.099Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-serialize">
-<meta name="twitter:description" content="motan 序列化简介
+<meta name="twitter:description" content="简介
 序列化： 将数据结构或对象转换成二进制串的过程。反序列化：将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。
 
 motan 将RPC请求中的参数、结果等对象进行序列化与反序列化，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）">
@@ -117,7 +117,7 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
   var CONFIG = {
     root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    sidebar: {"position":"left","display":"post"},
     fancybox: true,
     motion: true,
     duoshuo: {
@@ -128,8 +128,8 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
       applicationID: '',
       apiKey: '',
       indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+      hits: "",
+      labels: ""
     }
   };
 </script>
@@ -233,12 +233,32 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
         </li>
       
         
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            标签
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            menu.crossed
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -276,7 +296,7 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -301,44 +321,12 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-22T00:00:00+08:00">
-                2016-09-22
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -356,6 +344,15 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
           
 
           
+          
+             <span id="/2016-09-22-motan-serialize.html" class="leancloud_visitors" data-flag-title="Motan源码解读-serialize">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -375,7 +372,7 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
       
 
       
-        <h3 id="motan-序列化"><a href="#motan-序列化" class="headerlink" title="motan 序列化"></a>motan 序列化</h3><h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><blockquote>
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote>
 <p><strong>序列化：</strong> 将数据结构或对象转换成二进制串的过程。<br><strong>反序列化：</strong>将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。</p>
 </blockquote>
 <p>motan 将RPC<code>请求中的参数、结果等对象进行序列化与反序列化</code>，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）</p>
@@ -383,7 +380,7 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
 <p>一个rpc框架的性能主要取决于：线程模型，IO模型，序列化三个方面。（对于有gc机制的jvm来说，零拷贝也很关键）<br>所以一个性能优异的序列化对于rpc是非常重要的。（这里的序列化和反序列化仅仅涉及到请求中的参数、结果等对象，协议其他的信息的序列化见后续的codec章节）</p>
 <p>motan会对client端发送的request的请求参数对象进行序列化，也会对服务端下发给response对象进行序列化，如下图所示：</p>
 <p><img src="/code/images//motan/motan-register-server-client.jpg" alt=""></p>
-<h4 id="motan目前支持两种序列化："><a href="#motan目前支持两种序列化：" class="headerlink" title="motan目前支持两种序列化："></a>motan目前支持两种序列化：</h4><ul>
+<h2 id="motan目前支持两种序列化："><a href="#motan目前支持两种序列化：" class="headerlink" title="motan目前支持两种序列化："></a>motan目前支持两种序列化：</h2><ul>
 <li>hession2</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol serialization=&quot;hessian2&quot; /&gt;</div></pre></td></tr></table></figure>
@@ -391,7 +388,7 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
 <li>fastjson</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;motan:protocol serialization=&quot;fastjson&quot; /&gt;</div></pre></td></tr></table></figure>
-<h3 id="各种序列化性能对比"><a href="#各种序列化性能对比" class="headerlink" title="各种序列化性能对比"></a>各种序列化性能对比</h3><p><img src="/images/motan/serialize.png" alt=""></p>
+<h2 id="各种序列化性能对比"><a href="#各种序列化性能对比" class="headerlink" title="各种序列化性能对比"></a>各种序列化性能对比</h2><p><img src="/images/motan/serialize.png" alt=""></p>
 <p>我们可以发现fastjson的序列化性能和thrift和protobuf差异已经不太大了，明显好过hession（当然上图比较的不知道hession的版本，可能不准确）<br>dubbo是有针对hession单独做优化的，但是motan默认使用hession，且没做优化。</p>
 <h3 id="motan序列化的实现"><a href="#motan序列化的实现" class="headerlink" title="motan序列化的实现"></a>motan序列化的实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 这个可以可以扩展的，也就是你可以扩展motan用你想要的序列化方式</span></div><div class="line"><span class="meta">@Spi</span>(scope=Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Serialization</span> </span>&#123;</div><div class="line">	<span class="comment">// 将对象序列话称字节数组</span></div><div class="line">	<span class="keyword">byte</span>[] serialize(Object obj) <span class="keyword">throws</span> IOException;</div><div class="line">	<span class="comment">// 将字节数组反序列化成对象</span></div><div class="line">	&lt;T&gt; <span class="function">T <span class="title">deserialize</span><span class="params">(<span class="keyword">byte</span>[] bytes, Class&lt;T&gt; clz)</span> <span class="keyword">throws</span> IOException</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>具体的实现要看hession2和fastjson了。</p>
@@ -415,6 +412,22 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
     <div>
       
         
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
 
       
     </div>
@@ -437,8 +450,8 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-hastratege.html" rel="next" title="Motan源码解读-容错策略">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-容错策略
+              <a href="/2016-09-21-motan-override.html" rel="next" title="Motan源码解读-源码结构">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-源码结构
               </a>
             
           </div>
@@ -447,8 +460,8 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-23-motan-rpc.html" rel="prev" title="深入浅出Motan RPC">
-                深入浅出Motan RPC <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-23-motan-codec.html" rel="prev" title="Motan源码解读-codec">
+                Motan源码解读-codec <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -513,7 +526,7 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
       <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
            
@@ -550,12 +563,55 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
         
 
         
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
         
 
         
@@ -573,7 +629,7 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#motan-序列化"><span class="nav-number">1.</span> <span class="nav-text">motan 序列化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan目前支持两种序列化："><span class="nav-number">1.2.</span> <span class="nav-text">motan目前支持两种序列化：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#各种序列化性能对比"><span class="nav-number">2.</span> <span class="nav-text">各种序列化性能对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#motan序列化的实现"><span class="nav-number">3.</span> <span class="nav-text">motan序列化的实现</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan目前支持两种序列化："><span class="nav-number">2.</span> <span class="nav-text">motan目前支持两种序列化：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#各种序列化性能对比"><span class="nav-number">3.</span> <span class="nav-text">各种序列化性能对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#motan序列化的实现"><span class="nav-number">3.1.</span> <span class="nav-text">motan序列化的实现</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -598,22 +654,11 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
   &copy; 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="fa fa-"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">DempeZheng</span>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
-  </a>
-</div>
 
 
         
@@ -746,6 +791,113 @@ motan 将RPC请求中的参数、结果等对象进行序列化与反序列化�
 
 
   
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
 
   
 

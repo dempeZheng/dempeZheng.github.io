@@ -96,7 +96,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 <meta property="og:description" content="motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
 dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前仅支持默认motan的协议，所以很多时候我们可能会扩展motan支持自己的协议，那么我们就得从codec入手了（有的时">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/codec.png">
-<meta property="og:updated_time" content="2017-04-13T14:02:21.899Z">
+<meta property="og:updated_time" content="2017-04-15T13:35:49.095Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-codec">
 <meta name="twitter:description" content="motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。
@@ -110,7 +110,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
   var CONFIG = {
     root: '/',
     scheme: 'Mist',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    sidebar: {"position":"left","display":"post"},
     fancybox: true,
     motion: true,
     duoshuo: {
@@ -121,8 +121,8 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
       applicationID: '',
       apiKey: '',
       indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+      hits: "",
+      labels: ""
     }
   };
 </script>
@@ -226,12 +226,32 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
         </li>
       
         
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            标签
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            menu.crossed
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -269,7 +289,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -294,44 +314,12 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
         <div class="post-meta">
           <span class="post-time">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-23T00:00:00+08:00">
-                2016-09-23
-              </time>
-            
 
             
 
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Motan源码解读/" itemprop="url" rel="index">
-                    <span itemprop="name">Motan源码解读</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -349,6 +337,15 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
           
 
           
+          
+             <span id="/2016-09-23-motan-codec.html" class="leancloud_visitors" data-flag-title="Motan源码解读-codec">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
           
 
           
@@ -398,7 +395,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 </blockquote>
 <p>为了不引入复杂性，我们先看DefaultRpcCodec的实现。<br>要知道motan如何对协议编解码，首先我们的非常清楚motan的协议格式。</p>
 <p>CompresssRpcCodec这个类的注释中已经有协议各个模块的实现，但是还不够清晰简明，我们先整理一个图。</p>
-<h4 id="motan协议格式"><a href="#motan协议格式" class="headerlink" title="motan协议格式"></a>motan协议格式</h4><ul>
+<h2 id="motan协议格式"><a href="#motan协议格式" class="headerlink" title="motan协议格式"></a>motan协议格式</h2><ul>
 <li>header</li>
 </ul>
 <table style="border-collapse:collapse;border-spacing:0;border-color:#999"><tr><th style="font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#fff;background-color:#26ADE4;text-align:center" colspan="7">header</th></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center">0-15</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center">16-23</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top" colspan="3">24-31</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">32-95</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">96-127</td></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center">magic</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center">version</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top" colspan="3">extend flag</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">request id</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">body content length</td></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center" rowspan="2">魔数</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center" rowspan="2">协议版本</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">24-28</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">29-30</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">31</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top" rowspan="2"><br>消息id<br></td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top" rowspan="2"><br>body包长</td></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">保留</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">event( 可支持4种event，<br>如normal, exception等)</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">0 is request , 1 is response</td></tr></table>
@@ -416,11 +413,11 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 <blockquote>
 <p><code>serialize (result) or serialize (exception)</code>：motan的response的message对象是通过hession2或者fastjson序列化生成的字节数组，所以这个地方就是一个字节数组（如果需要了解序列化的部分，可以看上篇博客）</p>
 </blockquote>
-<h4 id="motan协议打包"><a href="#motan协议打包" class="headerlink" title="motan协议打包"></a>motan协议打包</h4><p>协议的打包简单说一下header打包的。</p>
+<h2 id="motan协议打包"><a href="#motan协议打包" class="headerlink" title="motan协议打包"></a>motan协议打包</h2><p>协议的打包简单说一下header打包的。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">byte</span>[] encode(<span class="keyword">byte</span>[] body, <span class="keyword">byte</span> flag, <span class="keyword">long</span> requestId) <span class="keyword">throws</span> IOException &#123;</div><div class="line">      <span class="comment">// 协议1的header占16个字节，先创建一个长度为16的字节数组</span></div><div class="line">      <span class="keyword">byte</span>[] header = <span class="keyword">new</span> <span class="keyword">byte</span>[RpcProtocolVersion.VERSION_1.getHeaderLength()];</div><div class="line">      <span class="keyword">int</span> offset = <span class="number">0</span>;</div><div class="line"></div><div class="line">      <span class="comment">// 0 - 15 bit : magic</span></div><div class="line">      <span class="comment">// 这个方法实际上是把short类型的magic转成两个字节，打包到header</span></div><div class="line">      ByteUtil.short2bytes(MAGIC, header, offset);</div><div class="line">      offset += <span class="number">2</span>;</div><div class="line"></div><div class="line">      <span class="comment">// 16 - 23 bit : version</span></div><div class="line">      <span class="comment">// 打包version</span></div><div class="line">      header[offset++] = RpcProtocolVersion.VERSION_1.getVersion();</div><div class="line"></div><div class="line">      <span class="comment">// 24 - 31 bit : extend flag</span></div><div class="line">      <span class="comment">// 打包flag</span></div><div class="line">      header[offset++] = flag;</div><div class="line"></div><div class="line">      <span class="comment">// 32 - 95 bit : requestId</span></div><div class="line">      <span class="comment">// 打包requestId</span></div><div class="line">      ByteUtil.long2bytes(requestId, header, offset);</div><div class="line">      offset += <span class="number">8</span>;</div><div class="line"></div><div class="line">      <span class="comment">// 96 - 127 bit : body content length</span></div><div class="line">      <span class="comment">// 打包body包长</span></div><div class="line">      ByteUtil.int2bytes(body.length, header, offset);</div><div class="line"></div><div class="line">      <span class="keyword">byte</span>[] data = <span class="keyword">new</span> <span class="keyword">byte</span>[header.length + body.length];</div><div class="line"></div><div class="line">      System.arraycopy(header, <span class="number">0</span>, data, <span class="number">0</span>, header.length);</div><div class="line">      System.arraycopy(body, <span class="number">0</span>, data, header.length, body.length);</div><div class="line"></div><div class="line">      <span class="keyword">return</span> data;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
 <p>到这里motan默认的协议基本分析完，但是还没说到CompresssRpcCodec 压缩的编解码，（这个压缩的类跟协议编解码写到一起，分离出来会不会更好[如果我们能确定哪些地方需要压缩]）</p>
-<h4 id="motan协议的压缩"><a href="#motan协议的压缩" class="headerlink" title="motan协议的压缩"></a>motan协议的压缩</h4><p>数据压缩也是一个完善的rpc框架必备的功能之一，良好的压缩可以减少网络传输数据大小，节省流量，提升响应速度。</p>
-<h5 id="压缩算法比较"><a href="#压缩算法比较" class="headerlink" title="压缩算法比较"></a>压缩算法比较</h5><p>以下是Google几年前发布的一组测试数据（数据有些老了，有人近期做过测试的话希望能共享出来）：</p>
+<h2 id="motan协议的压缩"><a href="#motan协议的压缩" class="headerlink" title="motan协议的压缩"></a>motan协议的压缩</h2><p>数据压缩也是一个完善的rpc框架必备的功能之一，良好的压缩可以减少网络传输数据大小，节省流量，提升响应速度。</p>
+<h3 id="压缩算法比较"><a href="#压缩算法比较" class="headerlink" title="压缩算法比较"></a>压缩算法比较</h3><p>以下是Google几年前发布的一组测试数据（数据有些老了，有人近期做过测试的话希望能共享出来）：</p>
 <table style="border-collapse:collapse;border-spacing:0;border-color:#999"><tr><th style="font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#fff;background-color:#26ADE4">Algorithm</th><th style="font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#fff;background-color:#26ADE4">% remaining</th><th style="font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#fff;background-color:#26ADE4">Encoding</th><th style="font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#fff;background-color:#26ADE4">Decoding</th></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">GZIP</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">13.4%</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">21 MB/s</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">118 MB/s</td></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">LZO</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">20.5%</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">135 MB/s</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">410 MB/s</td></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">Zippy/Snappy</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">22.2%</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">172 MB/s</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA">409 MB/s</td></tr></table>
 
 
@@ -429,7 +426,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 <p>1）GZIP的压缩率最高，但是其实CPU密集型的，对CPU的消耗比其他算法要多，压缩和解压速度也慢；</p>
 <p>2）LZO的压缩率居中，比GZIP要低一些，但是压缩和解压速度明显要比GZIP快很多，其中解压速度快的更多；</p>
 <p>3）Zippy/Snappy的压缩率最低，而压缩和解压速度要稍微比LZO要快一些。</p>
-<h4 id="motan中的协议压缩"><a href="#motan中的协议压缩" class="headerlink" title="motan中的协议压缩"></a>motan中的协议压缩</h4><p>motan默认支持的压缩是gzip，这块代码比较杂，不支持扩展，如果要实现自己的压缩方式，得重新实现codec部分（继承defaultRpcCodec，重写部分方法也可以）。</p>
+<h2 id="motan中的协议压缩"><a href="#motan中的协议压缩" class="headerlink" title="motan中的协议压缩"></a>motan中的协议压缩</h2><p>motan默认支持的压缩是gzip，这块代码比较杂，不支持扩展，如果要实现自己的压缩方式，得重新实现codec部分（继承defaultRpcCodec，重写部分方法也可以）。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 对rpc body进行压缩。</span></div><div class="line">    <span class="keyword">public</span> <span class="keyword">byte</span>[] compress(<span class="keyword">byte</span>[] org, <span class="keyword">boolean</span> useGzip, <span class="keyword">int</span> minGzSize) <span class="keyword">throws</span> IOException &#123;</div><div class="line">        <span class="keyword">if</span> (useGzip &amp;&amp; org.length &gt; minGzSize) &#123;</div><div class="line">            ByteArrayOutputStream outputStream = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">            GZIPOutputStream gos = <span class="keyword">new</span> GZIPOutputStream(outputStream);</div><div class="line">            gos.write(org);</div><div class="line">            gos.finish();</div><div class="line">            gos.flush();</div><div class="line">            gos.close();</div><div class="line">            <span class="keyword">byte</span>[] ret = outputStream.toByteArray();</div><div class="line">            <span class="keyword">return</span> ret;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> org;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>就不一一分析motan这块代码，简单总结一下motan compress：</p>
 <p>1）motan压缩的仅仅是rpc 的body部分。header没有压缩的必要。</p>
@@ -437,7 +434,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 <p>3） mingzSize(“mingzSize”, 1000), // 进行gz压缩的最小数据大小。超过此阈值才进行gz压缩</p>
 <p>4）usegz(“usegz”, false), // 是否开启gzip压缩，这个可以配置</p>
 <p>5）是否开启压缩usegz这个是通过配置来约定的，并未发现有打包到协议里面。如果要解包，首先要知道这个协议是否压缩过。（个人感觉这里不太好，对于motan自己client调用将配置文件拷贝过去即可，但是对于其他的语言就麻烦了，不太友好）</p>
-<h4 id="方法签名"><a href="#方法签名" class="headerlink" title="方法签名"></a>方法签名</h4><p>motan在打包method的时候会对根据方法的interfaceName，methodName，parameterDes拼接起来，md5生成一个方法签名，如果方法签名生成成功，则将方法签名的标志和方法签名打包，否则打包完整的方法信息</p>
+<h2 id="方法签名"><a href="#方法签名" class="headerlink" title="方法签名"></a>方法签名</h2><p>motan在打包method的时候会对根据方法的interfaceName，methodName，parameterDes拼接起来，md5生成一个方法签名，如果方法签名生成成功，则将方法签名的标志和方法签名打包，否则打包完整的方法信息</p>
 <p>如果客户端使用了方法签名，服务端怎么这个方法签名是哪一个方法呢？（首先生成签名的方法是md5的不可逆的，也就是说不可以反解。）</p>
 <p>motan的做法是每个服务在export前都会对对应的方法生成签名，并保存签名和方法的映射。</p>
 <p>方法签名的好处：最大的好处就是省了流量。也可以带来一点点性能提升。</p>
@@ -459,6 +456,22 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
     <div>
       
         
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
 
       
     </div>
@@ -481,8 +494,8 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-23-motan-rpc.html" rel="next" title="深入浅出Motan RPC">
-                <i class="fa fa-chevron-left"></i> 深入浅出Motan RPC
+              <a href="/2016-09-22-motan-serialize.html" rel="next" title="Motan源码解读-serialize">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-serialize
               </a>
             
           </div>
@@ -491,8 +504,8 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-11-05-guava-cache.html" rel="prev" title="Guava Cache 分析">
-                Guava Cache 分析 <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-23-motan-rpc.html" rel="prev" title="深入浅出Motan RPC">
+                深入浅出Motan RPC <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -557,7 +570,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
       <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
            
@@ -594,12 +607,55 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
         
 
         
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
         
 
         
@@ -617,7 +673,7 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#motan协议格式"><span class="nav-number">1.</span> <span class="nav-text">motan协议格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan协议打包"><span class="nav-number">2.</span> <span class="nav-text">motan协议打包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan协议的压缩"><span class="nav-number">3.</span> <span class="nav-text">motan协议的压缩</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#压缩算法比较"><span class="nav-number">3.1.</span> <span class="nav-text">压缩算法比较</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#motan中的协议压缩"><span class="nav-number">4.</span> <span class="nav-text">motan中的协议压缩</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方法签名"><span class="nav-number">5.</span> <span class="nav-text">方法签名</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#motan协议格式"><span class="nav-number">1.</span> <span class="nav-text">motan协议格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan协议打包"><span class="nav-number">2.</span> <span class="nav-text">motan协议打包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan协议的压缩"><span class="nav-number">3.</span> <span class="nav-text">motan协议的压缩</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#压缩算法比较"><span class="nav-number">3.1.</span> <span class="nav-text">压缩算法比较</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan中的协议压缩"><span class="nav-number">4.</span> <span class="nav-text">motan中的协议压缩</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法签名"><span class="nav-number">5.</span> <span class="nav-text">方法签名</span></a></li></ol></div>
             
 
           </div>
@@ -642,22 +698,11 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
   &copy; 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="fa fa-"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">DempeZheng</span>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
-  </a>
-</div>
 
 
         
@@ -790,6 +835,113 @@ dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前�
 
 
   
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
 
   
 
