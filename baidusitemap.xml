@@ -3,6 +3,24 @@
 
 
     
+  <url>
+    <loc>http://code.zhizus.com/2017-04-17-gc.html</loc>
+    <lastmod>2017-04-17T13:06:45.986Z</lastmod>
+    <data>
+        <display>
+        <title>JVM GC调优PPT(转)</title>
+        <pubTime>2017-04-16T16:00:00.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="gc" url="http://code.zhizus.com/categories/gc/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
     
   <url>
     <loc>http://code.zhizus.com/2016-09-21-motan-filter.html</loc>
