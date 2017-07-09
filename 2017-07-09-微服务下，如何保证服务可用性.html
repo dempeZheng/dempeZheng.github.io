@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="收藏" />
+  <meta name="keywords" content="spring cloud,hystrix,微服务" />
 
 
 
@@ -87,49 +87,19 @@
 
 
 
-<meta name="description" content="分享今天听了几个vip p6大神的分享，当然包括vip的网红大神江南白衣，见了这些大神的真身，微服务部分干货也不少，好东西应该共享，
-目录
-1.Saturn-弹性任务调度系统的探索与演进
-2.唯品会服务化架构
-3.Java Tuning GuideV1.8.1
-
-
-
-
-
-
-后记距大神还有很多路要走，但貌似并不是完全不可及，之后要多努力">
+<meta name="description" content="背景最近经常被强调最多就是弱依赖降级，强依赖重试，db服务容灾的。被强调的原因是已经有好几例由于由于网络原因造成的重大事故了。如今，微服务有兴起的苗头，已经感觉到很多公司都在尝试基于spring cloud来建设微服务，虽然不一定成型，但是服务已经被拆的越来越细。在这种情况下，我们经常被要求服务高可用，那么服务高可用到底需要具备哪些特征呢。
+高可用服务基本特征下面的每个点都值得深入写一篇博客，深入">
 <meta property="og:type" content="article">
-<meta property="og:title" content="一个服务化的分享">
-<meta property="og:url" content="http://code.zhizus.com/2017-04-28-一些感悟.html">
+<meta property="og:title" content="微服务下，如何保证服务可用性">
+<meta property="og:url" content="http://code.zhizus.com/2017-07-09-微服务下，如何保证服务可用性.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="分享今天听了几个vip p6大神的分享，当然包括vip的网红大神江南白衣，见了这些大神的真身，微服务部分干货也不少，好东西应该共享，
-目录
-1.Saturn-弹性任务调度系统的探索与演进
-2.唯品会服务化架构
-3.Java Tuning GuideV1.8.1
-
-
-
-
-
-
-后记距大神还有很多路要走，但貌似并不是完全不可及，之后要多努力">
-<meta property="og:updated_time" content="2017-05-29T11:40:53.337Z">
+<meta property="og:description" content="背景最近经常被强调最多就是弱依赖降级，强依赖重试，db服务容灾的。被强调的原因是已经有好几例由于由于网络原因造成的重大事故了。如今，微服务有兴起的苗头，已经感觉到很多公司都在尝试基于spring cloud来建设微服务，虽然不一定成型，但是服务已经被拆的越来越细。在这种情况下，我们经常被要求服务高可用，那么服务高可用到底需要具备哪些特征呢。
+高可用服务基本特征下面的每个点都值得深入写一篇博客，深入">
+<meta property="og:updated_time" content="2017-07-09T07:29:13.458Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="一个服务化的分享">
-<meta name="twitter:description" content="分享今天听了几个vip p6大神的分享，当然包括vip的网红大神江南白衣，见了这些大神的真身，微服务部分干货也不少，好东西应该共享，
-目录
-1.Saturn-弹性任务调度系统的探索与演进
-2.唯品会服务化架构
-3.Java Tuning GuideV1.8.1
-
-
-
-
-
-
-后记距大神还有很多路要走，但貌似并不是完全不可及，之后要多努力">
+<meta name="twitter:title" content="微服务下，如何保证服务可用性">
+<meta name="twitter:description" content="背景最近经常被强调最多就是弱依赖降级，强依赖重试，db服务容灾的。被强调的原因是已经有好几例由于由于网络原因造成的重大事故了。如今，微服务有兴起的苗头，已经感觉到很多公司都在尝试基于spring cloud来建设微服务，虽然不一定成型，但是服务已经被拆的越来越细。在这种情况下，我们经常被要求服务高可用，那么服务高可用到底需要具备哪些特征呢。
+高可用服务基本特征下面的每个点都值得深入写一篇博客，深入">
 
 
 
@@ -157,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-04-28-一些感悟.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2017-07-09-微服务下，如何保证服务可用性.html"/>
 
 
 
 
 
-  <title> 一个服务化的分享 | 郑大侠的博客 </title>
+  <title> 微服务下，如何保证服务可用性 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -312,7 +282,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-04-28-一些感悟.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-07-09-微服务下，如何保证服务可用性.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -333,7 +303,7 @@
             
             
               
-                一个服务化的分享
+                微服务下，如何保证服务可用性
               
             
           </h1>
@@ -357,8 +327,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017-04-28-一些感悟.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-04-28-一些感悟.html" itemprop="commentCount"></span>
+                <a href="/2017-07-09-微服务下，如何保证服务可用性.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-07-09-微服务下，如何保证服务可用性.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -366,7 +336,7 @@
 
           
           
-             <span id="/2017-04-28-一些感悟.html" class="leancloud_visitors" data-flag-title="一个服务化的分享">
+             <span id="/2017-07-09-微服务下，如何保证服务可用性.html" class="leancloud_visitors" data-flag-title="微服务下，如何保证服务可用性">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -393,18 +363,15 @@
       
 
       
-        <h2 id="分享"><a href="#分享" class="headerlink" title="分享"></a>分享</h2><p>今天听了几个vip p6大神的分享，当然包括vip的网红大神江南白衣，见了这些大神的真身，微服务部分干货也不少，好东西应该共享，</p>
-<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
-<li>1.Saturn-弹性任务调度系统的探索与演进</li>
-<li>2.唯品会服务化架构</li>
-<li>3.Java Tuning GuideV1.8.1</li>
-</ul>
-<center class="full-image"><embed src="doc/唯品会后端服务架构与优化技术介绍.pdf" width="1100" height="800"></center>
-
-
-
-<hr>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>距大神还有很多路要走，但貌似并不是完全不可及，之后要多努力</p>
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近经常被强调最多就是弱依赖降级，强依赖重试，db服务容灾的。被强调的原因是已经有好几例由于由于网络原因造成的重大事故了。<br>如今，微服务有兴起的苗头，已经感觉到很多公司都在尝试基于spring cloud来建设微服务，虽然不一定成型，但是服务已经被拆的越来越细。在这种情况下，我们经常被要求服务高可用，那么服务高可用到底需要具备哪些特征呢。</p>
+<h2 id="高可用服务基本特征"><a href="#高可用服务基本特征" class="headerlink" title="高可用服务基本特征"></a>高可用服务基本特征</h2><p>下面的每个点都值得深入写一篇博客，深入的学习和探讨。</p>
+<h3 id="服务容灾"><a href="#服务容灾" class="headerlink" title="服务容灾"></a>服务容灾</h3><p>对于服务降级，已经不是一个新鲜的话题了，淘宝的dubbo，新浪的motan都实现了简单的降级功能。但是这两个对服务降级的实现都比较简陋。如motan早期仅仅实现了failfast和failover的容灾策略。尽管这两种是最简单有效的策略，使用者也可以自行进行扩展容灾策略。但是依然还是会有些受限。至少不像Hystrix那么优雅。</p>
+<h4 id="强依赖重试"><a href="#强依赖重试" class="headerlink" title="强依赖重试"></a>强依赖重试</h4><p>对于强依赖的服务，也就是没办法降级处理的服务，我们可以选择直接抛出异常，让业务调用方感知，由调用方决定是否重试。但是，有的时候我们提供平台服务，不希望把这些复杂性丢给业务调用方，（而且业务调用方重试会对整个链路进行重试，很多时候我们失败，仅仅是由于中间某个强依赖环节失败，服务端重试仅仅需要针对失败的强依赖服务重试）我们需要在服务端对强依赖进行重试。</p>
+<h4 id="弱依赖降级"><a href="#弱依赖降级" class="headerlink" title="弱依赖降级"></a>弱依赖降级</h4><p>对于弱依赖，这种情况下Hystrix比较好办，直接实现fallback方法，失败的时候直接交由fallback处理。fallback方法里面可以返回默认值。</p>
+<h4 id="舱壁隔离"><a href="#舱壁隔离" class="headerlink" title="舱壁隔离"></a>舱壁隔离</h4><h3 id="服务隔离"><a href="#服务隔离" class="headerlink" title="服务隔离"></a>服务隔离</h3><p>服务隔离按粒度又可以分为进程隔离和线程隔离。我们 可以同时做到进程隔离，然后在进程内做线程隔离。</p>
+<h4 id="进程隔离"><a href="#进程隔离" class="headerlink" title="进程隔离"></a>进程隔离</h4><p>现在比较老的服务一般都是一个服务包含很多功能，比如既包含用户服务，有包含支付服务。当用户服务不可用的时候，导致支付服务不可用，这样是不合理的。所以对于这些明显属于两种不同职责的服务，我们有必要将其拆成不同的服务进程。隔离起来，相互不影响。</p>
+<h4 id="线程隔离"><a href="#线程隔离" class="headerlink" title="线程隔离"></a>线程隔离</h4><p>国内的RPC对线程隔离实现的都比较弱。这里还是推荐Netflix的Hystrix，不同的Command可以使用不同的线程池。</p>
+<h3 id="单点问题"><a href="#单点问题" class="headerlink" title="单点问题"></a>单点问题</h3><h4 id="应用单点"><a href="#应用单点" class="headerlink" title="应用单点"></a>应用单点</h4><h4 id="缓存单点"><a href="#缓存单点" class="headerlink" title="缓存单点"></a>缓存单点</h4><h4 id="db单点"><a href="#db单点" class="headerlink" title="db单点"></a>db单点</h4><h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>以spring cloud的生态链应该就是以后java技术栈的大趋势了，spring 包装netflix的组件对上面的大多数问题基本上都给出了优雅的解决方案。<br>当然，由于个人理解有限，本文不保证严谨。随着理解的深入，会持续更改。</p>
 
       
     </div>
@@ -457,8 +424,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-04-17-gc.html" rel="next" title="JVM GC调优PPT(转)">
-                <i class="fa fa-chevron-left"></i> JVM GC调优PPT(转)
+              <a href="/2017-07-09-Hystrix初探.html" rel="next" title="Hystrix初探">
+                <i class="fa fa-chevron-left"></i> Hystrix初探
               </a>
             
           </div>
@@ -466,10 +433,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017-06-19Java内存区域.html" rel="prev" title="深入理解Java虚拟机-Java内存区域读书笔记">
-                深入理解Java虚拟机-Java内存区域读书笔记 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -495,8 +458,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017-04-28-一些感悟.html"
-           data-title="一个服务化的分享" data-url="http://code.zhizus.com/2017-04-28-一些感悟.html">
+      <div class="ds-thread" data-thread-key="2017-07-09-微服务下，如何保证服务可用性.html"
+           data-title="微服务下，如何保证服务可用性" data-url="http://code.zhizus.com/2017-07-09-微服务下，如何保证服务可用性.html">
       </div>
     
   </div>
@@ -636,7 +599,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分享"><span class="nav-number">1.</span> <span class="nav-text">分享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目录"><span class="nav-number">2.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高可用服务基本特征"><span class="nav-number">2.</span> <span class="nav-text">高可用服务基本特征</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务容灾"><span class="nav-number">2.1.</span> <span class="nav-text">服务容灾</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#强依赖重试"><span class="nav-number">2.1.1.</span> <span class="nav-text">强依赖重试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#弱依赖降级"><span class="nav-number">2.1.2.</span> <span class="nav-text">弱依赖降级</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#舱壁隔离"><span class="nav-number">2.1.3.</span> <span class="nav-text">舱壁隔离</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务隔离"><span class="nav-number">2.2.</span> <span class="nav-text">服务隔离</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#进程隔离"><span class="nav-number">2.2.1.</span> <span class="nav-text">进程隔离</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#线程隔离"><span class="nav-number">2.2.2.</span> <span class="nav-text">线程隔离</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单点问题"><span class="nav-number">2.3.</span> <span class="nav-text">单点问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#应用单点"><span class="nav-number">2.3.1.</span> <span class="nav-text">应用单点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存单点"><span class="nav-number">2.3.2.</span> <span class="nav-text">缓存单点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#db单点"><span class="nav-number">2.3.3.</span> <span class="nav-text">db单点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
             
 
           </div>
