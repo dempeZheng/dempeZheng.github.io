@@ -4,6 +4,42 @@
 
     
   <url>
+    <loc>http://code.zhizus.com/2017-06-19Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F.html</loc>
+    <lastmod>2017-07-13T13:29:03.317Z</lastmod>
+    <data>
+        <display>
+        <title>深入理解Java虚拟机-Java内存区域读书笔记</title>
+        <pubTime>2017-04-27T16:00:00.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="gc" url="http://code.zhizus.com/categories/gc/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://code.zhizus.com/2017-04-28-%E4%B8%80%E4%BA%9B%E6%84%9F%E6%82%9F.html</loc>
+    <lastmod>2017-07-13T13:29:03.315Z</lastmod>
+    <data>
+        <display>
+        <title>一个服务化的分享</title>
+        <pubTime>2017-04-27T16:00:00.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="实践微服务" url="http://code.zhizus.com/categories/%E5%AE%9E%E8%B7%B5%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://code.zhizus.com/2017-07-13-%E5%BC%82%E6%AD%A5%E5%9B%9E%E8%B0%83%E7%9A%84%E5%8F%A6%E5%A4%96%E4%B8%80%E7%A7%8D%E6%96%B9%E6%A1%88.html</loc>
     <lastmod>2017-07-13T13:25:40.772Z</lastmod>
     <data>
@@ -87,48 +123,6 @@
            
              
               <breadCrumb title="实践微服务" url="http://code.zhizus.com/categories/%E5%AE%9E%E8%B7%B5%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://code.zhizus.com/2017-06-19Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F.html</loc>
-    <lastmod>2017-06-19T13:38:33.300Z</lastmod>
-    <data>
-        <display>
-        <title>深入理解Java虚拟机-Java内存区域读书笔记</title>
-        <pubTime>2017-04-27T16:00:00.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="JVM" url="http://code.zhizus.com/categories/JVM/"/>
-          
-             
-              <breadCrumb title="GC" url="http://code.zhizus.com/categories/JVM/GC/"/>
-          
-             
-              <breadCrumb title="调优" url="http://code.zhizus.com/categories/JVM/GC/%E8%B0%83%E4%BC%98/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://code.zhizus.com/2017-04-28-%E4%B8%80%E4%BA%9B%E6%84%9F%E6%82%9F.html</loc>
-    <lastmod>2017-05-29T11:40:53.337Z</lastmod>
-    <data>
-        <display>
-        <title>一个服务化的分享</title>
-        <pubTime>2017-04-27T16:00:00.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="微服务，弹性化，调优，rpc，服务降级，服务治理" url="http://code.zhizus.com/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1%EF%BC%8C%E5%BC%B9%E6%80%A7%E5%8C%96%EF%BC%8C%E8%B0%83%E4%BC%98%EF%BC%8Crpc%EF%BC%8C%E6%9C%8D%E5%8A%A1%E9%99%8D%E7%BA%A7%EF%BC%8C%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86/"/>
           
         </display>
     </data>
