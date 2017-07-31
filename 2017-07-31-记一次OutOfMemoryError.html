@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="motan,源码,spi,扩展" />
+  <meta name="keywords" content="OutOfMemoryError,thread" />
 
 
 
@@ -87,21 +87,19 @@
 
 
 
-<meta name="description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
+<meta name="description" content="前言今天在测试环境跑测试用例的时候发现一大片测试用例无法通过，查看日志发现OutOfMemoryError: unable to create new native thread。从日志信息来看，很明显，内存不足，无法创建本地线程。
+遇到这个异常还是很意外的，测试用例大概就1.5k个，不至于跑个用例就来这么个异常，测试环境当时jvm的内存是4g，感觉不至于出现这个问题。（当然觉得意外的原因还是对j">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Motan源码解读-SPI机制">
-<meta property="og:url" content="http://code.zhizus.com/2016-09-19-motan-spi.html">
+<meta property="og:title" content="记一次OutOfMemoryError: unable to create new native thread">
+<meta property="og:url" content="http://code.zhizus.com/2017-07-31-记一次OutOfMemoryError.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
-<meta property="og:image" content="http://code.zhizus.com/images/motan/SPI.png">
-<meta property="og:updated_time" content="2017-04-15T13:35:49.092Z">
+<meta property="og:description" content="前言今天在测试环境跑测试用例的时候发现一大片测试用例无法通过，查看日志发现OutOfMemoryError: unable to create new native thread。从日志信息来看，很明显，内存不足，无法创建本地线程。
+遇到这个异常还是很意外的，测试用例大概就1.5k个，不至于跑个用例就来这么个异常，测试环境当时jvm的内存是4g，感觉不至于出现这个问题。（当然觉得意外的原因还是对j">
+<meta property="og:updated_time" content="2017-07-31T14:38:45.595Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Motan源码解读-SPI机制">
-<meta name="twitter:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
-<meta name="twitter:image" content="http://code.zhizus.com/images/motan/SPI.png">
+<meta name="twitter:title" content="记一次OutOfMemoryError: unable to create new native thread">
+<meta name="twitter:description" content="前言今天在测试环境跑测试用例的时候发现一大片测试用例无法通过，查看日志发现OutOfMemoryError: unable to create new native thread。从日志信息来看，很明显，内存不足，无法创建本地线程。
+遇到这个异常还是很意外的，测试用例大概就1.5k个，不至于跑个用例就来这么个异常，测试环境当时jvm的内存是4g，感觉不至于出现这个问题。（当然觉得意外的原因还是对j">
 
 
 
@@ -129,13 +127,13 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2016-09-19-motan-spi.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2017-07-31-记一次OutOfMemoryError.html"/>
 
 
 
 
 
-  <title> Motan源码解读-SPI机制 | 郑大侠的博客 </title>
+  <title> 记一次OutOfMemoryError: unable to create new native thread | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -284,7 +282,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-19-motan-spi.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-07-31-记一次OutOfMemoryError.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -305,7 +303,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
             
             
               
-                Motan源码解读-SPI机制
+                记一次OutOfMemoryError: unable to create new native thread
               
             
           </h1>
@@ -329,8 +327,8 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2016-09-19-motan-spi.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-19-motan-spi.html" itemprop="commentCount"></span>
+                <a href="/2017-07-31-记一次OutOfMemoryError.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-07-31-记一次OutOfMemoryError.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -338,7 +336,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 
           
           
-             <span id="/2016-09-19-motan-spi.html" class="leancloud_visitors" data-flag-title="Motan源码解读-SPI机制">
+             <span id="/2017-07-31-记一次OutOfMemoryError.html" class="leancloud_visitors" data-flag-title="记一次OutOfMemoryError: unable to create new native thread">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -365,52 +363,30 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
       
 
       
-        <p>SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。<br>motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。</p>
-<h2 id="SPI机制"><a href="#SPI机制" class="headerlink" title="SPI机制"></a>SPI机制</h2><p>SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceLoader的文档里有比较详细的介绍。简单的总结下java spi机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案，比如日志模块的方案，xml解析模块、jdbc模块的方案等。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。 java spi就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。</p>
-<h2 id="SPI约定"><a href="#SPI约定" class="headerlink" title="SPI约定"></a>SPI约定</h2><p>java spi的具体约定为:当服务的提供者，提供了服务接口的一种实现之后，在jar包的META-INF/services/目录里同时创建一个以服务接口命名的文件。该文件里就是实现该服务接口的具体实现类。而当外部程序装配这个模块的时候，就能通过该jar包META-INF/services/里的配置文件找到具体的实现类名，并装载实例化，完成模块的注入。 基于这样一个约定就能很好的找到服务接口的实现类，而不需要再代码里制定。jdk提供服务实现查找的一个工具类：java.util.ServiceLoader</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ul>
-<li><strong>common-logging</strong><br>apache最早提供的日志的门面接口。只有接口，没有实现。具体方案由各提供商实现， 发现日志提供商是通过扫描 META-INF/services/org.apache.commons.logging.LogFactory配置文件，通过读取该文件的内容找到日志提工商实现类。只要我们的日志实现里包含了这个文件，并在文件里制定 LogFactory工厂接口的实现类即可。</li>
-<li><p><strong>jdbc</strong><br>jdbc4.0以前， 开发人员还需要基于Class.forName(“xxx”)的方式来装载驱动，jdbc4也基于spi的机制来发现驱动提供商了，可以通过META-INF/services/java.sql.Driver文件里指定实现类的方式来暴露驱动提供者。</p>
-</li>
-<li><p><strong>dubbo&amp;motan</strong><br>dubbo和motan也扩展了spi作为框架的主要扩展机制。</p>
-</li>
-</ul>
-<h2 id="使用示例："><a href="#使用示例：" class="headerlink" title="使用示例："></a>使用示例：</h2><p>接口定义</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> my.xyz.spi;  </div><div class="line"><span class="keyword">import</span> java.util.List;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Search</span> </span>&#123;  </div><div class="line">   <span class="function"><span class="keyword">public</span> List <span class="title">serch</span><span class="params">(String keyword)</span></span>;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>A公司采用文件系统搜索的方式实现了 Search接口，B公司采用了数据库系统的方式实现了Search接口</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天在测试环境跑测试用例的时候发现一大片测试用例无法通过，查看日志发现<code>OutOfMemoryError: unable to create new native thread</code>。从日志信息来看，很明显，内存不足，无法创建本地线程。</p>
+<p>遇到这个异常还是很意外的，测试用例大概就1.5k个，不至于跑个用例就来这么个异常，测试环境当时jvm的内存是4g，感觉不至于出现这个问题。（当然觉得意外的原因还是对jvm线程数量限制的理解有误）</p>
+<p>要解决问题，首先，还是的了解jvm的线程数量到底受限哪些因素。</p>
+<h2 id="jvm线程数量限制"><a href="#jvm线程数量限制" class="headerlink" title="jvm线程数量限制"></a>jvm线程数量限制</h2><h3 id="jvm线程受限于操作系统可用内存还是JVM的内存"><a href="#jvm线程受限于操作系统可用内存还是JVM的内存" class="headerlink" title="jvm线程受限于操作系统可用内存还是JVM的内存"></a>jvm线程受限于操作系统可用内存还是JVM的内存</h3><p>1.<strong>Java线程的实现是基于底层系统的线程机制来实现的</strong>,程序中开的线程并不全部取决于JVM虚拟机栈，而是取决于CPU，操作系统，其他进程，Java的版本。JVM的线程与计算机本身性能相关。<br>这个很重要，不了解这一点，很容易像我之前一样误解为jvm线程个数首先于jvm的内存大小。</p>
+<h3 id="JVM线程的栈在64位Linux操作系统上的默认大小是多少"><a href="#JVM线程的栈在64位Linux操作系统上的默认大小是多少" class="headerlink" title="JVM线程的栈在64位Linux操作系统上的默认大小是多少"></a>JVM线程的栈在64位Linux操作系统上的默认大小是多少</h3><blockquote>
+<p>不显式设置-Xss或-<code>XX:ThreadStackSize</code>时，在Linux x64上<code>ThreadStackSize</code>的默认值就是1024KB，给Java线程创建栈会用这个参数指定的大小。这是前一块代码的意思。如果把-<code>Xss</code>或者<code>-XX:ThreadStackSize</code>设为0，就是使用“系统默认值”。<br>而在Linux x64上HotSpot VM给Java栈定义的“系统默认”大小也是1MB。所以这个条件下普通Java线程的默认栈大小怎样都是1MB。</p>
+<p>至于操作系统栈大小（ulimit -s）：这个配置只影响进程的初始线程；后续用pthread_create创建的线程都可以指定栈大小。HotSpot VM为了能精确控制Java线程的栈大小，特意不使用进程的初始线程（primordial thread）作为Java线程。</p>
+</blockquote>
+<p>作者：RednaxelaFX<br>链接：<a href="https://www.zhihu.com/question/27844575/answer/38370294" target="_blank" rel="external">https://www.zhihu.com/question/27844575/answer/38370294</a><br>来源：知乎<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
+<p>查看-Xss的大小：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">java -XX:+PrintFlagsFinal -version | grep -i &apos;stack&apos;</div></pre></td></tr></table></figure></p>
+<h3 id="不断加大可用内存，线程数量也会不断增长？"><a href="#不断加大可用内存，线程数量也会不断增长？" class="headerlink" title="不断加大可用内存，线程数量也会不断增长？"></a>不断加大可用内存，线程数量也会不断增长？</h3><p>这个当然不是，上面我特意加粗了不考虑系统本省限制的情况，所以说线程数量还与系统限制有关。主要跟一下几个参数有关(Linux下的)：</p>
 <ul>
-<li>A公司实现的类  <code>com.A.spi.impl.FileSearch</code></li>
-<li>B公司实现的类  <code>com.B.spi.impl.DatabaseSearch</code></li>
+<li><code>/proc/sys/kernel/pid_max</code> 增大，线程数量增大，<code>pid_max</code>有最高值，超过之后不再改变，而且32，64位也不一样</li>
+<li><code>/proc/sys/kernel/thread-max</code> 系统可以生成最大线程数量</li>
+<li><code>max_user_process（ulimit -u）centos</code>系统上才有，没有具体研究/proc/sys/vm/max_map_count 增大，数量增多</li>
 </ul>
-<p>那么A公司发布 实现jar包时，则要在jar包中<code>META-INF/services/my.xyz.spi.Search</code>文件中写下如下内容<br>    <code>com.A.spi.impl.FileSearch</code><br>那么B公司发布 实现jar包时，则要在jar包中<code>META-INF/services/my.xyz.spi.Search</code>文件中写下如下内容</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"> com.B.spi.impl.DatabaseSearch</div><div class="line"><span class="keyword">package</span> com.xyz.factory;  </div><div class="line"><span class="keyword">import</span> java.util.Iterator;  </div><div class="line"><span class="keyword">import</span> java.util.ServiceLoader;  </div><div class="line"><span class="keyword">import</span> my.xyz.spi.Search;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SearchFactory</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SearchFactory</span><span class="params">()</span> </span>&#123;  </div><div class="line">    &#125;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Search <span class="title">newSearch</span><span class="params">()</span> </span>&#123;  </div><div class="line">        Search search = <span class="keyword">null</span>;  </div><div class="line">        ServiceLoader&lt;Search&gt; serviceLoader = ServiceLoader.load(Search.class);  </div><div class="line">        Iterator&lt;Search&gt; searchs = serviceLoader.iterator();  </div><div class="line">        <span class="keyword">if</span> (searchs.hasNext()) &#123;  </div><div class="line">            search = searchs.next();  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">return</span> search;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> my.xyz.test;  </div><div class="line"><span class="keyword">import</span> java.util.Iterator;  </div><div class="line"><span class="keyword">import</span> java.util.ServiceLoader;  </div><div class="line"><span class="keyword">import</span> com.xyz.factory.SearchFactory;  </div><div class="line"><span class="keyword">import</span> my.xyz.spi.Search;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SearchTest</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </div><div class="line">        Search search = SearchFactory.newSearch();  </div><div class="line">        search.serch(<span class="string">"java spi test"</span>);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h2 id="JDK-SPI"><a href="#JDK-SPI" class="headerlink" title="JDK SPI"></a>JDK SPI</h2><p><strong>JDK自带的ServiceLoader功能比较弱，只提供了如下几个方法：</strong></p>
-<ul>
-<li><p>reload：清除服务实例缓存，重新加载；</p>
-</li>
-<li><p>iterator:延迟方式加载服务，按配置的顺序生成服务实例；</p>
-</li>
-<li><p>load：从上下文加载器（ContextClassLoader）加载。</p>
-</li>
-<li><p>loadInstalled，系统加载器（SystemClassLoader）优先，没有则从上下文加载器加载。</p>
-</li>
+<p>一般来说线程数量上限在4k~5k左右，实际开发中为了避免线程无限膨胀，我们要合理的使用线程池。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>(MaxProcessMemory - JVMMemory - ReservedOsMemory) / (ThreadStackSize) = Number of threads</strong><br><code>MaxProcessMemory</code> 指的是一个进程的最大内存<br><code>JVMMemory</code>         JVM内存<br><code>ReservedOsMemory</code>  保留的操作系统内存<br><code>ThreadStackSize</code>      线程栈的大小</p>
+<h3 id="推论"><a href="#推论" class="headerlink" title="推论"></a>推论</h3><ul>
+<li>给JVM的堆内存分配的越大，系统可创建的线程数量就越少</li>
+<li>当-Xss的的值越小，可生成的线程数量就越多</li>
 </ul>
-<p>实际上，JDK自带的ServiceLoader并不能满足开发的需求，例如单例服务，按别名使用指定的服务实现，优先级控制等等。</p>
-<h2 id="Motan-SPI"><a href="#Motan-SPI" class="headerlink" title="Motan SPI"></a>Motan SPI</h2><p>Motan底层模块之间调用也是采用SPI模式（<code>com.weibo.api.motan.core.extension.ExtensionLoader</code>），可以根据配置实现调用不同的服务实例。</p>
-<p><strong>Motan提供了三个注解：</strong></p>
-<p><code>@Spi</code> 声明接口为SPI服务接口；</p>
-<p><code>@Scope</code> 声明单例模式还是多例模式</p>
-<p><code>@Activation</code> 声明服务优先级（sequence值越小越优先调用）、分组查询、以及是否支持重试调用。</p>
-<p><code>@SpiMeta</code>设定服务别名，没配置则用实现类的类名为别名</p>
-<p>ExtensionLoader兼容JDK自带的ServiceLoader，也就是说跟ServiceLoader的配置方式是一样的，在META-INF/services创建服务接口文件，内容为实现类的完整包路径列表。</p>
-<p>实现：<br>ClassLoader.getSystemResources(“”)根据路径获取所有加载的URL</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Enumeration&lt;URL&gt; urls = ClassLoader.getSystemResources(<span class="string">"META-INF/services/com.dempe.spi.Search"</span>);</div></pre></td></tr></table></figure>
-<p>基于上面的注解扩展SPI的语义已经很清晰了，暂时不再深入研究。如果兴趣可co下来淘宝的<a href="https://github.com/alibaba/cooma/wiki" target="_blank" rel="external">Cooma</a>  (Cooma是一个极简、灵活的开源Java微容器（microcontainer）实现。)</p>
-<h2 id="motan的扩展"><a href="#motan的扩展" class="headerlink" title="motan的扩展"></a>motan的扩展</h2><p>motan是一个轻量的RPC框架，同时motan的扩展性也是非常好的，你几乎可以扩展它实现任何你希望RPC框架可以有的能力。</p>
-<p>我们大致看看包含SPI注解的类：</p>
-<p><img src="/images/motan/SPI.png" alt="Alt text"></p>
-<p>我们可以看到基本上在任何地方我们能想到扩展的地方motan都给我们留下了扩展的入口。</p>
+<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><p>了解了首先因素之后，如果系统报<code>OutOfMemoryError: unable to create new native thread</code>这个错误，我们就容易对症下药，可以从两个方向着手。<br>1.调小线程栈为<code>-Xss256k</code>(默认为1M)，当然调用栈太深，不够用的情况可以酌情在调大些。<br>2.增加机器系统内存</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.zhihu.com/question/27844575/answer/38370294" target="_blank" rel="external">https://www.zhihu.com/question/27844575/answer/38370294</a><br>http//blog.csdn.net/feng27156/article/details/19333575</p>
 
       
     </div>
@@ -463,8 +439,8 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-16-IM-notes-discuss.html" rel="next" title="IM开发日记-漫谈">
-                <i class="fa fa-chevron-left"></i> IM开发日记-漫谈
+              <a href="/2017-07-13-异步回调的另外一种方案.html" rel="next" title="异步回调通知的另一种方案">
+                <i class="fa fa-chevron-left"></i> 异步回调通知的另一种方案
               </a>
             
           </div>
@@ -472,10 +448,6 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016-09-19-motan-clientMessage.html" rel="prev" title="Motan源码解读-Client异步消息">
-                Motan源码解读-Client异步消息 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -501,8 +473,8 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016-09-19-motan-spi.html"
-           data-title="Motan源码解读-SPI机制" data-url="http://code.zhizus.com/2016-09-19-motan-spi.html">
+      <div class="ds-thread" data-thread-key="2017-07-31-记一次OutOfMemoryError.html"
+           data-title="记一次OutOfMemoryError: unable to create new native thread" data-url="http://code.zhizus.com/2017-07-31-记一次OutOfMemoryError.html">
       </div>
     
   </div>
@@ -642,7 +614,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI机制"><span class="nav-number">1.</span> <span class="nav-text">SPI机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI约定"><span class="nav-number">2.</span> <span class="nav-text">SPI约定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">3.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用示例："><span class="nav-number">4.</span> <span class="nav-text">使用示例：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-SPI"><span class="nav-number">5.</span> <span class="nav-text">JDK SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Motan-SPI"><span class="nav-number">6.</span> <span class="nav-text">Motan SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan的扩展"><span class="nav-number">7.</span> <span class="nav-text">motan的扩展</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jvm线程数量限制"><span class="nav-number">2.</span> <span class="nav-text">jvm线程数量限制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#jvm线程受限于操作系统可用内存还是JVM的内存"><span class="nav-number">2.1.</span> <span class="nav-text">jvm线程受限于操作系统可用内存还是JVM的内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM线程的栈在64位Linux操作系统上的默认大小是多少"><span class="nav-number">2.2.</span> <span class="nav-text">JVM线程的栈在64位Linux操作系统上的默认大小是多少</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不断加大可用内存，线程数量也会不断增长？"><span class="nav-number">2.3.</span> <span class="nav-text">不断加大可用内存，线程数量也会不断增长？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#推论"><span class="nav-number">3.1.</span> <span class="nav-text">推论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决办法"><span class="nav-number">4.</span> <span class="nav-text">解决办法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
