@@ -280,6 +280,143 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-03-31-netty-buffer-recycler.html" itemprop="url">
+                  记一次netty内存溢出的问题(下)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017-03-31-netty-buffer-recycler.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-03-31-netty-buffer-recycler.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2017-03-31-netty-buffer-recycler.html" class="leancloud_visitors" data-flag-title="记一次netty内存溢出的问题(下)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>上一篇：<a href="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">记一次netty内存溢出的问题(上)</a></p>
+<p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发<code>full gc</code>也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
+<div class="note default"><p>Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中<code>get()</code>,实际上是从FastLocalThread中获取，如果有便不重新分配。内存的<code>release()</code>的时候又会调用recycler()将对象回收。netty采用这种机制减少对象创建的损耗和减少垃圾回收从而提升性能。</p>
+</div>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017-03-31-netty-buffer-recycler.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1113,143 +1250,6 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-protocol.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016-09-21-motan-protocol.html" itemprop="url">
-                  Motan源码解读-Protocol
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016-09-21-motan-protocol.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-protocol.html" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2016-09-21-motan-protocol.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Protocol">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
-1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface P
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-protocol.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-hastratege.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1530,7 +1530,7 @@ AccessLog
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-override.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-protocol.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1552,8 +1552,8 @@ AccessLog
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-override.html" itemprop="url">
-                  Motan源码解读-源码结构
+                <a class="post-title-link" href="/2016-09-21-motan-protocol.html" itemprop="url">
+                  Motan源码解读-Protocol
                 </a>
               
             
@@ -1578,8 +1578,8 @@ AccessLog
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2016-09-21-motan-override.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-override.html" itemprop="commentCount"></span>
+                <a href="/2016-09-21-motan-protocol.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-protocol.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1587,7 +1587,7 @@ AccessLog
 
           
           
-             <span id="/2016-09-21-motan-override.html" class="leancloud_visitors" data-flag-title="Motan源码解读-源码结构">
+             <span id="/2016-09-21-motan-protocol.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Protocol">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1616,12 +1616,12 @@ AccessLog
       
         
           
-          旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
-motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码，也是源码解析的主要包motan-demo    // 示例，快速上手的最佳方法motan-extension // 扩展
+          protocol可以说是motan最重要的部分之一。暴露一个服务引用一个服务都是在这块实现的。
+1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface P
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-override.html#more" rel="contents">
+            <a class="btn" href="/2016-09-21-motan-protocol.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1707,7 +1707,7 @@ motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-count">26</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1718,7 +1718,7 @@ motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码�
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
