@@ -99,7 +99,7 @@
 这种应该是用队列的标准场景，一开始也是决定引入队列。但是由于老板考虑到维护成本，而内部有没有一个可靠的队列可用。所以队列的方案pass掉了。
 那么问题来了，不能用队列，面对这么多回调，怎么通知业务方呢？
 解决方案比较挫的方案是：当签约网关服务回调过来了，我">
-<meta property="og:updated_time" content="2017-08-13T02:58:43.099Z">
+<meta property="og:updated_time" content="2017-08-13T03:16:14.418Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="异步回调通知的另一种方案">
 <meta name="twitter:description" content="场景最近在做一个签约续费的服务，面临各种不同的回调，不同渠道的签约回调，解约回调，扣费回调等。我们需要处理这些回调，然后将这些回调通知业务方。
@@ -377,7 +377,7 @@
 <p>这种方案的缺点：相比队列，性能要差很多。灵活性也差。<br>但是也有优点，优点就是靠谱，很容易查到每条消息的通知状态。通知策略也比较容易定制。</p>
 <h2 id="定时通知的Task"><a href="#定时通知的Task" class="headerlink" title="定时通知的Task"></a>定时通知的Task</h2><h3 id="注意的问题"><a href="#注意的问题" class="headerlink" title="注意的问题"></a>注意的问题</h3><p>定时的task应该是单线程，然后执行通知的线程池最好是线程池。并行来提高通知效率。<br>定时的task是单线程是因为每次需要从db拉取一个时间段的未通知的消息列表。多线程容易产生重复通知的问题。</p>
 <hr>
-<p>实践的部分后面做。</p>
+<p>实践的部分后面做…</p>
 
       
     </div>
