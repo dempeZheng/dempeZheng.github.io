@@ -99,7 +99,7 @@
 这种应该是用队列的标准场景，一开始也是决定引入队列。但是由于老板考虑到维护成本，而内部有没有一个可靠的队列可用。所以队列的方案pass掉了。
 那么问题来了，不能用队列，面对这么多回调，怎么通知业务方呢？
 解决方案比较挫的方案是：当签约网关服务回调过来了，我">
-<meta property="og:updated_time" content="2017-07-16T11:08:56.666Z">
+<meta property="og:updated_time" content="2017-08-13T02:43:53.397Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="异步回调通知的另一种方案">
 <meta name="twitter:description" content="场景最近在做一个签约续费的服务，面临各种不同的回调，不同渠道的签约回调，解约回调，扣费回调等。我们需要处理这些回调，然后将这些回调通知业务方。
@@ -376,22 +376,6 @@
 <p>另外一种比较挫的方案是：当签约网关服务回调过来，处理完逻辑，将消息落地到db。写入db成功就立即ack消息。<br>通知消息写入db，然后再来一个定时的task，定时将没有通知的消息，通知给业务方。写入db，想怎么玩都是可以实现。</p>
 <p>这种方案的缺点：相比队列，性能要差很多。灵活性也差。<br>但是也有优点，优点就是靠谱，很容易查到每条消息的通知状态。通知策略也比较容易定制。</p>
 <h2 id="定时通知的Task"><a href="#定时通知的Task" class="headerlink" title="定时通知的Task"></a>定时通知的Task</h2><h3 id="注意的问题"><a href="#注意的问题" class="headerlink" title="注意的问题"></a>注意的问题</h3><p>定时的task应该是单线程，然后执行通知的线程池最好是线程池。并行来提高通知效率。<br>定时的task是单线程是因为每次需要从db拉取一个时间段的未通知的消息列表。多线程容易产生重复通知的问题。</p>
-<h2 id="优化方案"><a href="#优化方案" class="headerlink" title="优化方案"></a>优化方案</h2><p>虽然task能解决问题，但是总归还是感觉挺山寨的，这种场景合理的逻辑是产生变化后应该立即通知，通过定时任务毕竟有一个延时。尽管有的时候业务不care这个延时。</p>
-<p>仅仅写个db，然后弄几个task通知，是完全没必要花时间来记录个笔记的。</p>
-<p>所以，应该有更实时通知的办法。</p>
-<p>优化的方案是分两种渠道来通知，实时的部分依赖阿里的canal来做。定时任务用来补漏。<br>这种也会引入新的问题，定时任务补漏的时候，可能会重复通知。解决重复的问题可以根据业务对重复的不同容忍度采取不同的方案。</p>
-<hr>
-<p>[备注] 仔细想了一下这个问题，为了增加实时性而引入canal收益不是很大，增加了复杂性。但是canal是个不错的东西。即便是这次不将它引入线上项目，但是实践还是要做的。</p>
-<h2 id="用canal实现实时通知的实践"><a href="#用canal实现实时通知的实践" class="headerlink" title="用canal实现实时通知的实践"></a>用canal实现实时通知的实践</h2><p>首先<code>canal</code>译意： 水道/管道/沟渠，是阿里巴巴mysql数据库binlog的增量订阅&amp;消费组件。如果不了解的同学建议看github上面的<a href="https://github.com/alibaba/canal/wiki" target="_blank" rel="external">wiki</a>，算的上是良心文档。</p>
-<p>原理相对比较简单：</p>
-<blockquote>
-<ul>
-<li>canal模拟mysql slave的交互协议，伪装自己为mysql slave，向mysql master发送dump协议</li>
-<li>mysql master收到dump请求，开始推送binary log给slave(也就是canal)</li>
-<li>canal解析binary log对象(原始为byte流)</li>
-</ul>
-</blockquote>
-<p>建议先将文档过一遍，实践部分直接co下代码，修改一下配置，debug执行canal的启动类<code>com.alibaba.otter.canal.deployer.CanalLauncher</code> 结合文档，自己动手debug一下应该就能了解的七七八八了。</p>
 <hr>
 <p>实践的部分后面做。</p>
 
@@ -625,7 +609,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定时通知的Task"><span class="nav-number">3.</span> <span class="nav-text">定时通知的Task</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#注意的问题"><span class="nav-number">3.1.</span> <span class="nav-text">注意的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化方案"><span class="nav-number">4.</span> <span class="nav-text">优化方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用canal实现实时通知的实践"><span class="nav-number">5.</span> <span class="nav-text">用canal实现实时通知的实践</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定时通知的Task"><span class="nav-number">3.</span> <span class="nav-text">定时通知的Task</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#注意的问题"><span class="nav-number">3.1.</span> <span class="nav-text">注意的问题</span></a></li></ol></li></ol></div>
             
 
           </div>
