@@ -95,7 +95,7 @@
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="重试机制就是一种容错机制。我们在nginx里面可以看到重试机制；在httpclient的实现里面也可以看到retryHandler；在 dubbo里面也能找到retry先关的东西…在对服务可用性要求比较高的互联网行业，重试机制经常被提及。本文旨在梳理重试机制的使用场景，核心点，以及优雅的使用方式做一个梳理。
 适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结">
-<meta property="og:updated_time" content="2017-08-26T07:06:30.860Z">
+<meta property="og:updated_time" content="2017-08-28T12:45:08.812Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="重试机制">
 <meta name="twitter:description" content="重试机制就是一种容错机制。我们在nginx里面可以看到重试机制；在httpclient的实现里面也可以看到retryHandler；在 dubbo里面也能找到retry先关的东西…在对服务可用性要求比较高的互联网行业，重试机制经常被提及。本文旨在梳理重试机制的使用场景，核心点，以及优雅的使用方式做一个梳理。
@@ -391,12 +391,14 @@
 <h4 id="重试上下文状态"><a href="#重试上下文状态" class="headerlink" title="重试上下文状态"></a>重试上下文状态</h4><p>　无状态重试，是在一个循环中执行完重试策略，即重试上下文保持在一个线程上下文中，在一次调用中进行完整的重试策略判断。<br>　　非常简单的情况，如远程调用某个查询方法时是最常见的无状态重试。<br>　　<br>有状态重试，有两种情况需要使用有状态重试，事务操作需要回滚或者熔断器模式。<br>　　事务操作需要回滚场景时，当整个操作中抛出的是数据库异常DataAccessException，则不能进行重试需要回滚，而抛出其他异常则可以进行重试，
 　</p>
 <h4 id="重试的RecoverCallback"><a href="#重试的RecoverCallback" class="headerlink" title="重试的RecoverCallback"></a>重试的RecoverCallback</h4><h3 id="spring-retry机制的局限"><a href="#spring-retry机制的局限" class="headerlink" title="spring-retry机制的局限"></a>spring-retry机制的局限</h3><p>尽管很多场景下，我们都可以通过spring-retry帮我们搞定重试，但是spring-retry重试实体限定为Throwable子类，很多情况我们是需要根据具体的返回对象的状态吗来决定是否重试。如果spring-retry能够抽象一个类似<code>&lt;R&gt; booble isNeedRetry(R r)</code>的抽象方法应该会方便很多。<br>当然，对于这个问题，还是有很多解决办法的。<br>比如使用注解的时候，我们将方法包装一下，将返回码解析出来显示的抛出异常状态就好了。</p>
-<h2 id="guava-retryer"><a href="#guava-retryer" class="headerlink" title="guava retryer"></a>guava retryer</h2><p>guava也有retry的相关实现，且guava出品一般都是良品。所以有时间会看看guava对retry的相关封装。</p>
+<h2 id="guava-retryer"><a href="#guava-retryer" class="headerlink" title="guava retryer"></a>guava retryer</h2><p>guava也有retry的相关实现，且guava出品一般都是良品。</p>
+<p>  函数式的调用比较流畅，只可惜没有注解的实现，如果项目是spring生态的还是推荐使用spirng-retry</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Retryer&lt;Boolean&gt; retryer = RetryerBuilder.&lt;Boolean&gt;newBuilder()</div><div class="line">          .retryIfResult(Predicates.equalTo(<span class="keyword">false</span>))</div><div class="line">          .retryIfException()</div><div class="line">          .withWaitStrategy(WaitStrategies.fixedWait(<span class="number">1</span>, TimeUnit.SECONDS))</div><div class="line">          .withStopStrategy(StopStrategies.stopAfterAttempt(<span class="number">5</span>))</div><div class="line">          .withRetryListener(<span class="keyword">new</span> MyRetryListener&lt;&gt;())</div><div class="line">          .withRetryListener(<span class="keyword">new</span> MyRetryListener&lt;&gt;())</div><div class="line">          .build();</div></pre></td></tr></table></figure>
 <h2 id="基于负载均衡的重试"><a href="#基于负载均衡的重试" class="headerlink" title="基于负载均衡的重试"></a>基于负载均衡的重试</h2><p>基于负载均衡的重试单独拿出来，是因为对这个比较困惑，也正是因为在定制一个client的时候希望实现关于负载均衡的重试才来整理重试机制的。</p>
 <p>负载均衡+重试机制组合起来策略太多了。不太清楚有没有一种优雅的方式能实现两种的任意组合，任意定制。</p>
 <p>看了<code>springcloud ribbon</code>重试部分的代码，虽然是基于spring-rety实现的，但是感觉扩展起来比较受限。策略这种因场景而异的东西还是希望能够提供能活的实现机制比较好。<br>个人比较期待能有一个针对负载均衡的重试策略的抽象类(大概就是基础的loadbalancer里面加上抽象的retryPolicy)，可以继承出来随便扩展，不过比较可惜，目前读的版本貌似没有这样的方法。<br>这一块现在也在困惑期，等理清楚逻辑后再来补充。</p>
 <hr>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>和重试相关的东西其实还有<code>幂等</code>和<code>超时</code>。一般说到重试都会说<code>幂等重试</code>，<code>超时重试</code>。关于幂等和超时，我觉得也是有必要单独写一篇文章来记录。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>和重试相关的东西其实还有<a href="http://code.zhizus.com/2017-08-28-%E5%B9%82%E7%AD%89.html">幂等</a>和<code>超时</code>。一般说到重试都会说幂等重试<code>，</code>超时重试`</p>
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://blog.csdn.net/paul_wei2008/article/details/53871442" target="_blank" rel="external">http://blog.csdn.net/paul_wei2008/article/details/53871442</a><br><a href="http://blog.csdn.net/broadview2006/article/details/72841056" target="_blank" rel="external">http://blog.csdn.net/broadview2006/article/details/72841056</a><br><a href="https://github.com/spring-projects/spring-retry" target="_blank" rel="external">spring-retry</a></p>
 
       
@@ -549,7 +551,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
