@@ -95,7 +95,7 @@
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="背景最近经常被强调最多就是弱依赖降级，强依赖重试，db服务容灾的。被强调的原因是已经有好几例由于由于网络原因造成的重大事故了。如今，微服务有兴起的苗头，已经感觉到很多公司都在尝试基于spring cloud来建设微服务，虽然不一定成型，但是服务已经被拆的越来越细。在这种情况下，我们经常被要求服务高可用，那么服务高可用到底需要具备哪些特征呢。
 高可用服务基本特征下面的每个点都值得深入写一篇博客，深入">
-<meta property="og:updated_time" content="2017-08-30T14:16:06.966Z">
+<meta property="og:updated_time" content="2017-08-30T14:24:08.269Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="微服务下，如何保证服务可用性">
 <meta name="twitter:description" content="背景最近经常被强调最多就是弱依赖降级，强依赖重试，db服务容灾的。被强调的原因是已经有好几例由于由于网络原因造成的重大事故了。如今，微服务有兴起的苗头，已经感觉到很多公司都在尝试基于spring cloud来建设微服务，虽然不一定成型，但是服务已经被拆的越来越细。在这种情况下，我们经常被要求服务高可用，那么服务高可用到底需要具备哪些特征呢。
@@ -366,7 +366,8 @@
         <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近经常被强调最多就是弱依赖降级，强依赖重试，db服务容灾的。被强调的原因是已经有好几例由于由于网络原因造成的重大事故了。<br>如今，微服务有兴起的苗头，已经感觉到很多公司都在尝试基于spring cloud来建设微服务，虽然不一定成型，但是服务已经被拆的越来越细。在这种情况下，我们经常被要求服务高可用，那么服务高可用到底需要具备哪些特征呢。</p>
 <h2 id="高可用服务基本特征"><a href="#高可用服务基本特征" class="headerlink" title="高可用服务基本特征"></a>高可用服务基本特征</h2><p>下面的每个点都值得深入写一篇博客，深入的学习和探讨。</p>
 <h3 id="服务容灾"><a href="#服务容灾" class="headerlink" title="服务容灾"></a>服务容灾</h3><p><code>舱壁隔离模式</code>,<br><code>电路断路器模式</code>,<br><code>服务降级</code>,<br><code>服务限流</code>,<br><code>服务分流</code>,<br><code>超时</code>,<br><code>服务重试机制</code><br>对于服务容灾，已经不是一个新鲜的话题了，淘宝的dubbo，新浪的motan都实现了简单的容灾策略。但是这两个对服务容灾的实现都比较简陋。如motan早期仅仅实现了failfast和failover的容灾策略。尽管这两种是最简单有效的策略，使用者也可以自行进行扩展容灾策略。但是依然还是会有些受限。至少不像Hystrix那么优雅。</p>
-<h4 id="电路断路器模式"><a href="#电路断路器模式" class="headerlink" title="电路断路器模式"></a>电路断路器模式</h4><h4 id="重试机制"><a href="#重试机制" class="headerlink" title="重试机制"></a>重试机制</h4><p>对于不够稳定的强依赖的服务，我们没办法做降级处理，这个时候可以依赖重试机制来服务的可靠性。<br>关于重试机制的深入了解，详见<a href="http://code.zhizus.com/2017-08-26-%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6.html">重试机制</a></p>
+<h4 id="电路断路器模式"><a href="#电路断路器模式" class="headerlink" title="电路断路器模式"></a>电路断路器模式</h4><p><a href="http://code.zhizus.com/2017-08-30-%E7%94%B5%E8%B7%AF%E7%94%B5%E8%B7%AF%E5%99%A8%E6%A8%A1%E5%BC%8F.html">电路断路器模式</a></p>
+<h4 id="重试机制"><a href="#重试机制" class="headerlink" title="重试机制"></a>重试机制</h4><p>对于不够稳定的强依赖的服务，我们没办法做降级处理，这个时候可以依赖重试机制来服务的可靠性。<br>关于重试机制的深入了解，详见<a href="http://code.zhizus.com/2017-08-26-%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6.html">重试机制</a></p>
 <h4 id="弱依赖降级"><a href="#弱依赖降级" class="headerlink" title="弱依赖降级"></a>弱依赖降级</h4><p>对于弱依赖，这种情况下Hystrix比较好办，直接实现fallback方法，失败的时候直接交由fallback处理。fallback方法里面可以返回默认值。</p>
 <h4 id="舱壁隔离"><a href="#舱壁隔离" class="headerlink" title="舱壁隔离"></a>舱壁隔离</h4><h3 id="服务隔离"><a href="#服务隔离" class="headerlink" title="服务隔离"></a>服务隔离</h3><p>服务隔离按粒度又可以分为进程隔离和线程隔离。我们 可以同时做到进程隔离，然后在进程内做线程隔离。</p>
 <h4 id="进程隔离"><a href="#进程隔离" class="headerlink" title="进程隔离"></a>进程隔离</h4><p>现在比较老的服务一般都是一个服务包含很多功能，比如既包含用户服务，有包含支付服务。当用户服务不可用的时候，导致支付服务不可用，这样是不合理的。所以对于这些明显属于两种不同职责的服务，我们有必要将其拆成不同的服务进程。隔离起来，相互不影响。</p>
@@ -426,8 +427,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-04-28-一些感悟.html" rel="next" title="一个服务化的分享">
-                <i class="fa fa-chevron-left"></i> 一个服务化的分享
+              <a href="/2017-07-09-Hystrix初探.html" rel="next" title="Hystrix初探">
+                <i class="fa fa-chevron-left"></i> Hystrix初探
               </a>
             
           </div>
@@ -436,8 +437,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017-07-09-Hystrix初探.html" rel="prev" title="Hystrix初探">
-                Hystrix初探 <i class="fa fa-chevron-right"></i>
+              <a href="/2017-07-11-高并发利器支限流.html" rel="prev" title="高并发利器之限流">
+                高并发利器之限流 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>

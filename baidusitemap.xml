@@ -4,6 +4,24 @@
 
     
   <url>
+    <loc>http://code.zhizus.com/2017-07-09-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B8%8B%EF%BC%8C%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%8F%AF%E7%94%A8%E6%80%A7.html</loc>
+    <lastmod>2017-08-30T14:24:08.269Z</lastmod>
+    <data>
+        <display>
+        <title>微服务下，如何保证服务可用性</title>
+        <pubTime>2017-07-08T16:00:00.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="实践微服务" url="http://code.zhizus.com/categories/%E5%AE%9E%E8%B7%B5%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://code.zhizus.com/2017-08-30-%E7%94%B5%E8%B7%AF%E7%94%B5%E8%B7%AF%E5%99%A8%E6%A8%A1%E5%BC%8F.html</loc>
     <lastmod>2017-08-30T14:22:45.458Z</lastmod>
     <data>
@@ -15,24 +33,6 @@
            
              
               <breadCrumb title="微服务" url="http://code.zhizus.com/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://code.zhizus.com/2017-07-09-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B8%8B%EF%BC%8C%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%8F%AF%E7%94%A8%E6%80%A7.html</loc>
-    <lastmod>2017-08-30T14:16:06.966Z</lastmod>
-    <data>
-        <display>
-        <title>微服务下，如何保证服务可用性</title>
-        <pubTime>2017-07-08T16:00:00.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="实践微服务" url="http://code.zhizus.com/categories/%E5%AE%9E%E8%B7%B5%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
           
         </display>
     </data>
