@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="motan,源码,filter" />
+  <meta name="keywords" content="微服务,熔断器,hystrix,Circuit,Breaker" />
 
 
 
@@ -87,31 +87,18 @@
 
 
 
-<meta name="description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter
-AccessLogFilter
-
-
-统计整个call的执行状况，尽量到最上层，最后执行.此filter会对性能产生一定">
+<meta name="description" content="概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Motan源码解读-Filter">
-<meta property="og:url" content="http://code.zhizus.com/2016-09-21-motan-filter.html">
+<meta property="og:title" content="电路熔断器模式">
+<meta property="og:url" content="http://code.zhizus.com/2017-08-30-电路电路器模式.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter
-AccessLogFilter
-
-
-统计整个call的执行状况，尽量到最上层，最后执行.此filter会对性能产生一定">
-<meta property="og:updated_time" content="2017-04-15T13:41:29.127Z">
+<meta property="og:description" content="概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电">
+<meta property="og:image" content="http://code.zhizus.com/./circuit-breaker-1280.png">
+<meta property="og:updated_time" content="2017-08-30T14:11:55.454Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Motan源码解读-Filter">
-<meta name="twitter:description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter
-AccessLogFilter
-
-
-统计整个call的执行状况，尽量到最上层，最后执行.此filter会对性能产生一定">
+<meta name="twitter:title" content="电路熔断器模式">
+<meta name="twitter:description" content="概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电">
+<meta name="twitter:image" content="http://code.zhizus.com/./circuit-breaker-1280.png">
 
 
 
@@ -139,13 +126,13 @@ AccessLogFilter
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2016-09-21-motan-filter.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2017-08-30-电路电路器模式.html"/>
 
 
 
 
 
-  <title> Motan源码解读-Filter | 郑大侠的博客 </title>
+  <title> 电路熔断器模式 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -294,7 +281,7 @@ AccessLogFilter
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-filter.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-08-30-电路电路器模式.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -315,7 +302,7 @@ AccessLogFilter
             
             
               
-                Motan源码解读-Filter
+                电路熔断器模式
               
             
           </h1>
@@ -339,8 +326,8 @@ AccessLogFilter
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2016-09-21-motan-filter.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-21-motan-filter.html" itemprop="commentCount"></span>
+                <a href="/2017-08-30-电路电路器模式.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-08-30-电路电路器模式.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -348,7 +335,7 @@ AccessLogFilter
 
           
           
-             <span id="/2016-09-21-motan-filter.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Filter">
+             <span id="/2017-08-30-电路电路器模式.html" class="leancloud_visitors" data-flag-title="电路熔断器模式">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -375,51 +362,47 @@ AccessLogFilter
       
 
       
-        <p>很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。<br>过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。</p>
-<h2 id="motan-filter："><a href="#motan-filter：" class="headerlink" title="motan filter："></a>motan filter：</h2><h3 id="目前实现的filter"><a href="#目前实现的filter" class="headerlink" title="目前实现的filter"></a>目前实现的filter</h3><ul>
-<li>AccessLogFilter</li>
-</ul>
-<blockquote>
-<p>统计整个call的执行状况，尽量到最上层，最后执行.<br>此filter会对性能产生一定影响，请求量较大时建议关闭。</p>
-</blockquote>
-<ul>
-<li>AccessStatisticFilter</li>
-</ul>
-<p>&gt;</p>
-<ul>
-<li>ActiveLimitFilter</li>
-</ul>
-<blockquote>
-<p>limit active count，判断某个接口并发数是否超限，如果超过限制，则上抛异常,同时做简单的统计。 此filter比较严格，尽量放到底层较早执行。</p>
-</blockquote>
-<ul>
-<li>ServiceMockFilter</li>
-</ul>
-<blockquote>
-<p>mock serivce。测试场景使用</p>
-</blockquote>
-<ul>
-<li>SwitcherFilter</li>
-</ul>
-<blockquote>
-<p>服务降级的filter，</p>
-</blockquote>
-<h3 id="按使用的地方划分"><a href="#按使用的地方划分" class="headerlink" title="按使用的地方划分"></a>按使用的地方划分</h3><ul>
-<li><strong>服务端的filter</strong></li>
-<li><strong>客户端的filter</strong></li>
-</ul>
-<p>motan的服务端和客户端都可以添加filter，可以是相同的filter也可以是不同的filter</p>
-<h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>下面我们来看filter的ProtocolFilterDecorator 代码(代码仅保留了分析相关部分)：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProtocolFilterDecorator</span> <span class="keyword">implements</span> <span class="title">Protocol</span> </span>&#123;</div><div class="line">    ...</div><div class="line">    <span class="keyword">private</span> &lt;T&gt; <span class="function">Referer&lt;T&gt; <span class="title">decorateWithFilter</span><span class="params">(Referer&lt;T&gt; referer, URL url)</span> </span>&#123;</div><div class="line">        List&lt;Filter&gt; filters = getFilters(url, MotanConstants.NODE_TYPE_REFERER);</div><div class="line">        Referer&lt;T&gt; lastRef = referer;</div><div class="line">        <span class="keyword">for</span> (Filter filter : filters) &#123;</div><div class="line">            <span class="keyword">final</span> Filter f = filter;</div><div class="line">            <span class="keyword">final</span> Referer&lt;T&gt; lf = lastRef;</div><div class="line">            lastRef = <span class="keyword">new</span> Referer&lt;T&gt;() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request)</span> </span>&#123;</div><div class="line">	                <span class="comment">// 这里可以通过配置来控制，对于重试的请求要不要经过filter，比如有些安全校验的，第一次已经校验通过，重试自然不用在校验一次，但是对于有些统计来说，可能会认为不管是不是重试，都需要统计，这里通过配置把这种情况暴露给使用者，把决定权留给使用方</span></div><div class="line">                    <span class="keyword">if</span> (!f.getClass().getAnnotation(Activation.class).retry() &amp;&amp; request.getRetries() != <span class="number">0</span>) &#123;</div><div class="line">                        <span class="keyword">return</span> lf.call(request);</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">return</span> f.filter(lf, request);</div><div class="line">                &#125;</div><div class="line"></div><div class="line">               ...</div><div class="line">            &#125;;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> lastRef;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> &lt;T&gt; <span class="function">Provider&lt;T&gt; <span class="title">decorateWithFilter</span><span class="params">(Provider&lt;T&gt; provider, URL url)</span> </span>&#123;</div><div class="line">        List&lt;Filter&gt; filters = getFilters(url, MotanConstants.NODE_TYPE_SERVICE);</div><div class="line">        <span class="keyword">if</span> (filters == <span class="keyword">null</span> || filters.size() == <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">return</span> provider;</div><div class="line">        &#125;</div><div class="line">        Provider&lt;T&gt; lastProvider = provider;</div><div class="line">        <span class="keyword">for</span> (Filter filter : filters) &#123;</div><div class="line">            <span class="keyword">final</span> Filter f = filter;</div><div class="line">            <span class="keyword">final</span> Provider&lt;T&gt; lp = lastProvider;</div><div class="line">            lastProvider = <span class="keyword">new</span> Provider&lt;T&gt;() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request)</span> </span>&#123;</div><div class="line">                    <span class="keyword">return</span> f.filter(lp, request);</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                ...</div><div class="line">            &#125;;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> lastProvider;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>从这个类的名字我们可以可以猜测motan的filter是基于java的<code>装饰模式</code>了，关于java的装饰者模式，（最经典的是jdk的IO部分的用法）</p>
-<blockquote>
-<p><strong>装饰模式：</strong>在不必改变原类文件和使用继承的情况下，动态地扩展一个对象的功能。它是通过创建一个包装对象，也就是装饰来包裹真实的对象。</p>
-</blockquote>
-<p>这个类中包装了两个filter，一个是把客户端的referer decorateWithFilter，另一个是把服务端的Provider decorateWithFilter。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>对于filter，作用大多是过滤，一般越早越好，如果不满足过滤条件，能够早些丢弃，不会浪费资源对那些不满足filter过滤条件的请求做其他的处理。</p>
-<p>所以一般encode&amp;decode完成的请求会立即进到filter过滤。</p>
-<hr>
-<h2 id="后记："><a href="#后记：" class="headerlink" title="后记："></a>后记：</h2><p>TODO后面会补充</p>
+        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>电路熔断器模式(<code>Circuit Breaker Patten</code>), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电路保护器状态图，正常状态下，电路处于关闭状态(Closed)，如果调用持续出错或者超时，电路被打开进入熔断状态(Open)，后续一段时间内的所有调用都会被拒绝(Fail Fast)，一段时间以后，保护器会尝试进入半熔断状态(Half-Open)，允许少量请求进来尝试，如果调用仍然失败，则回到熔断状态，如果调用成功，则回到电路闭合状态。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>一般是指软件系统中，由于某些原因使得服务出现了过载现象，为防止造成整个系统故障，从而采用的一种保护措施，所以很多地方把熔断亦称为过载保护。很多时候刚开始可能只是系统出现了局部的、小规模的故障，然而由于种种原因，故障影响的范围越来越大，最终导致了全局性的后果。</p>
+<h2 id="Hystrix-Circuit-Breaker-Netflix"><a href="#Hystrix-Circuit-Breaker-Netflix" class="headerlink" title="Hystrix Circuit Breaker Netflix"></a>Hystrix Circuit Breaker Netflix</h2><p>对电路熔断器提供了标准的实现，目前业界的所说的熔断大部分也是指的 Hystrix Circuit Breaker。</p>
+<p><img src="./circuit-breaker-1280.png" alt="Alt text"></p>
+<p><strong>电路断路器的开闭模式如下：</strong><br>1.假定请求达到一个确定的阈值，（熔断器在整个统计时间内是否开启的阀值，默认20秒。也就是10秒钟内至少请求20次，熔断器才发挥起作用 ，如果低于这个阈值，就不会走熔断器的逻辑）<br>(HystrixCommandProperties.circuitBreakerRequestVolumeThreshold())…<br>2.假定失败率百分比超过一个确定的阈值，<br>(HystrixCommandProperties.circuitBreakerErrorThresholdPercentage())…<br>3.然后，电路断路器由闭合状态变为打开状态，<br>4.一旦断路器打开，经由这个断路器的所有请求都短路了。<br>5.经过一段时间<br>(HystrixCommandProperties.circuitBreakerSleepWindowInMilliseconds())<br>下一个请求被允许通过，(这就是 HALF-OPEN 状态)如果这个请求失败了，断路器模式转变为断开，持续一个时间段。如果请求成功，断路器转变为闭合的状态，然后跳到1逻辑，循环。</p>
+<p>【注】熔断器如果能配置负载均衡就很完美了，在某个节点触发熔断时，自动隔离，一段时间后半开状态，…</p>
+<p>每个熔断器默认维护10个bucket,每秒一个bucket,每个blucket记录成功,失败,超时,拒绝的状态，<br>默认错误超过50%且10秒内超过20个请求进行中断拦截.</p>
+<h3 id="熔断器的状态机"><a href="#熔断器的状态机" class="headerlink" title="熔断器的状态机"></a>熔断器的状态机</h3><p><strong>Closed</strong>：熔断器关闭状态，调用失败次数积累，到了阈值（或一定比例）则启动熔断机制；<br><strong>Open</strong>：熔断器打开状态，此时对下游的调用都内部直接返回错误，不走网络，但设计了一个时钟选项，默认的时钟达到了一定时间（这个时间一般设置成平均故障处理时间，也就是MTTR），到了这个时间，进入半熔断状态；<br><strong>Half-Open</strong>：半熔断状态，允许定量的服务请求，如果调用都成功（或一定比例）则认为恢复了，关闭熔断器，否则认为还没好，又回到熔断器打开状态；</p>
+<h3 id="熔断器相关配置"><a href="#熔断器相关配置" class="headerlink" title="熔断器相关配置"></a>熔断器相关配置</h3><table>
+<thead>
+<tr>
+<th>参数</th>
+<th style="text-align:center">作用</th>
+<th style="text-align:right">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>circuitBreaker.errorThresholdPercentage</td>
+<td style="text-align:center">失败率达到多少百分比后熔断</td>
+<td style="text-align:right">默认值：50</td>
+</tr>
+<tr>
+<td>circuitBreaker.forceClosed</td>
+<td style="text-align:center">是否强制关闭熔断    <code>如果是强依赖，应该设置为true</code></td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>circuitBreaker.requestVolumeThreshold</td>
+<td style="text-align:center">熔断触发的最小个数/10s</td>
+<td style="text-align:right">默认值：20</td>
+</tr>
+<tr>
+<td>circuitBreaker.sleepWindowInMilliseconds</td>
+<td style="text-align:center">熔断多少秒后去尝试请求</td>
+<td style="text-align:right">默认值：5000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>熔断器还有其他的方式实现，比如vip就用了metrics中的SlidingTimeWindowReservoir来实现熔断器。<br>SlidingTimeWindowReservoir中的 ConcurrentSkipListMap会导致YGC时间变长，详见</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/Netflix/Hystrix/wiki/How-it-Works#CircuitBreaker" target="_blank" rel="external">https://github.com/Netflix/Hystrix/wiki/How-it-Works#CircuitBreaker</a><br><a href="http://www.infoq.com/cn/articles/basis-frameworkto-implement-micro-servic" target="_blank" rel="external">http://www.infoq.com/cn/articles/basis-frameworkto-implement-micro-servic</a></p>
 
       
     </div>
@@ -472,8 +455,8 @@ AccessLogFilter
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-protocol.html" rel="next" title="Motan源码解读-Protocol">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-Protocol
+              <a href="/2017-08-28-幂等.html" rel="next" title="幂等">
+                <i class="fa fa-chevron-left"></i> 幂等
               </a>
             
           </div>
@@ -481,10 +464,6 @@ AccessLogFilter
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016-09-21-motan-hastratege.html" rel="prev" title="Motan源码解读-容错策略">
-                Motan源码解读-容错策略 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -510,8 +489,8 @@ AccessLogFilter
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016-09-21-motan-filter.html"
-           data-title="Motan源码解读-Filter" data-url="http://code.zhizus.com/2016-09-21-motan-filter.html">
+      <div class="ds-thread" data-thread-key="2017-08-30-电路电路器模式.html"
+           data-title="电路熔断器模式" data-url="http://code.zhizus.com/2017-08-30-电路电路器模式.html">
       </div>
     
   </div>
@@ -651,7 +630,7 @@ AccessLogFilter
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#motan-filter："><span class="nav-number">1.</span> <span class="nav-text">motan filter：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#目前实现的filter"><span class="nav-number">1.1.</span> <span class="nav-text">目前实现的filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#按使用的地方划分"><span class="nav-number">1.2.</span> <span class="nav-text">按使用的地方划分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码分析"><span class="nav-number">1.3.</span> <span class="nav-text">代码分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">2.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记："><span class="nav-number">3.</span> <span class="nav-text">后记：</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">2.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hystrix-Circuit-Breaker-Netflix"><span class="nav-number">3.</span> <span class="nav-text">Hystrix Circuit Breaker Netflix</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#熔断器的状态机"><span class="nav-number">3.1.</span> <span class="nav-text">熔断器的状态机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#熔断器相关配置"><span class="nav-number">3.2.</span> <span class="nav-text">熔断器相关配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
