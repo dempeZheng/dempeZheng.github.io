@@ -93,13 +93,13 @@
 <meta property="og:url" content="http://code.zhizus.com/2017-08-30-电路电路器模式.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电">
-<meta property="og:image" content="http://code.zhizus.com/images/circuit-breaker-1280.png">
 <meta property="og:image" content="http://code.zhizus.com/images/1125007.png">
-<meta property="og:updated_time" content="2017-08-30T14:20:21.514Z">
+<meta property="og:image" content="http://code.zhizus.com/images/circuit-breaker-1280.png">
+<meta property="og:updated_time" content="2017-08-30T14:22:45.458Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="电路熔断器模式">
 <meta name="twitter:description" content="概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电">
-<meta name="twitter:image" content="http://code.zhizus.com/images/circuit-breaker-1280.png">
+<meta name="twitter:image" content="http://code.zhizus.com/images/1125007.png">
 
 
 
@@ -363,9 +363,9 @@
       
 
       
-        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>电路熔断器模式(<code>Circuit Breaker Patten</code>), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电路保护器状态图，正常状态下，电路处于关闭状态(Closed)，如果调用持续出错或者超时，电路被打开进入熔断状态(Open)，后续一段时间内的所有调用都会被拒绝(Fail Fast)，一段时间以后，保护器会尝试进入半熔断状态(Half-Open)，允许少量请求进来尝试，如果调用仍然失败，则回到熔断状态，如果调用成功，则回到电路闭合状态。<br><span itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="/images/circuit-breaker-1280.png" class="full-image" alt="alt"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span></p>
+        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>电路熔断器模式(<code>Circuit Breaker Patten</code>), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电路保护器状态图，正常状态下，电路处于关闭状态(Closed)，如果调用持续出错或者超时，电路被打开进入熔断状态(Open)，后续一段时间内的所有调用都会被拒绝(Fail Fast)，一段时间以后，保护器会尝试进入半熔断状态(Half-Open)，允许少量请求进来尝试，如果调用仍然失败，则回到熔断状态，如果调用成功，则回到电路闭合状态。<br><img src="/images/1125007.png" alt="Alt text"></p>
 <h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>一般是指软件系统中，由于某些原因使得服务出现了过载现象，为防止造成整个系统故障，从而采用的一种保护措施，所以很多地方把熔断亦称为过载保护。很多时候刚开始可能只是系统出现了局部的、小规模的故障，然而由于种种原因，故障影响的范围越来越大，最终导致了全局性的后果。</p>
-<h2 id="Hystrix-Circuit-Breaker-Netflix"><a href="#Hystrix-Circuit-Breaker-Netflix" class="headerlink" title="Hystrix Circuit Breaker Netflix"></a>Hystrix Circuit Breaker Netflix</h2><p>对电路熔断器提供了标准的实现，目前业界的所说的熔断大部分也是指的 Hystrix Circuit Breaker。<br><span itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="/images/1125007.png" class="full-image" alt="alt"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span></p>
+<h2 id="Hystrix-Circuit-Breaker-Netflix"><a href="#Hystrix-Circuit-Breaker-Netflix" class="headerlink" title="Hystrix Circuit Breaker Netflix"></a>Hystrix Circuit Breaker Netflix</h2><p>对电路熔断器提供了标准的实现，目前业界的所说的熔断大部分也是指的 Hystrix Circuit Breaker。<br><span itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="/images/circuit-breaker-1280.png" class="full-image" alt="alt"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span></p>
 <p><strong>电路断路器的开闭模式如下：</strong><br>1.假定请求达到一个确定的阈值，（熔断器在整个统计时间内是否开启的阀值，默认20秒。也就是10秒钟内至少请求20次，熔断器才发挥起作用 ，如果低于这个阈值，就不会走熔断器的逻辑）<br>(HystrixCommandProperties.circuitBreakerRequestVolumeThreshold())…<br>2.假定失败率百分比超过一个确定的阈值，<br>(HystrixCommandProperties.circuitBreakerErrorThresholdPercentage())…<br>3.然后，电路断路器由闭合状态变为打开状态，<br>4.一旦断路器打开，经由这个断路器的所有请求都短路了。<br>5.经过一段时间<br>(HystrixCommandProperties.circuitBreakerSleepWindowInMilliseconds())<br>下一个请求被允许通过，(这就是 HALF-OPEN 状态)如果这个请求失败了，断路器模式转变为断开，持续一个时间段。如果请求成功，断路器转变为闭合的状态，然后跳到1逻辑，循环。</p>
 <p>【注】熔断器如果能配置负载均衡就很完美了，在某个节点触发熔断时，自动隔离，一段时间后半开状态，…</p>
 <p>每个熔断器默认维护10个bucket,每秒一个bucket,每个blucket记录成功,失败,超时,拒绝的状态，<br>默认错误超过50%且10秒内超过20个请求进行中断拦截.</p>
