@@ -87,19 +87,22 @@
 
 
 
-<meta name="description" content="重试机制就是一种容错机制。我们在nginx里面可以看到重试机制；在httpclient的实现里面也可以看到retryHandler；在 dubbo里面也能找到retry先关的东西…在对服务可用性要求比较高的互联网行业，重试机制经常被提及。本文旨在梳理重试机制的使用场景，核心点，以及优雅的使用方式做一个梳理。
-适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结">
+<meta name="description" content="重试机制就是一种容错机制。是的最后一根救命稻草！Retry模式能够通过重复之前失败的操作来处理那些调用远端服务或者网络资源的时候发生的一些可以预期的临时性的错误。Retry模式可以提高应用的稳定性。
+适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结束。
+如果错误并非暂时性的，或者通过重复很难成功的话（举例来说，由于错误的用户名和密码造成的验证失败），应用应">
 <meta property="og:type" content="article">
 <meta property="og:title" content="重试机制">
 <meta property="og:url" content="http://code.zhizus.com/2017-08-26-重试机制.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="重试机制就是一种容错机制。我们在nginx里面可以看到重试机制；在httpclient的实现里面也可以看到retryHandler；在 dubbo里面也能找到retry先关的东西…在对服务可用性要求比较高的互联网行业，重试机制经常被提及。本文旨在梳理重试机制的使用场景，核心点，以及优雅的使用方式做一个梳理。
-适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结">
-<meta property="og:updated_time" content="2017-08-28T12:45:08.812Z">
+<meta property="og:description" content="重试机制就是一种容错机制。是的最后一根救命稻草！Retry模式能够通过重复之前失败的操作来处理那些调用远端服务或者网络资源的时候发生的一些可以预期的临时性的错误。Retry模式可以提高应用的稳定性。
+适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结束。
+如果错误并非暂时性的，或者通过重复很难成功的话（举例来说，由于错误的用户名和密码造成的验证失败），应用应">
+<meta property="og:updated_time" content="2017-08-31T13:36:00.704Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="重试机制">
-<meta name="twitter:description" content="重试机制就是一种容错机制。我们在nginx里面可以看到重试机制；在httpclient的实现里面也可以看到retryHandler；在 dubbo里面也能找到retry先关的东西…在对服务可用性要求比较高的互联网行业，重试机制经常被提及。本文旨在梳理重试机制的使用场景，核心点，以及优雅的使用方式做一个梳理。
-适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结">
+<meta name="twitter:description" content="重试机制就是一种容错机制。是的最后一根救命稻草！Retry模式能够通过重复之前失败的操作来处理那些调用远端服务或者网络资源的时候发生的一些可以预期的临时性的错误。Retry模式可以提高应用的稳定性。
+适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结束。
+如果错误并非暂时性的，或者通过重复很难成功的话（举例来说，由于错误的用户名和密码造成的验证失败），应用应">
 
 
 
@@ -363,23 +366,35 @@
       
 
       
-        <p>重试机制就是一种容错机制。<br>我们在nginx里面可以看到重试机制；<br>在httpclient的实现里面也可以看到retryHandler；<br>在 dubbo里面也能找到retry先关的东西<br>…<br>在对服务可用性要求比较高的互联网行业，重试机制经常被提及。<br>本文旨在梳理重试机制的使用场景，核心点，以及优雅的使用方式做一个梳理。</p>
-<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p>功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结束。比如远程接口访问，数据加载访问，定时任务结算</p>
-<p><strong>具体的业务场景如下：</strong></p>
+        <p>重试机制就是一种容错机制。是的最后一根救命稻草！<br>Retry模式能够通过重复之前失败的操作来处理那些调用远端服务或者网络资源的时候发生的一些可以预期的临时性的错误。Retry模式可以提高应用的稳定性。</p>
+<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p>功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结束。</p>
+<p>如果错误并非暂时性的，或者通过重复很难成功的话（举例来说，由于错误的用户名和密码造成的验证失败），应用应该终止操作并抛出一个合适的异常信息。</p>
+<p>如果发生了特殊的错误或者很少见的错误，可能是因为一些奇怪的状况，比如网络在传输的过程中丢包了。在这种情况下，应用可以立刻重试失败的请求因为发生错误的状态不易重现，而请求在这种情况下和可能成功。</p>
+<p>如果错误是由于常见的连接性失败，或者由于远端服务繁忙引起的失败，服务可能会需要短暂的时间来恢复正常，或者需要一点点时间来处理掉之前堆积的任务。那么应用就应该能够等待一点时间在进行重试。</p>
+<p><strong>何时该使用Retry模式：</strong></p>
 <blockquote>
-<p>1.某个服务依赖第三方服务，但是第三方服务不够稳定，这个时候我们可以通过重试，来提供服务的可靠性<br>2.某个包月扣费的task，我们需要保证任务在结算日被成功执行，这个时候我们也可以依赖重试机制来保障服务的可靠性。（这种情况要注意幂等重试）<br>3.异步化的的进程中，通过会在某个核心逻辑处理完后就返回业务成功，后续的逻辑通常使用异步线程来完成。这个时候也可以通过重试机制来提高业务的可靠性。（当然使用队列来做异步也是个不错的选择）<br>4.现在很多服务都部署了多个节点，为了避免部分节点宕机对业务造成的影响，通常需要一定的容灾机制，最常见的机制就是failover，基于负载均衡的重试<br>…</p>
+<p>当应用可能在与远端服务交互或者请求远端资源的时候发生短暂性错误的实收就可以考虑实现Retry模式。这些错误需要是那种短暂性的，能够自我恢复的，这样，通过重复之前失败的操作就可以令应用的请求正常。</p>
 </blockquote>
-<p>相较于适用的场景，重试时需要特别小心场景更值得让人关注。</p>
-<p>场景一：</p>
+<p><strong>何时不该使用Retry模式：</strong></p>
 <blockquote>
-<p>例如接口超时，你是无法判断接口到底有无正确处理，如果接口不是幂等的，重试了，很可能造成脏写。</p>
+<ul>
+<li>当错误是属于长时间持续的时候不该使用Retry模式。因为当错误无法自己恢复的时候，持续的请求外部服务只会影响应用本身的响应。应用的继续重试只会浪费时间和应用服务器的资源。</li>
+<li>当错误并非短暂性错误的时候不该使用Retry模式。比如具体业务中引起的内部异常。</li>
+<li>考虑到系统的弹性处理，如果应用频繁碰到服务繁忙的错误，那么就该考虑是否该扩展被请求服务或者资源了。</li>
+<li><code>非幂等请求，万不可重试</code>。</li>
+</ul>
 </blockquote>
-<p><strong>结论：非幂等情况下，千万不可重试。</strong></p>
-<p>场景二：</p>
-<blockquote>
-<p>业务接口方服务cpu紧张，造成接口失败或者超时，这个时候盲目重试只能拖垮依赖服务。</p>
-</blockquote>
-<p><strong>结论：针对不同的业务场景，需选择不同的重试策略。</strong></p>
+<h2 id="需要考虑的问题"><a href="#需要考虑的问题" class="headerlink" title="需要考虑的问题"></a>需要考虑的问题</h2><ul>
+<li><strong>重试策略应该能够很好的适配应用的业务需求和错误的特点</strong>。在有的时候，令一些非关键操作快速失败要比多次重试要更好。举个例子，在一个交互式的web应用中，当应用对远端服务发送请求的时候，打印出失败的信息（比如说，“请稍后再试”）要比隔一段时间进行重试然后令用户进行等待要好的多。而对于分批类型的应用，将重试的等待时间以指数增长可能更为合适。<br>如果一个重试的策略配置了很小的等待间隔，并且配置了很大数量的重试次数，那么这个策略可能另一个繁忙的服务的资源跟容易耗尽。重试策略如果不断重试执行失败的操作，也会影响到应用的响应的。</li>
+<li><strong>如果对于远端的请求在大量重试之后仍然失败的话，令应用不要继续请求，在一段时间不再继续请求远端服务，并且立刻报告错误可能更为合适。</strong>当配置的时间过期后，应用再试探性的发送请求去请求远端资源来判断服务是否恢复正常。关于更多的信息可以参考Circuit-Breaker模式来了解更多的信息。</li>
+<li><strong>应用访问的远端服务的操作需要是幂等的</strong>。例如，如果应用的请求已经到达远端服务了，并且已经正常处理了，但是因为暂时性错误，并没有发送成功的响应回到应用端。那么应用中的重试逻辑可能会继续重复之前的操作将重复的操作再次发送，因为应用并没有收到服务调用成功的应答信息。</li>
+<li><strong>根据场景的不同，对远端服务的请求失败的原因也是多种多样的，产生的异常信息也各有不同</strong>。有些错误可以告诉开发者远端服务可以很快恢复，而有些异常信息则可能意味着错误会持续很久的时间。重试策略最好根据异常的不同来调整重试的时间间隔。</li>
+<li><strong>也需要考虑重试操作对于全局事物一致性的影响</strong>。最好尽可能的配置好Retry策略，让事物操作能够尽可能的成功，以减少全部的回滚操作。</li>
+<li><strong>使用Retry模式一定要确保所有的重试代码针对不同的错误情况都有测试到</strong>。检查Retry模式是否有严重影响了应用的性能或者可靠性。因为过多的加载远端服务和资源可能产生经常或者瓶颈。</li>
+<li><strong>实现Retry模式的时候，整个上下文一定要理解失败的操作</strong>。举例来说，如果一个包含了重试策略的任务调用了另一个包含了重试策略的任务，外面的这层处理会对大大增肌处理的时间。这样的话，最好就将低级别的任务配置为快速失败，并且将失败的异常信息交给调用它的任务。这样，高级别的任务可以根据其自己的策略来决定如何处理错误了。</li>
+<li><strong>将每次重试的链接失败信息记录日志都是十分必要的</strong>，这些日志可以帮忙识别出应用，服务或者资源的潜在问题。</li>
+<li><strong>查看在请求远端服务所容易产生的错误，判断这些错误是不是持续很久无法恢复</strong>。如果是这类问题，最好将这类错误定义为一类异常。应用将这类异常记录下来，并且可以尝试调用替代的服务（如果存在的话）或者直接拒绝服务。想了解更多如何检查和处理长时间的错误，可以参考Circuit-Breaker模式。</li>
+</ul>
 <h2 id="基于spring-retry的重试"><a href="#基于spring-retry的重试" class="headerlink" title="基于spring-retry的重试"></a>基于spring-retry的重试</h2><p>在看到<a href="https://github.com/spring-projects/spring-retry" target="_blank" rel="external">spring-retry</a>之前我从未想到过将retry封装成一个组件，最多觉得是抽象几个重试的策略。<br>直到我看到<code>spring-retry</code>的用法，才突然意识到重试机制其实可以封装成面向任何方法的组件。只要将方法逻辑包装在一个重试代码块里面即可。而这种场景用代理模式实现就更更合适不过了，所以spring-retry支持基于注解的面向切面的重试组件还是很惊艳的。<br>下文会贴一些简单的示例，便于对重试的实现有一个基本的了解。<br>如需对<code>spring-retry</code>更深入的了解学习，建议直接看github的readme和源代码。<a href="https://github.com/spring-projects/spring-retry" target="_blank" rel="external">https://github.com/spring-projects/spring-retry</a></p>
 <h3 id="spring-retry的使用示例"><a href="#spring-retry的使用示例" class="headerlink" title="spring-retry的使用示例"></a>spring-retry的使用示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">RetryTemplate template = <span class="keyword">new</span> RetryTemplate();</div><div class="line"></div><div class="line">TimeoutRetryPolicy policy = <span class="keyword">new</span> TimeoutRetryPolicy();</div><div class="line">policy.setTimeout(<span class="number">30000L</span>);</div><div class="line"></div><div class="line">template.setRetryPolicy(policy);</div><div class="line"></div><div class="line">Foo result = template.execute(<span class="keyword">new</span> RetryCallback&lt;Foo&gt;() &#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Foo <span class="title">doWithRetry</span><span class="params">(RetryContext context)</span> </span>&#123;</div><div class="line">        <span class="comment">// Do stuff that might fail, e.g. webservice operation</span></div><div class="line">        <span class="keyword">return</span> result;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
 <h3 id="面向切面的使用示例"><a href="#面向切面的使用示例" class="headerlink" title="面向切面的使用示例"></a>面向切面的使用示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">Configuration</div><div class="line"><span class="meta">@EnableRetry</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Service <span class="title">service</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Service();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Service</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Service</span> </span>&#123;</div><div class="line">    <span class="meta">@Retryable</span>(maxAttempts=<span class="number">12</span>, backoff=<span class="meta">@Backoff</span>(delay=<span class="number">100</span>, maxDelay=<span class="number">500</span>))</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">service</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">// ... do something</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -631,7 +646,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#适用场景"><span class="nav-number">1.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于spring-retry的重试"><span class="nav-number">2.</span> <span class="nav-text">基于spring-retry的重试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spring-retry的使用示例"><span class="nav-number">2.1.</span> <span class="nav-text">spring-retry的使用示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#面向切面的使用示例"><span class="nav-number">2.2.</span> <span class="nav-text">面向切面的使用示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spring-retry的基本概念"><span class="nav-number">2.3.</span> <span class="nav-text">spring-retry的基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重试策略"><span class="nav-number">2.4.</span> <span class="nav-text">重试策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#重试退避策略"><span class="nav-number">2.4.1.</span> <span class="nav-text">重试退避策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重试上下文状态"><span class="nav-number">2.4.2.</span> <span class="nav-text">重试上下文状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重试的RecoverCallback"><span class="nav-number">2.4.3.</span> <span class="nav-text">重试的RecoverCallback</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spring-retry机制的局限"><span class="nav-number">2.5.</span> <span class="nav-text">spring-retry机制的局限</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#guava-retryer"><span class="nav-number">3.</span> <span class="nav-text">guava retryer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于负载均衡的重试"><span class="nav-number">4.</span> <span class="nav-text">基于负载均衡的重试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#适用场景"><span class="nav-number">1.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#需要考虑的问题"><span class="nav-number">2.</span> <span class="nav-text">需要考虑的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于spring-retry的重试"><span class="nav-number">3.</span> <span class="nav-text">基于spring-retry的重试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spring-retry的使用示例"><span class="nav-number">3.1.</span> <span class="nav-text">spring-retry的使用示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#面向切面的使用示例"><span class="nav-number">3.2.</span> <span class="nav-text">面向切面的使用示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spring-retry的基本概念"><span class="nav-number">3.3.</span> <span class="nav-text">spring-retry的基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重试策略"><span class="nav-number">3.4.</span> <span class="nav-text">重试策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#重试退避策略"><span class="nav-number">3.4.1.</span> <span class="nav-text">重试退避策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重试上下文状态"><span class="nav-number">3.4.2.</span> <span class="nav-text">重试上下文状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重试的RecoverCallback"><span class="nav-number">3.4.3.</span> <span class="nav-text">重试的RecoverCallback</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spring-retry机制的局限"><span class="nav-number">3.5.</span> <span class="nav-text">spring-retry机制的局限</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#guava-retryer"><span class="nav-number">4.</span> <span class="nav-text">guava retryer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于负载均衡的重试"><span class="nav-number">5.</span> <span class="nav-text">基于负载均衡的重试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">7.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
             
 
           </div>
