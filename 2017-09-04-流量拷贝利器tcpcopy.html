@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="mysql,异地多活,容灾,同步,一致性" />
+  <meta name="keywords" content="tcpcopy,压力测试,流量拷贝" />
 
 
 
@@ -87,30 +87,24 @@
 
 
 
-<meta name="description" content="##背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
-容灾的技术方案
-这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。
-总结一下各个高可用方案的的问题：
-对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会">
+<meta name="description" content="tcpcopy是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。
+
+曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2">
 <meta property="og:type" content="article">
-<meta property="og:title" content="关于mysql容灾的一些思考">
-<meta property="og:url" content="http://code.zhizus.com/2017-08-01-关于mysql容灾的一些思考.html">
+<meta property="og:title" content="流量拷贝利器tcpcopy">
+<meta property="og:url" content="http://code.zhizus.com/2017-09-04-流量拷贝利器tcpcopy.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="##背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
-容灾的技术方案
-这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。
-总结一下各个高可用方案的的问题：
-对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会">
-<meta property="og:image" content="http://code.zhizus.com/./images/Transaction-Across-DataCenter.jpg">
-<meta property="og:updated_time" content="2017-08-01T14:13:05.451Z">
+<meta property="og:description" content="tcpcopy是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。
+
+曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2">
+<meta property="og:image" content="http://code.zhizus.com/images/tcpcopy.gif">
+<meta property="og:updated_time" content="2017-09-04T13:48:26.006Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="关于mysql容灾的一些思考">
-<meta name="twitter:description" content="##背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
-容灾的技术方案
-这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。
-总结一下各个高可用方案的的问题：
-对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会">
-<meta name="twitter:image" content="http://code.zhizus.com/./images/Transaction-Across-DataCenter.jpg">
+<meta name="twitter:title" content="流量拷贝利器tcpcopy">
+<meta name="twitter:description" content="tcpcopy是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。
+
+曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2">
+<meta name="twitter:image" content="http://code.zhizus.com/images/tcpcopy.gif">
 
 
 
@@ -138,13 +132,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-08-01-关于mysql容灾的一些思考.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2017-09-04-流量拷贝利器tcpcopy.html"/>
 
 
 
 
 
-  <title> 关于mysql容灾的一些思考 | 郑大侠的博客 </title>
+  <title> 流量拷贝利器tcpcopy | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -293,7 +287,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-08-01-关于mysql容灾的一些思考.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-09-04-流量拷贝利器tcpcopy.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -314,7 +308,7 @@
             
             
               
-                关于mysql容灾的一些思考
+                流量拷贝利器tcpcopy
               
             
           </h1>
@@ -338,8 +332,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017-08-01-关于mysql容灾的一些思考.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-08-01-关于mysql容灾的一些思考.html" itemprop="commentCount"></span>
+                <a href="/2017-09-04-流量拷贝利器tcpcopy.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-09-04-流量拷贝利器tcpcopy.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -347,7 +341,7 @@
 
           
           
-             <span id="/2017-08-01-关于mysql容灾的一些思考.html" class="leancloud_visitors" data-flag-title="关于mysql容灾的一些思考">
+             <span id="/2017-09-04-流量拷贝利器tcpcopy.html" class="leancloud_visitors" data-flag-title="流量拷贝利器tcpcopy">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -374,17 +368,43 @@
       
 
       
-        <p>##背景<br>工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。</p>
-<h2 id="容灾的技术方案"><a href="#容灾的技术方案" class="headerlink" title="容灾的技术方案"></a>容灾的技术方案</h2><p><img src="./images/Transaction-Across-DataCenter.jpg" alt="Alt text"></p>
-<p>这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。</p>
-<p>总结一下各个高可用方案的的问题：</p>
-<p>对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会出现数据差异性。<br>对于强一致性来说，要么使用性能比较慢的XA系的两阶段提交的方案，要么使用性能比较好，但是实现比较复杂的Paxos协议。</p>
-<h2 id="同城MHA"><a href="#同城MHA" class="headerlink" title="同城MHA"></a>同城MHA</h2><h2 id="异地多活"><a href="#异地多活" class="headerlink" title="异地多活"></a>异地多活</h2><p>最近异地双活或者异地多活的概念很火。很多公司都在尝试异地多活。</p>
-<p><strong>异地多活本质上是无法实现强一致性的</strong>。<br>这是物理条件限制的，即：光速的传播速度真空中每秒30万公里，光纤中每秒大约20万公里，加上中间各种网络设备的处理和时延，实际上远远没有那么快。<br>广州到北京的光纤，正常情况下50ms延时已经是很好的网络了，不可能达到几毫秒的延时。<br>所以理论上我们是没有办法实现一个强一致性的异地多活系统。例如“库存”，“余额”相关的系统，我们是没办法做多活的。这个不管是银行还是余额宝都做不到。<br>尽管用户余额类系统做不了多活，但是我们可以换种思路，在应用层做多活。<br>通过将用户分布在多地，实现系统层面用户异地多活，即：某个数据中心有故障只影响部分用户，其它数据中心的用户是可以继续使用业务的。</p>
-<h3 id="异地多活的一些想法"><a href="#异地多活的一些想法" class="headerlink" title="异地多活的一些想法"></a>异地多活的一些想法</h3><p>当然，如果对数据一致性要求不高，<br>                user<br>                ||<br>        proxy<br>                      ||<br>                      ||<br>Master &lt;==otter==&gt; Master</p>
-<h2 id="异地冷备"><a href="#异地冷备" class="headerlink" title="异地冷备"></a>异地冷备</h2><p>对于余额系统这类强一致性系统，无法做异地双活，但是又非常重要的系统，异地冷备不失为在异常情况及时止损的一种选择。事实上，现在很多公司采用的也是异地冷备。<br>异地冷备的有点很明显，简单易操作，可行性较好。<br>当然缺点也很致命，冷备如果一直不需要启用还好，那仅仅是浪费机器而已。但是如果发生异常情况，将冷备的DB且为Master也是需要勇气的。没有经过业务的考验。切换的时候是否同步完成，如果数据同步未完成 将面临数据一致性问题。切换后是否能抗住线上压力等等问题。</p>
-<h3 id="数据一致性问题"><a href="#数据一致性问题" class="headerlink" title="数据一致性问题"></a>数据一致性问题</h3><h2 id="数据同步利器Otter"><a href="#数据同步利器Otter" class="headerlink" title="数据同步利器Otter"></a>数据同步利器Otter</h2><h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>未完待续</p>
-<h2 id="补充充电"><a href="#补充充电" class="headerlink" title="补充充电"></a>补充充电</h2><p><a href="http://coolshell.cn/articles/17459.html" target="_blank" rel="external">http://coolshell.cn/articles/17459.html</a></p>
+        <p><code>tcpcopy</code>是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。</p>
+<blockquote>
+<p>曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。<br>现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2009年设计并代码实现，仅仅300多行代码就支撑了网易广告投放系统的最初开发，上线零失误，解决上线前数百个问题）,当然这个最简单的版本应用范围非常有限，王斌(@wangbin579)在2010年末在这个架构上面进行了深度改造，扩展到1000多行代码）。最新版本1.0.0。</p>
+</blockquote>
+<h2 id="tcpcopy的使用场景"><a href="#tcpcopy的使用场景" class="headerlink" title="tcpcopy的使用场景"></a>tcpcopy的使用场景</h2><p><strong>tcpcopy四大功能：</strong><br>1）分布式压力测试工具，利用在线数据，可以测试系统能够承受的压力大小（远比ab压力测<br>试工具真实地多）,也可以提前发现一些bug<br>2）对于后端的短连接，请求丢失率非常低(1/10万)，可以应用于热备份<br>3）普通上线测试，可以发现新系统是否稳定，提前发现上线过程中会出现的诸多问题，让开<br>发者有信心上线<br>4）对比试验，同样请求，针对不同或不同版本程序，可以做性能对比等试验<br>5）流量放大功能，可以利用多种手段构造无限在线压力，满足中小网站压力测试要求（同时也支持部分引流）<br><strong>特点如下：</strong><br>1）实时<br>2）效果真实<br>3）低负载，不影响在线<br>4）操作简单<br>5）分布式<br>6）意义非凡</p>
+<h2 id="tcpcopy架构"><a href="#tcpcopy架构" class="headerlink" title="tcpcopy架构"></a>tcpcopy架构</h2><p><img src="/images/tcpcopy.gif" alt="Alt text"></p>
+<p>tcpcopy最新架构上图，分为以下三个角色：<br><strong>Online Server(OS)</strong>：上面要部署 TCPCopy，从数据链路层(pcap 接口)抓请求数据包，发包是从IP层发出去；<br><strong>Test Server(TS)</strong>：最新的架构调整把 intercept 的工作从 TS 中 offload 出来。TS 设置路由信息，把 被测应用 的需要被捕获的响应数据包信息路由到 AS；<br><strong>Assistant Server(AS)</strong>：这是一台独立的辅助服务器，原则上一定要用同网段的一台闲置服务器来充当辅助服务器。AS 在数据链路层截获到响应包，从中抽取出有用的信息，再返回给相应的 OS 上的 tcpcopy 进程。</p>
+<p>其中，tcpcopy拷贝一次流量访问的步骤如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">①　一个访问到达线上前端机；</div><div class="line">②　socket数据包在ip层被拷贝了一份传给tcpcopy进程；</div><div class="line">③　tcpcopy修改包的目的及源地址，发给目标测试机；</div><div class="line">④　拷贝的包到达目标测试机；</div><div class="line">⑤　目标测试机的nginx处理访问，并返回结果；</div><div class="line">⑥　返回结果在ip层被截获、丢弃，由intercpet进程拷贝返回结果的ip header并返回；</div><div class="line">⑦　ip header被发送给线上前端机的tcpcopy进程。</div></pre></td></tr></table></figure></p>
+<h2 id="安装和配置"><a href="#安装和配置" class="headerlink" title="安装和配置"></a>安装和配置</h2><h3 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h3><p>tcpcopy有两种工作模式：<br>1 实时拷贝数据包<br>2 通过使用tcpdump等抓包生成的文件进行离线（offline）请求重放</p>
+<p><strong>安装部署如下：</strong><br>1）Assistant Server 安装intercept</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">yum -y install libpcap-devel</div><div class="line">wget  https://github.com/session-replay-tools/intercept/archive/1.0.0.tar.gz</div><div class="line">tar xvf 1.0.0.tar.gz</div><div class="line"><span class="built_in">cd</span> intercept-1.0.0</div><div class="line">./configure --prefix=/opt/tcpcopy/</div><div class="line">make</div><div class="line">make install</div></pre></td></tr></table></figure>
+<p>2）Online Server安装tcpcopy</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">wget https://github.com/session-replay-tools/tcpcopy/archive/1.0.0.tar.gz</div><div class="line">tar xvf 1.0.0.tar.gz</div><div class="line"><span class="built_in">cd</span> tcpcopy-1.0.0</div><div class="line">./configure --prefix=/opt/tcpcopy/</div><div class="line">make</div><div class="line">make install</div></pre></td></tr></table></figure>
+<h3 id="online在线实时复制"><a href="#online在线实时复制" class="headerlink" title="online在线实时复制"></a>online在线实时复制</h3><p>假定：需要将Online Server流量拷贝到Test Server<br><strong>Online Server(OS)</strong>：192.168.124.67<br><strong>Test Server(TS)</strong>：192.168.124.68<br><strong>Assistant Server(AS)</strong>：192.168.124.180</p>
+<p>1）Assistant Server上启动intercept<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/opt/tcpcopy/sbin/intercept -i eth0 -F <span class="string">'tcp and src port 8080'</span> <span class="_">-d</span></div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><code>-i,</code> intercept会监听端口，和tcpcopy进行通信，-i就是指定监听在哪个端口。tcpcopy启动的时候会来连这个端口，如果连不上，就会启动失败。<br><code>-F</code>, 过滤规则，语法和pcap一样。<br><code>-d</code>, 已守护进程方式运行</p>
+</blockquote>
+<p>2) Online Server 启动tcpcopy</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/opt/tcpcopy/sbin/tcpcopy -x 8080-192.168.124.68:8080 <span class="_">-s</span> 192.168.124.180 -c 192.168.2.254 -n 2 <span class="_">-d</span> <span class="_">-l</span> tcpcopy.log</div></pre></td></tr></table></figure>
+<blockquote>
+<p><code>-x,</code> 是指本机8000端口的流量copy到192.168.124.68的8000端口<br><code>-s</code>, 指定intercept机器的地址，tcpcopy要和intercept建立连接<br><code>-c</code> 伪装地址，在把流量复制到测试服务器的时候，修改数据包的源地址为192.168.2.254，这样方便指定路由。也可以写成192.168.2.x，这样源地址就是指定网段中的地址了。<br><code>-n</code> 流量放大倍数，如果不是压测目的就不用指定这个参数。<br><code>-d</code> 以守护模式运行。<br><code>-l</code> :输出日志</p>
+</blockquote>
+<p>3） Test Server配置路由(<code>辅助服务器要和测试服务器在一个子网里</code>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">route add -net 192.168.2.0 netmask 255.255.255.0 gw 192.168.124.180</div></pre></td></tr></table></figure></p>
+<p>192.168.2.0/24地址的数据包全部转给辅助服务器192.168.124.180</p>
+<p>【注】如果机器不够，将intercept部署到Test Server，这种情况下就不如要配置路由了。</p>
+<h3 id="offline离线复制"><a href="#offline离线复制" class="headerlink" title="offline离线复制"></a>offline离线复制</h3><p>1） 在线上服务器抓包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcpdump -i eth0 tcp and port 80 <span class="_">-s</span> 0 -w online.pcap</div></pre></td></tr></table></figure>
+<p>2） 将抓包生成的文件拷贝到测试服务器</p>
+<p>3） 在测试服务器上进行执行如下命令进行重放</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/tcpcopy/bin</div><div class="line">sudo ./intercept</div><div class="line">sudo ./tcpcopy -i /path/online.pcap -x 80-10.16.12.11:80</div><div class="line"></div><div class="line">tcpcopy -i &lt;抓包文件地址&gt; -x &lt;port&gt;-&lt;本地ip&gt;:&lt;port&gt;</div></pre></td></tr></table></figure>
+<h2 id="潜在的问题"><a href="#潜在的问题" class="headerlink" title="潜在的问题"></a>潜在的问题</h2><p>1）ip_conntrack<br>2014年6月，微博的唐福林曾说：“Tcpcopy 引流工具是线上问题排查的绝佳之选，但使用者很少有人去关注开启 tcpcopy 服务时，同时会开启 ip_conntrack 内核模块，这个模块负责追踪所有 tcp 链接的状态，而且它的内部存储有长度限制，一旦超过，所有新建链接都会失败。”</p>
+<blockquote>
+<p>王斌则回应说：“开启 tcpcopy，自身不会去开启 ip_conntrack 内核模块。开不开启 ip_conntrack 内核模块，是用户自己决定的，跟 tcpcopy 没关系。”他还建议：“当连接数量非常多的时候，本身就应该关闭 ip_conntrack，否则严重影响性能。至于 tcpcopy，默认是从 ip 层发包的，所以也会被 ip_conntrack 干涉，文档中也有描述，其实也可以采用 –enable-dlinject 来发包，避开ip层的ip_conntrack。如果没有报“ip_conntrack: table full, dropping packet”，一般无需去操心ip_conntrack。”以及“线上连接不多的场合，开启 ip_conntrack 并没有问题。线上连接比较多的场合，最好关闭 ip_conntrack，或者对线上应用系统端口设置 NOTRACK，至少我周围的系统都是这样的，这是为性能考虑，也是一种好的运维习惯。”</p>
+</blockquote>
+<p>2）少量丢包<br>如何发现 TCPCopy 丢包多还是少呢？<br>王斌自己称，在某些场景下，pcap 抓包丢包率会远高于 raw socket 抓包，因此最好利用 pf_ring 来辅助或者采用 raw socket 来抓包。<br>丢包率需要在测试环境中按照定量请求发送进行对比才能展开计算，另外还需要对日志内容进行分析，有待测试。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/session-replay-tools/tcpcopy" target="_blank" rel="external">https://github.com/session-replay-tools/tcpcopy</a><br><a href="http://blog.csdn.net/wangbin579/article/details/8949315" target="_blank" rel="external">http://blog.csdn.net/wangbin579/article/details/8949315</a></p>
 
       
     </div>
@@ -437,8 +457,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-07-31-记一次OutOfMemoryError.html" rel="next" title="记一次OutOfMemoryError: unable to create new native thread">
-                <i class="fa fa-chevron-left"></i> 记一次OutOfMemoryError: unable to create new native thread
+              <a href="/2017-08-30-电路电路器模式.html" rel="next" title="电路熔断器模式">
+                <i class="fa fa-chevron-left"></i> 电路熔断器模式
               </a>
             
           </div>
@@ -446,10 +466,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017-08-26-重试机制.html" rel="prev" title="重试机制">
-                重试机制 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -475,8 +491,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017-08-01-关于mysql容灾的一些思考.html"
-           data-title="关于mysql容灾的一些思考" data-url="http://code.zhizus.com/2017-08-01-关于mysql容灾的一些思考.html">
+      <div class="ds-thread" data-thread-key="2017-09-04-流量拷贝利器tcpcopy.html"
+           data-title="流量拷贝利器tcpcopy" data-url="http://code.zhizus.com/2017-09-04-流量拷贝利器tcpcopy.html">
       </div>
     
   </div>
@@ -616,7 +632,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#容灾的技术方案"><span class="nav-number">1.</span> <span class="nav-text">容灾的技术方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同城MHA"><span class="nav-number">2.</span> <span class="nav-text">同城MHA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异地多活"><span class="nav-number">3.</span> <span class="nav-text">异地多活</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#异地多活的一些想法"><span class="nav-number">3.1.</span> <span class="nav-text">异地多活的一些想法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异地冷备"><span class="nav-number">4.</span> <span class="nav-text">异地冷备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据一致性问题"><span class="nav-number">4.1.</span> <span class="nav-text">数据一致性问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据同步利器Otter"><span class="nav-number">5.</span> <span class="nav-text">数据同步利器Otter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充充电"><span class="nav-number">7.</span> <span class="nav-text">补充充电</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#tcpcopy的使用场景"><span class="nav-number">1.</span> <span class="nav-text">tcpcopy的使用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tcpcopy架构"><span class="nav-number">2.</span> <span class="nav-text">tcpcopy架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装和配置"><span class="nav-number">3.</span> <span class="nav-text">安装和配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#下载安装"><span class="nav-number">3.1.</span> <span class="nav-text">下载安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#online在线实时复制"><span class="nav-number">3.2.</span> <span class="nav-text">online在线实时复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#offline离线复制"><span class="nav-number">3.3.</span> <span class="nav-text">offline离线复制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#潜在的问题"><span class="nav-number">4.</span> <span class="nav-text">潜在的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
