@@ -98,7 +98,7 @@
 
 曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2">
 <meta property="og:image" content="http://code.zhizus.com/images/tcpcopy.gif">
-<meta property="og:updated_time" content="2017-09-04T13:48:26.006Z">
+<meta property="og:updated_time" content="2017-09-04T13:53:39.847Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="流量拷贝利器tcpcopy">
 <meta name="twitter:description" content="tcpcopy是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。
@@ -389,7 +389,7 @@
 <p>2) Online Server 启动tcpcopy</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/opt/tcpcopy/sbin/tcpcopy -x 8080-192.168.124.68:8080 <span class="_">-s</span> 192.168.124.180 -c 192.168.2.254 -n 2 <span class="_">-d</span> <span class="_">-l</span> tcpcopy.log</div></pre></td></tr></table></figure>
 <blockquote>
-<p><code>-x,</code> 是指本机8000端口的流量copy到192.168.124.68的8000端口<br><code>-s</code>, 指定intercept机器的地址，tcpcopy要和intercept建立连接<br><code>-c</code> 伪装地址，在把流量复制到测试服务器的时候，修改数据包的源地址为192.168.2.254，这样方便指定路由。也可以写成192.168.2.x，这样源地址就是指定网段中的地址了。<br><code>-n</code> 流量放大倍数，如果不是压测目的就不用指定这个参数。<br><code>-d</code> 以守护模式运行。<br><code>-l</code> :输出日志</p>
+<p><code>-x,</code> 是指本机8080端口的流量copy到192.168.124.68的8080端口<br><code>-s</code> 指定intercept机器的地址，tcpcopy要和intercept建立连接<br><code>-c</code> 伪装地址，在把流量复制到测试服务器的时候，修改数据包的源地址为192.168.2.254，这样方便指定路由。也可以写成192.168.2.x，这样源地址就是指定网段中的地址了。<br><code>-n</code> 流量放大倍数，如果不是压测目的就不用指定这个参数。<br><code>-d</code> 以守护模式运行。<br><code>-l</code> 输出日志</p>
 </blockquote>
 <p>3） Test Server配置路由(<code>辅助服务器要和测试服务器在一个子网里</code>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">route add -net 192.168.2.0 netmask 255.255.255.0 gw 192.168.124.180</div></pre></td></tr></table></figure></p>
 <p>192.168.2.0/24地址的数据包全部转给辅助服务器192.168.124.180</p>
