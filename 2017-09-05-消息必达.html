@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="im,netty,mqtt" />
+  <meta name="keywords" content="队列,消息必达,消息幂等,消息落地,ack机制" />
 
 
 
@@ -87,21 +87,21 @@
 
 
 
-<meta name="description" content="写在前面最近比较感兴趣即时通讯，自己也也开始折腾折腾IM的服务端实现，顺便也记下折腾的笔记。当然要实现稳定功能完善的IM并非易事，整个探索实现的过程可能会持续的迭代优化，甚至可能会否定推到之前的设计。故包括IM的笔记可能也会持续的更改。
-项目地址：https://github.com/dempeZheng/ocean">
+<meta name="description" content="背景最近业务中遇到送礼必达的问题，送礼必达的本质是队列消息必达，而队列消息必达的核心是：1）消息ack2）消息落地下图展示一个可靠的消息从生产到消费的整个流程：
+12345678910111）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；2）mq server收到消息，将消息落地存储；3）mq server回复ack">
 <meta property="og:type" content="article">
-<meta property="og:title" content="IM开发日记-漫谈">
-<meta property="og:url" content="http://code.zhizus.com/2016-09-16-IM-notes-discuss.html">
+<meta property="og:title" content="消息必达">
+<meta property="og:url" content="http://code.zhizus.com/2017-09-05-消息必达.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="写在前面最近比较感兴趣即时通讯，自己也也开始折腾折腾IM的服务端实现，顺便也记下折腾的笔记。当然要实现稳定功能完善的IM并非易事，整个探索实现的过程可能会持续的迭代优化，甚至可能会否定推到之前的设计。故包括IM的笔记可能也会持续的更改。
-项目地址：https://github.com/dempeZheng/ocean">
-<meta property="og:image" content="http://code.zhizus.com/images/im/chat-info.png">
-<meta property="og:updated_time" content="2017-04-15T13:35:49.089Z">
+<meta property="og:description" content="背景最近业务中遇到送礼必达的问题，送礼必达的本质是队列消息必达，而队列消息必达的核心是：1）消息ack2）消息落地下图展示一个可靠的消息从生产到消费的整个流程：
+12345678910111）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；2）mq server收到消息，将消息落地存储；3）mq server回复ack">
+<meta property="og:image" content="http://code.zhizus.com/images/mq.png">
+<meta property="og:updated_time" content="2017-09-05T14:42:45.077Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="IM开发日记-漫谈">
-<meta name="twitter:description" content="写在前面最近比较感兴趣即时通讯，自己也也开始折腾折腾IM的服务端实现，顺便也记下折腾的笔记。当然要实现稳定功能完善的IM并非易事，整个探索实现的过程可能会持续的迭代优化，甚至可能会否定推到之前的设计。故包括IM的笔记可能也会持续的更改。
-项目地址：https://github.com/dempeZheng/ocean">
-<meta name="twitter:image" content="http://code.zhizus.com/images/im/chat-info.png">
+<meta name="twitter:title" content="消息必达">
+<meta name="twitter:description" content="背景最近业务中遇到送礼必达的问题，送礼必达的本质是队列消息必达，而队列消息必达的核心是：1）消息ack2）消息落地下图展示一个可靠的消息从生产到消费的整个流程：
+12345678910111）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；2）mq server收到消息，将消息落地存储；3）mq server回复ack">
+<meta name="twitter:image" content="http://code.zhizus.com/images/mq.png">
 
 
 
@@ -129,13 +129,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2016-09-16-IM-notes-discuss.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2017-09-05-消息必达.html"/>
 
 
 
 
 
-  <title> IM开发日记-漫谈 | 郑大侠的博客 </title>
+  <title> 消息必达 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -284,7 +284,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-16-IM-notes-discuss.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-09-05-消息必达.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -305,7 +305,7 @@
             
             
               
-                IM开发日记-漫谈
+                消息必达
               
             
           </h1>
@@ -329,8 +329,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2016-09-16-IM-notes-discuss.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016-09-16-IM-notes-discuss.html" itemprop="commentCount"></span>
+                <a href="/2017-09-05-消息必达.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017-09-05-消息必达.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -338,7 +338,7 @@
 
           
           
-             <span id="/2016-09-16-IM-notes-discuss.html" class="leancloud_visitors" data-flag-title="IM开发日记-漫谈">
+             <span id="/2017-09-05-消息必达.html" class="leancloud_visitors" data-flag-title="消息必达">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -365,44 +365,21 @@
       
 
       
-        <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近比较感兴趣即时通讯，自己也也开始折腾折腾IM的服务端实现，顺便也记下折腾的笔记。<br>当然要实现稳定功能完善的IM并非易事，整个探索实现的过程可能会持续的迭代优化，甚至可能会否定推到之前的设计。故包括IM的笔记可能也会持续的更改。</p>
-<p>项目地址：<a href="https://github.com/dempeZheng/ocean" target="_blank" rel="external">https://github.com/dempeZheng/ocean</a></p>
-<a id="more"></a>
-<h2 id="通讯协议"><a href="#通讯协议" class="headerlink" title="通讯协议"></a>通讯协议</h2><p>IM协议选择原则一般是:易于拓展，方便覆盖各种业务逻辑，同时又比较<code>节约流量</code>。后一点的需求在移动端IM上尤其重要。</p>
-<p>常见的协议有:<br>XMPP<br>SIMPLE<br>MQTT<br>私有协议</p>
-<h3 id="XMPP协议"><a href="#XMPP协议" class="headerlink" title="XMPP协议"></a>XMPP协议</h3><p>XMPP(Extensible Messaging and Presence)[4,5]协议由 IETF 制定, 是符合 RFC2778 和 RFC2779 规范, 一种以 XML 为基础的开放式即时通信协议. 它源于Jabber 协议, 主要针对准实时、扩展即时通信、出席信息、维护联系人等网络实时通信. XMPP 协议继承了XML 灵活的发展特性, 该协议成熟、强大、可靠、安全, 可扩展性强; 但存在重复转发, 网络流量较大的<br>问题, 并且在音频、视频方面没有非常稳定的标准, 数据包也比较大, 协议较复杂、冗余(基于 XML), 费流量、费电, 部署硬件成本较高. 用户量大了会出现瓶颈，这一点可以参考陌陌的技术选型（陌陌初期xmpp，后续更为私有协议）。<br>尽管如此，但是对于技术实力不够，且需要快速上线业务来说，仍然是首选。毕竟目前已经有比较成熟的基于XMPP的即时通讯实现可以参考借鉴。</p>
-<h3 id="SIMPLE协议"><a href="#SIMPLE协议" class="headerlink" title="SIMPLE协议"></a>SIMPLE协议</h3><p>SIMPLE(SIP for Instant Messaging and PresenceLeverage Extension)[2,3]协议是 IETF 在 SIP 协议的基础上的扩展, 是移动 IM 主流协议之一. SIMPLE 增加了SUBSCRIBE 和 NOTIFY 方法来支持交换状态信息,增加 MESSAGE 方法用于消息的发送. 通过这些方法,可以满足移动 IM 的即时消息和状态服务的需求.SIMPLE 协议有着较成熟的应用基础, 较成熟的音视频标准, 并支持各种即时消息通信. 但是它的缺点也较多, 如所需流量较大、数据包较大、存在拥塞问题、效率不高、扩展新功能比较复杂等. </p>
-<h3 id="MQTT"><a href="#MQTT" class="headerlink" title="MQTT"></a>MQTT</h3><p>MQTT协议简单, 小型传输, 开销很小, 协议交换最小化, 降低网络流量, 固定报头仅为 2 字节. 其使用发布/订阅消息模式, 提供一对多的消息发布, 解除了应用程序耦合, 对负载内容屏蔽的消息传输.MQTT 是基于 TCP 上的应用层协议, 它支持基于TLS/SSL 的加密通道传输. MQTT 在进行 connect 的时候, 支持认证.<br><strong>另外 MQTT 还提供三种不同消息发布的服务质量, 分别是:</strong></p>
-<ul>
-<li>“<code>至多一次</code>”: 消息发布完全依赖底层TCP/IP网络,会发生消息丢失或重复 ,</li>
-<li>“<code>至少一次</code>”: 确保消息到达, 但消息重复可能会发生.</li>
-<li>“<code>只有一次</code>”: 确保消息到达一次, 可用于计费系统中, 消息重复或丢失导致不正确的结果.</li>
-</ul>
-<p>MQTT是一个物联网传输协议，它被设计用于轻量级的发布/订阅式消息传输，旨在为低带宽和不稳定的网络环境中的物联网设备提供可靠的网络服务。MQTT是专门针对物联网开发的轻量级传输协议。MQTT协议针对低带宽网络，低计算能力的设备，做了特殊的优化，使得其能适应各种物联网应用场景。<br>但是它并不是一个专为IM设计的协议，多用于推送。</p>
-<h2 id="私有协议"><a href="#私有协议" class="headerlink" title="私有协议"></a>私有协议</h2><p>而市面上几乎所有主流IM APP都是是使用私有协议，一个被良好设计的私有协议一般有如下优点:高效，节约流量(一般使用二进制协议)，安全性高，难以破解。缺点则是在开发初期没有现有样列可以参考，对于设计者的要求比较高。</p>
-<p>一个好的协议需要满足如下条件:高效，简洁，可读性好，节约流量，易于拓展，同时又能够匹配当前团队的技术堆栈。基于如上原则，我们可以推出: 如果团队小，团队技术在IM上积累不够可以考虑使用XMPP或者MQTT+HTTP短连接的实现。反之可以考虑自己设计和实现私有协议。</p>
-<p>对比上述各个方案, 我们可以发现, SIMPLE 协议和 XMPP 协议, 在流量、功耗、传输方面没有考虑到移动互联网的特点, 而这些特点正是移动终端应用所必需考虑的地方. 反观 MQTT 协议, 不仅能够全面的支持即时通讯的基本需求, 也解决了在流量、功耗、传输上面的问题. 首先 MQTT 流量消耗非常的小, 它的固定长度仅为 2 字节. 其次由于协议自身非常简单,再加上简小的头部, 所以解析代价低, 功耗自然就比较小. 此外 MQTT 极易扩展, 方便用户的二次开发.综上可知, MQTT 协议更适于移动终端。<br>当然如果团队技术实力还不错，首选当然是针对业务场景和业务偏重方向定制私有的IM协议。反之，可以考虑扩展MQTT协议满足自己的业务场景。</p>
-<p><strong>[注]</strong> 这个系列的文章都是基于扩展mqttt协议来实现im的。毕竟mqtt是开源协议，对于开发者来说比较亲和一点。</p>
-<h2 id="通讯方式"><a href="#通讯方式" class="headerlink" title="通讯方式"></a>通讯方式</h2><p>通讯方式:设备直连(P2P)和通过服务器中转。</p>
-<h3 id="设备直连"><a href="#设备直连" class="headerlink" title="设备直连"></a>设备直连</h3><p>P2P多见于局域网内聊天工具，典型的应用有:飞鸽传书。这类软件在启动后一般做两件事情</p>
-<p>进行UDP广播:发送自己信息和接受同局域网内其他端信息<br>开启TCP监听:等待其他端进行连接<br>这种方式在有种种限制和不便:一方面它只适合在线的点对点消息传输，对离线，群组等业务支持不够。另一方面由于 NAT 的存在，使得不同局域网内机器互联难度大大上升，在某些网络类型(对称NAT)下无法建立连接。</p>
-<h3 id="服务器中转"><a href="#服务器中转" class="headerlink" title="服务器中转"></a>服务器中转</h3><p>消息请求都经过服务器中转使得服务器掌握了消息的控制权，对消息的控制能力强，故它能支持很多设备直连支持不好的业务，例如离线消息，群组，聊天室，垃圾消息过滤。这也是目前大部分互联网选用服务器中转的原因。</p>
-<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p>采用分层的设计，可以初步分为链接层，业务层，数据访问层。</p>
-<p><img src="/images/im/chat-info.png" alt=""></p>
-<ul>
-<li>ChatServer：连接层。剥离即时通讯的核心逻辑，即维护连接和消息投递(后续可能进一步拆分，将Connetor&amp;MessageService拆分成单独服务)，保证单一职责，便于实现，扩展及维护。通过TCP长连接保持并维护连接，发送投递消息。不关心具体的业务逻辑实现，业务逻辑实现直接交由LogicService层处理。</li>
-<li>HttpApiServer：抛却核心业务通讯的业务，其他的所有不依赖通讯的业务都可以用过Rest接口提供服务。(Http协议作为广泛使用的协议，有非常成熟的方案，利于开发测试联调)</li>
-<li>LogicService：业务逻辑层，基于MotanRPC暴露处理的基础Service能力，作为上层ChatServer&amp;HttpApiServer提供基础能力支持。无状态的服务，可无限水平扩展。</li>
-<li>SessionStore：提供存储的能力，主要是消息的存储</li>
-</ul>
-<h2 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h2><ul>
-<li>ChatServer：netty+mqtt</li>
-<li>HttpApiServer：SpringBoot, MotanRPC Client</li>
-<li>LogicService:MotanRPC Server</li>
-</ul>
-<h2 id="设计要点"><a href="#设计要点" class="headerlink" title="设计要点"></a>设计要点</h2><h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><h2 id="延伸阅读："><a href="#延伸阅读：" class="headerlink" title="延伸阅读："></a>延伸阅读：</h2><p><a href="http://www.infoq.com/cn/presentations/high-availability-instant-communication-architecture" target="_blank" rel="external">陌陌CTO分享-高可用即时通讯架构(非常值得一听)</a></p>
-<hr>
-<p>先写到这里后续再补充。</p>
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近业务中遇到送礼必达的问题，送礼必达的本质是队列消息必达，而队列消息必达的核心是：<br>1）<strong>消息ack</strong><br>2）<strong>消息落地</strong><br>下图展示一个可靠的消息从生产到消费的整个流程：<br><span itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="/images/mq.png" class="full-image" alt="alt"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；</div><div class="line"><span class="number">2</span>）mq server收到消息，将消息落地存储；</div><div class="line"><span class="number">3</span>）mq server回复ack，告知client成功收到消息；</div><div class="line"><span class="comment">//如果 client未能收到ack</span></div><div class="line"><span class="comment">//a.mq Server没有收到消息，或者消息落地失败，这种情况，依赖producer client重发。producer client可以在发送消息之前将消息落地，收到ack再将消息删除（当然，大部分业务场景，没有收到ack，简单重试就好）</span></div><div class="line"><span class="comment">//b.mq Server收到消息，并且落地成功，第3步回复ack失败，或者回复成功，但producer client收ack消息，这种情况，producer也是要重发消息，mq Server会有重复消息</span></div><div class="line"></div><div class="line"><span class="number">4</span>）consume client 消费msg，（消费需要业务方保证消费业务幂等）；</div><div class="line"><span class="number">5</span>）consume client消费成功后，回复mq Server ack消息；</div><div class="line"><span class="number">6</span>）mq Server 收到consume client 发来的ack后，移动消息offset，并删除对应的落地消息。</div><div class="line"><span class="comment">// 第6步，删除对应的msg不一定需要，例如rocketmq或者kafka的存储机制就不需要，他们都特定的删除策略。</span></div></pre></td></tr></table></figure>
+<h2 id="消息的ack机制"><a href="#消息的ack机制" class="headerlink" title="消息的ack机制"></a>消息的ack机制</h2><p>消息的ack机制也就是消息的确认机制，是可靠消息的必要条件。可以粗暴的说，没有ack机制的消息系统一定不能保证消息必达。<br>   JMS API中约定了Client端可以使用四种ACK模式,在javax.jms.Session接口中:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">AUTO_ACKNOWLEDGE = <span class="number">1</span>    <span class="comment">//自动确认</span></div><div class="line">CLIENT_ACKNOWLEDGE = <span class="number">2</span>   <span class="comment">// 客户端手动确认</span></div><div class="line">DUPS_OK_ACKNOWLEDGE = <span class="number">3</span>   <span class="comment">// 自动批量确认</span></div><div class="line">SESSION_TRANSACTED = <span class="number">0</span>    <span class="comment">//事务提交并确认</span></div></pre></td></tr></table></figure></p>
+<p>ACK模式描述了Consumer与broker确认消息的方式(时机),比如当消息被Consumer接收之后,Consumer将在何时确认消息。对于broker而言，只有接收到ACK指令,才会认为消息被正确的接收或者处理成功了,通过ACK，可以在consumer（/producer）与Broker之间建立一种简单的“<code>担保</code>”机制.</p>
+<p>  Client端指定了ACK模式,但是在Client与broker在交换ACK指令的时候,还需要告知ACK_TYPE,ACK_TYPE表示此确认指令的类型，不同的ACK_TYPE将传递着消息的状态，broker可以根据不同的ACK_TYPE对消息进行不同的操作。</p>
+<p>  比如Consumer消费消息时出现异常,就需要向broker发送ACK指令,ACK_TYPE为”REDELIVERED_ACK_TYPE”,那么broker就会重新发送此消息。在JMS API中并没有定义ACT_TYPE,因为它通常是一种内部机制,并不会面向开发者。ActiveMQ中定义了如下几种ACK_TYPE(参看MessageAck类):</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">DELIVERED_ACK_TYPE = <span class="number">0</span>    <span class="comment">//消息"已接收"，但尚未处理结束</span></div><div class="line">STANDARD_ACK_TYPE = <span class="number">2</span>    <span class="comment">//"标准"类型,通常表示为消息"处理成功"，broker端可以删除消息了</span></div><div class="line">POSION_ACK_TYPE = <span class="number">1</span>    <span class="comment">//消息"错误",通常表示"抛弃"此消息，比如消息重发多次后，都无法正确处理时，消息将会被删除或者DLQ(死信队列)</span></div><div class="line">REDELIVERED_ACK_TYPE = <span class="number">3</span>    <span class="comment">//消息需"重发"，比如consumer处理消息时抛出了异常，broker稍后会重新发送此消息</span></div><div class="line">INDIVIDUAL_ACK_TYPE = <span class="number">4</span>    <span class="comment">//表示只确认"单条消息",无论在任何ACK_MODE下</span></div><div class="line">UNMATCHED_ACK_TYPE = <span class="number">5</span>    <span class="comment">//在Topic中，如果一条消息在转发给“订阅者”时，发现此消息不符合Selector过滤条件，那么此消息将 不会转发给订阅者，消息将会被存储引擎删除(相当于在Broker上确认了消息)。</span></div></pre></td></tr></table></figure>
+<p>不同的消息队列对ack机制的实现不尽相同。比如activemq还实现了<code>optimizeACK</code>“延迟确认”的语义。但是，它们本质上都是通过ACK，在consumer（/producer）与Broker之间建立一种“<code>担保</code>”机制.</p>
+<h3 id="消息传递语义（Message-delivery-semantics）"><a href="#消息传递语义（Message-delivery-semantics）" class="headerlink" title="消息传递语义（Message delivery semantics）"></a>消息传递语义（Message delivery semantics）</h3><p>消息传递语义：<br>“至多一次(<code>At Most Once</code>)”，消息发布完全依赖于底层TCP/IP网络。消息有可能丢失或重复。这一级别可应用于如下情景，如环境传感器数据，丢失一次读记录无所谓，因为很快下一次读记录就会产生。<br>“至少一次(<code>At Least Once</code>)”，确保消息到达，但消息重复有可能发生。<br>“只有一次(<code>Exactly Once</code>)”，确保消息到达且只到达一次。这一级别可用于如计费系统等场景，在计费系统中，消息丢失或重复可能会导致生成错误的费用。</p>
+<p>消息必达实际上是消息传递语义的一个子集，至少一次和只有一次都可以保证消息必达。<br>但只有一次的实现成本较高，互联网的一般业务都是选择通过至少一次+业务方去重来满足只有一次的业务场景。</p>
+<h3 id="消息幂等性"><a href="#消息幂等性" class="headerlink" title="消息幂等性"></a>消息幂等性</h3><p>消息系统中，消息<code>重复</code>和<code>丢失</code>这两个我们必须面对其中一个。<br>通过ack机制来保证消息不会被丢失，但是也引入了重复消息的问题，但是重复总比丢失好，重复还可以去重，但是丢失了就无力回天了。<br>可能有的消息系统会在server端去重，但这个代价也不小。大部分消息系统把消息去重的逻辑丢给了业务。因为业务方才是最容易需不需要去重，怎样去重最优。</p>
+<p>而，<code>去重</code>也是消息幂等的一个解决方案之一。只要保证了消费逻辑的幂等性，也就解决了重复消息的问题。<br>关于幂等，请看<a href="http://code.zhizus.com/2017-08-28-%E5%B9%82%E7%AD%89.html">幂等</a></p>
+<h2 id="消息落地"><a href="#消息落地" class="headerlink" title="消息落地"></a>消息落地</h2><p>消息落地就是将消息持久化而已，比较简单，但是对于不同的队列对消息落地的实现不同，也是非常值得学习研究的。<br>后面有时间读完源代码后会补上。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>消息必达是队列的很重的的特性，也是很基础的特性，选择队列的首要考虑条件。一个无法保证消息必达的队列，使用时一定要慎重，会给业务带来很多不必要的麻烦。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://wely.iteye.com/blog/2363981" target="_blank" rel="external">http://wely.iteye.com/blog/2363981</a></p>
 
       
     </div>
@@ -455,8 +432,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-02-current-threadpool.html" rel="next" title="Java线程池详解">
-                <i class="fa fa-chevron-left"></i> Java线程池详解
+              <a href="/2017-09-04-流量拷贝利器tcpcopy.html" rel="next" title="流量拷贝利器tcpcopy">
+                <i class="fa fa-chevron-left"></i> 流量拷贝利器tcpcopy
               </a>
             
           </div>
@@ -464,10 +441,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016-09-19-motan-clientMessage.html" rel="prev" title="Motan源码解读-Client异步消息">
-                Motan源码解读-Client异步消息 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -493,8 +466,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016-09-16-IM-notes-discuss.html"
-           data-title="IM开发日记-漫谈" data-url="http://code.zhizus.com/2016-09-16-IM-notes-discuss.html">
+      <div class="ds-thread" data-thread-key="2017-09-05-消息必达.html"
+           data-title="消息必达" data-url="http://code.zhizus.com/2017-09-05-消息必达.html">
       </div>
     
   </div>
@@ -634,7 +607,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在前面"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通讯协议"><span class="nav-number">2.</span> <span class="nav-text">通讯协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XMPP协议"><span class="nav-number">2.1.</span> <span class="nav-text">XMPP协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SIMPLE协议"><span class="nav-number">2.2.</span> <span class="nav-text">SIMPLE协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MQTT"><span class="nav-number">2.3.</span> <span class="nav-text">MQTT</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#私有协议"><span class="nav-number">3.</span> <span class="nav-text">私有协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通讯方式"><span class="nav-number">4.</span> <span class="nav-text">通讯方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#设备直连"><span class="nav-number">4.1.</span> <span class="nav-text">设备直连</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务器中转"><span class="nav-number">4.2.</span> <span class="nav-text">服务器中转</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#架构"><span class="nav-number">5.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术选型"><span class="nav-number">6.</span> <span class="nav-text">技术选型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设计要点"><span class="nav-number">7.</span> <span class="nav-text">设计要点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">8.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#延伸阅读："><span class="nav-number">9.</span> <span class="nav-text">延伸阅读：</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#消息的ack机制"><span class="nav-number">2.</span> <span class="nav-text">消息的ack机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#消息传递语义（Message-delivery-semantics）"><span class="nav-number">2.1.</span> <span class="nav-text">消息传递语义（Message delivery semantics）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#消息幂等性"><span class="nav-number">2.2.</span> <span class="nav-text">消息幂等性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#消息落地"><span class="nav-number">3.</span> <span class="nav-text">消息落地</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">5.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
             
 
           </div>
