@@ -103,7 +103,7 @@
 
 【注】很多人把他理解为“幂等性是指重复使用同样的参数调用同一方法时总能获得同样的结果”这个是不准确的。
 幂等性是系统的接口对外一种承诺(而不是实现), 承诺只要调用接口成功, 外部">
-<meta property="og:updated_time" content="2017-08-30T13:02:14.972Z">
+<meta property="og:updated_time" content="2017-09-06T13:47:10.513Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="幂等">
 <meta name="twitter:description" content="概念一个幂等操作的特点是其任意多次执行所产生的影响均与一次执行的影响相同。
@@ -391,7 +391,11 @@
 <p>1.一个订单创建接口，第一次调用超时了，然后调用方重试了一次<br>2.在订单创建时，我们需要去扣减库存，这时接口发生了超时，调用方重试了一次<br>3.当这笔订单开始支付，在支付请求发出之后，在服务端发生了扣钱操作，接口响应超时了，调用方重试了一次<br>4.一个订单状态更新接口，调用方连续发送了两个消息，一个是已创建，一个是已付款。但是你先接收到已付款，然后又接收到了已创建<br>5.在支付完成订单之后，需要发送一条短信，当一台机器接收到短信发送的消息之后，处理较慢。消息中间件又把消息投递给另外一台机器处理</p>
 </blockquote>
 <p>为了解决以上问题，就需要保证接口的幂等性，接口的幂等性实际上就是接口可重复调用，在调用方多次调用的情况下，多次执行所产生的影响均与一次执行的<code>影响相同</code>。有些接口可以天然的实现幂等性，比如查询接口，对于查询来说，你查询一次和两次，对于系统来说，没有任何影响，查出的结果也是一样。</p>
-<h2 id="幂等方案"><a href="#幂等方案" class="headerlink" title="幂等方案"></a>幂等方案</h2><p>除了查询功能具有天然的幂等性之外，增加、更新、删除都要保证幂等性。那么如何来保证幂等性呢？</p>
+<h2 id="幂等实现方式"><a href="#幂等实现方式" class="headerlink" title="幂等实现方式"></a>幂等实现方式</h2><p>除了查询功能具有天然的幂等性之外，增加、更新、删除都要保证幂等性。那么如何来保证幂等性呢？<br>幂等实现方式有以下两种：</p>
+<ul>
+<li>通过业务本身实现幂等性；</li>
+<li>系统缓存处理结果，检测到重复请求，返回之前处理结果；</li>
+</ul>
 <h3 id="全局唯一ID"><a href="#全局唯一ID" class="headerlink" title="全局唯一ID"></a>全局唯一ID</h3><p>如果使用全局唯一ID，就是根据业务的操作和内容生成一个全局ID，在执行操作前先根据这个全局唯一ID是否存在，来判断这个操作是否已经执行。如果不存在则把全局ID，存储到存储系统中，比如数据库、redis等。如果存在则表示该方法已经执行。</p>
 <h3 id="插入或更新"><a href="#插入或更新" class="headerlink" title="插入或更新"></a>插入或更新</h3><p>这种方法插入并且有唯一索引的情况，比如我们要关联商品品类，其中商品的ID和品类的ID可以构成唯一索引，并且在数据表中也增加了唯一索引。这时就可以使用InsertOrUpdate操作。在MySQL数据库中如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">insert</span> <span class="keyword">into</span> goods_category (goods_id,category_id,create_time,update_time)</div><div class="line">       <span class="keyword">values</span>(#&#123;goodsId&#125;,#&#123;categoryId&#125;,<span class="keyword">now</span>(),<span class="keyword">now</span>())</div><div class="line">       <span class="keyword">on</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span></div><div class="line">       update_time=<span class="keyword">now</span>()</div></pre></td></tr></table></figure></p>
 <h3 id="多版本控制"><a href="#多版本控制" class="headerlink" title="多版本控制"></a>多版本控制</h3><p>这种方法适合在更新的场景中，比如我们要更新商品的名字，这时我们就可以在更新的接口中增加一个版本号，来做幂等</p>
@@ -400,7 +404,7 @@
 <p>在做状态机更新时，我们就这可以这样控制</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">update</span> <span class="string">`order`</span> <span class="keyword">set</span> <span class="keyword">status</span>=#&#123;<span class="keyword">status</span>&#125; <span class="keyword">where</span> <span class="keyword">id</span>=#&#123;<span class="keyword">id</span>&#125; <span class="keyword">and</span> <span class="keyword">status</span>&lt;#&#123;<span class="keyword">status</span>&#125;</div></pre></td></tr></table></figure>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>幂等性应该是合格架构师的一个基因，在设计系统时，是设计平台api首要要考虑的问题。提供平台服务的时候也必须标注接口是否幂等，不然调用方遇到异常可能不知道该不该重试。特别是超时的时候，根本没法知道服务的状态。<br><strong>幂等是一个稳定平台服务接口的必备特性。</strong></p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://blog.csdn.net/jks456/article/details/71453053" target="_blank" rel="external"> 后端接口的幂等性</a><br><a href="http://www.cnblogs.com/weidagang2046/archive/2011/06/04/2063696.html" target="_blank" rel="external">理解HTTP幂等性</a></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://blog.csdn.net/jks456/article/details/71453053" target="_blank" rel="external"> 后端接口的幂等性</a><br>[理解HTTP幂等性](<a href="http://www.cnblogs.com/we" target="_blank" rel="external">http://www.cnblogs.com/we</a></p>
 
       
     </div>
@@ -632,7 +636,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">2.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#幂等方案"><span class="nav-number">3.</span> <span class="nav-text">幂等方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#全局唯一ID"><span class="nav-number">3.1.</span> <span class="nav-text">全局唯一ID</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插入或更新"><span class="nav-number">3.2.</span> <span class="nav-text">插入或更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多版本控制"><span class="nav-number">3.3.</span> <span class="nav-text">多版本控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#状态机控制"><span class="nav-number">3.4.</span> <span class="nav-text">状态机控制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">2.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#幂等实现方式"><span class="nav-number">3.</span> <span class="nav-text">幂等实现方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#全局唯一ID"><span class="nav-number">3.1.</span> <span class="nav-text">全局唯一ID</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插入或更新"><span class="nav-number">3.2.</span> <span class="nav-text">插入或更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多版本控制"><span class="nav-number">3.3.</span> <span class="nav-text">多版本控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#状态机控制"><span class="nav-number">3.4.</span> <span class="nav-text">状态机控制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
             
 
           </div>

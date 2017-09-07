@@ -4,6 +4,24 @@
 
     
   <url>
+    <loc>http://code.zhizus.com/2017-08-28-%E5%B9%82%E7%AD%89.html</loc>
+    <lastmod>2017-09-06T13:47:10.513Z</lastmod>
+    <data>
+        <display>
+        <title>幂等</title>
+        <pubTime>2017-08-27T16:00:00.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="微服务" url="http://code.zhizus.com/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://code.zhizus.com/2017-09-05-%E6%B6%88%E6%81%AF%E5%BF%85%E8%BE%BE.html</loc>
     <lastmod>2017-09-06T13:11:16.593Z</lastmod>
     <data>
@@ -87,24 +105,6 @@
            
              
               <breadCrumb title="实践微服务" url="http://code.zhizus.com/categories/%E5%AE%9E%E8%B7%B5%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://code.zhizus.com/2017-08-28-%E5%B9%82%E7%AD%89.html</loc>
-    <lastmod>2017-08-30T13:02:14.972Z</lastmod>
-    <data>
-        <display>
-        <title>幂等</title>
-        <pubTime>2017-08-27T16:00:00.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="微服务" url="http://code.zhizus.com/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
           
         </display>
     </data>
