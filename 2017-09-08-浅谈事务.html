@@ -87,17 +87,26 @@
 
 
 
-<meta name="description" content="事务的ACID特征1、Atomic原子性事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。2、Consistency一致性事务的执行不能破坏数据库数据的完整性和一致性，事务在执行之前和之后，数据库都必须处于一致性状态。3、Isolation隔离性在并发环境中，并发的事务是相互隔">
+<meta name="description" content="事务的ACID特征
+Atomic原子性事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。
+Consistency一致性事务的执行不能破坏数据库数据的完整性和一致性，事务在执行之前和之后，数据库都必须处于一致性状态。
+Isolation隔离性在并发环境中，并发的事务是相互隔离的，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅谈事务">
 <meta property="og:url" content="http://code.zhizus.com/2017-09-08-浅谈事务.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="事务的ACID特征1、Atomic原子性事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。2、Consistency一致性事务的执行不能破坏数据库数据的完整性和一致性，事务在执行之前和之后，数据库都必须处于一致性状态。3、Isolation隔离性在并发环境中，并发的事务是相互隔">
+<meta property="og:description" content="事务的ACID特征
+Atomic原子性事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。
+Consistency一致性事务的执行不能破坏数据库数据的完整性和一致性，事务在执行之前和之后，数据库都必须处于一致性状态。
+Isolation隔离性在并发环境中，并发的事务是相互隔离的，">
 <meta property="og:image" content="http://code.zhizus.com/images/cap.png">
-<meta property="og:updated_time" content="2017-09-08T14:05:51.345Z">
+<meta property="og:updated_time" content="2017-09-08T14:11:57.636Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈事务">
-<meta name="twitter:description" content="事务的ACID特征1、Atomic原子性事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。2、Consistency一致性事务的执行不能破坏数据库数据的完整性和一致性，事务在执行之前和之后，数据库都必须处于一致性状态。3、Isolation隔离性在并发环境中，并发的事务是相互隔">
+<meta name="twitter:description" content="事务的ACID特征
+Atomic原子性事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。
+Consistency一致性事务的执行不能破坏数据库数据的完整性和一致性，事务在执行之前和之后，数据库都必须处于一致性状态。
+Isolation隔离性在并发环境中，并发的事务是相互隔离的，">
 <meta name="twitter:image" content="http://code.zhizus.com/images/cap.png">
 
 
@@ -362,22 +371,29 @@
       
 
       
-        <h2 id="事务的ACID特征"><a href="#事务的ACID特征" class="headerlink" title="事务的ACID特征"></a>事务的ACID特征</h2><p><strong>1、<code>Atomic</code>原子性</strong><br>事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。<br><strong>2、<code>Consistency</code>一致性</strong><br>事务的执行不能破坏数据库数据的完整性和一致性，事务在执行之前和之后，数据库都必须处于一致性状态。<br><strong>3、<code>Isolation</code>隔离性</strong><br>在并发环境中，并发的事务是相互隔离的，一个事务的执行不能被其他事务干扰。即不同的事务并发操纵相同的数据时，每个事务都有各自完整的数据空间，即一个事务内部的操作及使用的数据对其他并发事务是隔离的，并发执行的各个事务之间不能相互干扰。</p>
+        <h2 id="事务的ACID特征"><a href="#事务的ACID特征" class="headerlink" title="事务的ACID特征"></a>事务的ACID特征</h2><ul>
+<li><strong><code>Atomic</code>原子性</strong><br>事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。</li>
+<li><strong><code>Consistency</code>一致性</strong><br>事务的执行不能破坏数据库数据的完整性和一致性，事务在执行之前和之后，数据库都必须处于一致性状态。</li>
+<li><p><strong><code>Isolation</code>隔离性</strong><br>在并发环境中，并发的事务是相互隔离的，一个事务的执行不能被其他事务干扰。即不同的事务并发操纵相同的数据时，每个事务都有各自完整的数据空间，即一个事务内部的操作及使用的数据对其他并发事务是隔离的，并发执行的各个事务之间不能相互干扰。</p>
 <blockquote>
 <p>SQL中的4个事务隔离级别：<br>1）<strong>读未提交</strong><br>允许脏读。如果一个事务正在处理某一数据，并对其进行了更新，但同时尚未完成事务，因此事务没有提交，与此同时，允许另一个事务也能够访问该数据。例如A将变量n从0累加到10才提交事务，此时B可能读到n变量从0到10之间的所有中间值。<br>2）<strong>读已提交</strong><br>允许不可重复读。只允许读到已经提交的数据。即事务A在将n从0累加到10的过程中，B无法看到n的中间值，之中只能看到10。同时有事务C进行从10到20的累加，此时B在同一个事务内再次读时，读到的是20。<br>3）<strong>可重复读</strong><br> 允许幻读。保证在事务处理过程中，多次读取同一个数据时，其值都和事务开始时刻时是一致的。禁止脏读、不可重复读。幻读即同样的事务操作，在前后两个时间段内执行对同一个数据项的读取，可能出现不一致的结果。保证B在同一个事务内，多次读取n的值，读到的都是初始值0。幻读，就是不同事务，读到的n的数据可能是0，可能10，可能是20<br>4）<strong>串行化</strong><br>最严格的事务，要求所有事务被串行执行，不能并发执行。<br>如果不对事务进行并发控制，我们看看数据库并发操作是会有那些异常情形<br>（1）一类丢失更新：两个事物读同一数据，一个修改字段1，一个修改字段2，后提交的恢复了先提交修改的字段。<br>（2）二类丢失更新：两个事物读同一数据，都修改同一字段，后提交的覆盖了先提交的修改。<br>（3）脏读：读到了未提交的值，万一该事物回滚，则产生脏读。<br>（4）不可重复读：两个查询之间，被另外一个事务修改了数据的内容，产生内容的不一致。<br>（5）幻读：两个查询之间，被另外一个事务插入或删除了记录，产生结果集的不一致。</p>
 </blockquote>
-<p>4、<strong><code>Durability</code>持久性</strong><br>一个事务一旦提交，它对数据库中对应数据的状态变更就应该是永久性的，即使发生系统崩溃或机器宕机，只要数据库能够重新启动，那么一定能够将其恢复到事务成功结束时的状态。</p>
+</li>
+<li><p><strong><code>Durability</code>持久性</strong><br>一个事务一旦提交，它对数据库中对应数据的状态变更就应该是永久性的，即使发生系统崩溃或机器宕机，只要数据库能够重新启动，那么一定能够将其恢复到事务成功结束时的状态。</p>
+</li>
+</ul>
 <h2 id="事务的分类"><a href="#事务的分类" class="headerlink" title="事务的分类"></a>事务的分类</h2><h3 id="本地事务"><a href="#本地事务" class="headerlink" title="本地事务"></a>本地事务</h3><p>事务由资源管理器（如DBMS）本地管理<br><strong>优点</strong>：  <code>支持严格的ACID属性</code>，<code>可靠</code>， <code>高效</code>，<code>应用编程模型简单(在框架或平台的支持)</code><br><strong>局限</strong>：<code>不具备分布事务处理能力</code>,<code>隔离的最小单位由资源管理器决定，如数据库中的一条记录</code></p>
-<h3 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h3><h4 id="CAP理论"><a href="#CAP理论" class="headerlink" title="CAP理论"></a>CAP理论</h4><p>一个分布式系统不可能同时满足一致性Consistency、可用性Availability、分区容错性Partition tolerance这三个基本需求，最多只能同时满足其中的两项。<br><img src="/images/cap.png" alt="Alt text"></p>
+<h3 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h3><p>分布式事务就是指事务的参与者、支持事务的服务器、资源服务器以及事务管理器分别位于不同的分布式系统的不同节点之上。以上是百度百科的解释，简单的说，就是一次大的操作由不同的小操作组成，这些小的操作分布在不同的服务器上，且属于不同的应用，分布式事务需要保证这些小操作要么全部成功，要么全部失败。本质上来说，分布式事务就是为了保证不同数据库的数据一致性。</p>
+<h2 id="CAP理论"><a href="#CAP理论" class="headerlink" title="CAP理论"></a>CAP理论</h2><p>一个分布式系统不可能同时满足一致性Consistency、可用性Availability、分区容错性Partition tolerance这三个基本需求，最多只能同时满足其中的两项。<br><img src="/images/cap.png" alt="Alt text"></p>
 <p><strong>1、一致性</strong><br>分布式环境中，一致性是指多个副本之间能否保持一致的特性。在一致性的需求下，当一个系统在数据一致的状态下执行更新操作后，应该保证系统的数据仍然处理一致的状态。<br><strong>2、可用性</strong><br>系统提供的服务必须一直处于可用的状态，对于用户的每一个操作请求总是能够在有限的时间内返回结果。</p>
 <blockquote>
 <p><strong>（1）有限时间内</strong><br>对于用户的一个操作请求，系统必须能够在指定的时间（响应时间）内返回对应的处理结果，如果超过了这个时间范围，那么系统就被认为是不可用的。即这个响应时间必须在一个合理的值内，不让用户感到失望。<br><strong>（2）返回正常结果</strong><br>要求系统在完成对用户请求的处理后，返回一个正常的响应结果。正常的响应结果通常能够明确地反映出对请求的处理结果，即成功或失败，而不是一个让用户感到困惑的返回结果。比如返回一个系统错误如OutOfMemory，则认为系统是不可用的。<br><strong>3、分区容错性</strong><br>即分布式系统在遇到任何网络分区故障时，仍然需要能够保证对外提供满足一致性和可用性的服务，除非是整个网络环境都发生了故障。<br>网络分区，是指分布式系统中，不同的节点分布在不同的子网络（机房/异地网络）中，由于一些特殊的原因导致这些子网络之间出现网络不连通的状态，但各个子网络的内部网络是正常的，从而导致整个系统的网络环境被切分成了若干孤立的区域。组成一个分布式系统的每个节点的加入与退出都可以看做是一个特殊的网络分区。</p>
 </blockquote>
-<h4 id="CAP的应用"><a href="#CAP的应用" class="headerlink" title="CAP的应用"></a>CAP的应用</h4><p>1、放弃P<br>放弃分区容错性的话，则放弃了分布式，放弃了系统的可扩展性<br>2、放弃A<br>放弃可用性的话，则在遇到网络分区或其他故障时，受影响的服务需要等待一定的时间，再此期间无法对外提供政策的服务，即不可用<br>3、放弃C<br>放弃一致性的话（这里指强一致），则系统无法保证数据保持实时的一致性，在数据达到最终一致性时，有个时间窗口，在时间窗口内，数据是不一致的。<br>对于分布式系统来说，P是不能放弃的，因此架构师通常是在可用性和一致性之间权衡。</p>
+<h3 id="CAP的应用"><a href="#CAP的应用" class="headerlink" title="CAP的应用"></a>CAP的应用</h3><p>1、放弃P<br>放弃分区容错性的话，则放弃了分布式，放弃了系统的可扩展性<br>2、放弃A<br>放弃可用性的话，则在遇到网络分区或其他故障时，受影响的服务需要等待一定的时间，再此期间无法对外提供政策的服务，即不可用<br>3、放弃C<br>放弃一致性的话（这里指强一致），则系统无法保证数据保持实时的一致性，在数据达到最终一致性时，有个时间窗口，在时间窗口内，数据是不一致的。<br>对于分布式系统来说，P是不能放弃的，因此架构师通常是在可用性和一致性之间权衡。</p>
 <hr>
 <p>关于CAP的应用这里补充一篇文章<br><a href="http://www.infoq.com/cn/news/2014/12/zookeeper-service-finding/" target="_blank" rel="external">为什么不要把ZooKeeper用于服务发现</a></p>
-<h4 id="NRW模型"><a href="#NRW模型" class="headerlink" title="NRW模型"></a>NRW模型</h4><p>所谓NWR模型<strong>。N代表N个备份，W代表要写入至少W份才认为成功，R表示至少读取R个备份</strong>。配置的时候要求<code>W+R &gt; N</code>。 因为<code>W+R &gt; N</code>， 所以 <code>R &gt; N-W</code> 这个是什么意思呢？就是读取的份数一定要比总备份数减去确保写成功的倍数的差值要大。<br>也就是说，每次读取，都至少读取到一个最新的版本。从而不会读到一份旧数据。当我们需要高可写的环境的时候，我们可以配置W = 1 如果N=3 那么R = 3。 这个时候只要写任何节点成功就认为成功，但是读的时候必须从所有的节点都读出数据。如果我们要求读的高效率，我们可以配置 W=N R=1。这个时候任何一个节点读成功就认为成功，但是写的时候必须写所有三个节点成功才认为成功。<br>NWR模型的一些设置会造成脏数据的问题，因为这很明显不是像<code>Paxos</code>一样是一个强一致的东西，所以，可能每次的读写操作都不在同一个结点上，于是会出现一些结点上的数据并不是最新版本，但却进行了最新的操作。<br>所以，Amazon Dynamo引了数据版本的设计。也就是说，如果你读出来数据的版本是v1，当你计算完成后要回填数据后，却发现数据的版本号已经被人更新成了v2，那么服务器就会拒绝你。版本这个事就像“乐观锁”一样。<br>但是，对于分布式和NWR模型来说，版本也会有恶梦的时候——就是版本冲突的问题，比如：我们设置了N=3 W=1，如果A结点上接受了一个值，版本由v1 -&gt; v2，但还没有来得及同步到结点B上（异步的，应该W=1，写一份就算成功），B结点上还是v1版本，此时，B结点接到写请求，按道理来说，他需要拒绝掉，但是他一方面并不知道别的结点已经被更新到v2，另一方面他也无法拒绝，因为W=1，所以写一分就成功了。于是，出现了严重的版本冲突。<br>Amazon的Dynamo把版本冲突这个问题巧妙地回避掉了——版本冲这个事交给用户自己来处理。<br>于是，Dynamo引入了Vector Clock（矢量钟？!）这个设计。这个设计让每个结点各自记录自己的版本信息，也就是说，对于同一个数据，需要记录两个事：1）谁更新的我，2）我的版本号是什么。<br>下面，我们来看一个操作序列：<br>1）一个写请求，第一次被节点A处理了。节点A会增加一个版本信息(A，1)。我们把这个时候的数据记做D1(A，1)。 然后另外一个对同样key的请求还是被A处理了于是有D2(A，2)。这个时候，D2是可以覆盖D1的，不会有冲突产生。<br>2）现在我们假设D2传播到了所有节点(B和C)，B和C收到的数据不是从客户产生的，而是别人复制给他们的，所以他们不产生新的版本信息，所以现在B和C所持有的数据还是D2(A，2)。于是A，B，C上的数据及其版本号都是一样的。<br>3）如果我们有一个新的写请求到了B结点上，于是B结点生成数据D3(A,2; B,1)，意思是：数据D全局版本号为3，A升了两新，B升了一次。这不就是所谓的代码版本的log么？<br>4）如果D3没有传播到C的时候又一个请求被C处理了，于是，以C结点上的数据是D4(A,2; C,1)。<br>5）好，最精彩的事情来了：如果这个时候来了一个读请求，我们要记得，我们的W=1 那么R=N=3，所以R会从所有三个节点上读，此时，他会读到三个版本：<br>A结点：D2(A,2)<br>B结点：D3(A,2;  B,1);<br>C结点：D4(A,2;  C,1)<br>6）这个时候可以判断出，D2已经是旧版本（已经包含在D3/D4中），可以舍弃。<br>7）但是D3和D4是明显的版本冲突。于是，交给调用方自己去做版本冲突处理。就像源代码版本管理一样。<br>很明显，上述的Dynamo的配置用的是CAP里的A和P。</p>
-<h4 id="BASE-定理"><a href="#BASE-定理" class="headerlink" title="BASE    定理"></a>BASE    定理</h4><p><strong>ACID的意思是酸，而BASE却是碱的意思，因此这是一个对立的东西。其实，从本质上来讲，酸（ACID）强调的一致性（CAP中的C），而碱（BASE）强调是可用性（CAP中的A）。</strong><br>Basically Available（基本可用）、Soft state（软状态）、Eventually consistent（最终一致性），基于CAP定理演化而来，核心思想是即时无法做到强一致性，但每个应用都可以根据自身业务特点，采用适当的方式来使系统达到最终一致性。<br><strong>1、<code>Basically Available</code>（基本可用）</strong><br>  基本可用是指分布式系统在出现不可预知的故障的时候，允许损失部分可用性，但不等于系统不可用。</p>
+<h3 id="NRW模型"><a href="#NRW模型" class="headerlink" title="NRW模型"></a>NRW模型</h3><p>所谓NWR模型<strong>。N代表N个备份，W代表要写入至少W份才认为成功，R表示至少读取R个备份</strong>。配置的时候要求<code>W+R &gt; N</code>。 因为<code>W+R &gt; N</code>， 所以 <code>R &gt; N-W</code> 这个是什么意思呢？就是读取的份数一定要比总备份数减去确保写成功的倍数的差值要大。<br>也就是说，每次读取，都至少读取到一个最新的版本。从而不会读到一份旧数据。当我们需要高可写的环境的时候，我们可以配置W = 1 如果N=3 那么R = 3。 这个时候只要写任何节点成功就认为成功，但是读的时候必须从所有的节点都读出数据。如果我们要求读的高效率，我们可以配置 W=N R=1。这个时候任何一个节点读成功就认为成功，但是写的时候必须写所有三个节点成功才认为成功。<br>NWR模型的一些设置会造成脏数据的问题，因为这很明显不是像<code>Paxos</code>一样是一个强一致的东西，所以，可能每次的读写操作都不在同一个结点上，于是会出现一些结点上的数据并不是最新版本，但却进行了最新的操作。<br>所以，Amazon Dynamo引了数据版本的设计。也就是说，如果你读出来数据的版本是v1，当你计算完成后要回填数据后，却发现数据的版本号已经被人更新成了v2，那么服务器就会拒绝你。版本这个事就像“乐观锁”一样。<br>但是，对于分布式和NWR模型来说，版本也会有恶梦的时候——就是版本冲突的问题，比如：我们设置了N=3 W=1，如果A结点上接受了一个值，版本由v1 -&gt; v2，但还没有来得及同步到结点B上（异步的，应该W=1，写一份就算成功），B结点上还是v1版本，此时，B结点接到写请求，按道理来说，他需要拒绝掉，但是他一方面并不知道别的结点已经被更新到v2，另一方面他也无法拒绝，因为W=1，所以写一分就成功了。于是，出现了严重的版本冲突。<br>Amazon的Dynamo把版本冲突这个问题巧妙地回避掉了——版本冲这个事交给用户自己来处理。<br>于是，Dynamo引入了Vector Clock（矢量钟？!）这个设计。这个设计让每个结点各自记录自己的版本信息，也就是说，对于同一个数据，需要记录两个事：1）谁更新的我，2）我的版本号是什么。<br>下面，我们来看一个操作序列：<br>1）一个写请求，第一次被节点A处理了。节点A会增加一个版本信息(A，1)。我们把这个时候的数据记做D1(A，1)。 然后另外一个对同样key的请求还是被A处理了于是有D2(A，2)。这个时候，D2是可以覆盖D1的，不会有冲突产生。<br>2）现在我们假设D2传播到了所有节点(B和C)，B和C收到的数据不是从客户产生的，而是别人复制给他们的，所以他们不产生新的版本信息，所以现在B和C所持有的数据还是D2(A，2)。于是A，B，C上的数据及其版本号都是一样的。<br>3）如果我们有一个新的写请求到了B结点上，于是B结点生成数据D3(A,2; B,1)，意思是：数据D全局版本号为3，A升了两新，B升了一次。这不就是所谓的代码版本的log么？<br>4）如果D3没有传播到C的时候又一个请求被C处理了，于是，以C结点上的数据是D4(A,2; C,1)。<br>5）好，最精彩的事情来了：如果这个时候来了一个读请求，我们要记得，我们的W=1 那么R=N=3，所以R会从所有三个节点上读，此时，他会读到三个版本：<br>A结点：D2(A,2)<br>B结点：D3(A,2;  B,1);<br>C结点：D4(A,2;  C,1)<br>6）这个时候可以判断出，D2已经是旧版本（已经包含在D3/D4中），可以舍弃。<br>7）但是D3和D4是明显的版本冲突。于是，交给调用方自己去做版本冲突处理。就像源代码版本管理一样。<br>很明显，上述的Dynamo的配置用的是CAP里的A和P。</p>
+<h2 id="BASE定理"><a href="#BASE定理" class="headerlink" title="BASE定理"></a>BASE定理</h2><p><strong>ACID的意思是酸，而BASE却是碱的意思，因此这是一个对立的东西。其实，从本质上来讲，酸（ACID）强调的一致性（CAP中的C），而碱（BASE）强调是可用性（CAP中的A）。</strong><br>Basically Available（基本可用）、Soft state（软状态）、Eventually consistent（最终一致性），基于CAP定理演化而来，核心思想是即时无法做到强一致性，但每个应用都可以根据自身业务特点，采用适当的方式来使系统达到最终一致性。<br><strong>1、<code>Basically Available</code>（基本可用）</strong><br>  基本可用是指分布式系统在出现不可预知的故障的时候，允许损失部分可用性，但不等于系统不可用。</p>
 <blockquote>
 <p>（1）响应时间上的损失<br>   当出现故障时，响应时间增加<br>（2）功能上的损失<br>   当流量高峰期时，屏蔽一些功能的使用以保证系统稳定性（服务降级）</p>
 </blockquote>
@@ -621,7 +637,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#事务的ACID特征"><span class="nav-number">1.</span> <span class="nav-text">事务的ACID特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务的分类"><span class="nav-number">2.</span> <span class="nav-text">事务的分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#本地事务"><span class="nav-number">2.1.</span> <span class="nav-text">本地事务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式事务"><span class="nav-number">2.2.</span> <span class="nav-text">分布式事务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CAP理论"><span class="nav-number">2.2.1.</span> <span class="nav-text">CAP理论</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CAP的应用"><span class="nav-number">2.2.2.</span> <span class="nav-text">CAP的应用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NRW模型"><span class="nav-number">2.2.3.</span> <span class="nav-text">NRW模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BASE-定理"><span class="nav-number">2.2.4.</span> <span class="nav-text">BASE    定理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务的处理模式"><span class="nav-number">3.</span> <span class="nav-text">事务的处理模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#事务的ACID特征"><span class="nav-number">1.</span> <span class="nav-text">事务的ACID特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务的分类"><span class="nav-number">2.</span> <span class="nav-text">事务的分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#本地事务"><span class="nav-number">2.1.</span> <span class="nav-text">本地事务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式事务"><span class="nav-number">2.2.</span> <span class="nav-text">分布式事务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CAP理论"><span class="nav-number">3.</span> <span class="nav-text">CAP理论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CAP的应用"><span class="nav-number">3.1.</span> <span class="nav-text">CAP的应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NRW模型"><span class="nav-number">3.2.</span> <span class="nav-text">NRW模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BASE定理"><span class="nav-number">4.</span> <span class="nav-text">BASE定理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务的处理模式"><span class="nav-number">5.</span> <span class="nav-text">事务的处理模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
             
 
           </div>
