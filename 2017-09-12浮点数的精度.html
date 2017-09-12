@@ -98,7 +98,7 @@
 <meta property="og:image" content="http://code.zhizus.com/images/1505223452920.png">
 <meta property="og:image" content="http://code.zhizus.com/images/1505223484994.png">
 <meta property="og:image" content="http://code.zhizus.com/images/1505223515471.png">
-<meta property="og:updated_time" content="2017-09-12T14:10:58.752Z">
+<meta property="og:updated_time" content="2017-09-12T14:14:31.435Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浮点数的精度">
 <meta name="twitter:description" content="写在前面最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金钱">
@@ -387,7 +387,7 @@
 <p>而单精度浮点数120.5的存储方式如下图所示:<br><img src="/images/1505223515471.png" alt="Alt text"></p>
 <h2 id="产生误差的根源"><a href="#产生误差的根源" class="headerlink" title="产生误差的根源"></a>产生误差的根源</h2><p>了解了存储原理了后，我们来追踪前面浮点数计算例子中丢失精度的根源。<br>首先，我们分别用二进制来表示浮点数2.2和3.6<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">10.00110011001100110011001100110011001100110011001101</div><div class="line">11.100110011001100110011001100110011001100110011001101</div></pre></td></tr></table></figure></p>
 <p>看到这里，你应该会觉得计算机表示小数很傻帽了，有些小数竟然无法精确表示。<br>我们知道双精度精确的有效位数也是有限的，对于超过精确范围的数据就会丢失，而丢失就会造成精度的丢失。</p>
-<h2 id="如何避免精度引起的问题"><a href="#如何避免精度引起的问题" class="headerlink" title="如何避免精度引起的问题"></a>如何避免精度引起的问题</h2><p>1）如果涉及到小数的计算，对精度有要求的，优先选择BigDecimal这个类型，包括数据库的字段，（对于计算机，不管是什么语言，都是会存在精度丢失的问题）；<br>2）对于一些性能要求要求高，有效小数位数少的，可以考虑转为整数来处理。比如金钱相关的存储，很多场景，都是紧紧要求精确到分，我们可以选择以分为单位，将1元存储为100分，这样就没有小数问题，数据库层面效率也会更高，这也是数据库层面的一种常规优化方法。<br>3）正式浮点数计算精度问题，不必大惊小怪，比如我们现在的系统存储用户的账户数据库的字段是double（32,2），要让这个字段出现精度的问题，账户上少说也要几十个亿了。</p>
+<h2 id="如何避免精度引起的问题"><a href="#如何避免精度引起的问题" class="headerlink" title="如何避免精度引起的问题"></a>如何避免精度引起的问题</h2><p>1）如果涉及到小数的计算，对精度有要求的，优先选择BigDecimal这个类型，包括数据库的字段，（对于计算机，不管是什么语言，都是会存在精度丢失的问题）；<br>2）对于一些性能要求要求高，有效小数位数少的，可以考虑转为整数来处理。比如金钱相关的存储，很多场景，都是紧紧要求精确到分，我们可以选择以分为单位，将1元存储为100分，这样就没有小数问题，数据库层面效率也会更高，这也是数据库层面的一种常规优化方法。<br>3）关于浮点数计算精度问题，一定要谨慎，如果一定要用double类型来计算，注意保留小数位的有效数字；但是同时也不必大惊小怪，比如我们现在的系统存储用户的账户数据库的字段是double（32,2），要让这个字段出现精度的问题，账户上少说也要几十个亿了。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.cnblogs.com/grefr/p/6088515.html" target="_blank" rel="external">http://www.cnblogs.com/grefr/p/6088515.html</a><br><a href="http://blog.csdn.net/rsp19801226/article/details/3085343" target="_blank" rel="external">http://blog.csdn.net/rsp19801226/article/details/3085343</a><br><a href="https://zhuanlan.zhihu.com/p/28162086" target="_blank" rel="external">https://zhuanlan.zhihu.com/p/28162086</a></p>
 
       
