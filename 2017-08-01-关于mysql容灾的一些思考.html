@@ -87,29 +87,29 @@
 
 
 
-<meta name="description" content="##背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
+<meta name="description" content="背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
 容灾的技术方案
 这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。
 总结一下各个高可用方案的的问题：
-对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会">
+对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会出现">
 <meta property="og:type" content="article">
 <meta property="og:title" content="关于mysql容灾的一些思考">
 <meta property="og:url" content="http://code.zhizus.com/2017-08-01-关于mysql容灾的一些思考.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="##背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
+<meta property="og:description" content="背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
 容灾的技术方案
 这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。
 总结一下各个高可用方案的的问题：
-对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会">
+对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会出现">
 <meta property="og:image" content="http://code.zhizus.com/./images/Transaction-Across-DataCenter.jpg">
-<meta property="og:updated_time" content="2017-09-14T13:25:10.648Z">
+<meta property="og:updated_time" content="2017-09-14T13:25:58.988Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="关于mysql容灾的一些思考">
-<meta name="twitter:description" content="##背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
+<meta name="twitter:description" content="背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
 容灾的技术方案
 这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。
 总结一下各个高可用方案的的问题：
-对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会">
+对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会出现">
 <meta name="twitter:image" content="http://code.zhizus.com/./images/Transaction-Across-DataCenter.jpg">
 
 
@@ -375,7 +375,7 @@
       
 
       
-        <p>##背景<br>工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。</p>
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。</p>
 <h2 id="容灾的技术方案"><a href="#容灾的技术方案" class="headerlink" title="容灾的技术方案"></a>容灾的技术方案</h2><p><img src="./images/Transaction-Across-DataCenter.jpg" alt="Alt text"></p>
 <p>这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。</p>
 <p>总结一下各个高可用方案的的问题：</p>
@@ -615,7 +615,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#容灾的技术方案"><span class="nav-number">1.</span> <span class="nav-text">容灾的技术方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步复制"><span class="nav-number">2.</span> <span class="nav-text">同步复制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#半同步复制"><span class="nav-number">3.</span> <span class="nav-text">半同步复制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步复制"><span class="nav-number">4.</span> <span class="nav-text">异步复制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同城MHA"><span class="nav-number">5.</span> <span class="nav-text">同城MHA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异地多活"><span class="nav-number">6.</span> <span class="nav-text">异地多活</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#异地多活的一些想法"><span class="nav-number">6.1.</span> <span class="nav-text">异地多活的一些想法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异地冷备"><span class="nav-number">7.</span> <span class="nav-text">异地冷备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据一致性问题"><span class="nav-number">7.1.</span> <span class="nav-text">数据一致性问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据同步利器Otter"><span class="nav-number">8.</span> <span class="nav-text">数据同步利器Otter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">9.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充充电"><span class="nav-number">10.</span> <span class="nav-text">补充充电</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#容灾的技术方案"><span class="nav-number">2.</span> <span class="nav-text">容灾的技术方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步复制"><span class="nav-number">3.</span> <span class="nav-text">同步复制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#半同步复制"><span class="nav-number">4.</span> <span class="nav-text">半同步复制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步复制"><span class="nav-number">5.</span> <span class="nav-text">异步复制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同城MHA"><span class="nav-number">6.</span> <span class="nav-text">同城MHA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异地多活"><span class="nav-number">7.</span> <span class="nav-text">异地多活</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#异地多活的一些想法"><span class="nav-number">7.1.</span> <span class="nav-text">异地多活的一些想法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异地冷备"><span class="nav-number">8.</span> <span class="nav-text">异地冷备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据一致性问题"><span class="nav-number">8.1.</span> <span class="nav-text">数据一致性问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据同步利器Otter"><span class="nav-number">9.</span> <span class="nav-text">数据同步利器Otter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">10.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充充电"><span class="nav-number">11.</span> <span class="nav-text">补充充电</span></a></li></ol></div>
             
 
           </div>
