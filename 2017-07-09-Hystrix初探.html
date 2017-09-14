@@ -80,7 +80,7 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+  <link rel="shortcut icon" type="image/x-icon" href="/resizeApi.png?v=5.1.0" />
 
 
 
@@ -186,7 +186,7 @@ HystixNetflix提">
       </a>
     </div>
       
-        <p class="site-subtitle"></p>
+        <h1 class="site-subtitle" itemprop="description"></h1>
       
   </div>
 
@@ -301,14 +301,14 @@ HystixNetflix提">
 
         
         
-          <h1 class="post-title" itemprop="name headline">
+          <h2 class="post-title" itemprop="name headline">
             
             
               
                 Hystrix初探
               
             
-          </h1>
+          </h2>
         
 
         <div class="post-meta">
@@ -448,8 +448,8 @@ HystixNetflix提">
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-04-28-一些感悟.html" rel="next" title="一个服务化的分享">
-                <i class="fa fa-chevron-left"></i> 一个服务化的分享
+              <a href="/2017-07-09-微服务下，如何保证服务可用性.html" rel="next" title="微服务下，如何保证服务可用性">
+                <i class="fa fa-chevron-left"></i> 微服务下，如何保证服务可用性
               </a>
             
           </div>
@@ -458,8 +458,8 @@ HystixNetflix提">
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017-07-09-微服务下，如何保证服务可用性.html" rel="prev" title="微服务下，如何保证服务可用性">
-                微服务下，如何保证服务可用性 <i class="fa fa-chevron-right"></i>
+              <a href="/2017-07-11-高并发利器支限流.html" rel="prev" title="高并发利器之限流">
+                高并发利器之限流 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -526,8 +526,8 @@ HystixNetflix提">
                alt="DempeZheng" />
           <p class="site-author-name" itemprop="name">DempeZheng</p>
            
-              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
-          
+              <p class="site-description motion-element" itemprop="description"></p>
+           
         </div>
         <nav class="site-state motion-element">
 
@@ -905,6 +905,28 @@ HystixNetflix提">
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
 
   
 
