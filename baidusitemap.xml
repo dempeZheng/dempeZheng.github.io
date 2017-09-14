@@ -4,6 +4,24 @@
 
     
   <url>
+    <loc>http://code.zhizus.com/2017-09-12%E6%B5%AE%E7%82%B9%E6%95%B0%E7%9A%84%E7%B2%BE%E5%BA%A6.html</loc>
+    <lastmod>2017-09-14T14:20:28.376Z</lastmod>
+    <data>
+        <display>
+        <title>浮点数的精度</title>
+        <pubTime>2017-09-12T04:39:04.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="札记" url="http://code.zhizus.com/categories/%E6%9C%AD%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://code.zhizus.com/2017-08-01-%E5%85%B3%E4%BA%8Emysql%E5%AE%B9%E7%81%BE%E7%9A%84%E4%B8%80%E4%BA%9B%E6%80%9D%E8%80%83.html</loc>
     <lastmod>2017-09-14T13:25:58.988Z</lastmod>
     <data>
@@ -15,24 +33,6 @@
            
              
               <breadCrumb title="mysql" url="http://code.zhizus.com/categories/mysql/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://code.zhizus.com/2017-09-12%E6%B5%AE%E7%82%B9%E6%95%B0%E7%9A%84%E7%B2%BE%E5%BA%A6.html</loc>
-    <lastmod>2017-09-13T13:50:28.058Z</lastmod>
-    <data>
-        <display>
-        <title>浮点数的精度</title>
-        <pubTime>2017-09-11T16:00:00.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="札记" url="http://code.zhizus.com/categories/%E6%9C%AD%E8%AE%B0/"/>
           
         </display>
     </data>
