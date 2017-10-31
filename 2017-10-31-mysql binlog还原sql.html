@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="motan,源码,spi,扩展" />
+  <meta name="keywords" content="mysql,binlog,主备切换" />
 
 
 
@@ -87,21 +87,22 @@
 
 
 
-<meta name="description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
+<meta name="description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。核心需求是将差异的binlog提取出来转换为可执行的sql语句。
+这个需求涉及到两个点：1）切换主从关系前先记录主从同步的位点。2）根据位点提取binlog，并且将这部分binlog还原成sql语句。
+解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的主从同">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Motan源码解读-SPI机制">
-<meta property="og:url" content="http://code.zhizus.com/2016-09-19-motan-spi.html">
+<meta property="og:title" content="mysql binlog还原sql">
+<meta property="og:url" content="http://code.zhizus.com/2017-10-31-mysql binlog还原sql.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
-<meta property="og:image" content="http://code.zhizus.com/images/motan/SPI.png">
-<meta property="og:updated_time" content="2017-04-15T13:35:49.092Z">
+<meta property="og:description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。核心需求是将差异的binlog提取出来转换为可执行的sql语句。
+这个需求涉及到两个点：1）切换主从关系前先记录主从同步的位点。2）根据位点提取binlog，并且将这部分binlog还原成sql语句。
+解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的主从同">
+<meta property="og:updated_time" content="2017-10-31T13:52:56.898Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Motan源码解读-SPI机制">
-<meta name="twitter:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
-<meta name="twitter:image" content="http://code.zhizus.com/images/motan/SPI.png">
+<meta name="twitter:title" content="mysql binlog还原sql">
+<meta name="twitter:description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。核心需求是将差异的binlog提取出来转换为可执行的sql语句。
+这个需求涉及到两个点：1）切换主从关系前先记录主从同步的位点。2）根据位点提取binlog，并且将这部分binlog还原成sql语句。
+解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的主从同">
 
 
 
@@ -129,13 +130,13 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2016-09-19-motan-spi.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2017-10-31-mysql binlog还原sql.html"/>
 
 
 
 
 
-  <title> Motan源码解读-SPI机制 | 郑大侠的博客 </title>
+  <title> mysql binlog还原sql | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -283,8 +284,8 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-19-motan-spi.html">
+  <article class="post post-type-灾备 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-10-31-mysql binlog还原sql.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -305,7 +306,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
             
             
               
-                Motan源码解读-SPI机制
+                mysql binlog还原sql
               
             
           </h1>
@@ -328,7 +329,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 
           
           
-             <span id="/2016-09-19-motan-spi.html" class="leancloud_visitors" data-flag-title="Motan源码解读-SPI机制">
+             <span id="/2017-10-31-mysql binlog还原sql.html" class="leancloud_visitors" data-flag-title="mysql binlog还原sql">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -355,52 +356,38 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
       
 
       
-        <p>SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。<br>motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。</p>
-<h2 id="SPI机制"><a href="#SPI机制" class="headerlink" title="SPI机制"></a>SPI机制</h2><p>SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceLoader的文档里有比较详细的介绍。简单的总结下java spi机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案，比如日志模块的方案，xml解析模块、jdbc模块的方案等。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。 java spi就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。</p>
-<h2 id="SPI约定"><a href="#SPI约定" class="headerlink" title="SPI约定"></a>SPI约定</h2><p>java spi的具体约定为:当服务的提供者，提供了服务接口的一种实现之后，在jar包的META-INF/services/目录里同时创建一个以服务接口命名的文件。该文件里就是实现该服务接口的具体实现类。而当外部程序装配这个模块的时候，就能通过该jar包META-INF/services/里的配置文件找到具体的实现类名，并装载实例化，完成模块的注入。 基于这样一个约定就能很好的找到服务接口的实现类，而不需要再代码里制定。jdk提供服务实现查找的一个工具类：java.util.ServiceLoader</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ul>
-<li><strong>common-logging</strong><br>apache最早提供的日志的门面接口。只有接口，没有实现。具体方案由各提供商实现， 发现日志提供商是通过扫描 META-INF/services/org.apache.commons.logging.LogFactory配置文件，通过读取该文件的内容找到日志提工商实现类。只要我们的日志实现里包含了这个文件，并在文件里制定 LogFactory工厂接口的实现类即可。</li>
-<li><p><strong>jdbc</strong><br>jdbc4.0以前， 开发人员还需要基于Class.forName(“xxx”)的方式来装载驱动，jdbc4也基于spi的机制来发现驱动提供商了，可以通过META-INF/services/java.sql.Driver文件里指定实现类的方式来暴露驱动提供者。</p>
-</li>
-<li><p><strong>dubbo&amp;motan</strong><br>dubbo和motan也扩展了spi作为框架的主要扩展机制。</p>
-</li>
-</ul>
-<h2 id="使用示例："><a href="#使用示例：" class="headerlink" title="使用示例："></a>使用示例：</h2><p>接口定义</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> my.xyz.spi;  </div><div class="line"><span class="keyword">import</span> java.util.List;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Search</span> </span>&#123;  </div><div class="line">   <span class="function"><span class="keyword">public</span> List <span class="title">serch</span><span class="params">(String keyword)</span></span>;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>A公司采用文件系统搜索的方式实现了 Search接口，B公司采用了数据库系统的方式实现了Search接口</p>
+        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。<br>核心需求是将差异的binlog提取出来转换为可执行的sql语句。</p>
+<p>这个需求涉及到两个点：<br>1）切换主从关系前先记录主从同步的位点。<br>2）根据位点提取binlog，并且将这部分binlog还原成sql语句。</p>
+<p>解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的主从同步有一个初步的认识。</p>
+<h2 id="binlog概述"><a href="#binlog概述" class="headerlink" title="binlog概述"></a>binlog概述</h2><p>MySQL binlog以event的形式，记录了MySQL server从启用binlog以来所有的变更信息，能够帮助重现这之间的所有变化。MySQL引入binlog主要有两个目的：一是为了主从复制；二是某些备份还原操作后需要重新应用binlog。</p>
+<p>有三种可选的binlog格式，各有优缺点：</p>
 <ul>
-<li>A公司实现的类  <code>com.A.spi.impl.FileSearch</code></li>
-<li>B公司实现的类  <code>com.B.spi.impl.DatabaseSearch</code></li>
+<li>statement：基于SQL语句的模式，binlog数据量小，但是某些语句和函数在复制过程可能导致数据不一致甚至出错；</li>
+<li>row：基于行的模式，记录的是行的完整变化。很安全，但是binlog会比其他两种模式大很多；</li>
+<li>mixed：混合模式，根据语句来选用是statement还是row模式；<br>利用binlog闪回，需要将binlog格式设置为row。row模式下，一条使用innodb的insert会产生如下格式的binlog：</li>
 </ul>
-<p>那么A公司发布 实现jar包时，则要在jar包中<code>META-INF/services/my.xyz.spi.Search</code>文件中写下如下内容<br>    <code>com.A.spi.impl.FileSearch</code><br>那么B公司发布 实现jar包时，则要在jar包中<code>META-INF/services/my.xyz.spi.Search</code>文件中写下如下内容</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"> com.B.spi.impl.DatabaseSearch</div><div class="line"><span class="keyword">package</span> com.xyz.factory;  </div><div class="line"><span class="keyword">import</span> java.util.Iterator;  </div><div class="line"><span class="keyword">import</span> java.util.ServiceLoader;  </div><div class="line"><span class="keyword">import</span> my.xyz.spi.Search;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SearchFactory</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SearchFactory</span><span class="params">()</span> </span>&#123;  </div><div class="line">    &#125;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Search <span class="title">newSearch</span><span class="params">()</span> </span>&#123;  </div><div class="line">        Search search = <span class="keyword">null</span>;  </div><div class="line">        ServiceLoader&lt;Search&gt; serviceLoader = ServiceLoader.load(Search.class);  </div><div class="line">        Iterator&lt;Search&gt; searchs = serviceLoader.iterator();  </div><div class="line">        <span class="keyword">if</span> (searchs.hasNext()) &#123;  </div><div class="line">            search = searchs.next();  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">return</span> search;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> my.xyz.test;  </div><div class="line"><span class="keyword">import</span> java.util.Iterator;  </div><div class="line"><span class="keyword">import</span> java.util.ServiceLoader;  </div><div class="line"><span class="keyword">import</span> com.xyz.factory.SearchFactory;  </div><div class="line"><span class="keyword">import</span> my.xyz.spi.Search;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SearchTest</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </div><div class="line">        Search search = SearchFactory.newSearch();  </div><div class="line">        search.serch(<span class="string">"java spi test"</span>);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h2 id="JDK-SPI"><a href="#JDK-SPI" class="headerlink" title="JDK SPI"></a>JDK SPI</h2><p><strong>JDK自带的ServiceLoader功能比较弱，只提供了如下几个方法：</strong></p>
-<ul>
-<li><p>reload：清除服务实例缓存，重新加载；</p>
-</li>
-<li><p>iterator:延迟方式加载服务，按配置的顺序生成服务实例；</p>
-</li>
-<li><p>load：从上下文加载器（ContextClassLoader）加载。</p>
-</li>
-<li><p>loadInstalled，系统加载器（SystemClassLoader）优先，没有则从上下文加载器加载。</p>
-</li>
-</ul>
-<p>实际上，JDK自带的ServiceLoader并不能满足开发的需求，例如单例服务，按别名使用指定的服务实现，优先级控制等等。</p>
-<h2 id="Motan-SPI"><a href="#Motan-SPI" class="headerlink" title="Motan SPI"></a>Motan SPI</h2><p>Motan底层模块之间调用也是采用SPI模式（<code>com.weibo.api.motan.core.extension.ExtensionLoader</code>），可以根据配置实现调用不同的服务实例。</p>
-<p><strong>Motan提供了三个注解：</strong></p>
-<p><code>@Spi</code> 声明接口为SPI服务接口；</p>
-<p><code>@Scope</code> 声明单例模式还是多例模式</p>
-<p><code>@Activation</code> 声明服务优先级（sequence值越小越优先调用）、分组查询、以及是否支持重试调用。</p>
-<p><code>@SpiMeta</code>设定服务别名，没配置则用实现类的类名为别名</p>
-<p>ExtensionLoader兼容JDK自带的ServiceLoader，也就是说跟ServiceLoader的配置方式是一样的，在META-INF/services创建服务接口文件，内容为实现类的完整包路径列表。</p>
-<p>实现：<br>ClassLoader.getSystemResources(“”)根据路径获取所有加载的URL</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Enumeration&lt;URL&gt; urls = ClassLoader.getSystemResources(<span class="string">"META-INF/services/com.dempe.spi.Search"</span>);</div></pre></td></tr></table></figure>
-<p>基于上面的注解扩展SPI的语义已经很清晰了，暂时不再深入研究。如果兴趣可co下来淘宝的<a href="https://github.com/alibaba/cooma/wiki" target="_blank" rel="external">Cooma</a>  (Cooma是一个极简、灵活的开源Java微容器（microcontainer）实现。)</p>
-<h2 id="motan的扩展"><a href="#motan的扩展" class="headerlink" title="motan的扩展"></a>motan的扩展</h2><p>motan是一个轻量的RPC框架，同时motan的扩展性也是非常好的，你几乎可以扩展它实现任何你希望RPC框架可以有的能力。</p>
-<p>我们大致看看包含SPI注解的类：</p>
-<p><img src="/images/motan/SPI.png" alt="Alt text"></p>
-<p>我们可以看到基本上在任何地方我们能想到扩展的地方motan都给我们留下了扩展的入口。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"># at 1129</div><div class="line">#161225 23:15:38 server id 3773306082  end_log_pos 1197         Query   thread_id=1903021       exec_time=0     error_code=0</div><div class="line">SET TIMESTAMP=1482678938/*!*/;</div><div class="line">BEGIN</div><div class="line">/*!*/;</div><div class="line"># at 1197</div><div class="line">#161225 23:15:38 server id 3773306082  end_log_pos 1245         Table_map: `test`.`user` mapped to number 290</div><div class="line"># at 1245</div><div class="line">#161225 23:15:38 server id 3773306082  end_log_pos 1352         Write_rows: table id 290 flags: STMT_END_F</div><div class="line"></div><div class="line">BINLOG &apos;</div><div class="line">muJfWBPiFOjgMAAAAN0EAAAAACIBAAAAAAEABHRlc3QABHVzZXIAAwMPEQMeAAAC</div><div class="line">muJfWB7iFOjgawAAAEgFAAAAACIBAAAAAAEAAgAD//gBAAAABuWwj+i1tVhK1hH4AgAAAAblsI/p</div><div class="line">krFYStYg+AMAAAAG5bCP5a2ZWE/onPgEAAAABuWwj+adjlhNeAD4BQAAAAJ0dFhRYJM=</div><div class="line">&apos;/*!*/;</div><div class="line"># at 1352</div><div class="line">#161225 23:15:38 server id 3773306082  end_log_pos 1379         Xid = 5327954</div><div class="line">COMMIT/*!*/;</div></pre></td></tr></table></figure>
+<h3 id="binlog打开方式："><a href="#binlog打开方式：" class="headerlink" title="binlog打开方式："></a>binlog打开方式：</h3><p>1)binlog的位置</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'log_%'</span>;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"> +----------------------------------------+--------------------------------+</div><div class="line">| Variable_name                          | Value                          |</div><div class="line">+----------------------------------------+--------------------------------+</div><div class="line">| log_bin                                | ON                             |</div><div class="line">| log_bin_basename                       | /var/lib/mysql/mysql-bin       |</div><div class="line">| log_bin_index                          | /var/lib/mysql/mysql-bin.index |</div><div class="line">| log_bin_trust_function_creators        | OFF                            |</div><div class="line">| log_bin_use_v1_row_events              | OFF                            |</div><div class="line">| log_error                              | /var/log/mysql/error.log       |</div><div class="line">| log_output                             | FILE                           |</div><div class="line">| log_queries_not_using_indexes          | OFF                            |</div><div class="line">| log_slave_updates                      | OFF                            |</div><div class="line">| log_slow_admin_statements              | OFF                            |</div><div class="line">| log_slow_slave_statements              | OFF                            |</div><div class="line">| log_throttle_queries_not_using_indexes | 0                              |</div><div class="line">| log_warnings                           | 1                              |</div><div class="line">+----------------------------------------+--------------------------------+</div></pre></td></tr></table></figure>
+<p>binlog的位置在：/var/lib/mysql/mysql-bin<br>2)查看binlog的文件：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">show</span> <span class="built_in">binary</span> <span class="keyword">logs</span>;</div></pre></td></tr></table></figure>
+<p>3)查看binlog具体的事件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">show binlog events in &apos;mysql-bin.000006&apos;;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">+------------------+------+-------------+-----------+-------------+------------------------------------------------------------------------------------------------------------------------------------+</div><div class="line">| Log_name         | Pos  | Event_type  | Server_id | End_log_pos | Info                                                                                                                               |</div><div class="line">+------------------+------+-------------+-----------+-------------+------------------------------------------------------------------------------------------------------------------------------------+</div><div class="line">| mysql-bin.000006 |    4 | Format_desc |         1 |         120 | Server ver: 5.6.33-0ubuntu0.14.04.1-log, Binlog ver: 4                                                                             |</div><div class="line">| mysql-bin.000006 |  120 | Query       |         1 |         237 | create database `demo`character set utf8mb4                                                                                        |</div><div class="line">| mysql-bin.000006 |  237 | Query       |         1 |         429 | use `demo`; Create table `demo`.`test`(</div><div class="line">  `id` int(11) NOT NULL AUTO_INCREMENT,</div><div class="line">  `name` varchar(50),</div><div class="line">  primary key (`id`)</div><div class="line">) |</div><div class="line">| mysql-bin.000006 |  429 | Query       |         1 |         501 | BEGIN                                                                                                                              |</div><div class="line"></div><div class="line">| mysql-bin.000006 | 2755 | Xid         |         1 |        2786 | COMMIT /* xid=1056 */                                                                                                              |</div><div class="line">+------------------+------+-------------+-----------+-------------+------------------------------------------------------------------------------------------------------------------------------------+</div></pre></td></tr></table></figure>
+<p>4) binlog的另外另外一种查看方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/usr/bin/mysqlbinlog  --base64-output=decode-rows -v  mysql-bin.000006</div></pre></td></tr></table></figure>
+<p>5)查询主从同步的位点<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">show</span> <span class="keyword">master</span> <span class="keyword">status</span>;</div></pre></td></tr></table></figure></p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><blockquote>
+<p>MySQL binlog以event的形式，记录了MySQL server从启用binlog以来所有的变更信息，能够帮助重现这之间的所有变化。</p>
+</blockquote>
+<p>这个是binlog数据修复的理论依据。剩下的就是不同语言的实现。但是基本方式都是大同小异。比较通用的做法都是：<br>1）伪装成slave，拉取mysql binlog日志<br>2）解析mysql binlog日志，遍历binlog event<br>3）根据binlog event还原出sql</p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>知晓原理，花点时间实现一个初版的工具应该不太难。但是要想实现一个靠谱的工具还是需要有点经验的。这里有一个实现的比较靠谱易用的脚本，强烈案例：<a href="https://github.com/danfengcao/binlog2sql" target="_blank" rel="external">https://github.com/danfengcao/binlog2sql</a></p>
+<blockquote>
+<p>当然有兴趣的也可以自己试试，多动手对巩固学习还是非常有帮助的。<br>对于java系的同学直接依赖阿里的canal来实现也是比较容易的。<br>花了大概2个小时简单了实现了下想法（还有很多坑没填），代码地址：<a href="https://github.com/dempeZheng/binlog2sql" target="_blank" rel="external">https://github.com/dempeZheng/binlog2sql</a><br>业余玩玩也是不错的，对巩固canal，了解binlog都是有一定帮助。<br>顺便也安利一下cannal，场景用的对，能解决复杂问题。是java解决数据库相关问题的一个比较好的case。<a href="https://github.com/alibaba/canal" target="_blank" rel="external">https://github.com/alibaba/canal</a> ，文档真心不错。</p>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>binlog的常见运维还是比较值得去了解的，熟悉后对于误操作还可以人工恢复，不至于跪掉。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://github.com/danfengcao/binlog2sql/blob/master/example/mysql-flashback-priciple-and-practice.md" target="_blank" rel="external">https://github.com/danfengcao/binlog2sql/blob/master/example/mysql-flashback-priciple-and-practice.md</a></p>
 
       
     </div>
@@ -453,8 +440,8 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-19-motan-clientMessage.html" rel="next" title="Motan源码解读-Client异步消息">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-Client异步消息
+              <a href="/2017-09-21-金融灾备落地实践.html" rel="next" title="金融灾备落地实践">
+                <i class="fa fa-chevron-left"></i> 金融灾备落地实践
               </a>
             
           </div>
@@ -462,10 +449,6 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016-09-20-motan-loadbalance.html" rel="prev" title="Motan源码解读-负载均衡">
-                Motan源码解读-负载均衡 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -630,7 +613,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI机制"><span class="nav-number">1.</span> <span class="nav-text">SPI机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI约定"><span class="nav-number">2.</span> <span class="nav-text">SPI约定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">3.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用示例："><span class="nav-number">4.</span> <span class="nav-text">使用示例：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-SPI"><span class="nav-number">5.</span> <span class="nav-text">JDK SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Motan-SPI"><span class="nav-number">6.</span> <span class="nav-text">Motan SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan的扩展"><span class="nav-number">7.</span> <span class="nav-text">motan的扩展</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#binlog概述"><span class="nav-number">2.</span> <span class="nav-text">binlog概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#binlog打开方式："><span class="nav-number">2.1.</span> <span class="nav-text">binlog打开方式：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">3.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方案"><span class="nav-number">4.</span> <span class="nav-text">方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>

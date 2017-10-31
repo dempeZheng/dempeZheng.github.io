@@ -4,6 +4,24 @@
 
     
   <url>
+    <loc>http://code.zhizus.com/2017-10-31-mysql%20binlog%E8%BF%98%E5%8E%9Fsql.html</loc>
+    <lastmod>2017-10-31T13:52:56.898Z</lastmod>
+    <data>
+        <display>
+        <title>mysql binlog还原sql</title>
+        <pubTime>2017-10-31T04:39:04.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="灾备" url="http://code.zhizus.com/categories/%E7%81%BE%E5%A4%87/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://code.zhizus.com/2017-09-21-%E9%87%91%E8%9E%8D%E7%81%BE%E5%A4%87%E8%90%BD%E5%9C%B0%E5%AE%9E%E8%B7%B5.html</loc>
     <lastmod>2017-09-21T13:46:27.199Z</lastmod>
     <data>
