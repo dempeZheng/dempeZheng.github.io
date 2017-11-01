@@ -97,7 +97,7 @@
 <meta property="og:description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。核心需求是将差异的binlog提取出来转换为可执行的sql语句。
 这个需求涉及到两个点：1）切换主从关系前先记录主从同步的位点。2）根据位点提取binlog，并且将这部分binlog还原成sql语句。
 解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的主从同">
-<meta property="og:updated_time" content="2017-10-31T13:52:56.898Z">
+<meta property="og:updated_time" content="2017-11-01T14:09:57.763Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql binlog还原sql">
 <meta name="twitter:description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。核心需求是将差异的binlog提取出来转换为可执行的sql语句。
@@ -382,7 +382,7 @@
 <p>MySQL binlog以event的形式，记录了MySQL server从启用binlog以来所有的变更信息，能够帮助重现这之间的所有变化。</p>
 </blockquote>
 <p>这个是binlog数据修复的理论依据。剩下的就是不同语言的实现。但是基本方式都是大同小异。比较通用的做法都是：<br>1）伪装成slave，拉取mysql binlog日志<br>2）解析mysql binlog日志，遍历binlog event<br>3）根据binlog event还原出sql</p>
-<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>知晓原理，花点时间实现一个初版的工具应该不太难。但是要想实现一个靠谱的工具还是需要有点经验的。这里有一个实现的比较靠谱易用的脚本，强烈案例：<a href="https://github.com/danfengcao/binlog2sql" target="_blank" rel="external">https://github.com/danfengcao/binlog2sql</a></p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>知晓原理，花点时间实现一个初版的工具应该不太难。但是要想实现一个靠谱的工具还是需要有点经验的。这里有一个实现的比较靠谱易用的脚本，强烈安利：<a href="https://github.com/danfengcao/binlog2sql" target="_blank" rel="external">https://github.com/danfengcao/binlog2sql</a></p>
 <blockquote>
 <p>当然有兴趣的也可以自己试试，多动手对巩固学习还是非常有帮助的。<br>对于java系的同学直接依赖阿里的canal来实现也是比较容易的。<br>花了大概2个小时简单了实现了下想法（还有很多坑没填），代码地址：<a href="https://github.com/dempeZheng/binlog2sql" target="_blank" rel="external">https://github.com/dempeZheng/binlog2sql</a><br>业余玩玩也是不错的，对巩固canal，了解binlog都是有一定帮助。<br>顺便也安利一下cannal，场景用的对，能解决复杂问题。是java解决数据库相关问题的一个比较好的case。<a href="https://github.com/alibaba/canal" target="_blank" rel="external">https://github.com/alibaba/canal</a> ，文档真心不错。</p>
 </blockquote>
@@ -449,6 +449,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017-11-01-记一次fastjson转java对象的坑.html" rel="prev" title="记一次fastjson parsObject问题">
+                记一次fastjson parsObject问题 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -522,7 +526,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">36</span>
+                <span class="site-state-item-count">37</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -533,7 +537,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
