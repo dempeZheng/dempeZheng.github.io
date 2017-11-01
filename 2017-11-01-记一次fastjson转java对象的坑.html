@@ -87,28 +87,25 @@
 
 
 
-<meta name="description" content="#
-场景
+<meta name="description" content="场景
 最近遇到一次由于java bean字段命名特殊（字段命名为：__time__），导致fastjson转java bean的异常问题。
 
-bug还原123String msg = &quot;&amp;#123;\&quot;globalId\&quot;:1036210063725043712,\&quot;name\&quot;:\&quot;\&quot;,\&quot;__time__\&quot;:1509326931&amp;#125;&quot;;Message message = JSO">
+bug还原123String msg = &quot;&amp;#123;\&quot;globalId\&quot;:1036210063725043712,\&quot;name\&quot;:\&quot;\&quot;,\&quot;__time__\&quot;:1509326931&amp;#125;&quot;;Message message = JSONO">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次fastjson parsObject问题">
 <meta property="og:url" content="http://code.zhizus.com/2017-11-01-记一次fastjson转java对象的坑.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="#
-场景
+<meta property="og:description" content="场景
 最近遇到一次由于java bean字段命名特殊（字段命名为：__time__），导致fastjson转java bean的异常问题。
 
-bug还原123String msg = &quot;&amp;#123;\&quot;globalId\&quot;:1036210063725043712,\&quot;name\&quot;:\&quot;\&quot;,\&quot;__time__\&quot;:1509326931&amp;#125;&quot;;Message message = JSO">
-<meta property="og:updated_time" content="2017-11-01T14:09:57.774Z">
+bug还原123String msg = &quot;&amp;#123;\&quot;globalId\&quot;:1036210063725043712,\&quot;name\&quot;:\&quot;\&quot;,\&quot;__time__\&quot;:1509326931&amp;#125;&quot;;Message message = JSONO">
+<meta property="og:updated_time" content="2017-11-01T14:12:30.480Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次fastjson parsObject问题">
-<meta name="twitter:description" content="#
-场景
+<meta name="twitter:description" content="场景
 最近遇到一次由于java bean字段命名特殊（字段命名为：__time__），导致fastjson转java bean的异常问题。
 
-bug还原123String msg = &quot;&amp;#123;\&quot;globalId\&quot;:1036210063725043712,\&quot;name\&quot;:\&quot;\&quot;,\&quot;__time__\&quot;:1509326931&amp;#125;&quot;;Message message = JSO">
+bug还原123String msg = &quot;&amp;#123;\&quot;globalId\&quot;:1036210063725043712,\&quot;name\&quot;:\&quot;\&quot;,\&quot;__time__\&quot;:1509326931&amp;#125;&quot;;Message message = JSONO">
 
 
 
@@ -362,8 +359,7 @@ bug还原123String msg = &quot;&amp;#123;\&quot;globalId\&quot;:1036210063725043
       
 
       
-        <p>#</p>
-<h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><blockquote>
+        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><blockquote>
 <p>最近遇到一次由于java bean字段命名特殊（字段命名为：<code>__time__</code>），导致fastjson转java bean的异常问题。</p>
 </blockquote>
 <h2 id="bug还原"><a href="#bug还原" class="headerlink" title="bug还原"></a>bug还原</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">String msg = <span class="string">"&#123;\"globalId\":1036210063725043712,\"name\":\"\",\"__time__\":1509326931&#125;"</span>;</div><div class="line">Message message = JSONObject.parseObject(msg, Message.class);</div><div class="line">System.out.println(message);</div></pre></td></tr></table></figure>
