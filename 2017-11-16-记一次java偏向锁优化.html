@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="guava,cache,expireAfterWrite,refreshAfterWrite" />
+  <meta name="keywords" content="偏向锁,高并发" />
 
 
 
@@ -87,34 +87,19 @@
 
 
 
-<meta name="description" content="guava的单线程回源缓存的更新有两种方法:
-
-被动更新：先从缓存获取，没有则回源获取，再更新缓存；
-主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
-
-在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。
-guava cache解决办法：guava cache保证单线程回源，对">
+<meta name="description" content="场景最近查找服务时延增长的问题，通过在jvm启动前加参数：-XX:+PrintGCApplicationStoppedTime，打印日志如下：
+12345678910111213141516171.784: Total time for which application threads were stopped: 0.0541497 seconds, Stopping threads took:">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Guava Cache 分析">
-<meta property="og:url" content="http://code.zhizus.com/2016-11-05-guava-cache.html">
+<meta property="og:title" content="记一次java偏向锁的优化">
+<meta property="og:url" content="http://code.zhizus.com/2017-11-16-记一次java偏向锁优化.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="guava的单线程回源缓存的更新有两种方法:
-
-被动更新：先从缓存获取，没有则回源获取，再更新缓存；
-主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
-
-在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。
-guava cache解决办法：guava cache保证单线程回源，对">
-<meta property="og:updated_time" content="2017-04-15T13:32:35.480Z">
+<meta property="og:description" content="场景最近查找服务时延增长的问题，通过在jvm启动前加参数：-XX:+PrintGCApplicationStoppedTime，打印日志如下：
+12345678910111213141516171.784: Total time for which application threads were stopped: 0.0541497 seconds, Stopping threads took:">
+<meta property="og:updated_time" content="2017-11-16T14:50:33.487Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Guava Cache 分析">
-<meta name="twitter:description" content="guava的单线程回源缓存的更新有两种方法:
-
-被动更新：先从缓存获取，没有则回源获取，再更新缓存；
-主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
-
-在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。
-guava cache解决办法：guava cache保证单线程回源，对">
+<meta name="twitter:title" content="记一次java偏向锁的优化">
+<meta name="twitter:description" content="场景最近查找服务时延增长的问题，通过在jvm启动前加参数：-XX:+PrintGCApplicationStoppedTime，打印日志如下：
+12345678910111213141516171.784: Total time for which application threads were stopped: 0.0541497 seconds, Stopping threads took:">
 
 
 
@@ -142,13 +127,13 @@ guava cache解决办法：guava cache保证单线程回源，对">
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2016-11-05-guava-cache.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2017-11-16-记一次java偏向锁优化.html"/>
 
 
 
 
 
-  <title> Guava Cache 分析 | 郑大侠的博客 </title>
+  <title> 记一次java偏向锁的优化 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -296,8 +281,8 @@ guava cache解决办法：guava cache保证单线程回源，对">
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-11-05-guava-cache.html">
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-11-16-记一次java偏向锁优化.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -318,7 +303,7 @@ guava cache解决办法：guava cache保证单线程回源，对">
             
             
               
-                Guava Cache 分析
+                记一次java偏向锁的优化
               
             
           </h1>
@@ -341,7 +326,7 @@ guava cache解决办法：guava cache保证单线程回源，对">
 
           
           
-             <span id="/2016-11-05-guava-cache.html" class="leancloud_visitors" data-flag-title="Guava Cache 分析">
+             <span id="/2017-11-16-记一次java偏向锁优化.html" class="leancloud_visitors" data-flag-title="记一次java偏向锁的优化">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -368,33 +353,23 @@ guava cache解决办法：guava cache保证单线程回源，对">
       
 
       
-        <h2 id="guava的单线程回源"><a href="#guava的单线程回源" class="headerlink" title="guava的单线程回源"></a>guava的单线程回源</h2><p>缓存的更新有两种方法:</p>
-<ul>
-<li>被动更新：先从缓存获取，没有则回源获取，再更新缓存；</li>
-<li>主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）</li>
-</ul>
-<p>在高并发环境，被动回源是需要注意的。<br>问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。</p>
-<p>guava cache解决办法：<br>guava cache保证单线程回源，对于同一个key，只让一个请求回源load，其他线程阻塞等待结果。同时，在Guava里可以通过配置expireAfterAccess/expireAfterWrite设定key的过期时间，key过期后就单线程回源加载并放回缓存。</p>
-<p>这样通过Guava Cache简简单单就较为安全地实现了缓存的被动更新操作。</p>
-<p>但是如果对于同一时间大量不同的key同时过期，造成大量不同的key同时回源，这种怎么解决呢？</p>
-<blockquote>
-<p>guava cache实现类似ConcurrentHashMap，维护segment数组，每个segment独享一个锁，ConcurrentHashMap是通过这种机制来实现分段锁，ConcurrentHashMap默认分了16个segment；<br>guava Cache默认是4个segment，故guava cache的并发级别默认是4个，也就是说默认情况下，即便是大量不同的key同时过期，最多只也有4个线程并发回源，理论上不会给后端造成过大的压力。</p>
+        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>最近查找服务时延增长的问题，通过在jvm启动前加参数：<code>-XX:+PrintGCApplicationStoppedTime</code>，打印日志如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">1.784: Total time for which application threads were stopped: 0.0541497 seconds, Stopping threads took: 0.0000441 seconds</div><div class="line">1.933: Total time for which application threads were stopped: 0.0004939 seconds, Stopping threads took: 0.0000210 seconds</div><div class="line">2.013: Total time for which application threads were stopped: 0.0003884 seconds, Stopping threads took: 0.0000223 seconds</div><div class="line">2.014: Total time for which application threads were stopped: 0.0001317 seconds, Stopping threads took: 0.0000117 seconds</div><div class="line">2.505: Total time for which application threads were stopped: 0.0007190 seconds, Stopping threads took: 0.0000516 seconds</div><div class="line">2.519: Total time for which application threads were stopped: 0.0005469 seconds, Stopping threads took: 0.0000273 seconds</div><div class="line">2.894: Total time for which application threads were stopped: 0.0002649 seconds, Stopping threads took: 0.0000723 seconds</div><div class="line">3.171: Total time for which application threads were stopped: 0.0002707 seconds, Stopping threads took: 0.0000259 seconds</div><div class="line">3.899: Total time for which application threads were stopped: 0.0006577 seconds, Stopping threads took: 0.0000253 seconds</div><div class="line">4.057: Total time for which application threads were stopped: 0.0006618 seconds, Stopping threads took: 0.0000251 seconds</div><div class="line">4.130: Total time for which application threads were stopped: 0.0007136 seconds, Stopping threads took: 0.0000615 seconds</div><div class="line">4.218: Total time for which application threads were stopped: 0.0006155 seconds, Stopping threads took: 0.0000250 seconds</div><div class="line">4.406: Total time for which application threads were stopped: 0.0006617 seconds, Stopping threads took: 0.0000289 seconds</div><div class="line">4.427: Total time for which application threads were stopped: 0.0005132 seconds, Stopping threads took: 0.0000261 seconds</div><div class="line">4.510: Total time for which application threads were stopped: 0.0002178 seconds, Stopping threads took: 0.0000296 seconds</div><div class="line">4.622: [GC (Metadata GC Threshold) [PSYoungGen: 801127K-&gt;22368K(1223168K)] 820102K-&gt;41351K(4019712K), 0.0195913 secs] [Times: user=0.11 sys=0.07, real=0.02 secs] </div><div class="line">4.641: [Full GC (Metadata GC Threshold) [PSYoungGen: 22368K-&gt;0K(1223168K)] [ParOldGen: 18983K-&gt;29281K(2796544K)] 41351K-&gt;29281K(4019712K), [Metaspace: 34906K-&gt;34906K(1079296K)], 0.0481762 secs] [Times: user=0.39 sys=0.03, real=0.05 secs]</div></pre></td></tr></table></figure>
+<p>发现有大量的Total time for which application threads were stopped的日志，尽管耗时不多，但是比较密集，整体耗时也不算少。<br>查阅资料确认这个是由于线程进入safepoint导致的停顿。<br>那么safepoint是什么？</p>
+<h2 id="SafePoint"><a href="#SafePoint" class="headerlink" title="SafePoint"></a>SafePoint</h2><blockquote>
+<p>Safepoint是java代码中一个线程可能暂停执行的一个位置，SafePoint保存了其他位置没有的一些运行信息。在这个位置上保存了线程上下文的任何信息，包括对象或者非对象的内部指针。在接收到JVM的进入Stop The World 的信息，在safepoint上，用户线程会被挂起。如果JNI代码想要访问在安全点上的用户线程，那么JNI所在线程也会阻塞直到用户线程离开安全点。因为在安全点上jvm线程信息被很好的描述，所以特别适合做一些全局性的操作，例如代码反优化，线程快照等等。<a href="http://peg.hengtiansoft.com/article/jvm-zhong-de-safepoint/" target="_blank" rel="external">http://peg.hengtiansoft.com/article/jvm-zhong-de-safepoint/</a></p>
+<p>一个线程可以在SafePoint上，也可以不在SafePoint上。一个线程在SafePoint时，它的状态可以安全地其他JVM线程所操作和观测；不在SafePoint时，就不能。在SafePoint上不代表被阻塞（比如：JNI方法就可以在SafePoint上运行），但是被阻塞一定发生在SafePoint上。当JVM决定达到一个全局的SafePoint（也叫做Stop the World），JVM里面所有的线程都要在SafePoint上并且不能离开，直到JVM让线程允许为止。这对要求所有线程都要被良好的描述的操作(比如CG，代码反优化等等)非常有好处。一些JVM可以持有一些私有的线程到SafePoint上而不需要全局的SafePoint，比如Zing.当你写一些非安全的代码的时候，你必须假设SafePoint有可能发生在任何两个字节码之间。非安全代码的调用并不要求必须有安全点，但是他们可以包含一个或者多个安全点。所有类型的JVM有一些效率非常高的技巧和去快速的穿过SafePoint，线程并不需要真正地进入SafePoint除非虚拟机指示线程这么做。所有的JNI方法都在SafePoint上执行。在安全点，JNI代码都不能改变和观测发起调用JNI代码线程的java机器状态。任何通过JNI API改变和观测调用线程的状态必须在调用线程离开安全点之后，以及再次进入SafePoint之前的时间内发生。 </p>
 </blockquote>
-<h2 id="guava-refresh和expire刷新机制"><a href="#guava-refresh和expire刷新机制" class="headerlink" title="guava refresh和expire刷新机制"></a>guava refresh和expire刷新机制</h2><ul>
-<li>expireAfterAccess: 当缓存项在指定的时间段内没有被读或写就会被回收。</li>
-<li>expireAfterWrite：当缓存项在指定的时间段内没有更新就会被回收。</li>
-<li>refreshAfterWrite：当缓存项上一次更新操作之后的多久会被刷新。</li>
-</ul>
-<p>仅仅使用 expireAfterWrite或者expireAfterAccess就可以实现缓存定时过期，但是频繁的过期会造成频繁的单线程回源，然而guava cache回源的时候会独占一个segment的锁，对于同一个segment的其他的读操作 处于loading状态的则会继续等待，value expire或者为null的key则会阻塞等待segment的锁。</p>
-<p> expireAfterWrite或者expireAfterAccess的实现在数据回源的时候会让请求block住，以获取最新的值。数据实时性保证的较好，但是阻塞住请求对于一些响应要求严苛的业务可能是没办法接受的。那有没有解决的办法呢？</p>
-<p>我们且看refreshAfterWrite：</p>
-<p>refreshAfterWrite通过定时刷新可以让缓存项保持可用。缓存项只有在被检索时才会真正刷新（如果CacheLoader.refresh实现为异步，那么检索不会被刷新拖慢）。也是保证同一个segment的单线程回源，但是与expireAfterWrite不同的是：其他线程访问loading状态的key时，仅仅稍微等一会，没有等到就返回旧值，整个请求就比较平滑。<br>与此同时，也引入了一个问题，refreshAfterWrite策略下，如果一个key长期没有被访问，就有可能会访问到很久之前的旧值。例如refreshAfterWrite(5),5s刷新一次，如果1min内，这个key都没有被访问，那么1min之后访问这个key，仍然有可能访问到旧数据，尽管我们设置了5s刷新一次。（guava cache并没单独的线程来处理刷新的逻辑，而是通过读操作来触发清理工作）</p>
-<p>对于这个问题有没有这种的办法呢？<br>guava cache支持我们同时使用expireAfterWrite&amp;refreshAfterWrite，我们既可以通过组合的策略既保证性能，又保证不要读取到太旧的数据。<br>比如我们有需求：要求请求必须平滑，而且不能读到5s之前的旧数据。</p>
-<p>我们可以如下设置来满足需求：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">LoadingCache&lt;String, String&gt; cache = CacheBuilder</div><div class="line">           .newBuilder()</div><div class="line">           .refreshAfterWrite(<span class="number">4L</span>, TimeUnit.SECONDS)</div><div class="line">           .expireAfterWrite(<span class="number">5L</span>, TimeUnit.SECONDS)</div><div class="line">           .build(loader);</div></pre></td></tr></table></figure>
-<p> <code>expireAfterWrite(5L, TimeUnit.SECONDS)</code>能保证不会读到5s之前的旧数据，<code>refreshAfterWrite(4L, TimeUnit.SECONDS)</code>能保证大部分请求都在4s左右被刷新，小部分访问量较少的在5s的时候通过expireAfterWrite策略重新被回源。</p>
-<h2 id="guava后台异步刷新"><a href="#guava后台异步刷新" class="headerlink" title="guava后台异步刷新"></a>guava后台异步刷新</h2><p>refreshAfterWrite的刷新调用的是reload，reload的默认实现是在当前线程里面reload，也会造成一些卡顿，如果希望异步reload，需要重载这个方法。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@GwtIncompatible</span> <span class="comment">// Futures</span></div><div class="line"> <span class="function"><span class="keyword">public</span> ListenableFuture&lt;V&gt; <span class="title">reload</span><span class="params">(K key, V oldValue)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">   checkNotNull(key);</div><div class="line">   checkNotNull(oldValue);</div><div class="line">   <span class="keyword">return</span> Futures.immediateFuture(load(key));<span class="comment">//当前线程调用load，会造成当前线程的卡顿，如果不接受卡顿，需要重载这个方法</span></div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>深入了解 ，请查阅：<a href="https://www.zhihu.com/question/57722838/answer/156390795" target="_blank" rel="external">https://www.zhihu.com/question/57722838/answer/156390795</a></p>
+<p>什时候线程需要进入SafePoint的呢<br>看一下OpenJDK里面关于safepoint的一些说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">// Begin the process of bringing the system to a safepoint.    </div><div class="line">// Java threads can be in several different states and are    </div><div class="line">// stopped by different mechanisms:    </div><div class="line">//    </div><div class="line">//  1. Running interpreted    </div><div class="line">//     The interpeter dispatch table is changed to force it to    </div><div class="line">//     check for a safepoint condition between bytecodes.    </div><div class="line">//  2. Running in native code    </div><div class="line">//     When returning from the native code, a Java thread must check    </div><div class="line">//     the safepoint _state to see if we must block.  If the    </div><div class="line">//     VM thread sees a Java thread in native, it does    </div><div class="line">//     not wait for this thread to block.  The order of the memory    </div><div class="line">//     writes and reads of both the safepoint state and the Java    </div><div class="line">//     threads state is critical.  In order to guarantee that the    </div><div class="line">//     memory writes are serialized with respect to each other,    </div><div class="line">//     the VM thread issues a memory barrier instruction    </div><div class="line">//     (on MP systems).  In order to avoid the overhead of issuing    </div><div class="line">//     a mem barrier for each Java thread making native calls, each Java    </div><div class="line">//     thread performs a write to a single memory page after changing    </div><div class="line">//     the thread state.  The VM thread performs a sequence of    </div><div class="line">//     mprotect OS calls which forces all previous writes from all    </div><div class="line">//     Java threads to be serialized.  This is done in the    </div><div class="line">//     os::serialize_thread_states() call.  This has proven to be    </div><div class="line">//     much more efficient than executing a membar instruction    </div><div class="line">//     on every call to native code.    </div><div class="line">//  3. Running compiled Code    </div><div class="line">//     Compiled code reads a global (Safepoint Polling) page that    </div><div class="line">//     is set to fault if we are trying to get to a safepoint.    </div><div class="line">//  4. Blocked    </div><div class="line">//     A thread which is blocked will not be allowed to return from the    </div><div class="line">//     block condition until the safepoint operation is complete.    </div><div class="line">//  5. In VM or Transitioning between states    </div><div class="line">//     If a Java thread is currently running in the VM or transitioning    </div><div class="line">//     between states, the safepointing code will wait for the thread to    </div><div class="line">//     block itself when it attempts transitions to a new state.</div></pre></td></tr></table></figure>
+<p><a href="http://blog.csdn.net/iter_zc/article/details/41892567" target="_blank" rel="external">http://blog.csdn.net/iter_zc/article/details/41892567</a><br>读完也不能确认具体哪些场景会导致线程进入SafePoint,不过印象中貌似偏向锁的释放会涉及到SafePoint<br>google发现：</p>
+<blockquote>
+<p>偏向锁的撤销，需要等待全局安全点（在这个时间点上没有字节码正在执行），它会首先暂停拥有偏向锁的线程，判断锁对象是否处于被锁定状态，撤销偏向锁后恢复到未锁定（标志位为“01”）或轻量级锁（标志位为“00”）的状态。</p>
+</blockquote>
+<p>看到这里，我们至少有理由相信，偏向锁竞争失败也是导致线程进入SafePoint的一个原因。<br>接下来要详细了解一下偏向锁</p>
+<h2 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h2><h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>高并发场景，如何优化呢？<br>通过以下参数  <code>-XX:-UseBiasedLocking</code>禁用偏向锁。这一点在很多jvm性能调优里面也可以看到，说明偏向锁在高并发的损耗还是不容忽视的。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>
       
     </div>
 
@@ -446,8 +421,8 @@ guava cache解决办法：guava cache保证单线程回源，对">
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-23-motan-rpc.html" rel="next" title="深入浅出Motan RPC">
-                <i class="fa fa-chevron-left"></i> 深入浅出Motan RPC
+              <a href="/2017-11-16-记一次服务时延增长问题排查.html" rel="next" title="记一次服务时延增长问题排查">
+                <i class="fa fa-chevron-left"></i> 记一次服务时延增长问题排查
               </a>
             
           </div>
@@ -455,10 +430,6 @@ guava cache解决办法：guava cache保证单线程回源，对">
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016-11-05guava-cache-info.html" rel="prev" title="Guava Cache使用示例">
-                Guava Cache使用示例 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -623,7 +594,7 @@ guava cache解决办法：guava cache保证单线程回源，对">
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#guava的单线程回源"><span class="nav-number">1.</span> <span class="nav-text">guava的单线程回源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#guava-refresh和expire刷新机制"><span class="nav-number">2.</span> <span class="nav-text">guava refresh和expire刷新机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#guava后台异步刷新"><span class="nav-number">3.</span> <span class="nav-text">guava后台异步刷新</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SafePoint"><span class="nav-number">2.</span> <span class="nav-text">SafePoint</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#偏向锁"><span class="nav-number">3.</span> <span class="nav-text">偏向锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化"><span class="nav-number">4.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
