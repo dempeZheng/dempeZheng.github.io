@@ -280,7 +280,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-07-09-Hystrix初探.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-07-11-高并发利器支限流.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -302,8 +302,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017-07-09-Hystrix初探.html" itemprop="url">
-                  Hystrix初探
+                <a class="post-title-link" href="/2017-07-11-高并发利器支限流.html" itemprop="url">
+                  高并发利器之限流
                 </a>
               
             
@@ -327,7 +327,7 @@
 
           
           
-             <span id="/2017-07-09-Hystrix初探.html" class="leancloud_visitors" data-flag-title="Hystrix初探">
+             <span id="/2017-07-11-高并发利器支限流.html" class="leancloud_visitors" data-flag-title="高并发利器之限流">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -356,11 +356,15 @@
       
         
           
-          写在前面很早听闻Hystrix的大名，一直没有机会尝试。正好，最近工作中频繁要求到做好服务降级和容灾，就在一个项目里面小试了一下Hystrix。工期紧，直接用了Hystrix 默认的参数，也没有详细测试。结果压测时候悲剧了，几百个并发线程就触发了Hystrix的熔断策略。根本不是我期望的结果。所以今
+          
+在开发高并发系统时有三把利器用来保护系统：缓存、降级和限流。
+
+限流的目的是通过对并发访问 / 请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（可以直接丢弃请求，或者将溢出请求排队，引流等）。
+一般开发高并发系统常见的限流有：限制总并发数（比如数据库连接池
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-07-09-Hystrix初探.html#more" rel="contents">
+            <a class="btn" href="/2017-07-11-高并发利器支限流.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -532,7 +536,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-06-19Java内存区域.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-07-09-Hystrix初探.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -554,8 +558,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017-06-19Java内存区域.html" itemprop="url">
-                  深入理解Java虚拟机-Java内存区域读书笔记
+                <a class="post-title-link" href="/2017-07-09-Hystrix初探.html" itemprop="url">
+                  Hystrix初探
                 </a>
               
             
@@ -579,7 +583,7 @@
 
           
           
-             <span id="/2017-06-19Java内存区域.html" class="leancloud_visitors" data-flag-title="深入理解Java虚拟机-Java内存区域读书笔记">
+             <span id="/2017-07-09-Hystrix初探.html" class="leancloud_visitors" data-flag-title="Hystrix初探">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -608,22 +612,11 @@
       
         
           
-          Java内存区域正好在读书，顺便记录一下读书笔记，因为懒，就暂时以思维导图的方式做个梳理。
-JVM运行时数据区域：
-
-
-
-对象分配
-
-
-
-
-后记最近在读深入理解Java虚拟机一书，后悔没有早点读，走了很多弯路。
-
-          
+          写在前面很早听闻Hystrix的大名，一直没有机会尝试。正好，最近工作中频繁要求到做好服务降级和容灾，就在一个项目里面小试了一下Hystrix。工期紧，直接用了Hystrix 默认的参数，也没有详细测试。结果压测时候悲剧了，几百个并发线程就触发了Hystrix的熔断策略。根本不是我期望的结果。所以今
+          ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-06-19Java内存区域.html#more" rel="contents">
+            <a class="btn" href="/2017-07-09-Hystrix初探.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -761,6 +754,143 @@ JVM运行时数据区域：
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017-04-28-一些感悟.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-06-19Java内存区域.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-06-19Java内存区域.html" itemprop="url">
+                  深入理解Java虚拟机-Java内存区域读书笔记
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-06-19Java内存区域.html" class="leancloud_visitors" data-flag-title="深入理解Java虚拟机-Java内存区域读书笔记">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          Java内存区域正好在读书，顺便记录一下读书笔记，因为懒，就暂时以思维导图的方式做个梳理。
+JVM运行时数据区域：
+
+
+
+对象分配
+
+
+
+
+后记最近在读深入理解Java虚拟机一书，后悔没有早点读，走了很多弯路。
+
+          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017-06-19Java内存区域.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1190,137 +1320,6 @@ JVM运行时数据区域：
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-11-05-guava-cache.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016-11-05-guava-cache.html" itemprop="url">
-                  Guava Cache 分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2016-11-05-guava-cache.html" class="leancloud_visitors" data-flag-title="Guava Cache 分析">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          guava的单线程回源缓存的更新有两种方法:
-
-被动更新：先从缓存获取，没有则回源获取，再更新缓存；
-主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
-
-在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016-11-05-guava-cache.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-11-05guava-cache-info.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1449,7 +1448,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-23-motan-rpc.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-11-05-guava-cache.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1471,8 +1470,8 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
             
               
                 
-                <a class="post-title-link" href="/2016-09-23-motan-rpc.html" itemprop="url">
-                  深入浅出Motan RPC
+                <a class="post-title-link" href="/2016-11-05-guava-cache.html" itemprop="url">
+                  Guava Cache 分析
                 </a>
               
             
@@ -1496,7 +1495,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 
           
           
-             <span id="/2016-09-23-motan-rpc.html" class="leancloud_visitors" data-flag-title="深入浅出Motan RPC">
+             <span id="/2016-11-05-guava-cache.html" class="leancloud_visitors" data-flag-title="Guava Cache 分析">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1524,19 +1523,17 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 
       
         
-          <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>本系列文章假设你已经阅读过motan的官方wiki，对motan或者dubbo有一定的了解。对于没有读过wiki的请先阅读<a href="https://github.com/weibocom/motan/wiki/zh_userguide">官方wiki</a>。</p>
-<hr>
-<blockquote>
-<p><code>Motan</code>是一套基于java开发的<code>RPC框架</code>，除了常规的点对点调用外，Motan还提供<code>服务治理功能</code>，包括服务节点的自动发现、摘除、高可用和负载均衡等。Motan具有良好的扩展性，主要模块都提供了多种不同的实现，例如支持多种注册中心，支持多种rpc协议等。</p>
-</blockquote>
-<p><strong>motan定义为一个RPC框架，首先我们看一下RPC的定义：</strong></p>
-<blockquote>
-<p><code>RPC</code> 的全称是 <code>Remote Procedure Call</code> 是一种进程间通信方式。 它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。<strong>即程序员无论是调用本地的还是远程的函数，本质上编写的调用代码基本相同</strong>。</p>
-</blockquote>
-<p>RPC本质上要屏蔽远程调用和本地调用的差异性。</p>
+          
+          guava的单线程回源缓存的更新有两种方法:
+
+被动更新：先从缓存获取，没有则回源获取，再更新缓存；
+主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
+
+在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩
+          ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-23-motan-rpc.html#more" rel="contents">
+            <a class="btn" href="/2016-11-05-guava-cache.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1622,7 +1619,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-count">42</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

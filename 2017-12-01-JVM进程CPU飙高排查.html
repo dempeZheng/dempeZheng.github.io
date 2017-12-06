@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Dempe" />
+  <meta name="keywords" content="tcpdump,tcpcopy,压测,离线流量" />
 
 
 
@@ -87,15 +87,19 @@
 
 
 
-<meta name="description" content="請更固執，將自己謀生與擅長的事情做到最好">
-<meta property="og:type" content="website">
-<meta property="og:title" content="郑大侠的博客">
-<meta property="og:url" content="http://code.zhizus.com/archives/2017/10/index.html">
+<meta name="description" content="java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。
+基本思路1）jps -l找对对应进程pid2）通过top -H -p pid找出耗用CPU消耗比较高的线程id3）将线程id转成16进制4）jstack pid | grep -C 30 16进制的线程id网上大把都是这个思路，基本没啥问题，但是有几个小问题：1.执行起来略微有点耗时，线上问题一般都比较紧急，争">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM进程CPU飙高排查">
+<meta property="og:url" content="http://code.zhizus.com/2017-12-01-JVM进程CPU飙高排查.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="請更固執，將自己謀生與擅長的事情做到最好">
+<meta property="og:description" content="java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。
+基本思路1）jps -l找对对应进程pid2）通过top -H -p pid找出耗用CPU消耗比较高的线程id3）将线程id转成16进制4）jstack pid | grep -C 30 16进制的线程id网上大把都是这个思路，基本没啥问题，但是有几个小问题：1.执行起来略微有点耗时，线上问题一般都比较紧急，争">
+<meta property="og:updated_time" content="2017-12-06T13:51:09.132Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="郑大侠的博客">
-<meta name="twitter:description" content="請更固執，將自己謀生與擅長的事情做到最好">
+<meta name="twitter:title" content="JVM进程CPU飙高排查">
+<meta name="twitter:description" content="java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。
+基本思路1）jps -l找对对应进程pid2）通过top -H -p pid找出耗用CPU消耗比较高的线程id3）将线程id转成16进制4）jstack pid | grep -C 30 16进制的线程id网上大把都是这个思路，基本没啥问题，但是有几个小问题：1.执行起来略微有点耗时，线上问题一般都比较紧急，争">
 
 
 
@@ -123,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/archives/2017/10/"/>
+  <link rel="canonical" href="http://code.zhizus.com/2017-12-01-JVM进程CPU飙高排查.html"/>
 
 
 
 
 
-  <title> 归档 | 郑大侠的博客 </title>
+  <title> JVM进程CPU飙高排查 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -164,7 +168,7 @@
     
   
 
-  <div class="container sidebar-position-left  page-archive  ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -268,65 +272,176 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
+  <div id="posts" class="posts-expand">
+    
 
-    <span class="archive-page-counter">
-      
-      
-       
-      
-      OK! 目前共计 42 篇日志。 继续努力。
+  
+
+  
+  
+  
+
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-12-01-JVM进程CPU飙高排查.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
     </span>
 
     
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                JVM进程CPU飙高排查
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-12-01-JVM进程CPU飙高排查.html" class="leancloud_visitors" data-flag-title="JVM进程CPU飙高排查">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
 
       
       
-      
 
+      
+        <p>java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。</p>
+<h2 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h2><p>1）<code>jps -l</code>找对对应进程pid<br>2）通过<code>top -H -p pid</code>找出耗用CPU消耗比较高的线程id<br>3）将线程id转成16进制<br>4）<code>jstack pid | grep -C 30 16进制的线程id</code><br>网上大把都是这个思路，基本没啥问题，但是有几个小问题：<br>1.执行起来略微有点耗时，线上问题一般都比较紧急，争分夺秒，能省则省。<br>2.第二步到第四步有时间差，很可能真正过滤出来的并发当前CPU损耗较高的线程</p>
+<p>既然这样，那么，如果有一个脚本来解决这个问题，那就再好不过。</p>
+<h2 id="祖传脚本"><a href="#祖传脚本" class="headerlink" title="祖传脚本"></a>祖传脚本</h2><p>jvm_topn_thread.sh</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/ksh</span></div><div class="line"></div><div class="line"><span class="comment"># write by    : oldmanpushcart@gmail.com</span></div><div class="line"><span class="comment"># date        : 2014-01-16</span></div><div class="line"><span class="comment"># version     : 0.07</span></div><div class="line"></div><div class="line"><span class="built_in">typeset</span> top=<span class="variable">$&#123;1:-10&#125;</span></div><div class="line"><span class="built_in">typeset</span> pid=<span class="variable">$&#123;2:-$(pgrep -u $USER java)&#125;</span></div><div class="line"><span class="built_in">typeset</span> tmp_file=/tmp/java_<span class="variable">$&#123;pid&#125;</span>_$$.trace</div><div class="line"></div><div class="line"><span class="variable">$JAVA_HOME</span>/bin/jstack <span class="variable">$pid</span> &gt; <span class="variable">$tmp_file</span></div><div class="line">ps H -eo user,pid,ppid,tid,time,%cpu --sort=%cpu --no-headers\</div><div class="line">        | tail -<span class="variable">$top</span>\</div><div class="line">        | awk -v <span class="string">"pid=<span class="variable">$pid</span>"</span> <span class="string">'$2==pid&#123;print $4"\t"$6&#125;'</span>\</div><div class="line">        | <span class="keyword">while</span> <span class="built_in">read</span> line;</div><div class="line"><span class="keyword">do</span></div><div class="line">        <span class="built_in">typeset</span> nid=$(<span class="built_in">echo</span> <span class="string">"<span class="variable">$line</span>"</span>|awk <span class="string">'&#123;printf("0x%x",$1)&#125;'</span>)</div><div class="line">        <span class="built_in">typeset</span> cpu=$(<span class="built_in">echo</span> <span class="string">"<span class="variable">$line</span>"</span>|awk <span class="string">'&#123;print $2&#125;'</span>)</div><div class="line">        awk -v <span class="string">"cpu=<span class="variable">$cpu</span>"</span> <span class="string">'/nid='</span><span class="string">"<span class="variable">$nid</span>"</span><span class="string">'/,/^$/&#123;print $0"\t"(isF++?"":"cpu="cpu"%");&#125;'</span> <span class="variable">$tmp_file</span></div><div class="line"><span class="keyword">done</span></div><div class="line"></div><div class="line">rm <span class="_">-f</span> <span class="variable">$tmp_file</span></div></pre></td></tr></table></figure>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sh  jvm_topn_thread.sh n pid</div></pre></td></tr></table></figure>
+<p>例如 <code>sh jvm_topn_thread.sh 20 pid</code> 表示查看cpu消耗TOP 20个线程及相关信息。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>自从有了这个脚本之后，大大节省了排查相关问题的时间。脚本确实是提高效率的利器。</p>
+
+      
+    </div>
+
+    <div>
       
         
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2017">2017</h2>
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <p>微信打赏</p>
         </div>
       
       
+    </div>
+  </div>
+
 
       
+    </div>
 
-  <article class="post post-type-灾备" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
+    <div>
+      
         
-            <a class="post-title-link" href="/2017-10-31-mysql binlog还原sql.html" itemprop="url">
-              
-                <span itemprop="name">mysql binlog还原sql</span>
-              
-            </a>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
         
-      </h1>
+      
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-10-31T12:39:04+08:00"
-              content="2017-10-31" >
-          10-31
-        </time>
-      </div>
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017-11-19-小记JVM参数调优（初）.html" rel="next" title="记JVM参数调优">
+                <i class="fa fa-chevron-left"></i> 记JVM参数调优
+              </a>
+            
+          </div>
 
-    </header>
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017-12-06-记一次服务性能压测.html" rel="prev" title="记一次服务性能压测">
+                记一次服务性能压测 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </article>
 
 
 
-    
-
-  </section>
-
-  
-
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -334,6 +449,12 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
 
         </div>
         
@@ -353,8 +474,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
@@ -451,6 +581,22 @@
       </section>
 
       
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本思路"><span class="nav-number">1.</span> <span class="nav-text">基本思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#祖传脚本"><span class="nav-number">2.</span> <span class="nav-text">祖传脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用方法"><span class="nav-number">3.</span> <span class="nav-text">使用方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
 
       
 
@@ -546,11 +692,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
 
 
   
