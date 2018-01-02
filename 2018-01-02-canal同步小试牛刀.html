@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="motan,源码,spi,扩展" />
+  <meta name="keywords" content="mysql,binlog,同步,canal" />
 
 
 
@@ -87,21 +87,19 @@
 
 
 
-<meta name="description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
+<meta name="description" content="场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
+解决方案解决方案一）在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。解决方案二）既然mysql binlog同步无法做到，我们可以依赖cana">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Motan源码解读-SPI机制">
-<meta property="og:url" content="http://code.zhizus.com/2016-09-19-motan-spi.html">
+<meta property="og:title" content="canal binlog同步小试牛刀">
+<meta property="og:url" content="http://code.zhizus.com/2018-01-02-canal同步小试牛刀.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
-<meta property="og:image" content="http://code.zhizus.com/images/motan/SPI.png">
-<meta property="og:updated_time" content="2017-04-15T13:35:49.092Z">
+<meta property="og:description" content="场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
+解决方案解决方案一）在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。解决方案二）既然mysql binlog同步无法做到，我们可以依赖cana">
+<meta property="og:updated_time" content="2018-01-02T14:42:17.525Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Motan源码解读-SPI机制">
-<meta name="twitter:description" content="SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceL">
-<meta name="twitter:image" content="http://code.zhizus.com/images/motan/SPI.png">
+<meta name="twitter:title" content="canal binlog同步小试牛刀">
+<meta name="twitter:description" content="场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
+解决方案解决方案一）在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。解决方案二）既然mysql binlog同步无法做到，我们可以依赖cana">
 
 
 
@@ -129,13 +127,13 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2016-09-19-motan-spi.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2018-01-02-canal同步小试牛刀.html"/>
 
 
 
 
 
-  <title> Motan源码解读-SPI机制 | 郑大侠的博客 </title>
+  <title> canal binlog同步小试牛刀 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -283,8 +281,8 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-19-motan-spi.html">
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-01-02-canal同步小试牛刀.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -305,7 +303,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
             
             
               
-                Motan源码解读-SPI机制
+                canal binlog同步小试牛刀
               
             
           </h1>
@@ -328,7 +326,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
 
           
           
-             <span id="/2016-09-19-motan-spi.html" class="leancloud_visitors" data-flag-title="Motan源码解读-SPI机制">
+             <span id="/2018-01-02-canal同步小试牛刀.html" class="leancloud_visitors" data-flag-title="canal binlog同步小试牛刀">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -355,52 +353,43 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
       
 
       
-        <p>SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。<br>motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。</p>
-<h2 id="SPI机制"><a href="#SPI机制" class="headerlink" title="SPI机制"></a>SPI机制</h2><p>SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceLoader的文档里有比较详细的介绍。简单的总结下java spi机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案，比如日志模块的方案，xml解析模块、jdbc模块的方案等。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。 java spi就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。</p>
-<h2 id="SPI约定"><a href="#SPI约定" class="headerlink" title="SPI约定"></a>SPI约定</h2><p>java spi的具体约定为:当服务的提供者，提供了服务接口的一种实现之后，在jar包的META-INF/services/目录里同时创建一个以服务接口命名的文件。该文件里就是实现该服务接口的具体实现类。而当外部程序装配这个模块的时候，就能通过该jar包META-INF/services/里的配置文件找到具体的实现类名，并装载实例化，完成模块的注入。 基于这样一个约定就能很好的找到服务接口的实现类，而不需要再代码里制定。jdk提供服务实现查找的一个工具类：java.util.ServiceLoader</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ul>
-<li><strong>common-logging</strong><br>apache最早提供的日志的门面接口。只有接口，没有实现。具体方案由各提供商实现， 发现日志提供商是通过扫描 META-INF/services/org.apache.commons.logging.LogFactory配置文件，通过读取该文件的内容找到日志提工商实现类。只要我们的日志实现里包含了这个文件，并在文件里制定 LogFactory工厂接口的实现类即可。</li>
-<li><p><strong>jdbc</strong><br>jdbc4.0以前， 开发人员还需要基于Class.forName(“xxx”)的方式来装载驱动，jdbc4也基于spi的机制来发现驱动提供商了，可以通过META-INF/services/java.sql.Driver文件里指定实现类的方式来暴露驱动提供者。</p>
-</li>
-<li><p><strong>dubbo&amp;motan</strong><br>dubbo和motan也扩展了spi作为框架的主要扩展机制。</p>
-</li>
+        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>解决方案一）<br>在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。<br>这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。<br>解决方案二）<br>既然mysql binlog同步无法做到，我们可以依赖canal的同步来满足需求。canal同步本质上 也是模拟mysql slave，接收binlog，然后解析binglog。</p>
+<h2 id="canal数据同步"><a href="#canal数据同步" class="headerlink" title="canal数据同步"></a>canal数据同步</h2><h3 id="canal原理"><a href="#canal原理" class="headerlink" title="canal原理"></a>canal原理</h3><ul>
+<li>canal模拟mysql slave的交互协议，伪装自己为mysql slave，向mysql master发送dump协议</li>
+<li>mysql master收到dump请求，开始推送binary log给slave(也就是canal)</li>
+<li>canal解析binary log对象(原始为byte流)</li>
 </ul>
-<h2 id="使用示例："><a href="#使用示例：" class="headerlink" title="使用示例："></a>使用示例：</h2><p>接口定义</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> my.xyz.spi;  </div><div class="line"><span class="keyword">import</span> java.util.List;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Search</span> </span>&#123;  </div><div class="line">   <span class="function"><span class="keyword">public</span> List <span class="title">serch</span><span class="params">(String keyword)</span></span>;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>A公司采用文件系统搜索的方式实现了 Search接口，B公司采用了数据库系统的方式实现了Search接口</p>
+<h3 id="canal使用场景"><a href="#canal使用场景" class="headerlink" title="canal使用场景"></a>canal使用场景</h3><ul>
+<li>数据库镜像</li>
+<li>数据库实时备份</li>
+<li>多级索引 (卖家和买家各自分库索引)</li>
+<li>search build</li>
+<li>业务cache刷新</li>
+<li>价格变化等重要业务消息</li>
+</ul>
+<h3 id="quickstart"><a href="#quickstart" class="headerlink" title="quickstart"></a>quickstart</h3><p><a href="https://github.com/alibaba/canal/wiki/QuickStart" target="_blank" rel="external">https://github.com/alibaba/canal/wiki/QuickStart</a></p>
+<h3 id="canal同步sample"><a href="#canal同步sample" class="headerlink" title="canal同步sample"></a>canal同步sample</h3><p><a href="https://github.com/dempeZheng/canalsync" target="_blank" rel="external">https://github.com/dempeZheng/canalsync</a></p>
+<h2 id="binlog-format格式"><a href="#binlog-format格式" class="headerlink" title="binlog format格式"></a>binlog format格式</h2><blockquote>
+<p>Mysql binlog日志有三种格式，分别为Statement,MiXED,以及ROW！</p>
+</blockquote>
 <ul>
-<li>A公司实现的类  <code>com.A.spi.impl.FileSearch</code></li>
-<li>B公司实现的类  <code>com.B.spi.impl.DatabaseSearch</code></li>
+<li>1.Statement：每一条会修改数据的sql都会记录在binlog中。</li>
 </ul>
-<p>那么A公司发布 实现jar包时，则要在jar包中<code>META-INF/services/my.xyz.spi.Search</code>文件中写下如下内容<br>    <code>com.A.spi.impl.FileSearch</code><br>那么B公司发布 实现jar包时，则要在jar包中<code>META-INF/services/my.xyz.spi.Search</code>文件中写下如下内容</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"> com.B.spi.impl.DatabaseSearch</div><div class="line"><span class="keyword">package</span> com.xyz.factory;  </div><div class="line"><span class="keyword">import</span> java.util.Iterator;  </div><div class="line"><span class="keyword">import</span> java.util.ServiceLoader;  </div><div class="line"><span class="keyword">import</span> my.xyz.spi.Search;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SearchFactory</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SearchFactory</span><span class="params">()</span> </span>&#123;  </div><div class="line">    &#125;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Search <span class="title">newSearch</span><span class="params">()</span> </span>&#123;  </div><div class="line">        Search search = <span class="keyword">null</span>;  </div><div class="line">        ServiceLoader&lt;Search&gt; serviceLoader = ServiceLoader.load(Search.class);  </div><div class="line">        Iterator&lt;Search&gt; searchs = serviceLoader.iterator();  </div><div class="line">        <span class="keyword">if</span> (searchs.hasNext()) &#123;  </div><div class="line">            search = searchs.next();  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">return</span> search;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> my.xyz.test;  </div><div class="line"><span class="keyword">import</span> java.util.Iterator;  </div><div class="line"><span class="keyword">import</span> java.util.ServiceLoader;  </div><div class="line"><span class="keyword">import</span> com.xyz.factory.SearchFactory;  </div><div class="line"><span class="keyword">import</span> my.xyz.spi.Search;  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SearchTest</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </div><div class="line">        Search search = SearchFactory.newSearch();  </div><div class="line">        search.serch(<span class="string">"java spi test"</span>);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h2 id="JDK-SPI"><a href="#JDK-SPI" class="headerlink" title="JDK SPI"></a>JDK SPI</h2><p><strong>JDK自带的ServiceLoader功能比较弱，只提供了如下几个方法：</strong></p>
+<p><strong>优点</strong>：不需要记录每一行的变化，减少了binlog日志量，节约了IO，提高性能。(相比row能节约多少性能与日志量，这个取决于应用的SQL情况，正常同一条记录修改或者插入row格式所产生的日志量还小于Statement产生的日志量，但是考虑到如果带条件的update操作，以及整表删除，alter表等操作，ROW格式会产生大量日志，因此在考虑是否使用ROW格式日志时应该跟据应用的实际情况，其所产生的日志量会增加多少，以及带来的IO性能问题。)<br><strong>缺点</strong>：由于记录的只是执行语句，为了这些语句能在slave上正确运行，因此还必须记录每条语句在执行的时候的一些相关信息，以保证所有语句能在slave得到和在master端执行时候相同 的结果。另外mysql 的复制,像一些特定函数功能，slave可与master上要保持一致会有很多相关问题(如sleep()函数， last_insert_id()，以及user-defined functions(udf)会出现问题).<br>使用以下函数的语句也无法被复制：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">* LOAD_FILE()</div><div class="line"></div><div class="line">* UUID()</div><div class="line"></div><div class="line">* USER()</div><div class="line"></div><div class="line">* FOUND_ROWS()</div><div class="line"></div><div class="line">* SYSDATE() (除非启动时启用了 --sysdate-is-now 选项)</div></pre></td></tr></table></figure>
+<p>同时在INSERT …SELECT 会产生比 RBR 更多的行级锁</p>
 <ul>
-<li><p>reload：清除服务实例缓存，重新加载；</p>
-</li>
-<li><p>iterator:延迟方式加载服务，按配置的顺序生成服务实例；</p>
-</li>
-<li><p>load：从上下文加载器（ContextClassLoader）加载。</p>
-</li>
-<li><p>loadInstalled，系统加载器（SystemClassLoader）优先，没有则从上下文加载器加载。</p>
-</li>
+<li>2.Row:不记录sql语句上下文相关信息，仅保存哪条记录被修改。</li>
 </ul>
-<p>实际上，JDK自带的ServiceLoader并不能满足开发的需求，例如单例服务，按别名使用指定的服务实现，优先级控制等等。</p>
-<h2 id="Motan-SPI"><a href="#Motan-SPI" class="headerlink" title="Motan SPI"></a>Motan SPI</h2><p>Motan底层模块之间调用也是采用SPI模式（<code>com.weibo.api.motan.core.extension.ExtensionLoader</code>），可以根据配置实现调用不同的服务实例。</p>
-<p><strong>Motan提供了三个注解：</strong></p>
-<p><code>@Spi</code> 声明接口为SPI服务接口；</p>
-<p><code>@Scope</code> 声明单例模式还是多例模式</p>
-<p><code>@Activation</code> 声明服务优先级（sequence值越小越优先调用）、分组查询、以及是否支持重试调用。</p>
-<p><code>@SpiMeta</code>设定服务别名，没配置则用实现类的类名为别名</p>
-<p>ExtensionLoader兼容JDK自带的ServiceLoader，也就是说跟ServiceLoader的配置方式是一样的，在META-INF/services创建服务接口文件，内容为实现类的完整包路径列表。</p>
-<p>实现：<br>ClassLoader.getSystemResources(“”)根据路径获取所有加载的URL</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Enumeration&lt;URL&gt; urls = ClassLoader.getSystemResources(<span class="string">"META-INF/services/com.dempe.spi.Search"</span>);</div></pre></td></tr></table></figure>
-<p>基于上面的注解扩展SPI的语义已经很清晰了，暂时不再深入研究。如果兴趣可co下来淘宝的<a href="https://github.com/alibaba/cooma/wiki" target="_blank" rel="external">Cooma</a>  (Cooma是一个极简、灵活的开源Java微容器（microcontainer）实现。)</p>
-<h2 id="motan的扩展"><a href="#motan的扩展" class="headerlink" title="motan的扩展"></a>motan的扩展</h2><p>motan是一个轻量的RPC框架，同时motan的扩展性也是非常好的，你几乎可以扩展它实现任何你希望RPC框架可以有的能力。</p>
-<p>我们大致看看包含SPI注解的类：</p>
-<p><img src="/images/motan/SPI.png" alt="Alt text"></p>
-<p>我们可以看到基本上在任何地方我们能想到扩展的地方motan都给我们留下了扩展的入口。</p>
+<p><strong>优点</strong>： binlog中可以不记录执行的sql语句的上下文相关的信息，仅需要记录那一条记录被修改成什么了。所以rowlevel的日志内容会非常清楚的记录下每一行数据修改的细节。而且不会出现某些特定情况下的存储过程，或function，以及trigger的调用和触发无法被正确复制的问题</p>
+<p><strong>缺点</strong>:所有的执行的语句当记录到日志中的时候，都将以每行记录的修改来记录，这样可能会产生大量的日志内容,比如一条update语句，修改多条记录，则binlog中每一条修改都会有记录，这样造成binlog日志量会很大，特别是当执行alter table之类的语句的时候，由于表结构修改，每条记录都发生改变，那么该表每一条记录都会记录到日志中。</p>
+<ul>
+<li>3.Mixedlevel: 是以上两种level的混合使用，一般的语句修改使用statment格式保存binlog，如一些函数，statement无法完成主从复制的操作，则采用row格式保存binlog,MySQL会根据执行的每一条具体的sql语句来区分对待记录的日志形式，也就是在Statement和Row之间选择一种.新版本的MySQL中队row level模式也被做了优化，并不是所有的修改都会以row level来记录，像遇到表结构变更的时候就会以statement模式来记录。至于update或者delete等修改数据的语句，还是会记录所有行的变更。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>canal在给mysql扩展出无限的可能，将静态的mysql演变成异步事件模型。有了异步事件，其实可以做很多有意思的事情。比如数据同步，业务cache刷新，余额变更等等。但是canal在使用上仍然需要谨慎，canal并不包括高可用的部分，如果对可用性要求较高，可以参考阿里的otter</p>
+<hr>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>canal在使用上还是比较简单，github的wiki也描述的比较清晰，另，由于最近时间比较少，所以没花时间来描述canal使用细节。<br>但是在使用上还是有一些需要注意的地方，<br>1）exception canal异常退出，单点的模式是不会自动重连的，建议用集群的client，尽管canal就是单点模式<br>2）canal批量消费 ack机制，业务实现上是跳过还是阻断是需要根据具体场景仔细思考的<br>3）批量消费注意事务</p>
 
       
     </div>
@@ -453,8 +442,8 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-19-motan-clientMessage.html" rel="next" title="Motan源码解读-Client异步消息">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-Client异步消息
+              <a href="/2017-12-06-记一次服务性能压测.html" rel="next" title="记一次服务性能压测">
+                <i class="fa fa-chevron-left"></i> 记一次服务性能压测
               </a>
             
           </div>
@@ -462,10 +451,6 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016-09-20-motan-loadbalance.html" rel="prev" title="Motan源码解读-负载均衡">
-                Motan源码解读-负载均衡 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -630,7 +615,7 @@ SPI机制SPI的全名为Service Provider Interface.大多数开发人员可能�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI机制"><span class="nav-number">1.</span> <span class="nav-text">SPI机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI约定"><span class="nav-number">2.</span> <span class="nav-text">SPI约定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">3.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用示例："><span class="nav-number">4.</span> <span class="nav-text">使用示例：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-SPI"><span class="nav-number">5.</span> <span class="nav-text">JDK SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Motan-SPI"><span class="nav-number">6.</span> <span class="nav-text">Motan SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motan的扩展"><span class="nav-number">7.</span> <span class="nav-text">motan的扩展</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#canal数据同步"><span class="nav-number">3.</span> <span class="nav-text">canal数据同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#canal原理"><span class="nav-number">3.1.</span> <span class="nav-text">canal原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#canal使用场景"><span class="nav-number">3.2.</span> <span class="nav-text">canal使用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#quickstart"><span class="nav-number">3.3.</span> <span class="nav-text">quickstart</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#canal同步sample"><span class="nav-number">3.4.</span> <span class="nav-text">canal同步sample</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#binlog-format格式"><span class="nav-number">4.</span> <span class="nav-text">binlog format格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li></ol></div>
             
 
           </div>
