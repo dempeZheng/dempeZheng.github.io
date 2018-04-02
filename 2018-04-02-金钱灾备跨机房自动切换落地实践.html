@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Dempe" />
+  <meta name="keywords" content="灾备,跨机房,自动切换,mha" />
 
 
 
@@ -87,15 +87,30 @@
 
 
 
-<meta name="description" content="請更固執，將自己謀生與擅長的事情做到最好">
-<meta property="og:type" content="website">
-<meta property="og:title" content="郑大侠的博客">
-<meta property="og:url" content="http://code.zhizus.com/archives/2017/11/index.html">
+<meta name="description" content="现状金钱业务存在余额扣减问题，异地多活实现难度较大，现阶段金钱灾备为同城冷备。冷备节点则面临切换问题。1）真正突发故障是否敢切？2）人工切换风险高3）人工切换耗时久4）切换后数据一致性如何保证，如何快速恢复
+方案为解决上述问题，我们采用mysql mha 解决db自动切换问题，从业务止损方案来规避自动切换带来数据风险。预先生成数据一键恢复来应对极端情况。
+业务架构图如下：
+mysql mha+co">
+<meta property="og:type" content="article">
+<meta property="og:title" content="金钱灾备跨机房自动切换落地实践">
+<meta property="og:url" content="http://code.zhizus.com/2018-04-02-金钱灾备跨机房自动切换落地实践.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="請更固執，將自己謀生與擅長的事情做到最好">
+<meta property="og:description" content="现状金钱业务存在余额扣减问题，异地多活实现难度较大，现阶段金钱灾备为同城冷备。冷备节点则面临切换问题。1）真正突发故障是否敢切？2）人工切换风险高3）人工切换耗时久4）切换后数据一致性如何保证，如何快速恢复
+方案为解决上述问题，我们采用mysql mha 解决db自动切换问题，从业务止损方案来规避自动切换带来数据风险。预先生成数据一键恢复来应对极端情况。
+业务架构图如下：
+mysql mha+co">
+<meta property="og:image" content="http://code.zhizus.com/images/1522478891953.png">
+<meta property="og:image" content="http://code.zhizus.com/images/1522478907544.png">
+<meta property="og:image" content="http://code.zhizus.com/images/1522488199070.png">
+<meta property="og:image" content="http://code.zhizus.com/images/1522488223612.png">
+<meta property="og:updated_time" content="2018-04-02T13:54:30.076Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="郑大侠的博客">
-<meta name="twitter:description" content="請更固執，將自己謀生與擅長的事情做到最好">
+<meta name="twitter:title" content="金钱灾备跨机房自动切换落地实践">
+<meta name="twitter:description" content="现状金钱业务存在余额扣减问题，异地多活实现难度较大，现阶段金钱灾备为同城冷备。冷备节点则面临切换问题。1）真正突发故障是否敢切？2）人工切换风险高3）人工切换耗时久4）切换后数据一致性如何保证，如何快速恢复
+方案为解决上述问题，我们采用mysql mha 解决db自动切换问题，从业务止损方案来规避自动切换带来数据风险。预先生成数据一键恢复来应对极端情况。
+业务架构图如下：
+mysql mha+co">
+<meta name="twitter:image" content="http://code.zhizus.com/images/1522478891953.png">
 
 
 
@@ -123,13 +138,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/archives/2017/11/"/>
+  <link rel="canonical" href="http://code.zhizus.com/2018-04-02-金钱灾备跨机房自动切换落地实践.html"/>
 
 
 
 
 
-  <title> 归档 | 郑大侠的博客 </title>
+  <title> 金钱灾备跨机房自动切换落地实践 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -164,7 +179,7 @@
     
   
 
-  <div class="container sidebar-position-left  page-archive  ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -268,176 +283,172 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-    <span class="archive-page-counter">
-      
-      
-       
-      
-      OK! 目前共计 44 篇日志。 继续努力。
-    </span>
-
+  <div id="posts" class="posts-expand">
     
-
-      
-      
-      
-
-      
-        
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2017">2017</h2>
-        </div>
-      
-      
-
-      
-
-  <article class="post post-type-case" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017-11-19-小记JVM参数调优（初）.html" itemprop="url">
-              
-                <span itemprop="name">记JVM参数调优</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-11-19T12:39:04+08:00"
-              content="2017-11-19" >
-          11-19
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-case" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017-11-16-记一次java偏向锁优化.html" itemprop="url">
-              
-                <span itemprop="name">记一次java偏向锁的优化</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-11-16T20:39:04+08:00"
-              content="2017-11-16" >
-          11-16
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-case" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017-11-16-记一次服务时延增长问题排查.html" itemprop="url">
-              
-                <span itemprop="name">记一次服务时延增长问题排查</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-11-16T12:39:04+08:00"
-              content="2017-11-16" >
-          11-16
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-case" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017-11-01-记一次fastjson转java对象的坑.html" itemprop="url">
-              
-                <span itemprop="name">记一次fastjson parsObject问题</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-11-01T12:39:04+08:00"
-              content="2017-11-01" >
-          11-01
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-  </section>
 
   
 
+  
+  
+  
+
+  <article class="post post-type-灾备 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-04-02-金钱灾备跨机房自动切换落地实践.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                金钱灾备跨机房自动切换落地实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-04-02-金钱灾备跨机房自动切换落地实践.html" class="leancloud_visitors" data-flag-title="金钱灾备跨机房自动切换落地实践">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h2><p>金钱业务存在余额扣减问题，异地多活实现难度较大，现阶段金钱灾备为同城冷备。冷备节点则面临切换问题。<br>1）真正突发故障是否敢切？<br>2）人工切换风险高<br>3）人工切换耗时久<br>4）切换后数据一致性如何保证，如何快速恢复</p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>为解决上述问题，我们采用<code>mysql mha</code> 解决db自动切换问题，从<code>业务止损方案</code>来规避自动切换带来数据风险。预先生成<code>数据一键恢复</code>来应对极端情况。</p>
+<p>业务架构图如下：<br><img src="/images/1522478891953.png" alt="Alt text"></p>
+<h3 id="mysql-mha-consul数据库自动切换"><a href="#mysql-mha-consul数据库自动切换" class="headerlink" title="mysql mha+consul数据库自动切换"></a>mysql mha+consul数据库自动切换</h3><p><img src="/images/1522478907544.png" alt="Alt text"></p>
+<h3 id="业务止损方案"><a href="#业务止损方案" class="headerlink" title="业务止损方案"></a>业务止损方案</h3><p>止损要解决的问题就是尽可能的减少用户超扣的场景，减少超扣首要要解决的是db切换后数据一致性问题，mha灾备自动切换已经解决了一部分问题，但是并不能完全保证数据一致。（我们考虑业务层止损，首要原因是对mha把控能力不强）<br>讨论业务层止损方案的前提是假设mha切换后，数据不一致的场景。<br>减少损失，主要从两个角度<br>1）机房同步延时监控，发现延时超过3min钟，即告警，通知dba处理<br>假定我们可以接受的最大不同步时间为10min，那我们尽可能保证主从同步延时在10min钟内，那么整个损失大概率还是可控的。<br>2）业务逻辑止损<br>我们可以在缓存里面维护一份用户余额，在触发db切换事件后，比对缓存余额，发现余额不一致的场景，将用户 加入冻结黑名单，只给充值类行为，不给扣减。<br><img src="/images/1522488199070.png" alt="Alt text"></p>
+<h3 id="故障分析-amp-数据恢复"><a href="#故障分析-amp-数据恢复" class="headerlink" title="故障分析&amp;数据恢复"></a>故障分析&amp;数据恢复</h3><p>1）mysql binlog 恢复<br>比较简单，没有关联业务可以考虑同步mysql binlog来恢复，通过binlog还原故障时间的binlog，然后人工按需要执行。<br>2）根据业务逻辑还原<br>第一种还原方法较为通用，且不依赖故障db，只要能拿到对应的binlog，即可以还原。但是对于复杂的有关联的业务，无法做到精细的恢复，特别是涉及到多个库有关联关系的恢复，基本束手无策。（对于余额扣减不够扣，sql执行失败，但是后面sql可能都执行成功，这些是很难容忍的）<br>针对业务细节问题，针对具体的业务具体恢复比较靠谱。<br><img src="/images/1522488223612.png" alt="Alt text"></p>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>1） mysql 半同步<br>2）用户分区，双向赋值，减少故障影响范围</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>mysql mha</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/227169526633540.png" alt="DempeZheng WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-01-02-canal同步小试牛刀.html" rel="next" title="canal binlog同步小试牛刀">
+                <i class="fa fa-chevron-left"></i> canal binlog同步小试牛刀
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -445,6 +456,12 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
 
         </div>
         
@@ -464,8 +481,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
@@ -562,6 +588,22 @@
       </section>
 
       
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#现状"><span class="nav-number">1.</span> <span class="nav-text">现状</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方案"><span class="nav-number">2.</span> <span class="nav-text">方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql-mha-consul数据库自动切换"><span class="nav-number">2.1.</span> <span class="nav-text">mysql mha+consul数据库自动切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#业务止损方案"><span class="nav-number">2.2.</span> <span class="nav-text">业务止损方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#故障分析-amp-数据恢复"><span class="nav-number">2.3.</span> <span class="nav-text">故障分析&数据恢复</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化"><span class="nav-number">3.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
 
       
 
@@ -657,11 +699,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
 
 
   
