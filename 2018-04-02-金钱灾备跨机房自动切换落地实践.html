@@ -103,7 +103,7 @@ mysql mha+co">
 <meta property="og:image" content="http://code.zhizus.com/images/1522478907544.png">
 <meta property="og:image" content="http://code.zhizus.com/images/1522488199070.png">
 <meta property="og:image" content="http://code.zhizus.com/images/1522488223612.png">
-<meta property="og:updated_time" content="2018-04-02T13:54:30.076Z">
+<meta property="og:updated_time" content="2018-05-27T01:10:54.899Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="金钱灾备跨机房自动切换落地实践">
 <meta name="twitter:description" content="现状金钱业务存在余额扣减问题，异地多活实现难度较大，现阶段金钱灾备为同城冷备。冷备节点则面临切换问题。1）真正突发故障是否敢切？2）人工切换风险高3）人工切换耗时久4）切换后数据一致性如何保证，如何快速恢复
@@ -372,6 +372,7 @@ mysql mha+co">
 <h3 id="故障分析-amp-数据恢复"><a href="#故障分析-amp-数据恢复" class="headerlink" title="故障分析&amp;数据恢复"></a>故障分析&amp;数据恢复</h3><p>1）mysql binlog 恢复<br>比较简单，没有关联业务可以考虑同步mysql binlog来恢复，通过binlog还原故障时间的binlog，然后人工按需要执行。<br>2）根据业务逻辑还原<br>第一种还原方法较为通用，且不依赖故障db，只要能拿到对应的binlog，即可以还原。但是对于复杂的有关联的业务，无法做到精细的恢复，特别是涉及到多个库有关联关系的恢复，基本束手无策。（对于余额扣减不够扣，sql执行失败，但是后面sql可能都执行成功，这些是很难容忍的）<br>针对业务细节问题，针对具体的业务具体恢复比较靠谱。<br><img src="/images/1522488223612.png" alt="Alt text"></p>
 <h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>1） mysql 半同步<br>2）用户分区，双向赋值，减少故障影响范围</p>
 <h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>mysql mha</p>
+<p>测试</p>
 
       
     </div>
