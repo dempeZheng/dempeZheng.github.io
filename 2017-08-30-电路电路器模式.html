@@ -1,0 +1,917 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="微服务,熔断器,hystrix,Circuit,Breaker" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电">
+<meta name="keywords" content="微服务,熔断器,hystrix,Circuit,Breaker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="电路熔断器模式">
+<meta property="og:url" content="http://code.zhizus.com/2017-08-30-电路电路器模式.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://code.zhizus.com/images/1125007.png">
+<meta property="og:image" content="http://code.zhizus.com/images/circuit-breaker-1280.png">
+<meta property="og:updated_time" content="2018-05-28T02:35:39.695Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="电路熔断器模式">
+<meta name="twitter:description" content="概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电">
+<meta name="twitter:image" content="http://code.zhizus.com/images/1125007.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://code.zhizus.com/2017-08-30-电路电路器模式.html"/>
+
+
+
+
+
+  <title> 电路熔断器模式 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-08-30-电路电路器模式.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                电路熔断器模式
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-08-30-电路电路器模式.html" class="leancloud_visitors" data-flag-title="电路熔断器模式">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>电路熔断器模式(<code>Circuit Breaker Patten</code>), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路又能自动恢复，这就是所谓的弹性容错，系统有自恢复能力。下图Fig 8是一个典型的具备弹性恢复能力的电路保护器状态图，正常状态下，电路处于关闭状态(Closed)，如果调用持续出错或者超时，电路被打开进入熔断状态(Open)，后续一段时间内的所有调用都会被拒绝(Fail Fast)，一段时间以后，保护器会尝试进入半熔断状态(Half-Open)，允许少量请求进来尝试，如果调用仍然失败，则回到熔断状态，如果调用成功，则回到电路闭合状态。<br><img src="/images/1125007.png" alt="Alt text"></p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>当一个应用需要执行一些访问远程资源或者是远端服务的时候，是很容易碰到一些偶然的错误的，比如说，网络连接速度很慢，超时，或者是资源的过量使用，或者临时资源不再可用等等。这一类的错误通常来说会在短暂的时间内，自动恢复过来。一个健壮的云应用也该能够通过一些策略能够处理这类错误，比如使用重试模式。<br>然而，也有一些情况，错误是出于一些意想不到的事件，这类事件很难预期，而且需要消耗很多时间来自动恢复。这些错误在严重性上也从丢失部分连接到整个服务的失败。在这些情况下，让应用继续重试或者执行操作就已经没有意义了。相对的，应用应该迅速令服务失败，而根据错误类型来尝试采取对应的措施。<br>另外，如果一个服务非常繁忙，系统的部分错误有可能会导致雪崩效应。举例来说，一个操作其他服务的操作可以配置超时时间的，如果服务再一段时间无法应答，调用方可以返回错误信息的。然而这个策略可能导致大量针对这个服务的请求阻塞直至Timeout时间到了。这些阻塞的请求可能会持有系统关键的资源，比如内存，线程，数据库连接等等信息。因此，引用的资源也可能会被耗尽，造成系统内其他不相关部分得失败。在这些情况下，最好的方法是令这些配置超时的操作立刻失败，并且只有当服务可能成功的时候才去调用。当然，配置较短的超时时间也能改善这一问题，但是超时时间如果配置的太短，服务的调用反而会因为大量的超时而失败。<code>如果说重试机制是服务的最后一根救命稻草，那么电路熔断机制更像是一种及时止损，自我保护的机制</code>。</p>
+<p>由于某些原因使得服务出现了问题，很多时候刚开始可能只是系统出现了局部的、小规模的故障，然而由于种种原因，故障影响的范围越来越大，最终导致了全局性的后果。<strong>为防止造成整个系统故障，从而采用的一种保护措施，所以很多地方把熔断亦称为过载保护</strong>。</p>
+<p><strong>使用该模式：</strong><br>当需要阻止应用不断尝试调用远端服务或者访问共享资源，并且这些请求很容易失败的时候使用Circuit-Breaker模式很合适。</p>
+<p><strong>什么场景不适合使用该模式：</strong><br>当用来处理访问本地资源，比如内存中的数据结构的时候，不适合使用。在这种场景下，Circuit-Breaker只会给应用带来额外的负担。<br>将<code>Circuit-Breaker</code>作为处理应用中的业务逻辑中的异常处理的一部分也是不合适的。</p>
+<p><strong>总结：</strong>一般在调用不稳定的外部服务的时候可以考虑使用电路熔断器模式。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>Circuit-Breaker模式可以防止应用重复的尝试调用容易失败的操作，当<code>Circuit-Breaker</code>模式判断错误会持续的时候，它会令操作不再持续等待，以免继续浪费CPU资源。当然，<code>Circuit-Breaker</code>模式也令应用本身可以发现错误有没有被修复。如果发生的问题已经被修复了，应用可以重新尝试去调用服务。</p>
+<blockquote>
+<p>Circuit-Breaker模式的目的和Retry模式的目的是不同的。Retry模式令应用不断的重试调用，直到最后成功。而Circuit-Breaker模式是阻止应用继续尝试无意义的请求。应用可以同时使用两种模式。然而，重试逻辑应用对于所有的Circuit-Breaker返回的异常十分敏感，这样可以在<code>Circuit-Breaker</code>发现错误短时间无法修复的情况下直接不再继续重试。</p>
+</blockquote>
+<h2 id="需要考虑的问题"><a href="#需要考虑的问题" class="headerlink" title="需要考虑的问题"></a>需要考虑的问题</h2><p>开发者在实现Circuit-Breaker模式的时候，有如下的一些地方需要注意：</p>
+<ul>
+<li><strong>异常的处理</strong>：应用如果通过Circuit-Breaker来调用操作的话，就必须能够处理操作失效所引起的异常。而处理这些异常的代码将会和应用是高度相关的。举例来说，应用可以选择暂时降低其服务，调用其他的操作来达到完成相同的任务，或者获取相同的数据，或者抛出异常给用户令其稍后重试。</li>
+<li><strong>日志</strong>：Circuit-Breaker应该把所有的失败请求都记录日志（和可能成功的请求），这样可以让管理员监控到外部调用的健康状态。</li>
+<li><strong>恢复性</strong>：开发者应该为其保护的远端调用进行合理的配置来匹配远端调用的恢复模式。举例来说，如果Circuit-Breaker配置的停留在打开状态很久的话，就算远端服务已经可用了，因为Circuit-Breaker的打开状态，会令服务的状态仍然处于不可用状态。类似的，如果配置Circuit-Breaker的恢复时间太快，也会让应用在打开状态和半开状态之间不断震荡。</li>
+<li><strong>手动覆盖</strong>：在某个系统中，如果其失效的时间是可见的，Circuit-Breaker也可以提供一些手动恢复的选项，来令管理员强制的关闭Circuit-Breaker。类似的，管理员也可以在远端服务暂时失效的情况下强制性配置Circuit-Breaker进入打开状态（重启超时Timer）</li>
+<li><strong>加速断路</strong>：有的时候，错误的应答信息足够判断当前的状态而让Circuit-Breaker立刻触发。举个例子：如果一个Shard的返回信息表示，不建议立刻重试，希望在几分钟后重试的时候，那么Circuit-Breaker就不需要计数器到达阈值在进入Open状态了。</li>
+<li><strong>重演失败请求</strong>：在打开状态，相对于让服务快速的失败，Circuit-Breaker也可以记录具体的请求，然后在稍后的时间，重新令这些失败的请求再来请求。</li>
+<li><strong>外部请求上的不恰当超时时间</strong>：如果对于外部请求的超时时间配置的过长的话，Circuit-Breaker可能很难保护应用。如果超时时间过长，运行Circuit-Breaker的线程可能在认为服务失败之前，就被完全阻塞了。这种情况下，应用的实例就算是Circuit-Breaker触发了，进入了Open状态，也会有相当数量的线程处于阻塞状态的。</li>
+</ul>
+<blockquote>
+<p>HTTP协议定义：503表示服务不可用，如果请求的服务当前在web服务器上面不可用，就可以返回503。这个应答信息就可以包含额外的信息，比如期望的延迟重试时间。</p>
+</blockquote>
+<h2 id="Hystrix-Circuit-Breaker"><a href="#Hystrix-Circuit-Breaker" class="headerlink" title="Hystrix Circuit Breaker"></a>Hystrix Circuit Breaker</h2><p>对电路熔断器提供了标准的实现，目前业界的所说的熔断大部分也是指的 Hystrix Circuit Breaker。<br><span itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="/images/circuit-breaker-1280.png" class="full-image" alt="alt"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span></p>
+<p><strong>电路断路器的开闭模式如下：</strong><br>1.假定请求达到一个确定的阈值，（熔断器在整个统计时间内是否开启的阀值，默认20秒。也就是10秒钟内至少请求20次，熔断器才发挥起作用 ，如果低于这个阈值，就不会走熔断器的逻辑）<br>(HystrixCommandProperties.circuitBreakerRequestVolumeThreshold())…<br>2.假定失败率百分比超过一个确定的阈值，<br>(HystrixCommandProperties.circuitBreakerErrorThresholdPercentage())…<br>3.然后，电路断路器由闭合状态变为打开状态，<br>4.一旦断路器打开，经由这个断路器的所有请求都短路了。<br>5.经过一段时间<br>(HystrixCommandProperties.circuitBreakerSleepWindowInMilliseconds())<br>下一个请求被允许通过，(这就是 HALF-OPEN 状态)如果这个请求失败了，断路器模式转变为断开，持续一个时间段。如果请求成功，断路器转变为闭合的状态，然后跳到1逻辑，循环。</p>
+<p>【注】熔断器如果能配置负载均衡就很完美了，在某个节点触发熔断时，自动隔离，一段时间后半开状态，…</p>
+<p>每个熔断器默认维护10个bucket,每秒一个bucket,每个blucket记录成功,失败,超时,拒绝的状态，<br>默认错误超过50%且10秒内超过20个请求进行中断拦截.</p>
+<h3 id="熔断器的状态机"><a href="#熔断器的状态机" class="headerlink" title="熔断器的状态机"></a>熔断器的状态机</h3><p><strong>Closed</strong>：熔断器关闭状态，调用失败次数积累，到了阈值（或一定比例）则启动熔断机制；<br><strong>Open</strong>：熔断器打开状态，此时对下游的调用都内部直接返回错误，不走网络，但设计了一个时钟选项，默认的时钟达到了一定时间（这个时间一般设置成平均故障处理时间，也就是MTTR），到了这个时间，进入半熔断状态；<br><strong>Half-Open</strong>：半熔断状态，允许定量的服务请求，如果调用都成功（或一定比例）则认为恢复了，关闭熔断器，否则认为还没好，又回到熔断器打开状态；</p>
+<h3 id="熔断器相关配置"><a href="#熔断器相关配置" class="headerlink" title="熔断器相关配置"></a>熔断器相关配置</h3><table>
+<thead>
+<tr>
+<th>参数</th>
+<th style="text-align:center">作用</th>
+<th style="text-align:right">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>circuitBreaker.errorThresholdPercentage</td>
+<td style="text-align:center">失败率达到多少百分比后熔断</td>
+<td style="text-align:right">默认值：50</td>
+</tr>
+<tr>
+<td>circuitBreaker.forceClosed</td>
+<td style="text-align:center">是否强制关闭熔断    <code>如果是强依赖，应该设置为true</code></td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>circuitBreaker.requestVolumeThreshold</td>
+<td style="text-align:center">熔断触发的最小个数/10s</td>
+<td style="text-align:right">默认值：20</td>
+</tr>
+<tr>
+<td>circuitBreaker.sleepWindowInMilliseconds</td>
+<td style="text-align:center">熔断多少秒后去尝试请求</td>
+<td style="text-align:right">默认值：5000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>1.熔断器还有其他的方式实现，比如vip就用了metrics中的SlidingTimeWindowReservoir来实现熔断器。<br>SlidingTimeWindowReservoir中的 ConcurrentSkipListMap会导致YGC时间变长，</p>
+<p>2.spring-retry里面也实现了熔断重试的策略，感兴趣的可以去看看实现。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/Netflix/Hystrix/wiki/How-it-Works#CircuitBreaker" target="_blank" rel="noopener">https://github.com/Netflix/Hystrix/wiki/How-it-Works#CircuitBreaker</a><br><a href="http://www.infoq.com/cn/articles/basis-frameworkto-implement-micro-servic" target="_blank" rel="noopener">http://www.infoq.com/cn/articles/basis-frameworkto-implement-micro-servic</a><br><a href="http://blog.ethanpark.cn/post/Circuit-Breaker%E6%A8%A1%E5%BC%8F" target="_blank" rel="noopener">http://blog.ethanpark.cn/post/Circuit-Breaker%E6%A8%A1%E5%BC%8F</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017-08-28-幂等.html" rel="next" title="幂等">
+                <i class="fa fa-chevron-left"></i> 幂等
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017-09-04-流量拷贝利器tcpcopy.html" rel="prev" title="流量拷贝利器tcpcopy">
+                流量拷贝利器tcpcopy <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">2.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">3.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#需要考虑的问题"><span class="nav-number">4.</span> <span class="nav-text">需要考虑的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hystrix-Circuit-Breaker"><span class="nav-number">5.</span> <span class="nav-text">Hystrix Circuit Breaker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#熔断器的状态机"><span class="nav-number">5.1.</span> <span class="nav-text">熔断器的状态机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#熔断器相关配置"><span class="nav-number">5.2.</span> <span class="nav-text">熔断器相关配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,897 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="时延,优化，高并发" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故 sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。1sar -A  1 1 1234567891011121314151617Linux 2.6.32       11/14/">
+<meta name="keywords" content="时延,优化，高并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次服务时延增长问题排查">
+<meta property="og:url" content="http://code.zhizus.com/2017-11-16-记一次服务时延增长问题排查.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故 sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。1sar -A  1 1 1234567891011121314151617Linux 2.6.32       11/14/">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-28T02:35:39.715Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次服务时延增长问题排查">
+<meta name="twitter:description" content="场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故 sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。1sar -A  1 1 1234567891011121314151617Linux 2.6.32       11/14/">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://code.zhizus.com/2017-11-16-记一次服务时延增长问题排查.html"/>
+
+
+
+
+
+  <title> 记一次服务时延增长问题排查 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-11-16-记一次服务时延增长问题排查.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                记一次服务时延增长问题排查
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-11-16-记一次服务时延增长问题排查.html" class="leancloud_visitors" data-flag-title="记一次服务时延增长问题排查">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。<br>1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故</p>
+<p>sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sar -A  1 1</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Linux 2.6.32       11/14/2017      _x86_64_        (24 CPU)</span><br><span class="line"></span><br><span class="line">06:52:10 PM     CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest     %idle</span><br><span class="line">06:52:11 PM     all      4.52      0.00      0.71      0.00      0.00      0.00      0.04      0.00     94.73</span><br><span class="line">06:52:11 PM       0      1.00      0.00      1.00      0.00      0.00      0.00      0.00      0.00     98.00</span><br><span class="line">06:52:11 PM       1      1.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00     99.00</span><br><span class="line">06:52:11 PM       2      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00</span><br><span class="line">06:52:11 PM       3      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00</span><br><span class="line">06:52:11 PM       4      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00</span><br><span class="line">06:52:11 PM       5      0.00      0.00      0.99      0.00      0.00      0.00      0.00      0.00     99.01</span><br><span class="line">06:52:11 PM       6     19.00      0.00      1.00      0.00      0.00      0.00      0.00      0.00     80.00</span><br><span class="line">06:52:11 PM       7      5.00      0.00      1.00      0.00      0.00      0.00      0.00      0.00     94.00</span><br><span class="line">06:52:11 PM       8      8.08      0.00      0.00      0.00      0.00      0.00      0.00      0.00     91.92</span><br><span class="line">06:52:11 PM       9      7.07      0.00      0.00      0.00      0.00      0.00      0.00      0.00     92.93</span><br><span class="line">06:52:11 PM      10      1.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00     99.00</span><br><span class="line">06:52:11 PM      11     15.15      0.00      1.01      0.00      0.00      0.00      0.00      0.00     83.84</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>顺便也用脚本把当前耗用cpu较高的线程给print出来，也没发现什么异常。</p>
+<p>2）因为是java进程，gc也是首要怀疑对象。<br>线上是有开启gc日志的，直接查看gc日志，发现gc日志没变化。<br>如下所示，gc日志一直固定在这里，没有任何输出。<br>当时误以为没有gc活动，对后来的排查带来了很多困惑。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 1340416K, used 940106K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)</span><br><span class="line">  eden space 1284096K, 71% used [0x000000076ab00000,0x00000007a2e1a438,0x00000007b9100000)</span><br><span class="line">  from space 56320K, 34% used [0x00000007b9100000,0x00000007ba3f8468,0x00000007bc800000)</span><br><span class="line">  to   space 54272K, 0% used [0x00000007bcb00000,0x00000007bcb00000,0x00000007c0000000)</span><br><span class="line"> ParOldGen       total 2796544K, used 99854K [0x00000006c0000000, 0x000000076ab00000, 0x000000076ab00000)</span><br><span class="line">  object space 2796544K, 3% used [0x00000006c0000000,0x00000006c6183988,0x000000076ab00000)</span><br><span class="line"> Metaspace       used 188543K, capacity 305226K, committed 318036K, reserved 1331200K</span><br><span class="line">  class space    used 15913K, capacity 23093K, committed 35736K, reserved 1048576K</span><br></pre></td></tr></table></figure>
+<p>3）因为gc日志没有明显活动，就忽视了有gc问题导致时延，开始怀疑是服务中某个依赖服务拖慢整个请求链。<br>仔细查看cat监控远程调用的响应，并未能发现明显的异常。</p>
+<p>##<br>排查完上面三步，其实已经有些困惑。一时找不到问题症结点，先扩容了。线上也难复现这个场景。</p>
+<p>走了一圈弯路，又怀疑到gc上面来。然后通过下面命令查看 gc情况。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gc -pid -interval</span><br></pre></td></tr></table></figure>
+<p>大跌眼镜！ 竟然有gc，另外gc频率还比较频繁，一分钟有一次fullgc。</p>
+<p>具体的gc日志没出来，好多gc的细节无从得知。</p>
+<p>不过幸好，gc日志过了几天有突然出来了，这一点到现在也不解。</p>
+<blockquote>
+</blockquote>
+<p>gc日志如下：</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">25298.606: [Full GC (Metadata GC Threshold) [PSYoungGen: 38137K-&gt;0K(1342976K)] [ParOldGen: 98007K-&gt;97852K(2796544K)] 136145K-&gt;97852K(4139520K), [Metaspace: 258166K-&gt;88911K(1284096K)], 0.3885363 secs] [Times: user=2.22 sys=0.05, real=0.38 secs] </span><br><span class="line">25309.889: [GC (Allocation Failure) [PSYoungGen: 1294336K-&gt;7488K(1302016K)] 1392188K-&gt;105340K(4098560K), 0.0210329 secs] [Times: user=0.29 sys=0.01, real=0.02 secs] </span><br><span class="line">25321.252: [GC (Allocation Failure) [PSYoungGen: 1301824K-&gt;13757K(1347072K)] 1399676K-&gt;111610K(4143616K), 0.0276562 secs] [Times: user=0.42 sys=0.00, real=0.03 secs] </span><br><span class="line">25332.233: [GC (Allocation Failure) [PSYoungGen: 1308605K-&gt;20085K(1345536K)] 1406458K-&gt;117938K(4142080K), 0.0412415 secs] [Times: user=0.66 sys=0.00, real=0.04 secs] </span><br><span class="line">25342.077: [GC (Allocation Failure) [PSYoungGen: 1314933K-&gt;26152K(1350656K)] 1412786K-&gt;124005K(4147200K), 0.0556676 secs] [Times: user=0.92 sys=0.00, real=0.05 secs] </span><br><span class="line">25353.367: [GC (Allocation Failure) [PSYoungGen: 1328168K-&gt;32325K(1349120K)] 1426021K-&gt;130178K(4145664K), 0.0688141 secs] [Times: user=1.16 sys=0.00, real=0.07 secs] </span><br><span class="line">25360.830: [GC (Metadata GC Threshold) [PSYoungGen: 1105399K-&gt;38061K(1344000K)] 1203252K-&gt;135914K(4140544K), 0.0783975 secs] [Times: user=1.34 sys=0.00, real=0.08 secs] </span><br><span class="line">25360.909: [Full GC (Metadata GC Threshold) [PSYoungGen: 38061K-&gt;0K(1344000K)] [ParOldGen: 97852K-&gt;97904K(2796544K)] 135914K-&gt;97904K(4140544K), [Metaspace: 255138K-&gt;88936K(1284096K)], 0.3513680 secs] [Times: user=1.67 sys=0.05, real=0.35</span><br></pre></td></tr></table></figure>
+<p>乍一看到日志，感觉很匪夷所思：<br>为什么要fullgc，老年代的空间还是很大的，使用不到20%就触发fullgc，而且每次回收老年代也没回收到多少空间。</p>
+<p>既然发生了fullgc,那么首先应该了解fullgc的触发条件</p>
+<h2 id="Metasapce会触发fullgc？"><a href="#Metasapce会触发fullgc？" class="headerlink" title="Metasapce会触发fullgc？"></a>Metasapce会触发fullgc？</h2><p>于是去google Metaspace相关的信息。</p>
+<blockquote>
+<p>-XX:MetaspaceSize是分配给类元数据空间（以字节计）的初始大小(Oracle逻辑存储上的初始高水位，the initial high-water-mark )，此值为估计值。MetaspaceSize的值设置的过大会延长垃圾回收时间。垃圾回收过后，引起下一次垃圾回收的类元数据空间的大小可能会变大。</p>
+</blockquote>
+<p>看到高水位线基本就可以确定服务的fullgc是由于Metaspace的超过高水位线导致的.</p>
+<p>怎么解决?</p>
+<p>首先想到,必然是调高XX:MetaspaceSize的值,这样至少可以降低fullgc的频率.</p>
+<p>但是，为什么Metaspace会增长这么快？Metaspace的前生不是永久带吗，没道理会这么频繁增长！</p>
+<p>重启服务，在启动前加上参数 <code>-verbose:class</code>，于是发现了大量的以下日志</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br></pre></td></tr></table></figure>
+<p>fastjson-1.2.7有坑？不能适应jdk8？<br>google一下，发现fastjson会用到asm动态加载类，好吧 估计坑就在这里</p>
+<p>运气比较好，一下子就搜到一个比较类似的issue<br><a href="https://github.com/alibaba/fastjson/issues/431" target="_blank" rel="noopener">https://github.com/alibaba/fastjson/issues/431</a></p>
+<blockquote>
+<p>wenshao commented on 13 Apr 2016<br>不会的，估计是你每次都new SerializeConfig和new ParserConfig.<br> @wenshao wenshao closed this on 13 Apr 2016</p>
+</blockquote>
+<p>检查了一下代码，发现恰好，之前实现了一个toString的方法解决double类型转String科学计数法的问题</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">toString</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">    SerializeConfig config = <span class="keyword">new</span> SerializeConfig();</span><br><span class="line">    config.put(Double.class, <span class="keyword">new</span> DoubleSerializer());</span><br><span class="line">    <span class="keyword">return</span> JSON.toJSONString(obj, config, <span class="keyword">new</span> SerializerFeature[<span class="number">0</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>尴尬了，坑找到了，把SerializeConfig变成静态，问题解决。</p>
+<p>起初以为这个仅仅只是影响了gc，后来看了看SerializeConfig的实现，发现这个对象太重，new一个SerializeConfig要通过asm动态的创建一个序列化的类.class文件，设计到写文件，然后还要调用类加载器加载。重复构造简直是性能杀手。<br>优化后上线，应用层服务也再也没发现什么性能问题。</p>
+<p>踩到这个坑一方面是自己的草率，出于对fastjson的api的信任，没有仔细api就想当然的使用了；</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>虽然找问题过程比较曲折，但是能够多多遇见这种case还是很不错的。在整个排查的过程中巩固了好多知识点。<br>bug驱动进步。</p>
+<hr>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>还有一个遗留问题，如鲠在喉。<br>启动脚本明确加了输出gc日志的参数，<code>-XX:+PrintGCDetails -Xloggc:$LOG_DIR/gc.log</code> gc日志对应的文件也有，为什么有gc活动的时候，日志没有输出？？？<br>一直卡在这里，文件时间也是实时更新，why？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 1340416K, used 940106K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)</span><br><span class="line">  eden space 1284096K, 71% used [0x000000076ab00000,0x00000007a2e1a438,0x00000007b9100000)</span><br><span class="line">  from space 56320K, 34% used [0x00000007b9100000,0x00000007ba3f8468,0x00000007bc800000)</span><br><span class="line">  to   space 54272K, 0% used [0x00000007bcb00000,0x00000007bcb00000,0x00000007c0000000)</span><br><span class="line"> ParOldGen       total 2796544K, used 99854K [0x00000006c0000000, 0x000000076ab00000, 0x000000076ab00000)</span><br><span class="line">  object space 2796544K, 3% used [0x00000006c0000000,0x00000006c6183988,0x000000076ab00000)</span><br><span class="line"> Metaspace       used 188543K, capacity 305226K, committed 318036K, reserved 1331200K</span><br><span class="line">  class space    used 15913K, capacity 23093K, committed 35736K, reserved 1048576K</span><br></pre></td></tr></table></figure></p>
+<hr>
+<h3 id="gc日子很问题1119补充"><a href="#gc日子很问题1119补充" class="headerlink" title="gc日子很问题1119补充"></a>gc日子很问题1119补充</h3><p>至于gc日志为什么没有输出这个问题最近已经找出来了，其实并不是没有更新，而是在写gc日志的时候是采用覆盖的方式，之前的gc日志内容并未删除，tail 的方式查看只能看到最后几行，而gc日志很可能就是在gc.log的中间覆盖旧数据。<br>目前的解决办法比较粗暴，启动进程前将之前的gc日志删掉。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://calvin1978.blogcn.com/articles/latency.html" target="_blank" rel="noopener">http://calvin1978.blogcn.com/articles/latency.html</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017-11-01-记一次fastjson转java对象的坑.html" rel="next" title="记一次fastjson parsObject问题">
+                <i class="fa fa-chevron-left"></i> 记一次fastjson parsObject问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017-11-16-记一次java偏向锁优化.html" rel="prev" title="记一次java偏向锁的优化">
+                记一次java偏向锁的优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Metasapce会触发fullgc？"><span class="nav-number">2.</span> <span class="nav-text">Metasapce会触发fullgc？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#gc日子很问题1119补充"><span class="nav-number">4.1.</span> <span class="nav-text">gc日子很问题1119补充</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

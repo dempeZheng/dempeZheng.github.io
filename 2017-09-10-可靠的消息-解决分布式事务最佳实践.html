@@ -1,0 +1,897 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="分布式事务,本地消息表,事务消息,rocketMQ,高并发" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="背景服务化盛行的今天，分布式事务的场景也越来越多。高并发场景下的分布式事务也是程序设计中的长期以往的难题。正是因为其复杂性，很多公司，在一些依赖分布式事务的场景，都没有的事务保障，数据不一致了，用户投诉才知道。 一提到分布式事务，很多人就进入了ACID的死胡同，不是二阶段，三阶段提交，就是paxos协议。这些强一致性模式不仅在应用实施上有相当大的难度，而且基本无法满足高并发场景。高并发和强一致性像">
+<meta name="keywords" content="分布式事务,本地消息表,事务消息,rocketMQ,高并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="可靠的消息-解决分布式事务最佳实践">
+<meta property="og:url" content="http://code.zhizus.com/2017-09-10-可靠的消息-解决分布式事务最佳实践.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="背景服务化盛行的今天，分布式事务的场景也越来越多。高并发场景下的分布式事务也是程序设计中的长期以往的难题。正是因为其复杂性，很多公司，在一些依赖分布式事务的场景，都没有的事务保障，数据不一致了，用户投诉才知道。 一提到分布式事务，很多人就进入了ACID的死胡同，不是二阶段，三阶段提交，就是paxos协议。这些强一致性模式不仅在应用实施上有相当大的难度，而且基本无法满足高并发场景。高并发和强一致性像">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://code.zhizus.com/images/mq_trans.png">
+<meta property="og:updated_time" content="2018-05-28T02:35:39.703Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="可靠的消息-解决分布式事务最佳实践">
+<meta name="twitter:description" content="背景服务化盛行的今天，分布式事务的场景也越来越多。高并发场景下的分布式事务也是程序设计中的长期以往的难题。正是因为其复杂性，很多公司，在一些依赖分布式事务的场景，都没有的事务保障，数据不一致了，用户投诉才知道。 一提到分布式事务，很多人就进入了ACID的死胡同，不是二阶段，三阶段提交，就是paxos协议。这些强一致性模式不仅在应用实施上有相当大的难度，而且基本无法满足高并发场景。高并发和强一致性像">
+<meta name="twitter:image" content="http://code.zhizus.com/images/mq_trans.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://code.zhizus.com/2017-09-10-可靠的消息-解决分布式事务最佳实践.html"/>
+
+
+
+
+
+  <title> 可靠的消息-解决分布式事务最佳实践 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-09-10-可靠的消息-解决分布式事务最佳实践.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                可靠的消息-解决分布式事务最佳实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-09-10-可靠的消息-解决分布式事务最佳实践.html" class="leancloud_visitors" data-flag-title="可靠的消息-解决分布式事务最佳实践">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>服务化盛行的今天，分布式事务的场景也越来越多。高并发场景下的分布式事务也是程序设计中的长期以往的难题。<br>正是因为其复杂性，很多公司，在一些依赖分布式事务的场景，都没有的事务保障，数据不一致了，用户投诉才知道。</p>
+<p>一提到分布式事务，很多人就进入了ACID的死胡同，不是二阶段，三阶段提交，就是paxos协议。这些强一致性模式不仅在应用实施上有相当大的难度，而且基本无法满足高并发场景。<br>高并发和强一致性像鱼和熊掌不可兼得。选择了高性能，我们必须牺牲掉强一致性（其实很多业务场景都是可以接受最终一致性的）。<br>依赖可靠消息来处理分布式事务是最常用的方式之一，也是相对比较容易实施，比较靠谱的方式，可以说是高并发场景的首选方案。</p>
+<h2 id="业务场景"><a href="#业务场景" class="headerlink" title="业务场景"></a>业务场景</h2><blockquote>
+<p>支付宝转账1万块钱到余额宝</p>
+</blockquote>
+<p>如果是在同一个数据库，那么这个问题相当简单。本地事务就可以搞定</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Begin</span> <span class="keyword">transaction</span></span><br><span class="line">         <span class="keyword">update</span> user_zhifubao_account <span class="keyword">set</span> amount=amount<span class="number">-10000</span> <span class="keyword">where</span> userId=A;</span><br><span class="line">         <span class="keyword">update</span> user_yuebao_account <span class="keyword">set</span> amount=amount+<span class="number">10000</span> <span class="keyword">where</span> userId=B;</span><br><span class="line"><span class="keyword">End</span> <span class="keyword">transaction</span></span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>显然，支付宝和余额宝他们不是同一个系统，他们在同一个数据库的可能性非常小。 所以本地事务的方案基本不可行。<br>怎么解决这个问题呢？</p>
+<p>所以，一般的思路都是通过消息中间件来实现“<code>最终一致性</code>”：A系统扣钱，然后发条消息给中间件，B系统接收此消息，进行加钱。</p>
+<h2 id="错误的方案"><a href="#错误的方案" class="headerlink" title="错误的方案"></a>错误的方案</h2><p>方案一：</p>
+<blockquote>
+<p>有人可能想到了，把“发送消息”这个update DB和发送消息放在同1个事务里面，如果发送消息失败，update DB自动回滚。这样不就保证2个操作的原子性了吗？</p>
+</blockquote>
+<p>这个方案最大的问题是消息发送涉及到网络问题，发送消息超时的情况，你根本没办法知道消息发送的状态。（超时是魔鬼）<br>比如，收到一个超时异常（实际上消息发送成功，返回的时候消息超时），然后回滚了Update DB的事务，这样就凭空产生了产生了1w，这个问题就大了。<br>方案二：</p>
+<blockquote>
+<p>先update DB，成功后发送队列消息，消息发送超时或者失败的情况，重试。（这里有可能产生重复消息，保证消费加钱的接口幂等就可以了）</p>
+</blockquote>
+<p>这个方案的问题在重试部分，因为重试本质上只是一种补救策略，能最大化减小损失，但是不能严格意义上面来保证一定成功。<br>这个方案虽然low，因为它从理论上都没办法保证数据一致性。但并不是一无是处。<br>1）这个在稳定的服务器，出现重试仍然不成功的概率还是比较小的。<br>2）不一致了仍然有补救的措施，重试不成功的场景，可以写条日志，并发一条告警消息通知响应的人员，来人工补救数据。<br>很多追求多快好省的小公司，甚至某些知名互联网公司，在某些业务场景下，也是这么处理的，牺牲掉极少数用户的利益。</p>
+<p>但是作为一个逻辑严谨的程序员，不应该选择这样的方案。</p>
+<ul>
+<li>依赖人工处理的方案尽量规避，</li>
+<li>即便有补救措施，仍然无法从逻辑上保证数据一致性。比如重试失败的时候机器突然掉电，连失败日志都没有记录，这种情况，依赖人工也没办法还原数据。</li>
+</ul>
+<p>做技术的还是得有点技术人员的操守，既不能陷入技术逻辑的死胡同，也不能太没有太随便。</p>
+<p>针对上面的错误方案，我们优化一下，就能很好的解决问题了。</p>
+<h2 id="使用消息队列来避免分布式事务"><a href="#使用消息队列来避免分布式事务" class="headerlink" title="使用消息队列来避免分布式事务"></a>使用消息队列来避免分布式事务</h2><h3 id="本地消息表"><a href="#本地消息表" class="headerlink" title="本地消息表"></a>本地消息表</h3><p>对于《方案二》，方案二的核心问题点在在于重试无法确保重试成功，如果要保证重试一定能够成功，那么必须将重试的任务持久化。持久化是数据可靠性的前提。那么将问题分解：<br>将update DB 和发送消息分解为一下三步：<br>1）update DB<br>2）持久化消息的Task表<br>3）定时扫描Task表发送消息<br>这样一来就简单了，只要保证1），2）那么久能确保发送消息成功。所以将1）2）放在同一个事务里面，将分布式的问题演化本地事务。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Begin transaction</span><br><span class="line">         update user_zhifubao_account set amount=amount-10000 where userId=1;</span><br><span class="line">         insert into message(userId, amount,status) values(1, 10000, 1);</span><br><span class="line">End transaction</span><br><span class="line">commit;</span><br></pre></td></tr></table></figure>
+<p>这种实现方式的思路，其实是源于ebay，后来通过支付宝等公司的布道，在业内广泛使用。其基本的设计思想是将远程分布式事务拆分成一系列的本地事务。如果不考虑性能及设计优雅，借助关系型数据库中的表即可实现。</p>
+<blockquote>
+<p>如果仔细观察生活的话，生活的很多场景已经给了我们提示。<br>比如在北京很有名的姚记炒肝点了炒肝并付了钱后，他们并不会直接把你点的炒肝给你，而是给你一张小票，然后让你拿着小票到出货区排队去取。</p>
+</blockquote>
+<h2 id="MQ事务消息"><a href="#MQ事务消息" class="headerlink" title="MQ事务消息"></a>MQ事务消息</h2><p>对于《方案一》，我们是只需要保证 update DB 和发送消息都支持事务操作就可以了，这里，我们有很简单的解决办法，就是选择支持事务的消息中间件。让消息中间件来帮我们处理其中的细节问题。<br>下面以RocketMQ为例介绍一下mq事务消息的实现：<br><strong>概念介绍</strong></p>
+<blockquote>
+<p><strong>事务消息</strong>：MQ 提供类似 X/Open XA 的分布事务功能，通过 MQ 事务消息能达到分布式事务的最终一致。<br><strong>半消息</strong>：暂不能投递的消息，发送方已经将消息成功发送到了 MQ 服务端，但是服务端未收到生产者对该消息的二次确认，此时该消息被标记成“暂不能投递”状态，处于该种状态下的消息即半消息。<br><strong>消息回查</strong>：由于网络闪断、生产者应用重启等原因，导致某条事务消息的二次确认丢失，MQ 服务端通过扫描发现某条消息长期处于“半消息”时，需要主动向消息生产者询问该消息的最终状态（Commit 或是 Rollback），该过程即消息回查。</p>
+</blockquote>
+<p><img src="/images/mq_trans.png" alt="Alt text"></p>
+<p>其中：</p>
+<blockquote>
+<p>1.发送方向 MQ 服务端发送消息；<br>2.MQ Server 将消息持久化成功之后，向发送方 ACK 确认消息已经发送成功，此时消息为半消息。<br>3.发送方开始执行本地事务逻辑。<br>4.发送方根据本地事务执行结果向 MQ Server 提交二次确认（Commit 或是 Rollback），MQ Server 收到 Commit 状态则将半消息标记为可投递，订阅方最终将收到该消息；MQ Server 收到 Rollback 状态则删除半消息，订阅方将不会接受该消息。<br>5.在断网或者是应用重启的特殊情况下，上述步骤4提交的二次确认最终未到达 MQ Server，经过固定时间后 MQ Server 将对该消息发起消息回查。<br>6.发送方收到消息回查后，需要检查对应消息的本地事务执行的最终结果。<br>7.发送方根据检查得到的本地事务的最终状态再次提交二次确认，MQ Server 仍按照步骤4对半消息进行操作。<br>事务消息发送对应步骤1、2、3、4，事务消息回查对应步骤5、6、7。</p>
+</blockquote>
+<p>相比如本地方法表的方案，事务消息其实是把本地消息表的逻辑和task移到消息中间件来处理了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>1）用消息队列来规避分布式事务需要注意Mq消息消费方需要支持消息幂等性能。特别是本地消息表这种方式，消息队列产生重复消息的概率很大，业务方一定要注意去重。<br>2）RocketMQ的事务消息设计很有参考价值，在设计数据一致性有要求的异步系统的时候，也可以参考这种模型，最典型的如支付系统。回查接口应该是支付系统的标配。<br>3）没有任何一种架构或者方案是万能良药，不同的业务场景需要选择不同的业务方案。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://coolshell.cn/articles/10910.html" target="_blank" rel="noopener">https://coolshell.cn/articles/10910.html</a><br><a href="https://help.aliyun.com/document_detail/43348.html?spm=5176.product29530.6.561.VdHw0Z" target="_blank" rel="noopener">https://help.aliyun.com/document_detail/43348.html?spm=5176.product29530.6.561.VdHw0Z</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017-09-08-浅谈事务.html" rel="next" title="浅谈事务">
+                <i class="fa fa-chevron-left"></i> 浅谈事务
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017-09-12浮点数的精度.html" rel="prev" title="浮点数的精度">
+                浮点数的精度 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#业务场景"><span class="nav-number">2.</span> <span class="nav-text">业务场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#错误的方案"><span class="nav-number">3.</span> <span class="nav-text">错误的方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用消息队列来避免分布式事务"><span class="nav-number">4.</span> <span class="nav-text">使用消息队列来避免分布式事务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#本地消息表"><span class="nav-number">4.1.</span> <span class="nav-text">本地消息表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MQ事务消息"><span class="nav-number">5.</span> <span class="nav-text">MQ事务消息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
