@@ -95,7 +95,7 @@
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="写在前面最近碰到一个分页查询消费记录问题，某个大主播消费记录十万级别的，翻页都后面越来越慢，消费表是亿级别的数据量， 业务反馈问题sql如下： 1SELECT * FROM `t_consume_log` FORCE INDEX(idx_consume) WHERE userid = 301465268 and appid in(0,1,4,5,6,16) ORDER BY addtime des">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-29T11:31:08.911Z">
+<meta property="og:updated_time" content="2018-05-30T07:50:20.122Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content=" mysq千万级分页优化">
 <meta name="twitter:description" content="写在前面最近碰到一个分页查询消费记录问题，某个大主播消费记录十万级别的，翻页都后面越来越慢，消费表是亿级别的数据量， 业务反馈问题sql如下： 1SELECT * FROM `t_consume_log` FORCE INDEX(idx_consume) WHERE userid = 301465268 and appid in(0,1,4,5,6,16) ORDER BY addtime des">
@@ -370,7 +370,6 @@
 <p> 所以，我们不妨把sql优化一下，改成</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t_consume_log a <span class="keyword">JOIN</span> (<span class="keyword">SELECT</span> consumeid  <span class="keyword">FROM</span> <span class="string">`t_consume_log`</span>  <span class="keyword">WHERE</span> userid = <span class="number">301465268</span> <span class="keyword">and</span> appid <span class="keyword">in</span>(<span class="number">0</span>,<span class="number">1</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">16</span>) <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">addtime</span> <span class="keyword">desc</span> <span class="keyword">LIMIT</span> <span class="number">72888</span>, <span class="number">12</span>) b <span class="keyword">ON</span> a.consumeid = b.consumeid;</span><br></pre></td></tr></table></figure>
 <p>测试了一下，性能也提升将近1000倍，<code>12 rows in set (0.08 sec)</code></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>解决方式，优先考虑1，在考虑2，再考虑3.</p>
 
       
     </div>
@@ -431,6 +430,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-05-30-数据库大表清理笔记.html" rel="prev" title="数据库大表清理笔记">
+                数据库大表清理笔记 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -504,7 +507,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-count">33</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -595,7 +598,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在前面"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-业务限制"><span class="nav-number">2.1.</span> <span class="nav-text">1)业务限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-查询带上上一页最后的id"><span class="nav-number">2.2.</span> <span class="nav-text">2)查询带上上一页最后的id</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-延时关联，利用覆盖索引"><span class="nav-number">2.3.</span> <span class="nav-text">3)延时关联，利用覆盖索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在前面"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-业务限制"><span class="nav-number">2.1.</span> <span class="nav-text">1)业务限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-查询带上上一页最后的id"><span class="nav-number">2.2.</span> <span class="nav-text">2)查询带上上一页最后的id</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-延时关联，利用覆盖索引"><span class="nav-number">2.3.</span> <span class="nav-text">3)延时关联，利用覆盖索引</span></a></li></ol></li></ol></div>
             
 
           </div>

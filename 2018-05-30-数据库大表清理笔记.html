@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="guava,cache,expireAfterWrite,refreshAfterWrite" />
+  <meta name="keywords" content="大表,清理,truncate,硬链接" />
 
 
 
@@ -87,18 +87,18 @@
 
 
 
-<meta name="description" content="guava的单线程回源缓存的更新有两种方法:  被动更新：先从缓存获取，没有则回源获取，再更新缓存； 主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）  在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。 guava cache解决办法：guava cache保证单线程回源，对">
-<meta name="keywords" content="guava,cache,expireAfterWrite,refreshAfterWrite">
+<meta name="description" content="背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。 清理表找出大表查询备库，找出大表 1SELECT TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1024) as totalSize FROM information_schema.TABLES o">
+<meta name="keywords" content="大表,清理,truncate,硬链接">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Guava Cache 分析">
-<meta property="og:url" content="http://code.zhizus.com/2016-11-05-guava-cache.html">
+<meta property="og:title" content="数据库大表清理笔记">
+<meta property="og:url" content="http://code.zhizus.com/2018-05-30-数据库大表清理笔记.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="guava的单线程回源缓存的更新有两种方法:  被动更新：先从缓存获取，没有则回源获取，再更新缓存； 主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）  在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。 guava cache解决办法：guava cache保证单线程回源，对">
+<meta property="og:description" content="背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。 清理表找出大表查询备库，找出大表 1SELECT TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1024) as totalSize FROM information_schema.TABLES o">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-28T02:35:39.664Z">
+<meta property="og:updated_time" content="2018-05-30T07:25:12.032Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Guava Cache 分析">
-<meta name="twitter:description" content="guava的单线程回源缓存的更新有两种方法:  被动更新：先从缓存获取，没有则回源获取，再更新缓存； 主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）  在高并发环境，被动回源是需要注意的。问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。 guava cache解决办法：guava cache保证单线程回源，对">
+<meta name="twitter:title" content="数据库大表清理笔记">
+<meta name="twitter:description" content="背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。 清理表找出大表查询备库，找出大表 1SELECT TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1024) as totalSize FROM information_schema.TABLES o">
 
 
 
@@ -126,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2016-11-05-guava-cache.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2018-05-30-数据库大表清理笔记.html"/>
 
 
 
 
 
-  <title> Guava Cache 分析 | 郑大侠的博客 </title>
+  <title> 数据库大表清理笔记 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -280,8 +280,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-11-05-guava-cache.html">
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-05-30-数据库大表清理笔记.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -302,7 +302,7 @@
             
             
               
-                Guava Cache 分析
+                数据库大表清理笔记
               
             
           </h1>
@@ -325,7 +325,7 @@
 
           
           
-             <span id="/2016-11-05-guava-cache.html" class="leancloud_visitors" data-flag-title="Guava Cache 分析">
+             <span id="/2018-05-30-数据库大表清理笔记.html" class="leancloud_visitors" data-flag-title="数据库大表清理笔记">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -352,33 +352,31 @@
       
 
       
-        <h2 id="guava的单线程回源"><a href="#guava的单线程回源" class="headerlink" title="guava的单线程回源"></a>guava的单线程回源</h2><p>缓存的更新有两种方法:</p>
-<ul>
-<li>被动更新：先从缓存获取，没有则回源获取，再更新缓存；</li>
-<li>主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）</li>
-</ul>
-<p>在高并发环境，被动回源是需要注意的。<br>问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。</p>
-<p>guava cache解决办法：<br>guava cache保证单线程回源，对于同一个key，只让一个请求回源load，其他线程阻塞等待结果。同时，在Guava里可以通过配置expireAfterAccess/expireAfterWrite设定key的过期时间，key过期后就单线程回源加载并放回缓存。</p>
-<p>这样通过Guava Cache简简单单就较为安全地实现了缓存的被动更新操作。</p>
-<p>但是如果对于同一时间大量不同的key同时过期，造成大量不同的key同时回源，这种怎么解决呢？</p>
-<blockquote>
-<p>guava cache实现类似ConcurrentHashMap，维护segment数组，每个segment独享一个锁，ConcurrentHashMap是通过这种机制来实现分段锁，ConcurrentHashMap默认分了16个segment；<br>guava Cache默认是4个segment，故guava cache的并发级别默认是4个，也就是说默认情况下，即便是大量不同的key同时过期，最多只也有4个线程并发回源，理论上不会给后端造成过大的压力。</p>
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。</p>
+<h2 id="清理表"><a href="#清理表" class="headerlink" title="清理表"></a>清理表</h2><h3 id="找出大表"><a href="#找出大表" class="headerlink" title="找出大表"></a>找出大表</h3><p>查询备库，找出大表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/<span class="number">1024</span>/<span class="number">1024</span>/<span class="number">1024</span>) <span class="keyword">as</span> totalSize <span class="keyword">FROM</span> information_schema.TABLES <span class="keyword">order</span> <span class="keyword">by</span> totalSize <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">40</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+--------------+---------------------------------+------------------+</span><br><span class="line">| TABLE_SCHEMA | TABLE_NAME                      | totalSize        |</span><br><span class="line">+--------------+---------------------------------+------------------+</span><br><span class="line">| **           | ***                             | 197.696289062500 |</span><br><span class="line">| **           | ***                             | 190.110351562500 |</span><br><span class="line">| **           | ***                             | 174.371902465820 |</span><br><span class="line">| **           | ***                             | 115.461868286133 |</span><br><span class="line">| **           | ***                             | 110.699203491211 |</span><br><span class="line">+--------------+---------------------------------+------------------+</span><br></pre></td></tr></table></figure>
+<h2 id="drop-table的危害"><a href="#drop-table的危害" class="headerlink" title="drop table的危害"></a>drop table的危害</h2><blockquote>
+<p>众所周知drop table会严重的消耗服务器IO性能，如果被drop的table容量较大，甚至会影响到线上的正常。</p>
 </blockquote>
-<h2 id="guava-refresh和expire刷新机制"><a href="#guava-refresh和expire刷新机制" class="headerlink" title="guava refresh和expire刷新机制"></a>guava refresh和expire刷新机制</h2><ul>
-<li>expireAfterAccess: 当缓存项在指定的时间段内没有被读或写就会被回收。</li>
-<li>expireAfterWrite：当缓存项在指定的时间段内没有更新就会被回收。</li>
-<li>refreshAfterWrite：当缓存项上一次更新操作之后的多久会被刷新。</li>
-</ul>
-<p>仅仅使用 expireAfterWrite或者expireAfterAccess就可以实现缓存定时过期，但是频繁的过期会造成频繁的单线程回源，然而guava cache回源的时候会独占一个segment的锁，对于同一个segment的其他的读操作 处于loading状态的则会继续等待，value expire或者为null的key则会阻塞等待segment的锁。</p>
-<p> expireAfterWrite或者expireAfterAccess的实现在数据回源的时候会让请求block住，以获取最新的值。数据实时性保证的较好，但是阻塞住请求对于一些响应要求严苛的业务可能是没办法接受的。那有没有解决的办法呢？</p>
-<p>我们且看refreshAfterWrite：</p>
-<p>refreshAfterWrite通过定时刷新可以让缓存项保持可用。缓存项只有在被检索时才会真正刷新（如果CacheLoader.refresh实现为异步，那么检索不会被刷新拖慢）。也是保证同一个segment的单线程回源，但是与expireAfterWrite不同的是：其他线程访问loading状态的key时，仅仅稍微等一会，没有等到就返回旧值，整个请求就比较平滑。<br>与此同时，也引入了一个问题，refreshAfterWrite策略下，如果一个key长期没有被访问，就有可能会访问到很久之前的旧值。例如refreshAfterWrite(5),5s刷新一次，如果1min内，这个key都没有被访问，那么1min之后访问这个key，仍然有可能访问到旧数据，尽管我们设置了5s刷新一次。（guava cache并没单独的线程来处理刷新的逻辑，而是通过读操作来触发清理工作）</p>
-<p>对于这个问题有没有这种的办法呢？<br>guava cache支持我们同时使用expireAfterWrite&amp;refreshAfterWrite，我们既可以通过组合的策略既保证性能，又保证不要读取到太旧的数据。<br>比如我们有需求：要求请求必须平滑，而且不能读到5s之前的旧数据。</p>
-<p>我们可以如下设置来满足需求：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">LoadingCache&lt;String, String&gt; cache = CacheBuilder</span><br><span class="line">           .newBuilder()</span><br><span class="line">           .refreshAfterWrite(<span class="number">4L</span>, TimeUnit.SECONDS)</span><br><span class="line">           .expireAfterWrite(<span class="number">5L</span>, TimeUnit.SECONDS)</span><br><span class="line">           .build(loader);</span><br></pre></td></tr></table></figure>
-<p> <code>expireAfterWrite(5L, TimeUnit.SECONDS)</code>能保证不会读到5s之前的旧数据，<code>refreshAfterWrite(4L, TimeUnit.SECONDS)</code>能保证大部分请求都在4s左右被刷新，小部分访问量较少的在5s的时候通过expireAfterWrite策略重新被回源。</p>
-<h2 id="guava后台异步刷新"><a href="#guava后台异步刷新" class="headerlink" title="guava后台异步刷新"></a>guava后台异步刷新</h2><p>refreshAfterWrite的刷新调用的是reload，reload的默认实现是在当前线程里面reload，也会造成一些卡顿，如果希望异步reload，需要重载这个方法。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GwtIncompatible</span> <span class="comment">// Futures</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> ListenableFuture&lt;V&gt; <span class="title">reload</span><span class="params">(K key, V oldValue)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">   checkNotNull(key);</span><br><span class="line">   checkNotNull(oldValue);</span><br><span class="line">   <span class="keyword">return</span> Futures.immediateFuture(load(key));<span class="comment">//当前线程调用load，会造成当前线程的卡顿，如果不接受卡顿，需要重载这个方法</span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>直接执行drop table，mysql会将表定义和表数据全都删除，包括磁盘上的物理文件，也包括buffer pool中的内存数据。</p>
+</blockquote>
+<h3 id="buffer-pool中删除"><a href="#buffer-pool中删除" class="headerlink" title="buffer pool中删除"></a>buffer pool中删除</h3><blockquote>
+<p>这会涉及到table_cache的lock，如果持有table_cache的lock，这将导致其他查询都无法执行。这种情况在没有innodb_per_table之前尤为严重。另外，mysql5.5.23之后添加lazy drop table功能，这个功能用来解决mutex on the LRU list。其中心思想就是加锁，找到需要被删除的page，删除1024个page之后释放锁让其他thread工作，之后loop。而percona的lazy drop处理起来更优雅一些，其会先加锁，然后找到需要被删除的page，标记，释放锁，后台慢慢删除。</p>
+</blockquote>
+<h3 id="os上删除物理文件"><a href="#os上删除物理文件" class="headerlink" title="os上删除物理文件"></a>os上删除物理文件</h3><blockquote>
+<p>大家都知道在ext3上rm一个200G的文件会非常耗时，这是由于ext3存储数据的结构导致，如果一个很大的文件，ext3的i_block无法直接存放，需要多层嵌套才能完全存储下，在这种情况下由于映射的层次多，并且由于多层映射也不会是顺序存储的，就导致了很大的随机IO，这就导致了删除物理文件非常慢的现象。在这种情况下，建议升级到ext4，这是由于ext4比ext3使用extent分配存储空间，其最大的优势就是顺序存储。</p>
+</blockquote>
+<h2 id="采用硬链接-truncate-sleep清理"><a href="#采用硬链接-truncate-sleep清理" class="headerlink" title="采用硬链接+truncate+ sleep清理"></a>采用硬链接+truncate+ sleep清理</h2><p>　1、建立硬链接。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln table.ibd table.idb.hdlk</span><br></pre></td></tr></table></figure></p>
+<p>2、mysql执行drop table操作。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop table <span class="keyword">if</span> exists tablename；</span><br></pre></td></tr></table></figure>
+<p>3、使用truncate删除物理文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">truncate -s 1024*1024*4 filename</span><br></pre></td></tr></table></figure>
+<p>　　其实硬链接和drop table就不用多说了，在建立硬链接之后，mysql会认为rm了硬链接文件之后就算操作完毕，不会真正去删除物理文件从而提高了速度。但是对于服务器来说，实际的物理文件还在，如果手动rm，还是会产生很多的io影响，这时候就用到了truncate这个工具。这个工具会根据指定的size大小进行逐步删除，会将对IO造成的影响降到最低。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>直接drop 大表或者在db服务器删除大文件，db性能下降的很厉害，这点算是深有体会，好几次业务抖动都是db服务器清理大文件造成的。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p>关于采用硬链接+truncate+ sleep清理大表这篇文章讲的比较清楚<br><a href="https://www.cnblogs.com/billyxp/p/3664672.html" target="_blank" rel="noopener">https://www.cnblogs.com/billyxp/p/3664672.html</a></p>
+
       
     </div>
 
@@ -429,8 +427,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-11-05guava-cache-info.html" rel="next" title="Guava Cache使用示例">
-                <i class="fa fa-chevron-left"></i> Guava Cache使用示例
+              <a href="/2018-05-29- mysql千万级分页优化.html" rel="next" title=" mysq千万级分页优化">
+                <i class="fa fa-chevron-left"></i>  mysq千万级分页优化
               </a>
             
           </div>
@@ -438,10 +436,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017-03-28-netty-outofmemory.html" rel="prev" title="记一次netty内存溢出的问题(上)">
-                记一次netty内存溢出的问题(上) <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -606,7 +600,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#guava的单线程回源"><span class="nav-number">1.</span> <span class="nav-text">guava的单线程回源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#guava-refresh和expire刷新机制"><span class="nav-number">2.</span> <span class="nav-text">guava refresh和expire刷新机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#guava后台异步刷新"><span class="nav-number">3.</span> <span class="nav-text">guava后台异步刷新</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#清理表"><span class="nav-number">2.</span> <span class="nav-text">清理表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#找出大表"><span class="nav-number">2.1.</span> <span class="nav-text">找出大表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#drop-table的危害"><span class="nav-number">3.</span> <span class="nav-text">drop table的危害</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#buffer-pool中删除"><span class="nav-number">3.1.</span> <span class="nav-text">buffer pool中删除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#os上删除物理文件"><span class="nav-number">3.2.</span> <span class="nav-text">os上删除物理文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#采用硬链接-truncate-sleep清理"><span class="nav-number">4.</span> <span class="nav-text">采用硬链接+truncate+ sleep清理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
             
 
           </div>
