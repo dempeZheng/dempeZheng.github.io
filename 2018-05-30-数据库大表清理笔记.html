@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="OutOfMemoryError,thread" />
+  <meta name="keywords" content="大表,清理,truncate,硬链接" />
 
 
 
@@ -87,19 +87,22 @@
 
 
 
-<meta name="description" content="前言今天在测试环境跑测试用例的时候发现一大片测试用例无法通过，查看日志发现OutOfMemoryError: unable to create new native thread。从日志信息来看，很明显，内存不足，无法创建本地线程。
-遇到这个异常还是很意外的，测试用例大概就1.5k个，不至于跑个用例就来这么个异常，测试环境当时jvm的内存是4g，感觉不至于出现这个问题。（当然觉得意外的原因还是对j">
+<meta name="description" content="背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。
+清理表找出大表查询备库，找出大表
+1SELECT TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1024) as totalSize FROM information_schema.TABLES o">
 <meta property="og:type" content="article">
-<meta property="og:title" content="记一次OutOfMemoryError: unable to create new native thread">
-<meta property="og:url" content="http://code.zhizus.com/2017-07-31-记一次OutOfMemoryError.html">
+<meta property="og:title" content="数据库大表清理笔记">
+<meta property="og:url" content="http://code.zhizus.com/2018-05-30-数据库大表清理笔记.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="前言今天在测试环境跑测试用例的时候发现一大片测试用例无法通过，查看日志发现OutOfMemoryError: unable to create new native thread。从日志信息来看，很明显，内存不足，无法创建本地线程。
-遇到这个异常还是很意外的，测试用例大概就1.5k个，不至于跑个用例就来这么个异常，测试环境当时jvm的内存是4g，感觉不至于出现这个问题。（当然觉得意外的原因还是对j">
-<meta property="og:updated_time" content="2017-07-31T14:38:45.596Z">
+<meta property="og:description" content="背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。
+清理表找出大表查询备库，找出大表
+1SELECT TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1024) as totalSize FROM information_schema.TABLES o">
+<meta property="og:updated_time" content="2018-06-02T11:16:43.611Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="记一次OutOfMemoryError: unable to create new native thread">
-<meta name="twitter:description" content="前言今天在测试环境跑测试用例的时候发现一大片测试用例无法通过，查看日志发现OutOfMemoryError: unable to create new native thread。从日志信息来看，很明显，内存不足，无法创建本地线程。
-遇到这个异常还是很意外的，测试用例大概就1.5k个，不至于跑个用例就来这么个异常，测试环境当时jvm的内存是4g，感觉不至于出现这个问题。（当然觉得意外的原因还是对j">
+<meta name="twitter:title" content="数据库大表清理笔记">
+<meta name="twitter:description" content="背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。
+清理表找出大表查询备库，找出大表
+1SELECT TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1024) as totalSize FROM information_schema.TABLES o">
 
 
 
@@ -127,13 +130,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-07-31-记一次OutOfMemoryError.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2018-05-30-数据库大表清理笔记.html"/>
 
 
 
 
 
-  <title> 记一次OutOfMemoryError: unable to create new native thread | 郑大侠的博客 </title>
+  <title> 数据库大表清理笔记 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -281,8 +284,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-07-31-记一次OutOfMemoryError.html">
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-05-30-数据库大表清理笔记.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -303,7 +306,7 @@
             
             
               
-                记一次OutOfMemoryError: unable to create new native thread
+                数据库大表清理笔记
               
             
           </h1>
@@ -326,7 +329,7 @@
 
           
           
-             <span id="/2017-07-31-记一次OutOfMemoryError.html" class="leancloud_visitors" data-flag-title="记一次OutOfMemoryError: unable to create new native thread">
+             <span id="/2018-05-30-数据库大表清理笔记.html" class="leancloud_visitors" data-flag-title="数据库大表清理笔记">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -353,30 +356,28 @@
       
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天在测试环境跑测试用例的时候发现一大片测试用例无法通过，查看日志发现<code>OutOfMemoryError: unable to create new native thread</code>。从日志信息来看，很明显，内存不足，无法创建本地线程。</p>
-<p>遇到这个异常还是很意外的，测试用例大概就1.5k个，不至于跑个用例就来这么个异常，测试环境当时jvm的内存是4g，感觉不至于出现这个问题。（当然觉得意外的原因还是对jvm线程数量限制的理解有误）</p>
-<p>要解决问题，首先，还是的了解jvm的线程数量到底受限哪些因素。</p>
-<h2 id="jvm线程数量限制"><a href="#jvm线程数量限制" class="headerlink" title="jvm线程数量限制"></a>jvm线程数量限制</h2><h3 id="jvm线程受限于操作系统可用内存还是JVM的内存"><a href="#jvm线程受限于操作系统可用内存还是JVM的内存" class="headerlink" title="jvm线程受限于操作系统可用内存还是JVM的内存"></a>jvm线程受限于操作系统可用内存还是JVM的内存</h3><p>1.<strong>Java线程的实现是基于底层系统的线程机制来实现的</strong>,程序中开的线程并不全部取决于JVM虚拟机栈，而是取决于CPU，操作系统，其他进程，Java的版本。JVM的线程与计算机本身性能相关。<br>这个很重要，不了解这一点，很容易像我之前一样误解为jvm线程个数首先于jvm的内存大小。</p>
-<h3 id="JVM线程的栈在64位Linux操作系统上的默认大小是多少"><a href="#JVM线程的栈在64位Linux操作系统上的默认大小是多少" class="headerlink" title="JVM线程的栈在64位Linux操作系统上的默认大小是多少"></a>JVM线程的栈在64位Linux操作系统上的默认大小是多少</h3><blockquote>
-<p>不显式设置-Xss或-<code>XX:ThreadStackSize</code>时，在Linux x64上<code>ThreadStackSize</code>的默认值就是1024KB，给Java线程创建栈会用这个参数指定的大小。这是前一块代码的意思。如果把-<code>Xss</code>或者<code>-XX:ThreadStackSize</code>设为0，就是使用“系统默认值”。<br>而在Linux x64上HotSpot VM给Java栈定义的“系统默认”大小也是1MB。所以这个条件下普通Java线程的默认栈大小怎样都是1MB。</p>
-<p>至于操作系统栈大小（ulimit -s）：这个配置只影响进程的初始线程；后续用pthread_create创建的线程都可以指定栈大小。HotSpot VM为了能精确控制Java线程的栈大小，特意不使用进程的初始线程（primordial thread）作为Java线程。</p>
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。</p>
+<h2 id="清理表"><a href="#清理表" class="headerlink" title="清理表"></a>清理表</h2><h3 id="找出大表"><a href="#找出大表" class="headerlink" title="找出大表"></a>找出大表</h3><p>查询备库，找出大表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/<span class="number">1024</span>/<span class="number">1024</span>/<span class="number">1024</span>) <span class="keyword">as</span> totalSize <span class="keyword">FROM</span> information_schema.TABLES <span class="keyword">order</span> <span class="keyword">by</span> totalSize <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">40</span>;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">+--------------+---------------------------------+------------------+</div><div class="line">| TABLE_SCHEMA | TABLE_NAME                      | totalSize        |</div><div class="line">+--------------+---------------------------------+------------------+</div><div class="line">| **           | ***                             | 197.696289062500 |</div><div class="line">| **           | ***                             | 190.110351562500 |</div><div class="line">| **           | ***                             | 174.371902465820 |</div><div class="line">| **           | ***                             | 115.461868286133 |</div><div class="line">| **           | ***                             | 110.699203491211 |</div><div class="line">+--------------+---------------------------------+------------------+</div></pre></td></tr></table></figure>
+<h2 id="drop-table的危害"><a href="#drop-table的危害" class="headerlink" title="drop table的危害"></a>drop table的危害</h2><blockquote>
+<p>众所周知drop table会严重的消耗服务器IO性能，如果被drop的table容量较大，甚至会影响到线上的正常。</p>
+<p>直接执行drop table，mysql会将表定义和表数据全都删除，包括磁盘上的物理文件，也包括buffer pool中的内存数据。</p>
 </blockquote>
-<p>作者：RednaxelaFX<br>链接：<a href="https://www.zhihu.com/question/27844575/answer/38370294" target="_blank" rel="external">https://www.zhihu.com/question/27844575/answer/38370294</a><br>来源：知乎<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
-<p>查看-Xss的大小：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">java -XX:+PrintFlagsFinal -version | grep -i &apos;stack&apos;</div></pre></td></tr></table></figure></p>
-<h3 id="不断加大可用内存，线程数量也会不断增长？"><a href="#不断加大可用内存，线程数量也会不断增长？" class="headerlink" title="不断加大可用内存，线程数量也会不断增长？"></a>不断加大可用内存，线程数量也会不断增长？</h3><p>这个当然不是，上面我特意加粗了不考虑系统本省限制的情况，所以说线程数量还与系统限制有关。主要跟一下几个参数有关(Linux下的)：</p>
-<ul>
-<li><code>/proc/sys/kernel/pid_max</code> 增大，线程数量增大，<code>pid_max</code>有最高值，超过之后不再改变，而且32，64位也不一样</li>
-<li><code>/proc/sys/kernel/thread-max</code> 系统可以生成最大线程数量</li>
-<li><code>max_user_process（ulimit -u）centos</code>系统上才有，没有具体研究/proc/sys/vm/max_map_count 增大，数量增多</li>
-</ul>
-<p>一般来说线程数量上限在4k~5k左右，实际开发中为了避免线程无限膨胀，我们要合理的使用线程池。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>(MaxProcessMemory - JVMMemory - ReservedOsMemory) / (ThreadStackSize) = Number of threads</strong><br><code>MaxProcessMemory</code> 指的是一个进程的最大内存<br><code>JVMMemory</code>         JVM内存<br><code>ReservedOsMemory</code>  保留的操作系统内存<br><code>ThreadStackSize</code>      线程栈的大小</p>
-<h3 id="推论"><a href="#推论" class="headerlink" title="推论"></a>推论</h3><ul>
-<li>给JVM的堆内存分配的越大，系统可创建的线程数量就越少</li>
-<li>当-Xss的的值越小，可生成的线程数量就越多</li>
-</ul>
-<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><p>了解了首先因素之后，如果系统报<code>OutOfMemoryError: unable to create new native thread</code>这个错误，我们就容易对症下药，可以从两个方向着手。<br>1.调小线程栈为<code>-Xss256k</code>(默认为1M)，当然调用栈太深，不够用的情况可以酌情在调大些。<br>2.增加机器系统内存</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.zhihu.com/question/27844575/answer/38370294" target="_blank" rel="external">https://www.zhihu.com/question/27844575/answer/38370294</a><br>http//blog.csdn.net/feng27156/article/details/19333575</p>
+<h3 id="buffer-pool中删除"><a href="#buffer-pool中删除" class="headerlink" title="buffer pool中删除"></a>buffer pool中删除</h3><blockquote>
+<p>这会涉及到table_cache的lock，如果持有table_cache的lock，这将导致其他查询都无法执行。这种情况在没有innodb_per_table之前尤为严重。另外，mysql5.5.23之后添加lazy drop table功能，这个功能用来解决mutex on the LRU list。其中心思想就是加锁，找到需要被删除的page，删除1024个page之后释放锁让其他thread工作，之后loop。而percona的lazy drop处理起来更优雅一些，其会先加锁，然后找到需要被删除的page，标记，释放锁，后台慢慢删除。</p>
+</blockquote>
+<h3 id="os上删除物理文件"><a href="#os上删除物理文件" class="headerlink" title="os上删除物理文件"></a>os上删除物理文件</h3><blockquote>
+<p>大家都知道在ext3上rm一个200G的文件会非常耗时，这是由于ext3存储数据的结构导致，如果一个很大的文件，ext3的i_block无法直接存放，需要多层嵌套才能完全存储下，在这种情况下由于映射的层次多，并且由于多层映射也不会是顺序存储的，就导致了很大的随机IO，这就导致了删除物理文件非常慢的现象。在这种情况下，建议升级到ext4，这是由于ext4比ext3使用extent分配存储空间，其最大的优势就是顺序存储。</p>
+</blockquote>
+<h2 id="采用硬链接-truncate-sleep清理"><a href="#采用硬链接-truncate-sleep清理" class="headerlink" title="采用硬链接+truncate+ sleep清理"></a>采用硬链接+truncate+ sleep清理</h2><p>　1、建立硬链接。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ln table.ibd table.idb.hdlk</div></pre></td></tr></table></figure></p>
+<p>2、mysql执行drop table操作。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">drop table <span class="keyword">if</span> exists tablename；</div></pre></td></tr></table></figure>
+<p>3、使用truncate删除物理文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">truncate <span class="_">-s</span> 1024*1024*4 filename</div></pre></td></tr></table></figure>
+<p>　　其实硬链接和drop table就不用多说了，在建立硬链接之后，mysql会认为rm了硬链接文件之后就算操作完毕，不会真正去删除物理文件从而提高了速度。但是对于服务器来说，实际的物理文件还在，如果手动rm，还是会产生很多的io影响，这时候就用到了truncate这个工具。这个工具会根据指定的size大小进行逐步删除，会将对IO造成的影响降到最低。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>直接drop 大表或者在db服务器删除大文件，db性能下降的很厉害，这点算是深有体会，好几次业务抖动都是db服务器清理大文件造成的。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p>关于采用硬链接+truncate+ sleep清理大表这篇文章讲的比较清楚<br><a href="https://www.cnblogs.com/billyxp/p/3664672.html" target="_blank" rel="external">https://www.cnblogs.com/billyxp/p/3664672.html</a></p>
 
       
     </div>
@@ -428,8 +429,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-07-13-异步回调的另外一种方案.html" rel="next" title="异步回调通知的另一种方案">
-                <i class="fa fa-chevron-left"></i> 异步回调通知的另一种方案
+              <a href="/2018-05-29- mysql千万级分页优化.html" rel="next" title=" mysq千万级分页优化">
+                <i class="fa fa-chevron-left"></i>  mysq千万级分页优化
               </a>
             
           </div>
@@ -437,10 +438,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017-08-01-关于mysql容灾的一些思考.html" rel="prev" title="关于mysql容灾的一些思考">
-                关于mysql容灾的一些思考 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -605,7 +602,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jvm线程数量限制"><span class="nav-number">2.</span> <span class="nav-text">jvm线程数量限制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#jvm线程受限于操作系统可用内存还是JVM的内存"><span class="nav-number">2.1.</span> <span class="nav-text">jvm线程受限于操作系统可用内存还是JVM的内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM线程的栈在64位Linux操作系统上的默认大小是多少"><span class="nav-number">2.2.</span> <span class="nav-text">JVM线程的栈在64位Linux操作系统上的默认大小是多少</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不断加大可用内存，线程数量也会不断增长？"><span class="nav-number">2.3.</span> <span class="nav-text">不断加大可用内存，线程数量也会不断增长？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#推论"><span class="nav-number">3.1.</span> <span class="nav-text">推论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决办法"><span class="nav-number">4.</span> <span class="nav-text">解决办法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#清理表"><span class="nav-number">2.</span> <span class="nav-text">清理表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#找出大表"><span class="nav-number">2.1.</span> <span class="nav-text">找出大表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#drop-table的危害"><span class="nav-number">3.</span> <span class="nav-text">drop table的危害</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#buffer-pool中删除"><span class="nav-number">3.1.</span> <span class="nav-text">buffer pool中删除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#os上删除物理文件"><span class="nav-number">3.2.</span> <span class="nav-text">os上删除物理文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#采用硬链接-truncate-sleep清理"><span class="nav-number">4.</span> <span class="nav-text">采用硬链接+truncate+ sleep清理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
             
 
           </div>

@@ -4,8 +4,44 @@
 
     
   <url>
+    <loc>http://code.zhizus.com/2018-05-30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%A7%E8%A1%A8%E6%B8%85%E7%90%86%E7%AC%94%E8%AE%B0.html</loc>
+    <lastmod>2018-06-02T11:16:43.611Z</lastmod>
+    <data>
+        <display>
+        <title>数据库大表清理笔记</title>
+        <pubTime>2018-05-30T04:39:04.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="札记" url="http://code.zhizus.com/categories/%E6%9C%AD%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://code.zhizus.com/2018-05-29-%20mysql%E5%8D%83%E4%B8%87%E7%BA%A7%E5%88%86%E9%A1%B5%E4%BC%98%E5%8C%96.html</loc>
+    <lastmod>2018-06-02T11:16:43.610Z</lastmod>
+    <data>
+        <display>
+        <title> mysq千万级分页优化</title>
+        <pubTime>2018-05-29T04:39:04.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="mysql" url="http://code.zhizus.com/categories/mysql/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://code.zhizus.com/2018-05-27-%20windows%E9%85%8D%E7%BD%AEgithub%20ssh%20key%E7%AC%94%E8%AE%B0.html</loc>
-    <lastmod>2018-05-27T02:59:47.990Z</lastmod>
+    <lastmod>2018-06-02T11:16:43.609Z</lastmod>
     <data>
         <display>
         <title> windows配置github ssh key笔记</title>
@@ -15,6 +51,24 @@
            
              
               <breadCrumb title="笔记" url="http://code.zhizus.com/categories/%E7%AC%94%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://code.zhizus.com/2017-09-12%E6%B5%AE%E7%82%B9%E6%95%B0%E7%9A%84%E7%B2%BE%E5%BA%A6.html</loc>
+    <lastmod>2018-06-02T11:16:43.607Z</lastmod>
+    <data>
+        <display>
+        <title>浮点数的精度</title>
+        <pubTime>2017-09-12T04:39:04.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="札记" url="http://code.zhizus.com/categories/%E6%9C%AD%E8%AE%B0/"/>
           
         </display>
     </data>
@@ -195,24 +249,6 @@
            
              
               <breadCrumb title="灾备" url="http://code.zhizus.com/categories/%E7%81%BE%E5%A4%87/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://code.zhizus.com/2017-09-12%E6%B5%AE%E7%82%B9%E6%95%B0%E7%9A%84%E7%B2%BE%E5%BA%A6.html</loc>
-    <lastmod>2017-09-14T14:28:56.076Z</lastmod>
-    <data>
-        <display>
-        <title>浮点数的精度</title>
-        <pubTime>2017-09-12T04:39:04.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="札记" url="http://code.zhizus.com/categories/%E6%9C%AD%E8%AE%B0/"/>
           
         </display>
     </data>
