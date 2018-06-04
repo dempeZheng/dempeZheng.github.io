@@ -100,7 +100,7 @@
 <meta property="og:image" content="http://code.zhizus.com/images/1505223452920.png">
 <meta property="og:image" content="http://code.zhizus.com/images/1505223484994.png">
 <meta property="og:image" content="http://code.zhizus.com/images/1505223515471.png">
-<meta property="og:updated_time" content="2018-05-28T02:35:39.705Z">
+<meta property="og:updated_time" content="2018-05-31T09:18:01.286Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浮点数的精度">
 <meta name="twitter:description" content="写在前面最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金钱">
@@ -219,26 +219,6 @@
         </li>
       
         
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
         <li class="menu-item menu-item-archives">
           <a href="/archives" rel="section">
             
@@ -249,12 +229,32 @@
         </li>
       
         
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-crossed">
           <a href="http://zhizus.com" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
             
             穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -401,6 +401,7 @@
 <p>double类型在超过一千万就会使用科学计数法，很多语言也支持将科学计数法的string转成double类型。但是在数据量大的时候，还是会丢失一些信息的，如例子中，后面三个数字的信息就给抹掉了。<br><strong>还有另外一个问题，也是我工作中遇到的问题：</strong><br>我们在接口参数签名的时候，将所有的参数转换为string，拼接，加salt，md5生成sign，对于有double类型的，double类型大数据会toString会使用科学计数法，这样调用方传字符串过来就签名失败了。<br>那么怎么样让double在toString的时候不适用科学计数法呢？</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> a = <span class="number">9876543210123456789.2</span>d;</span><br><span class="line">System.out.println(<span class="keyword">new</span> BigDecimal(a).toPlainString());<span class="comment">//这个方法有多少位数就展示多少</span></span><br></pre></td></tr></table></figure>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于精度有要求的，特别是金钱类系统，我们尽量避免使用浮点型，这样后期就会少很多麻烦；另外，如果接手就项目，已经用了double类型来表示，也不必大惊小怪，只要我们在浮点数的运算和转换的时候小心谨慎一点，也出不了什么幺蛾子。<br>比如我们现在数据库还有double（32,2）表示余额，理论上存在丢失精度的可能，但是真出现这样的案例，账户余额，刨除小数位2位，还要有14位，已经算不清是多少钱了。即便是这种情况，也仅仅是小数位丢精度。<br>总的来说，对于浮点数的运算，不管新手或者老司机，多多留神。</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>最近发现Double.toString()方法本省也会丢失精度。<br>比如Double.valueOf(Long.MAX_VALUE).toString()其实已经丢失了精度，<br>这个时候转换成BigDecimal已经不是原始值了，</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.cnblogs.com/grefr/p/6088515.html" target="_blank" rel="noopener">http://www.cnblogs.com/grefr/p/6088515.html</a><br><a href="http://blog.csdn.net/rsp19801226/article/details/3085343" target="_blank" rel="noopener">http://blog.csdn.net/rsp19801226/article/details/3085343</a><br><a href="https://zhuanlan.zhihu.com/p/28162086" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/28162086</a></p>
 
       
@@ -539,7 +540,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-count">48</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -549,10 +550,10 @@
             
             
             <div class="site-state-item site-state-categories">
-              
-                <span class="site-state-item-count">15</span>
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">分类</span>
-              
+              </a>
             </div>
           
 
@@ -630,7 +631,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在前面"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">2.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浮点数的存储方式"><span class="nav-number">3.</span> <span class="nav-text">浮点数的存储方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#产生误差的根源"><span class="nav-number">4.</span> <span class="nav-text">产生误差的根源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浮点数运算常见的问题"><span class="nav-number">5.</span> <span class="nav-text">浮点数运算常见的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#double类型转BigDecimal容易踩的坑"><span class="nav-number">5.1.</span> <span class="nav-text">double类型转BigDecimal容易踩的坑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#浮点数比较的问题"><span class="nav-number">5.2.</span> <span class="nav-text">浮点数比较的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小心浮点数类型转换"><span class="nav-number">5.3.</span> <span class="nav-text">小心浮点数类型转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#double-类型toString科学计数法的问题"><span class="nav-number">5.4.</span> <span class="nav-text">double 类型toString科学计数法的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在前面"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">2.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浮点数的存储方式"><span class="nav-number">3.</span> <span class="nav-text">浮点数的存储方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#产生误差的根源"><span class="nav-number">4.</span> <span class="nav-text">产生误差的根源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浮点数运算常见的问题"><span class="nav-number">5.</span> <span class="nav-text">浮点数运算常见的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#double类型转BigDecimal容易踩的坑"><span class="nav-number">5.1.</span> <span class="nav-text">double类型转BigDecimal容易踩的坑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#浮点数比较的问题"><span class="nav-number">5.2.</span> <span class="nav-text">浮点数比较的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小心浮点数类型转换"><span class="nav-number">5.3.</span> <span class="nav-text">小心浮点数类型转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#double-类型toString科学计数法的问题"><span class="nav-number">5.4.</span> <span class="nav-text">double 类型toString科学计数法的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充"><span class="nav-number">7.</span> <span class="nav-text">补充</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">8.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>

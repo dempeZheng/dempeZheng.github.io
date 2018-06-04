@@ -1,0 +1,889 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JVM,参数，调优,jinfo,PrintFlagsFinal" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="一直以来都认为jvm参数调优应该是系统调优最后一步，jvm调优之前一定是代码和架构层面已经调优过了，没有什么调优空间，然后再来JVM参数调优。或者说，JVM默认的参数已经比较合适了，大部分团队都没有必要对JVM参数进行特殊调优。 因为一直以来都是被灌输的这个理论，所以大都数情况都是出现了内存泄漏或者cpu飙高，系统响应减慢等等异常情况才开始考虑JVM调优。 最近由于一次线上延时增长的问题来开始关注">
+<meta name="keywords" content="JVM,参数，调优,jinfo,PrintFlagsFinal">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记JVM参数调优">
+<meta property="og:url" content="http://code.zhizus.com/2017-11-19-小记JVM参数调优（初）.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="一直以来都认为jvm参数调优应该是系统调优最后一步，jvm调优之前一定是代码和架构层面已经调优过了，没有什么调优空间，然后再来JVM参数调优。或者说，JVM默认的参数已经比较合适了，大部分团队都没有必要对JVM参数进行特殊调优。 因为一直以来都是被灌输的这个理论，所以大都数情况都是出现了内存泄漏或者cpu飙高，系统响应减慢等等异常情况才开始考虑JVM调优。 最近由于一次线上延时增长的问题来开始关注">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-06-04T02:56:46.733Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记JVM参数调优">
+<meta name="twitter:description" content="一直以来都认为jvm参数调优应该是系统调优最后一步，jvm调优之前一定是代码和架构层面已经调优过了，没有什么调优空间，然后再来JVM参数调优。或者说，JVM默认的参数已经比较合适了，大部分团队都没有必要对JVM参数进行特殊调优。 因为一直以来都是被灌输的这个理论，所以大都数情况都是出现了内存泄漏或者cpu飙高，系统响应减慢等等异常情况才开始考虑JVM调优。 最近由于一次线上延时增长的问题来开始关注">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://code.zhizus.com/2017-11-19-小记JVM参数调优（初）.html"/>
+
+
+
+
+
+  <title> 记JVM参数调优 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-11-19-小记JVM参数调优（初）.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                记JVM参数调优
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-11-19-小记JVM参数调优（初）.html" class="leancloud_visitors" data-flag-title="记JVM参数调优">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>一直以来都认为jvm参数调优应该是系统调优最后一步，jvm调优之前一定是代码和架构层面已经调优过了，没有什么调优空间，然后再来JVM参数调优。<br>或者说，JVM默认的参数已经比较合适了，大部分团队都没有必要对JVM参数进行特殊调优。</p>
+<p>因为一直以来都是被灌输的这个理论，所以大都数情况都是出现了内存泄漏或者cpu飙高，系统响应减慢等等异常情况才开始考虑JVM调优。</p>
+<p>最近由于一次线上延时增长的问题来开始关注jvm调优，也关注到jvm参数上来，才开始意识到现在复杂的jvm环境和复杂的场景，默认的参数基本不可能是最优解。</p>
+<h2 id="调优原则"><a href="#调优原则" class="headerlink" title="调优原则"></a>调优原则</h2><p>尽管我们很有必要对JVM默认的参数进行一些调优，但是调优之前首先应该有一个明确的目标。当然前提必须对jvm有一个基础的了解。</p>
+<p>江南白衣 已经不建议裸奔的的jvm进程了。</p>
+<blockquote>
+<p>有没有一些开源的例子？ Cassandra的 <a href="https://github.com/apache/cassandra/blob/trunk/conf/jvm.options" target="_blank" rel="noopener">jvm.options</a><br>反面例子：无参裸奔的ZooKeeper</p>
+</blockquote>
+<h2 id="print线上JVM参数工具"><a href="#print线上JVM参数工具" class="headerlink" title="print线上JVM参数工具"></a>print线上JVM参数工具</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java [生产环境参数] -XX:+PrintFlagsFinal –version | grep [待查证的参数]</span><br></pre></td></tr></table></figure>
+<h2 id="动态修改jvm参数小工具"><a href="#动态修改jvm参数小工具" class="headerlink" title="动态修改jvm参数小工具"></a>动态修改jvm参数小工具</h2><p>首先通过以下命令print出可以jvm可支持动态修改的参数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -XX:+PrintFlagsFinal | grep manageable</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ jps  -l</span><br><span class="line">31570 Jps</span><br><span class="line">15920 Launcher</span><br><span class="line">$ jinfo -flag +HeapDumpBeforeFullGC 15920</span><br><span class="line">$ jinfo -flag +HeapDumpAfterFullGC 15920</span><br></pre></td></tr></table></figure>
+<p>【注意】<br>+HeapDumpBeforeFullGC：+号表示设置当前参数为true，-号为false。</p>
+<h2 id="jvm参数示例"><a href="#jvm参数示例" class="headerlink" title="jvm参数示例"></a>jvm参数示例</h2><p>jvm.options<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">######################</span><br><span class="line"># STARTUP PARAMETERS #</span><br><span class="line">######################</span><br><span class="line">#-server</span><br><span class="line"></span><br><span class="line">########################</span><br><span class="line"># GENERAL JVM SETTINGS #</span><br><span class="line">########################</span><br><span class="line"></span><br><span class="line"># Per-thread stack size.</span><br><span class="line">-Xss512k</span><br><span class="line"></span><br><span class="line"># Disable biased locking</span><br><span class="line">-XX:-UseBiasedLocking</span><br><span class="line">-XX:AutoBoxCacheMax=20000</span><br><span class="line"></span><br><span class="line"># Enable thread-local allocation blocks and allow the JVM to automatically</span><br><span class="line"># resize them at runtime.</span><br><span class="line">#-XX:+UseTLAB</span><br><span class="line">#-XX:+ResizeTLAB</span><br><span class="line">#-XX:+UseNUMA</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#################</span><br><span class="line"># HEAP SETTINGS #</span><br><span class="line">#################</span><br><span class="line"></span><br><span class="line">#-Xms4G</span><br><span class="line">#-Xmx4G</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#################</span><br><span class="line">#  GC SETTINGS  #</span><br><span class="line">#################</span><br><span class="line"></span><br><span class="line">### CMS Settings</span><br><span class="line"></span><br><span class="line">#-XX:+UseConcMarkSweepGC</span><br><span class="line">#-XX:CMSInitiatingOccupancyFraction=75</span><br><span class="line">#-XX:+UseCMSInitiatingOccupancyOnly</span><br><span class="line">#-XX:MaxTenuringThreshold=6</span><br><span class="line">#-XX:+ExplicitGCInvokesConcurrent</span><br><span class="line">#-XX:+ParallelRefProcEnabled</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">### GC logging options -- uncomment to enable</span><br><span class="line">#-XX:+PrintGCTimeStamps</span><br><span class="line">#-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintHeapAtGC</span><br><span class="line">-XX:+PrintTenuringDistribution</span><br><span class="line">-XX:+PrintGCApplicationStoppedTime</span><br><span class="line">-XX:+UseGCLogFileRotation</span><br><span class="line">-XX:NumberOfGCLogFiles=10</span><br><span class="line">-XX:GCLogFileSize=10M</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Enable heap-dump if there&apos;s an OOM</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## JMX</span><br><span class="line">#-Dcom.sun.management.jmxremote.port=7199</span><br><span class="line">#-Dcom.sun.management.jmxremote=true</span><br><span class="line">#-Dcom.sun.management.jmxremote.authenticate=false</span><br><span class="line">#-Dcom.sun.management.jmxremote.ssl=false</span><br></pre></td></tr></table></figure></p>
+<h3 id="gc日志"><a href="#gc日志" class="headerlink" title="gc日志"></a>gc日志</h3><p>gc日志开启基本不会给系统带来多少性能损耗，但是能保留很多很重要的信息，建议默认开启。<br>下面特别说明参数：</p>
+<blockquote>
+<p>之前在线上环境发现，没有配置下面的参数，进程重启是，会覆盖当前的gc.log，重点是覆盖，没有将之前的删掉，所以你用tail命令查看的时候，很可能看到的gc.log没有任何变化。但是实际情况日志可能是在输出，在文件的中间覆盖旧的内容。很容易给人造成误解。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-XX:UseGCLogFileRotation</span><br><span class="line">-XX:NumberOfGCLogFiles</span><br><span class="line">-XX:GCLogFileSize</span><br></pre></td></tr></table></figure>
+<p>含义：<br>这次分享了3个设置滚动记录GC日志的参数<br>通过参数-Xloggc:xxx可指定GC日志文件路径<br>普通情况下，GC日志文件内容会不断积累，进程重启后日志文件会被覆盖<br>这次分享的3个参数在设置-Xloggc参数的前提下有效</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:UseGCLogFileRotation</span><br><span class="line">Enabled GC log rotation, requires -Xloggc.</span><br></pre></td></tr></table></figure>
+<p>打开或关闭GC日志滚动记录功能，要求必须设置 -Xloggc参数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-XX:NumberOfGCLogFiles</span><br><span class="line">Set the number of files to use when rotating logs, must be &gt;= 1.</span><br><span class="line">The rotated log files will use the following naming scheme, &lt;filename&gt;.0, &lt;filename&gt;.1, ..., &lt;filename&gt;.n-1.</span><br></pre></td></tr></table></figure>
+<p>设置滚动日志文件的个数，必须大于1<br>日志文件命名策略是，<code>&lt;filename&gt;.0, &lt;filename&gt;.1, ..., &lt;filename&gt;.n-1</code>，其中n是该参数的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:GCLogFileSize</span><br><span class="line">The size of the log file at which point the log will be rotated, must be &gt;= 8K.</span><br></pre></td></tr></table></figure>
+<p>设置滚动日志文件的大小，必须大于8k<br>当前写日志文件大小超过该参数值时，日志将写入下一个文件</p>
+<p>注，GC日志最好不滚动输出，因为之前的关键日志可能会被冲掉，日志写入同一个文件更方便分析<br>详见：<a href="http://blog.csdn.net/ning0323/article/details/77093679" target="_blank" rel="noopener">http://blog.csdn.net/ning0323/article/details/77093679</a></p>
+<h3 id="GENERAL-JVM-SETTINGS"><a href="#GENERAL-JVM-SETTINGS" class="headerlink" title="GENERAL JVM SETTINGS"></a>GENERAL JVM SETTINGS</h3><p>1）调整线程堆栈，调小 可降低系统内存使用，一般256k也是够的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># Per-thread stack size.</span><br><span class="line">-Xss512k</span><br></pre></td></tr></table></figure></p>
+<p>2）禁用偏向锁<br>在高并发场景，会存在锁竞争失败，锁撤销会带来额外的开销，默认开启，使用与单线程场景，高并发场景建议禁用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># Disable biased locking</span><br><span class="line">-XX:-UseBiasedLocking</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:AutoBoxCacheMax=20000</span><br></pre></td></tr></table></figure>
+<p>以下引自江南白衣的分享：</p>
+<blockquote>
+<p>int<->Integer, 默认缓存-128～127，设置后我的应用提升4%QPS</-></p>
+</blockquote>
+<h3 id="GC参数"><a href="#GC参数" class="headerlink" title="GC参数"></a>GC参数</h3><p>因为我们当前系统暂时没有垃圾收集的瓶颈，也暂时没找到理论支持CMS比ParOldGen更优，所以暂时没有调整垃圾回收相关的配置。</p>
+<h3 id="JMX"><a href="#JMX" class="headerlink" title="JMX"></a>JMX</h3><p>jmx打开对系统排查问题能有很大帮助，但是我们生产环境无法通过jvisualvm直连，所以注释掉了。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>这次没有针对GC的参数进行调优，但是一般大家说的参数调优其实都是对JVM GC参数调优，在<code>吞吐量</code>，<code>延迟</code>，<code>内存占用</code>这几个指标上面来作权衡。如果对这些感兴趣，可以看这篇文档<br><a href="http://mp.weixin.qq.com/s?src=11&amp;timestamp=1510894751&amp;ver=519&amp;signature=zEZhsWZl8Y6H-SfL4aJzowoifPZjfLWMl24V1YliF2**ccqhGxkpGGkVkScOBhy93hWPl-e6SxA6kDqAIsx00xmg8ALzGv0W-EAzomjxkC0ksloBV*hErTx3Peo1ykEs&amp;new=1" target="_blank" rel="noopener">如何合理的规划一次 JVM 性能调优</a>，写的很清晰.</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://blog.csdn.net/ning0323/article/details/77093679" target="_blank" rel="noopener">http://blog.csdn.net/ning0323/article/details/77093679</a><br><a href="http://mp.weixin.qq.com/s?src=11&amp;timestamp=1510894751&amp;ver=519&amp;signature=zEZhsWZl8Y6H-SfL4aJzowoifPZjfLWMl24V1YliF2**ccqhGxkpGGkVkScOBhy93hWPl-e6SxA6kDqAIsx00xmg8ALzGv0W-EAzomjxkC0ksloBV*hErTx3Peo1ykEs&amp;new=1" target="_blank" rel="noopener">http://mp.weixin.qq.com/s?src=11&amp;timestamp=1510894751&amp;ver=519&amp;signature=zEZhsWZl8Y6H-SfL4aJzowoifPZjfLWMl24V1YliF2**ccqhGxkpGGkVkScOBhy93hWPl-e6SxA6kDqAIsx00xmg8ALzGv0W-EAzomjxkC0ksloBV*hErTx3Peo1ykEs&amp;new=1</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017-11-16-记一次java偏向锁优化.html" rel="next" title="记一次java偏向锁的优化">
+                <i class="fa fa-chevron-left"></i> 记一次java偏向锁的优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017-12-01-JVM进程CPU飙高排查.html" rel="prev" title="JVM进程CPU飙高排查">
+                JVM进程CPU飙高排查 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#调优原则"><span class="nav-number">1.</span> <span class="nav-text">调优原则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#print线上JVM参数工具"><span class="nav-number">2.</span> <span class="nav-text">print线上JVM参数工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态修改jvm参数小工具"><span class="nav-number">3.</span> <span class="nav-text">动态修改jvm参数小工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jvm参数示例"><span class="nav-number">4.</span> <span class="nav-text">jvm参数示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#gc日志"><span class="nav-number">4.1.</span> <span class="nav-text">gc日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GENERAL-JVM-SETTINGS"><span class="nav-number">4.2.</span> <span class="nav-text">GENERAL JVM SETTINGS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GC参数"><span class="nav-number">4.3.</span> <span class="nav-text">GC参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JMX"><span class="nav-number">4.4.</span> <span class="nav-text">JMX</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
