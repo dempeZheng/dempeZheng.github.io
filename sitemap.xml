@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://code.zhizus.com/2017-12-01-JVM%E8%BF%9B%E7%A8%8BCPU%E9%A3%99%E9%AB%98%E6%8E%92%E6%9F%A5.html</loc>
+    
+    <lastmod>2018-06-07T11:09:23.191Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://code.zhizus.com/2018-06-06-%E5%9F%BA%E4%BA%8Ezipkin%E7%9A%84%E9%93%BE%E8%B7%AF%E7%9B%91%E6%8E%A7%E5%88%9D%E6%8E%A2.html</loc>
     
     <lastmod>2018-06-06T05:09:45.302Z</lastmod>
@@ -33,13 +40,6 @@
     <loc>http://code.zhizus.com/about/index.html</loc>
     
     <lastmod>2018-06-04T02:56:46.738Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://code.zhizus.com/2017-12-01-JVM%E8%BF%9B%E7%A8%8BCPU%E9%A3%99%E9%AB%98%E6%8E%92%E6%9F%A5.html</loc>
-    
-    <lastmod>2018-06-04T02:56:46.735Z</lastmod>
     
   </url>
   
