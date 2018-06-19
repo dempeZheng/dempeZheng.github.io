@@ -4,6 +4,60 @@
 
     
   <url>
+    <loc>http://code.zhizus.com/2018-06-19-iconfig%E5%91%BD%E4%BB%A4.html</loc>
+    <lastmod>2018-06-19T14:18:25.153Z</lastmod>
+    <data>
+        <display>
+        <title>ifconfig命令</title>
+        <pubTime>2018-06-06T04:39:04.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="shell" url="http://code.zhizus.com/categories/shell/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://code.zhizus.com/2018-06-06-%E5%9F%BA%E4%BA%8Ezipkin%E7%9A%84%E9%93%BE%E8%B7%AF%E7%9B%91%E6%8E%A7%E5%88%9D%E6%8E%A2.html</loc>
+    <lastmod>2018-06-19T14:16:31.216Z</lastmod>
+    <data>
+        <display>
+        <title>基于zipkin的链路监控初探</title>
+        <pubTime>2018-06-06T04:39:04.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="架构" url="http://code.zhizus.com/categories/%E6%9E%B6%E6%9E%84/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://code.zhizus.com/2018-06-04-%E6%B5%85%E8%B0%88%E4%BB%A3%E7%A0%81%E8%A6%86%E7%9B%96%E7%8E%87.html</loc>
+    <lastmod>2018-06-19T14:16:31.214Z</lastmod>
+    <data>
+        <display>
+        <title>浅谈代码覆盖率</title>
+        <pubTime>2018-06-04T04:39:04.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="札记" url="http://code.zhizus.com/categories/%E6%9C%AD%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://code.zhizus.com/2018-05-30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%A7%E8%A1%A8%E6%B8%85%E7%90%86%E7%AC%94%E8%AE%B0.html</loc>
     <lastmod>2018-06-02T11:16:43.611Z</lastmod>
     <data>
