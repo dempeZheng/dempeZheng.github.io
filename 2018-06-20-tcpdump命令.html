@@ -1,0 +1,937 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="shell,命令,tcpdump" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="1. tcpdump的基本原理
+Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络报文(准确的说是：网络设备)消息的处理权，当网卡接收到一个网络报文后，它会遍历系统中所有已经注册的网络协议，例如：以太网协议、x25协议处理模块来尝试进行报文的解析处理。这一点和文件系统的挂载相似，就是让系统中所有已经注册的文件系统来进行尝试挂载，如果哪一个认为自己可以处理，那么就完成挂载。
+当抓包模块把自">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tcpdump命令">
+<meta property="og:url" content="http://code.zhizus.com/2018-06-20-tcpdump命令.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="1. tcpdump的基本原理
+Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络报文(准确的说是：网络设备)消息的处理权，当网卡接收到一个网络报文后，它会遍历系统中所有已经注册的网络协议，例如：以太网协议、x25协议处理模块来尝试进行报文的解析处理。这一点和文件系统的挂载相似，就是让系统中所有已经注册的文件系统来进行尝试挂载，如果哪一个认为自己可以处理，那么就完成挂载。
+当抓包模块把自">
+<meta property="og:updated_time" content="2018-06-20T15:02:52.176Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="tcpdump命令">
+<meta name="twitter:description" content="1. tcpdump的基本原理
+Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络报文(准确的说是：网络设备)消息的处理权，当网卡接收到一个网络报文后，它会遍历系统中所有已经注册的网络协议，例如：以太网协议、x25协议处理模块来尝试进行报文的解析处理。这一点和文件系统的挂载相似，就是让系统中所有已经注册的文件系统来进行尝试挂载，如果哪一个认为自己可以处理，那么就完成挂载。
+当抓包模块把自">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://code.zhizus.com/2018-06-20-tcpdump命令.html"/>
+
+
+
+
+
+  <title> tcpdump命令 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-shell " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-06-20-tcpdump命令.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                tcpdump命令
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-06-20-tcpdump命令.html" class="leancloud_visitors" data-flag-title="tcpdump命令">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1-tcpdump的基本原理"><a href="#1-tcpdump的基本原理" class="headerlink" title="1. tcpdump的基本原理"></a>1. tcpdump的基本原理</h2><blockquote>
+<p>Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络报文(准确的说是：网络设备)消息的处理权，<strong>当网卡接收到一个网络报文后，它会遍历系统中所有已经注册的网络协议</strong>，例如：以太网协议、x25协议处理模块来尝试进行报文的解析处理。这一点和文件系统的挂载相似，就是让系统中所有已经注册的文件系统来进行尝试挂载，如果哪一个认为自己可以处理，那么就完成挂载。
+当抓包模块把自己伪装成一个网络协议的时候，系统在收到报文的时候就会给这个伪协议一次机会，让它来对网卡收到的报文进行一次处理，此时该抓包模块就会趁机把报文完整的copy一份，然后把这个copy的数据给抓包模块(tcpdump)</p>
+</blockquote>
+<p> tcpdump 具体的工作原理：协议的注册、网络层对接收报文的处理  ：<a href="http://tsecer.blog.163.com/blog/static/15018172012822114125900/" target="_blank" rel="external">http://tsecer.blog.163.com/blog/static/15018172012822114125900/</a></p>
+<h2 id="tcpdump详解"><a href="#tcpdump详解" class="headerlink" title="tcpdump详解"></a>tcpdump详解</h2><h3 id="2-1-tcpdump-命令的基本简介"><a href="#2-1-tcpdump-命令的基本简介" class="headerlink" title="2.1 tcpdump 命令的基本简介"></a>2.1 tcpdump 命令的基本简介</h3><ul>
+<li><code>tcpdump ：dump the traffic on a network</code> 根据使用者的定义对网络上的数据包进行截获的分析工作；<code>tcpdump</code> 可以讲网络中传送的数据包的header完全截获下来进行分析；它支持对网络层(net  IP 段)、协议(TCP/UDP)、主机(src/dst host)、网络或端口(prot)的过滤，并提供and、or、not 等逻辑语句来帮助你去掉无用的信息。</li>
+<li><code>tcpdump</code>：默认情况下，<code>sudo /usr/sbin/tcpdump</code> 会监视 第一个网络接口 一般是<code>eth0</code> 的所有<code>port</code> 所有协议的 数据包</li>
+</ul>
+<table border="1" cellpadding="1" cellspacing="1"><tbody><tr><td>协议</td>
+    <td>TCP,UDP,IP,ARP,RARP,ETHER,FDDI</td>
+    </tr><tr><td>网络(net)</td>
+    <td>192.168.0.0/16 IP网段</td>
+    </tr><tr><td>方向(host)</td>
+    <td>src,dst,src or dst,src and dst</td>
+    </tr><tr><td>端口(prot)</td>
+    <td>80 22 !22 &nbsp;9999&nbsp;</td>
+    </tr><tr><td>逻辑</td>
+    <td>and,or,not &nbsp;&amp;&amp;,||,!</td>
+    </tr></tbody></table> 
+
+<ul>
+<li>协议：<code>tcp udp ip arp rarp ether fddi</code>   协议这选项要放在 前面，因为要过滤数据包</li>
+<li>网络：<code>net  ip</code>网段     <code>tcpdump net 192.168.1.0/24</code>  监听这个网段</li>
+<li>方向：<code>host</code>  就是主机  <code>src</code> 是源主机、dst 是目的主机 <code>or  and</code> 是逻辑<code>tcpdump host test.hostname</code> </li>
+<li>端口：<code>port</code>  指定<code>tcpdump</code> 监听的端口  <code>tcpdump src 192.168.1.11 and port 80</code>  监听源<code>IP</code>是<code>192.168.1.11</code> 的<code>80</code>端口</li>
+<li>逻辑：是表示 与 或  即：同时满足或满足之一</li>
+</ul>
+<blockquote>
+<p>前面的四个选项：协议、net 、host、port 如果同时在 tcpdump 里面 时必须用 逻辑 and 连接起来；而且如用() 一定要转义，否则会报语法错误。    </p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo /usr/sbin/tcpdump tcp and srchosttest1.hostnameortest2.hostname and port 3333 and net 172.21.121.0/24  -c 10 -vvv</div></pre></td></tr></table></figure>
+<h2 id="3-tcpdump-的选项"><a href="#3-tcpdump-的选项" class="headerlink" title="3. tcpdump 的选项"></a>3. tcpdump 的选项</h2><h3 id="3-1-主要选项"><a href="#3-1-主要选项" class="headerlink" title="3.1 主要选项"></a>3.1 主要选项</h3><ul>
+<li>-i ：指定网卡 默认是 <code>eth0</code>   </li>
+<li>-n ：线上ip，而不是<code>hostname</code></li>
+<li>-c ：指定抓到多个包后推出</li>
+<li>-A：以ASCII方式线上包的内容，这个选项对文本格式的协议包很有用</li>
+<li>-x：以16进制显示包的内容</li>
+<li>-vvv：显示详细信息</li>
+<li>-s ：按包长截取数据；默认是60个字节；如果包大于60个字节，则抓包会出现丢数据；所以我们一般会设置 -s 0 ；这样会按照包的大小截取数据；抓到的是完整的包数据</li>
+<li>-r：从文件中读取【与 -w 对应，<code>/usr/sbin/tcpdump -r test.out</code>  读取 tcpdump -w  test.out】</li>
+<li>-w：到处指向文件【一定要用，<code>-w t.out</code> ，然后用 <code>-r t.out</code> 来看抓包信息，否则可读性很差】</li>
+</ul>
+<h3 id="3-2-tcpdump-抓包的具体含义"><a href="#3-2-tcpdump-抓包的具体含义" class="headerlink" title="3.2 tcpdump 抓包的具体含义"></a>3.2 tcpdump 抓包的具体含义</h3><p>tcpmdump 抓包出来分析包的具体含义
+ 包携带的标志：</p>
+<ul>
+<li>S：S=SYC  ：发起连接标志</li>
+<li>P：P=PUSH：传送数据标志</li>
+<li>F：F=FIN：关闭连接标志</li>
+<li>ack：表示确认包</li>
+<li>RST=RESET：异常关闭连接
+. 表示没有任何标志
+抓取包的具体含义： </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">server.hostname： sudo /usr/sbin/tcpdump tcp port 80 and host clinet.hostname -c 30 -vvv -w t.out  </div><div class="line">sudo /usr/sbin/tcpdump -r t.out  </div><div class="line">[html] view plain copy</div><div class="line">13:59:29.012370 IP client.hostname.tbsite.net.50741 &gt; server.hostname.http: S 562843056:562843056(0) win 14480 &lt;mss 1460,sackOK,timestamp 230871413 4035264472,nop,wscale 7&gt;  </div><div class="line">13:59:29.012374 IP server.hostname.http &gt; client.hostname.tbsite.net.50741: S 2306923370:2306923370(0) ack 562843057 win 5792 &lt;mss 1460,sackOK,timestamp 4035271299 230871413,nop,wscale 9&gt;  </div><div class="line">13:59:29.012547 IP client.hostname.tbsite.net.50741 &gt; server.hostname.http: . ack 1 win 114 &lt;nop,nop,timestamp 230871413 4035271299&gt;  </div><div class="line">13:59:29.012582 IP client.hostname.tbsite.net.50741 &gt; server.hostname.http: P 1:1006(1005) ack 1 win 114 &lt;nop,nop,timestamp 230871413 4035271299&gt;  </div><div class="line">13:59:29.012593 IP server.hostname.http &gt; client.hostname.tbsite.net.50741: . ack 1006 win 16 &lt;nop,nop,timestamp 4035271299 230871413&gt;  </div><div class="line">13:59:29.025011 IP client.hostname.tbsite.net.50777 &gt; server.hostname.http: S 2359624339:2359624339(0) win 14480 &lt;mss 1460,sackOK,timestamp 230871425 4035264472,nop,wscale 7&gt;  </div><div class="line">13:59:29.025022 IP server.hostname.http &gt; client.hostname.tbsite.net.50777: S 2305562654:2305562654(0) ack 2359624340 win 5792 &lt;mss 1460,sackOK,timestamp 4035271312 230871425,nop,wscale 9&gt;  </div><div class="line">13:59:29.025197 IP client.hostname.tbsite.net.50777 &gt; server.hostname.http: . ack 1 win 114 &lt;nop,nop,timestamp 230871425 4035271312&gt;  </div><div class="line">13:59:29.025228 IP client.hostname.tbsite.net.50777 &gt; server.hostname.http: P 1:837(836) ack 1 win 114 &lt;nop,nop,timestamp 230871425 4035271312&gt;  </div><div class="line">13:59:29.025240 IP server.hostname.http &gt; client.hostname.tbsite.net.50777: . ack 837 win 15 &lt;nop,nop,timestamp 4035271312 230871425&gt;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>第一行： S：表示 clinet.hostname 的临时端口50741向 server.hostname 80 端口发起连接，client 的初始包序号是： 562843056  ；滑动窗口(win 14480)的大小是：14480 [14k]  滑动窗口即tcp 接收缓冲区的大小，用于tcp 拥塞控制；mss 1460：可以接收的最大包长度，通常是MTU - 40 byte；IP头和TCP头各20byte</p>
+<p>第二行： S：表示SYN状态；是server.hostname 对第一行 clinet.hostname 发起连接的请求的回应；同时带上client 端 初始包序号 + 1：ack 562843057 ，即server.hostname 下次等待接收这个包序号的包，用于tcp 字节流的顺序控制(?). server.hostname 初始包序列号：2306923370 </p>
+<p>第三行：client.hostname 再次确认，tcp连接完成三次握手。</p>
+<p>第四行：P：推送数据    client.hostname  通过 50741 端口向 server.hostname 发送数据包；数据包大小是 1005byte ；</p>
+<p>第五行是 server.hostname 响应这个数据包发送，接收这个数据包。—-&gt; 当完成后会出现一个 server.hostname     F   关闭连接的数据包，这里没有抓取</p>
+<p>第六行   —-&gt;10行是对 1-5行的重复；因为机器是web服务是并发的。</p>
+</blockquote>
+<h2 id="4-tcpdump的实例："><a href="#4-tcpdump的实例：" class="headerlink" title="4. tcpdump的实例："></a>4. tcpdump的实例：</h2><p> 起步1： 抓取指定端口的包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcpdump -i eth0 -c 100</div></pre></td></tr></table></figure>
+<p>起步2：抓取指定协议的包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcpdump -i eth0 -c 100 tcp</div></pre></td></tr></table></figure>
+<p>起步3：抓取指定协议，指定port的包【tcp ip port src dst host net】</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcpdump -i eth0 -c 100 tcp port 5440</div></pre></td></tr></table></figure>
+<p>起步4：组合过滤条件【and or not】</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcpdump -i eth0 -c 100 tcp port 5440  and src host 192.1.1.2</div></pre></td></tr></table></figure>
+<p>起步5：抓取指定网段的包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcpdump -i eth0 -c 100 tcp port 5440 and src net 192.1.1.0/24</div></pre></td></tr></table></figure>
+<p><strong>高级1</strong>：写入文件并用<code>wireshark</code>在windows下分析</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcpdump tcp -i eth1 -t -s 0 -c 100 and dst port ! 22 and src net 192.168.1.0/24 -w ./target.cap</div></pre></td></tr></table></figure>
+<p>然后用ftp传输到windows下面，在用wireshark打开cap文件即可
+高级2：提取http包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcpdump  -XvvennSs 0 -i eth0 tcp[20:2]=0x4745 or tcp[20:2]=0x4854 -c 20 -w ./target.cap</div></pre></td></tr></table></figure>
+<p>其中-s 0表示不限制包的大小；tcp[20:2]从表示tcp包头第20个字节开始的2个字节等于0x4745（对应字符GE）或者等于0x4854（对应HT）；
+这种方法适用于tcp头中OPTION为空的情况，如果不为空，需要从第24个字节开始。</p>
+<blockquote>
+<p> 注意：在linux抓取包后用tcpdump -r 只能看到包的简单信息；如果需要查询抓取包的详细信息需要把抓取的包target.cap 通过 ftp服务器传输到windows机器上；借助wireshark工具来分析数据；wireshark是一款开源的分析网络抓包的工具；灰常的好用。</p>
+</blockquote>
+<h2 id="5-tcpdump-抓包看rt"><a href="#5-tcpdump-抓包看rt" class="headerlink" title="5. tcpdump 抓包看rt"></a>5. tcpdump 抓包看rt</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo tcpdump -s 0 -w /tmp/a.cap host 10.246.38.44</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcpdump -A -r /tmp/a.cap</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;上面 client、server的三次握手省略；下面是三次握手成功后直接push 数据&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;  </div><div class="line">17:46:30.138829 IP client.hostname.55445 &gt;server.dns.com: P 1:741(740)  </div><div class="line">ack 1 win 46 &lt;nop,nop,timestamp 221364282 177661952&gt;  </div><div class="line">E.....@.@...  </div><div class="line">..%  </div><div class="line">.&amp;,...P......uH....mG.....  </div><div class="line">1.:  </div><div class="line">...POST /ecpmdsp_bid HTTP/1.1    &lt;&lt;&lt;&lt;&lt;&lt;POST 说明；client 发送query 数据；在上面的的行中找到时间点：【17:46:30.138829】  </div><div class="line">User-Agent: Mozilla/5.0 (compatible; Tanx/1.0; Linux)  </div><div class="line">Host: server.dns.com                         &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;HTTP服务、web （apache、nginx）&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;  </div><div class="line">Accept: */*  </div><div class="line">Content-Type:application/octet-stream  </div><div class="line">Connection:Keep-Alive  </div><div class="line">Content-Length: 524  </div><div class="line">  </div><div class="line">...  </div><div class="line">0af62e25315451c420f6000000000001..BpNFCj5dkAgCAQYTS24VMRxz&quot;.10.246.157.167*..Mozilla/4.0  </div><div class="line">(compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR  </div><div class="line">2.0.50727; .NET CLR 3.5.30729; .NET CLR  </div><div class="line">3.0.30722.mcdonalds.com.cn:Ihttp://static.atm.youku.com/Youku2013/201304/0424/22371/600-90-under.html@...H.R.....ad_pid_pid_pid..600x90(.8.@.H.X.`.h...................................................................................................................................................................  </div><div class="line">17:46:30.138927 IP server.dns.com.http &gt;  </div><div class="line">client.hostname.55445: . ack 741 win 125 &lt;nop,nop,timestamp  </div><div class="line">177661952 221364282&gt;  </div><div class="line">E..4.H@.?.4?  </div><div class="line">.&amp;,  </div><div class="line">..%.P....uH.......&#125;.^.....  </div><div class="line">  </div><div class="line">1.:  </div><div class="line">17:46:30.219197 IP client.hostname.55445 &gt;  </div><div class="line">server.dns.com.http: F 741:741(0) ack 1 win 46  </div><div class="line">&lt;nop,nop,timestamp 221364362 177661952&gt;  </div><div class="line">E..4..@.@...  </div><div class="line">..%  </div><div class="line">.&amp;,...P......uH.....\.....  </div><div class="line">1..  </div><div class="line">...  </div><div class="line">17:46:30.223900 IP server.dns.com.http &gt;   client.hostname.55445: P 1:154(153) ack 742 win 125    &lt;nop,nop,timestamp 177662037 221364362&gt;  </div><div class="line">E....I@.?.3.  </div><div class="line">.&amp;,  </div><div class="line">..%.P....uH.......&#125;Y......  </div><div class="line">  </div><div class="line">1..HTTP/1.1 200 OK              &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;server.dns.com 的respose 包  200 OK；所以返回数据了；这时找到下面行的时间点【17:46:30.223910】  </div><div class="line">Server: Tengine  </div><div class="line">Date: Fri, 21 Jun 2013 09:46:30 GMT  </div><div class="line">Content-Length: 36  </div><div class="line">Connection: keep-alive  </div><div class="line">  </div><div class="line">... 0af62e25315451c420f6000000000001  </div><div class="line">17:46:30.223910 IP client.hostname.55445 &gt; server.dns.com.http: R 2868451528:2868451528(0) win 0  </div><div class="line">E..(..@.@...  </div><div class="line">..%  </div><div class="line">.&amp;,...P........P.......  </div><div class="line">17:46:30.223947 IP server.dns.com.http &gt;client.hostname.55445: F 154:154(0) ack 742 win 125&lt;nop,nop,timestamp 177662037 221364362&gt;   &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;此次通信结束；F = final &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;  </div><div class="line">E..4.J@.?.4=  </div><div class="line">   </div><div class="line">所以，我们可以计算出从发出query；到收到respose的时间是：  【17:46:30.223910】  -  【17:46:30.138829】 = 0.085081us  == 85.08ms</div></pre></td></tr></table></figure>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-06-19-iconfig命令.html" rel="next" title="ifconfig命令">
+                <i class="fa fa-chevron-left"></i> ifconfig命令
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-tcpdump的基本原理"><span class="nav-number">1.</span> <span class="nav-text">1. tcpdump的基本原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tcpdump详解"><span class="nav-number">2.</span> <span class="nav-text">tcpdump详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-tcpdump-命令的基本简介"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 tcpdump 命令的基本简介</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-tcpdump-的选项"><span class="nav-number">3.</span> <span class="nav-text">3. tcpdump 的选项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-主要选项"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 主要选项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-tcpdump-抓包的具体含义"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 tcpdump 抓包的具体含义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-tcpdump的实例："><span class="nav-number">4.</span> <span class="nav-text">4. tcpdump的实例：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-tcpdump-抓包看rt"><span class="nav-number">5.</span> <span class="nav-text">5. tcpdump 抓包看rt</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
