@@ -87,18 +87,18 @@
 
 
 
-<meta name="description" content="java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。 基本思路1）jps -l找对对应进程pid2）通过top -H -p pid找出耗用CPU消耗比较高的线程id3）将线程id转成16进制4）jstack pid | grep -C 30 16进制的线程id网上大把都是这个思路，基本没啥问题，但是有几个小问题：1.执行起来略微有点耗时，线上问题一般都比较紧急，争">
+<meta name="description" content="java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。 基本思路1）jps -l找对对应进程pid 2）通过top -H -p pid找出耗用CPU消耗比较高的线程id 3）将线程id转成16进制 4）jstack pid | grep -C 30 16进制的线程id 网上大把都是这个思路，基本没啥问题，但是有几个小问题： 1.执行起来略微有点耗时，线上问题一般都比">
 <meta name="keywords" content="tcpdump,tcpcopy,压测,离线流量">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM进程CPU飙高排查">
 <meta property="og:url" content="http://code.zhizus.com/2017-12-01-JVM进程CPU飙高排查.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。 基本思路1）jps -l找对对应进程pid2）通过top -H -p pid找出耗用CPU消耗比较高的线程id3）将线程id转成16进制4）jstack pid | grep -C 30 16进制的线程id网上大把都是这个思路，基本没啥问题，但是有几个小问题：1.执行起来略微有点耗时，线上问题一般都比较紧急，争">
+<meta property="og:description" content="java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。 基本思路1）jps -l找对对应进程pid 2）通过top -H -p pid找出耗用CPU消耗比较高的线程id 3）将线程id转成16进制 4）jstack pid | grep -C 30 16进制的线程id 网上大把都是这个思路，基本没啥问题，但是有几个小问题： 1.执行起来略微有点耗时，线上问题一般都比">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:updated_time" content="2018-06-07T11:09:23.191Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM进程CPU飙高排查">
-<meta name="twitter:description" content="java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。 基本思路1）jps -l找对对应进程pid2）通过top -H -p pid找出耗用CPU消耗比较高的线程id3）将线程id转成16进制4）jstack pid | grep -C 30 16进制的线程id网上大把都是这个思路，基本没啥问题，但是有几个小问题：1.执行起来略微有点耗时，线上问题一般都比较紧急，争">
+<meta name="twitter:description" content="java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。 基本思路1）jps -l找对对应进程pid 2）通过top -H -p pid找出耗用CPU消耗比较高的线程id 3）将线程id转成16进制 4）jstack pid | grep -C 30 16进制的线程id 网上大把都是这个思路，基本没啥问题，但是有几个小问题： 1.执行起来略微有点耗时，线上问题一般都比">
 
 
 
@@ -353,7 +353,13 @@
 
       
         <p>java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。</p>
-<h2 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h2><p>1）<code>jps -l</code>找对对应进程pid<br>2）通过<code>top -H -p pid</code>找出耗用CPU消耗比较高的线程id<br>3）将线程id转成16进制<br>4）<code>jstack pid | grep -C 30 16进制的线程id</code><br>网上大把都是这个思路，基本没啥问题，但是有几个小问题：<br>1.执行起来略微有点耗时，线上问题一般都比较紧急，争分夺秒，能省则省。<br>2.第二步到第四步有时间差，很可能真正过滤出来的并发当前CPU损耗较高的线程</p>
+<h2 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h2><p>1）<code>jps -l</code>找对对应进程pid
+2）通过<code>top -H -p pid</code>找出耗用CPU消耗比较高的线程id
+3）将线程id转成16进制
+4）<code>jstack pid | grep -C 30 16进制的线程id</code>
+网上大把都是这个思路，基本没啥问题，但是有几个小问题：
+1.执行起来略微有点耗时，线上问题一般都比较紧急，争分夺秒，能省则省。
+2.第二步到第四步有时间差，很可能真正过滤出来的并发当前CPU损耗较高的线程</p>
 <p>既然这样，那么，如果有一个脚本来解决这个问题，那就再好不过。</p>
 <h2 id="祖传脚本"><a href="#祖传脚本" class="headerlink" title="祖传脚本"></a>祖传脚本</h2><p>jvm_topn_thread.sh</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/ksh</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># write by    : oldmanpushcart@gmail.com</span></span><br><span class="line"><span class="comment"># date        : 2014-01-16</span></span><br><span class="line"><span class="comment"># version     : 0.07</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">typeset</span> top=<span class="variable">$&#123;1:-10&#125;</span></span><br><span class="line"><span class="built_in">typeset</span> pid=<span class="variable">$&#123;2:-$(pgrep -u $USER java)&#125;</span></span><br><span class="line"><span class="built_in">typeset</span> tmp_file=/tmp/java_<span class="variable">$&#123;pid&#125;</span>_$$.trace</span><br><span class="line"></span><br><span class="line"><span class="variable">$JAVA_HOME</span>/bin/jstack <span class="variable">$pid</span> &gt; <span class="variable">$tmp_file</span></span><br><span class="line">ps H -eo user,pid,ppid,tid,time,%cpu --sort=%cpu --no-headers\</span><br><span class="line">        | tail -<span class="variable">$top</span>\</span><br><span class="line">        | awk -v <span class="string">"pid=<span class="variable">$pid</span>"</span> <span class="string">'$2==pid&#123;print $4"\t"$6&#125;'</span>\</span><br><span class="line">        | <span class="keyword">while</span> <span class="built_in">read</span> line;</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">        <span class="built_in">typeset</span> nid=$(<span class="built_in">echo</span> <span class="string">"<span class="variable">$line</span>"</span>|awk <span class="string">'&#123;printf("0x%x",$1)&#125;'</span>)</span><br><span class="line">        <span class="built_in">typeset</span> cpu=$(<span class="built_in">echo</span> <span class="string">"<span class="variable">$line</span>"</span>|awk <span class="string">'&#123;print $2&#125;'</span>)</span><br><span class="line">        awk -v <span class="string">"cpu=<span class="variable">$cpu</span>"</span> <span class="string">'/nid='</span><span class="string">"<span class="variable">$nid</span>"</span><span class="string">'/,/^$/&#123;print $0"\t"(isF++?"":"cpu="cpu"%");&#125;'</span> <span class="variable">$tmp_file</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line">rm -f <span class="variable">$tmp_file</span></span><br></pre></td></tr></table></figure>
@@ -535,7 +541,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">52</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -546,7 +552,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

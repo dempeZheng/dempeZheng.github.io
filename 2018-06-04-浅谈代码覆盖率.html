@@ -356,7 +356,9 @@
 <blockquote>
 <p>Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这个问题，他指出：把测试覆盖作为质量目标没有任何意义，而我们应该把它作为一种发现未被测试覆盖的代码的手段。</p>
 </blockquote>
-<h2 id="代码覆盖率的意义"><a href="#代码覆盖率的意义" class="headerlink" title="代码覆盖率的意义"></a>代码覆盖率的意义</h2><p>1）分析未覆盖部分的代码，从而反推在前期测试设计是否充分，没有覆盖到的代码是否是测试设计的盲点，为什么没有考虑到？需求/设计不够清晰，测试设计的理解有误，工程方法应用后的造成的策略性放弃等等，之后进行补充测试用例设计。<br>2）检测出程序中的废代码，可以逆向反推在代码设计中思维混乱点，提醒设计/开发人员理清代码逻辑关系，提升代码质量。<br>3）代码覆盖率高不能说明代码质量高，但是反过来看，代码覆盖率低，代码质量不会高到哪里去，可以作为测试自我审视的重要工具之一。</p>
+<h2 id="代码覆盖率的意义"><a href="#代码覆盖率的意义" class="headerlink" title="代码覆盖率的意义"></a>代码覆盖率的意义</h2><p>1）分析未覆盖部分的代码，从而反推在前期测试设计是否充分，没有覆盖到的代码是否是测试设计的盲点，为什么没有考虑到？需求/设计不够清晰，测试设计的理解有误，工程方法应用后的造成的策略性放弃等等，之后进行补充测试用例设计。
+2）检测出程序中的废代码，可以逆向反推在代码设计中思维混乱点，提醒设计/开发人员理清代码逻辑关系，提升代码质量。
+3）代码覆盖率高不能说明代码质量高，但是反过来看，代码覆盖率低，代码质量不会高到哪里去，可以作为测试自我审视的重要工具之一。</p>
 <h2 id="代码覆盖率工具"><a href="#代码覆盖率工具" class="headerlink" title="代码覆盖率工具"></a>代码覆盖率工具</h2><p>目前Java常用覆盖率工具Jacoco、Emma和Cobertura</p>
 <h2 id="代码覆盖率的常用种类"><a href="#代码覆盖率的常用种类" class="headerlink" title="代码覆盖率的常用种类"></a>代码覆盖率的常用种类</h2><p>代码覆盖程度的度量方式是有很多种的，常用的包括</p>
 <ol>
@@ -370,7 +372,9 @@
 <p>生成代码覆盖率文件以后，通过Jenkins SonarQube Scanner或者执行 mvn sonar:sonar 将该文件上传至Sonar 服务器，就可以解析该文件，生成图形化的界面</p>
 <h3 id="集成测试覆盖率"><a href="#集成测试覆盖率" class="headerlink" title="集成测试覆盖率"></a>集成测试覆盖率</h3><p>测试人员执行集成测试测试用例时（包括手工执行和自动化执行），我们需要代码覆盖率来发现测试用例设计的遗漏，及时补充用例来覆盖未被覆盖到的代码。</p>
 <p>被测系统，在服务启动时，都会通过javaagent的方式做On-The-Fly插桩</p>
-<p>被测服务器启动之后，测试人员手工执行测试用例，Jacoco Agent会实时将代码覆盖率信息传输给Jacoco Prase Server，该服务器保存了被测代码源文件以及编译后的目标文件，服务器会结合源文件、目标文件以及代码覆盖率信息生成图表化的覆盖率文件。<br>自动化执行测试用例完成之后，获取代码覆盖率信息，通过Jenkins Jacoco插件解析，获取图表化的覆盖率文件。获取代码覆盖率报告之后，结合git获取的本次代码变动信息，得到测试用例覆盖的变动文件的测试覆盖率统计信息。来分析是否有由于测试用例设计遗漏导致的代码没有覆盖或者是开发的无效代码导致该代码无法被覆盖，如果测试用例设计有所遗漏，可以对照的增加相应的用例；如果是无效代码可以删除。<br>自动化集成流程</p>
+<p>被测服务器启动之后，测试人员手工执行测试用例，Jacoco Agent会实时将代码覆盖率信息传输给Jacoco Prase Server，该服务器保存了被测代码源文件以及编译后的目标文件，服务器会结合源文件、目标文件以及代码覆盖率信息生成图表化的覆盖率文件。
+自动化执行测试用例完成之后，获取代码覆盖率信息，通过Jenkins Jacoco插件解析，获取图表化的覆盖率文件。获取代码覆盖率报告之后，结合git获取的本次代码变动信息，得到测试用例覆盖的变动文件的测试覆盖率统计信息。来分析是否有由于测试用例设计遗漏导致的代码没有覆盖或者是开发的无效代码导致该代码无法被覆盖，如果测试用例设计有所遗漏，可以对照的增加相应的用例；如果是无效代码可以删除。
+自动化集成流程</p>
 <ol>
 <li><p>业务开发完成之后，开发人员做单元测试，单元测试完成之后，保证单元测试全部通过同时单元测试代码覆盖率达到一定程度（这个需要开发和测试约定，理论上越高越好），开发提测。</p>
 </li>
@@ -382,9 +386,12 @@
 </li>
 </ol>
 <p>基于这套流程，我们可以将单元测试代码覆盖率和集成测试代码覆盖率整合到持续集成流程中，如果代码覆盖率达不到我们设置的某个值时，可以终止流程继续下去获取需要人工确认之后，继续流程。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>1)覆盖率数据只能代表你测试过哪些代码，不能代表你是否测试好这些代码。<br>2) 不要过于相信覆盖率数据，也不要盲目追求代码覆盖率，更不要只拿代码行覆盖率来考核测试人员。</p>
-<p>没有工具是万能的，也没有工具使用起来是没有代价的。<br>测试人员盲目追求代码覆盖率往往会适得其反，应该想办法设计更多更好的案例，哪怕多设计出来的案例对覆盖率一点影响也没有。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://blog.csdn.net/hwhua1986/article/details/56281158" target="_blank" rel="noopener">https://blog.csdn.net/hwhua1986/article/details/56281158</a><br><a href="https://blog.csdn.net/qq_30953277/article/details/52174482" target="_blank" rel="noopener">https://blog.csdn.net/qq_30953277/article/details/52174482</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>1)覆盖率数据只能代表你测试过哪些代码，不能代表你是否测试好这些代码。
+2) 不要过于相信覆盖率数据，也不要盲目追求代码覆盖率，更不要只拿代码行覆盖率来考核测试人员。</p>
+<p>没有工具是万能的，也没有工具使用起来是没有代价的。
+测试人员盲目追求代码覆盖率往往会适得其反，应该想办法设计更多更好的案例，哪怕多设计出来的案例对覆盖率一点影响也没有。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://blog.csdn.net/hwhua1986/article/details/56281158" target="_blank" rel="noopener">https://blog.csdn.net/hwhua1986/article/details/56281158</a>
+<a href="https://blog.csdn.net/qq_30953277/article/details/52174482" target="_blank" rel="noopener">https://blog.csdn.net/qq_30953277/article/details/52174482</a></p>
 
       
     </div>
@@ -522,7 +529,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">52</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -533,7 +540,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

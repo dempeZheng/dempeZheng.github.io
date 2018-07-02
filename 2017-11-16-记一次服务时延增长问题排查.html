@@ -87,18 +87,18 @@
 
 
 
-<meta name="description" content="场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故 sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。1sar -A  1 1 1234567891011121314151617Linux 2.6.32       11/14/">
+<meta name="description" content="场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。 1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故 sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。 1sar -A  1 1 1234567891011121314151617Linux 2.6.32       11/1">
 <meta name="keywords" content="时延,优化，高并发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次服务时延增长问题排查">
 <meta property="og:url" content="http://code.zhizus.com/2017-11-16-记一次服务时延增长问题排查.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故 sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。1sar -A  1 1 1234567891011121314151617Linux 2.6.32       11/14/">
+<meta property="og:description" content="场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。 1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故 sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。 1sar -A  1 1 1234567891011121314151617Linux 2.6.32       11/1">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:updated_time" content="2018-05-28T02:35:39.715Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次服务时延增长问题排查">
-<meta name="twitter:description" content="场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故 sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。1sar -A  1 1 1234567891011121314151617Linux 2.6.32       11/14/">
+<meta name="twitter:description" content="场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。 1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故 sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。 1sar -A  1 1 1234567891011121314151617Linux 2.6.32       11/1">
 
 
 
@@ -352,14 +352,21 @@
       
 
       
-        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。<br>1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故</p>
-<p>sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sar -A  1 1</span><br></pre></td></tr></table></figure></p>
+        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。
+1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故</p>
+<p>sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sar -A  1 1</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Linux 2.6.32       11/14/2017      _x86_64_        (24 CPU)</span><br><span class="line"></span><br><span class="line">06:52:10 PM     CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest     %idle</span><br><span class="line">06:52:11 PM     all      4.52      0.00      0.71      0.00      0.00      0.00      0.04      0.00     94.73</span><br><span class="line">06:52:11 PM       0      1.00      0.00      1.00      0.00      0.00      0.00      0.00      0.00     98.00</span><br><span class="line">06:52:11 PM       1      1.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00     99.00</span><br><span class="line">06:52:11 PM       2      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00</span><br><span class="line">06:52:11 PM       3      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00</span><br><span class="line">06:52:11 PM       4      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00</span><br><span class="line">06:52:11 PM       5      0.00      0.00      0.99      0.00      0.00      0.00      0.00      0.00     99.01</span><br><span class="line">06:52:11 PM       6     19.00      0.00      1.00      0.00      0.00      0.00      0.00      0.00     80.00</span><br><span class="line">06:52:11 PM       7      5.00      0.00      1.00      0.00      0.00      0.00      0.00      0.00     94.00</span><br><span class="line">06:52:11 PM       8      8.08      0.00      0.00      0.00      0.00      0.00      0.00      0.00     91.92</span><br><span class="line">06:52:11 PM       9      7.07      0.00      0.00      0.00      0.00      0.00      0.00      0.00     92.93</span><br><span class="line">06:52:11 PM      10      1.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00     99.00</span><br><span class="line">06:52:11 PM      11     15.15      0.00      1.01      0.00      0.00      0.00      0.00      0.00     83.84</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 <p>顺便也用脚本把当前耗用cpu较高的线程给print出来，也没发现什么异常。</p>
-<p>2）因为是java进程，gc也是首要怀疑对象。<br>线上是有开启gc日志的，直接查看gc日志，发现gc日志没变化。<br>如下所示，gc日志一直固定在这里，没有任何输出。<br>当时误以为没有gc活动，对后来的排查带来了很多困惑。</p>
+<p>2）因为是java进程，gc也是首要怀疑对象。
+线上是有开启gc日志的，直接查看gc日志，发现gc日志没变化。
+如下所示，gc日志一直固定在这里，没有任何输出。
+当时误以为没有gc活动，对后来的排查带来了很多困惑。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 1340416K, used 940106K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)</span><br><span class="line">  eden space 1284096K, 71% used [0x000000076ab00000,0x00000007a2e1a438,0x00000007b9100000)</span><br><span class="line">  from space 56320K, 34% used [0x00000007b9100000,0x00000007ba3f8468,0x00000007bc800000)</span><br><span class="line">  to   space 54272K, 0% used [0x00000007bcb00000,0x00000007bcb00000,0x00000007c0000000)</span><br><span class="line"> ParOldGen       total 2796544K, used 99854K [0x00000006c0000000, 0x000000076ab00000, 0x000000076ab00000)</span><br><span class="line">  object space 2796544K, 3% used [0x00000006c0000000,0x00000006c6183988,0x000000076ab00000)</span><br><span class="line"> Metaspace       used 188543K, capacity 305226K, committed 318036K, reserved 1331200K</span><br><span class="line">  class space    used 15913K, capacity 23093K, committed 35736K, reserved 1048576K</span><br></pre></td></tr></table></figure>
-<p>3）因为gc日志没有明显活动，就忽视了有gc问题导致时延，开始怀疑是服务中某个依赖服务拖慢整个请求链。<br>仔细查看cat监控远程调用的响应，并未能发现明显的异常。</p>
-<p>##<br>排查完上面三步，其实已经有些困惑。一时找不到问题症结点，先扩容了。线上也难复现这个场景。</p>
+<p>3）因为gc日志没有明显活动，就忽视了有gc问题导致时延，开始怀疑是服务中某个依赖服务拖慢整个请求链。
+仔细查看cat监控远程调用的响应，并未能发现明显的异常。</p>
+<p>## 
+排查完上面三步，其实已经有些困惑。一时找不到问题症结点，先扩容了。线上也难复现这个场景。</p>
 <p>走了一圈弯路，又怀疑到gc上面来。然后通过下面命令查看 gc情况。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gc -pid -interval</span><br></pre></td></tr></table></figure>
 <p>大跌眼镜！ 竟然有gc，另外gc频率还比较频繁，一分钟有一次fullgc。</p>
@@ -369,7 +376,8 @@
 </blockquote>
 <p>gc日志如下：</p>
 <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">25298.606: [Full GC (Metadata GC Threshold) [PSYoungGen: 38137K-&gt;0K(1342976K)] [ParOldGen: 98007K-&gt;97852K(2796544K)] 136145K-&gt;97852K(4139520K), [Metaspace: 258166K-&gt;88911K(1284096K)], 0.3885363 secs] [Times: user=2.22 sys=0.05, real=0.38 secs] </span><br><span class="line">25309.889: [GC (Allocation Failure) [PSYoungGen: 1294336K-&gt;7488K(1302016K)] 1392188K-&gt;105340K(4098560K), 0.0210329 secs] [Times: user=0.29 sys=0.01, real=0.02 secs] </span><br><span class="line">25321.252: [GC (Allocation Failure) [PSYoungGen: 1301824K-&gt;13757K(1347072K)] 1399676K-&gt;111610K(4143616K), 0.0276562 secs] [Times: user=0.42 sys=0.00, real=0.03 secs] </span><br><span class="line">25332.233: [GC (Allocation Failure) [PSYoungGen: 1308605K-&gt;20085K(1345536K)] 1406458K-&gt;117938K(4142080K), 0.0412415 secs] [Times: user=0.66 sys=0.00, real=0.04 secs] </span><br><span class="line">25342.077: [GC (Allocation Failure) [PSYoungGen: 1314933K-&gt;26152K(1350656K)] 1412786K-&gt;124005K(4147200K), 0.0556676 secs] [Times: user=0.92 sys=0.00, real=0.05 secs] </span><br><span class="line">25353.367: [GC (Allocation Failure) [PSYoungGen: 1328168K-&gt;32325K(1349120K)] 1426021K-&gt;130178K(4145664K), 0.0688141 secs] [Times: user=1.16 sys=0.00, real=0.07 secs] </span><br><span class="line">25360.830: [GC (Metadata GC Threshold) [PSYoungGen: 1105399K-&gt;38061K(1344000K)] 1203252K-&gt;135914K(4140544K), 0.0783975 secs] [Times: user=1.34 sys=0.00, real=0.08 secs] </span><br><span class="line">25360.909: [Full GC (Metadata GC Threshold) [PSYoungGen: 38061K-&gt;0K(1344000K)] [ParOldGen: 97852K-&gt;97904K(2796544K)] 135914K-&gt;97904K(4140544K), [Metaspace: 255138K-&gt;88936K(1284096K)], 0.3513680 secs] [Times: user=1.67 sys=0.05, real=0.35</span><br></pre></td></tr></table></figure>
-<p>乍一看到日志，感觉很匪夷所思：<br>为什么要fullgc，老年代的空间还是很大的，使用不到20%就触发fullgc，而且每次回收老年代也没回收到多少空间。</p>
+<p>乍一看到日志，感觉很匪夷所思：
+为什么要fullgc，老年代的空间还是很大的，使用不到20%就触发fullgc，而且每次回收老年代也没回收到多少空间。</p>
 <p>既然发生了fullgc,那么首先应该了解fullgc的触发条件</p>
 <h2 id="Metasapce会触发fullgc？"><a href="#Metasapce会触发fullgc？" class="headerlink" title="Metasapce会触发fullgc？"></a>Metasapce会触发fullgc？</h2><p>于是去google Metaspace相关的信息。</p>
 <blockquote>
@@ -381,21 +389,31 @@
 <p>但是，为什么Metaspace会增长这么快？Metaspace的前生不是永久带吗，没道理会这么频繁增长！</p>
 <p>重启服务，在启动前加上参数 <code>-verbose:class</code>，于是发现了大量的以下日志</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br><span class="line">[Loaded Serializer_1 from file:/data1/platform/platform_consume_service/platform_consume_service_201711081505_platform_consume_service_v0.11.4/lib/fastjson-1.2.7.jar]</span><br></pre></td></tr></table></figure>
-<p>fastjson-1.2.7有坑？不能适应jdk8？<br>google一下，发现fastjson会用到asm动态加载类，好吧 估计坑就在这里</p>
-<p>运气比较好，一下子就搜到一个比较类似的issue<br><a href="https://github.com/alibaba/fastjson/issues/431" target="_blank" rel="noopener">https://github.com/alibaba/fastjson/issues/431</a></p>
+<p>fastjson-1.2.7有坑？不能适应jdk8？
+google一下，发现fastjson会用到asm动态加载类，好吧 估计坑就在这里</p>
+<p>运气比较好，一下子就搜到一个比较类似的issue
+<a href="https://github.com/alibaba/fastjson/issues/431" target="_blank" rel="noopener">https://github.com/alibaba/fastjson/issues/431</a></p>
 <blockquote>
-<p>wenshao commented on 13 Apr 2016<br>不会的，估计是你每次都new SerializeConfig和new ParserConfig.<br> @wenshao wenshao closed this on 13 Apr 2016</p>
+<p>wenshao commented on 13 Apr 2016
+不会的，估计是你每次都new SerializeConfig和new ParserConfig.
+ @wenshao wenshao closed this on 13 Apr 2016</p>
 </blockquote>
 <p>检查了一下代码，发现恰好，之前实现了一个toString的方法解决double类型转String科学计数法的问题</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">toString</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">    SerializeConfig config = <span class="keyword">new</span> SerializeConfig();</span><br><span class="line">    config.put(Double.class, <span class="keyword">new</span> DoubleSerializer());</span><br><span class="line">    <span class="keyword">return</span> JSON.toJSONString(obj, config, <span class="keyword">new</span> SerializerFeature[<span class="number">0</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>尴尬了，坑找到了，把SerializeConfig变成静态，问题解决。</p>
-<p>起初以为这个仅仅只是影响了gc，后来看了看SerializeConfig的实现，发现这个对象太重，new一个SerializeConfig要通过asm动态的创建一个序列化的类.class文件，设计到写文件，然后还要调用类加载器加载。重复构造简直是性能杀手。<br>优化后上线，应用层服务也再也没发现什么性能问题。</p>
+<p>起初以为这个仅仅只是影响了gc，后来看了看SerializeConfig的实现，发现这个对象太重，new一个SerializeConfig要通过asm动态的创建一个序列化的类.class文件，设计到写文件，然后还要调用类加载器加载。重复构造简直是性能杀手。
+优化后上线，应用层服务也再也没发现什么性能问题。</p>
 <p>踩到这个坑一方面是自己的草率，出于对fastjson的api的信任，没有仔细api就想当然的使用了；</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>虽然找问题过程比较曲折，但是能够多多遇见这种case还是很不错的。在整个排查的过程中巩固了好多知识点。<br>bug驱动进步。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>虽然找问题过程比较曲折，但是能够多多遇见这种case还是很不错的。在整个排查的过程中巩固了好多知识点。
+bug驱动进步。</p>
 <hr>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>还有一个遗留问题，如鲠在喉。<br>启动脚本明确加了输出gc日志的参数，<code>-XX:+PrintGCDetails -Xloggc:$LOG_DIR/gc.log</code> gc日志对应的文件也有，为什么有gc活动的时候，日志没有输出？？？<br>一直卡在这里，文件时间也是实时更新，why？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 1340416K, used 940106K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)</span><br><span class="line">  eden space 1284096K, 71% used [0x000000076ab00000,0x00000007a2e1a438,0x00000007b9100000)</span><br><span class="line">  from space 56320K, 34% used [0x00000007b9100000,0x00000007ba3f8468,0x00000007bc800000)</span><br><span class="line">  to   space 54272K, 0% used [0x00000007bcb00000,0x00000007bcb00000,0x00000007c0000000)</span><br><span class="line"> ParOldGen       total 2796544K, used 99854K [0x00000006c0000000, 0x000000076ab00000, 0x000000076ab00000)</span><br><span class="line">  object space 2796544K, 3% used [0x00000006c0000000,0x00000006c6183988,0x000000076ab00000)</span><br><span class="line"> Metaspace       used 188543K, capacity 305226K, committed 318036K, reserved 1331200K</span><br><span class="line">  class space    used 15913K, capacity 23093K, committed 35736K, reserved 1048576K</span><br></pre></td></tr></table></figure></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>还有一个遗留问题，如鲠在喉。
+启动脚本明确加了输出gc日志的参数，<code>-XX:+PrintGCDetails -Xloggc:$LOG_DIR/gc.log</code> gc日志对应的文件也有，为什么有gc活动的时候，日志没有输出？？？
+一直卡在这里，文件时间也是实时更新，why？
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 1340416K, used 940106K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)</span><br><span class="line">  eden space 1284096K, 71% used [0x000000076ab00000,0x00000007a2e1a438,0x00000007b9100000)</span><br><span class="line">  from space 56320K, 34% used [0x00000007b9100000,0x00000007ba3f8468,0x00000007bc800000)</span><br><span class="line">  to   space 54272K, 0% used [0x00000007bcb00000,0x00000007bcb00000,0x00000007c0000000)</span><br><span class="line"> ParOldGen       total 2796544K, used 99854K [0x00000006c0000000, 0x000000076ab00000, 0x000000076ab00000)</span><br><span class="line">  object space 2796544K, 3% used [0x00000006c0000000,0x00000006c6183988,0x000000076ab00000)</span><br><span class="line"> Metaspace       used 188543K, capacity 305226K, committed 318036K, reserved 1331200K</span><br><span class="line">  class space    used 15913K, capacity 23093K, committed 35736K, reserved 1048576K</span><br></pre></td></tr></table></figure></p>
 <hr>
-<h3 id="gc日子很问题1119补充"><a href="#gc日子很问题1119补充" class="headerlink" title="gc日子很问题1119补充"></a>gc日子很问题1119补充</h3><p>至于gc日志为什么没有输出这个问题最近已经找出来了，其实并不是没有更新，而是在写gc日志的时候是采用覆盖的方式，之前的gc日志内容并未删除，tail 的方式查看只能看到最后几行，而gc日志很可能就是在gc.log的中间覆盖旧数据。<br>目前的解决办法比较粗暴，启动进程前将之前的gc日志删掉。</p>
+<h3 id="gc日子很问题1119补充"><a href="#gc日子很问题1119补充" class="headerlink" title="gc日子很问题1119补充"></a>gc日子很问题1119补充</h3><p>至于gc日志为什么没有输出这个问题最近已经找出来了，其实并不是没有更新，而是在写gc日志的时候是采用覆盖的方式，之前的gc日志内容并未删除，tail 的方式查看只能看到最后几行，而gc日志很可能就是在gc.log的中间覆盖旧数据。
+目前的解决办法比较粗暴，启动进程前将之前的gc日志删掉。</p>
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://calvin1978.blogcn.com/articles/latency.html" target="_blank" rel="noopener">http://calvin1978.blogcn.com/articles/latency.html</a></p>
 
       
@@ -534,7 +552,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">52</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -545,7 +563,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

@@ -87,20 +87,20 @@
 
 
 
-<meta name="description" content="写在前面灾备的本质是冗余数据，而冗余的副作用就是带来数据一致性的问题。对于金融的业务场景，有些经典的强一致性场景。而这些强一致性场景就是金融灾备的难点所在。 经典场景1）余额扣减2）库存扣减这两个场景是灾备的经典场景，也是金融难点，使我们要解决的核心问题。如果余额不能保证强一致性，就有可能出现超扣的情况，比如用户只有100元，却扣掉了200元，这样就凭空产生了100元，这个就是大问题了。库存扣减同">
+<meta name="description" content="写在前面灾备的本质是冗余数据，而冗余的副作用就是带来数据一致性的问题。对于金融的业务场景，有些经典的强一致性场景。而这些强一致性场景就是金融灾备的难点所在。 经典场景1）余额扣减 2）库存扣减 这两个场景是灾备的经典场景，也是金融难点，使我们要解决的核心问题。 如果余额不能保证强一致性，就有可能出现超扣的情况，比如用户只有100元，却扣掉了200元，这样就凭空产生了100元，这个就是大问题了。库存">
 <meta name="keywords" content="两地三中心,异地多活,金融灾备">
 <meta property="og:type" content="article">
 <meta property="og:title" content="金融灾备落地实践">
 <meta property="og:url" content="http://code.zhizus.com/2017-09-21-金融灾备落地实践.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="写在前面灾备的本质是冗余数据，而冗余的副作用就是带来数据一致性的问题。对于金融的业务场景，有些经典的强一致性场景。而这些强一致性场景就是金融灾备的难点所在。 经典场景1）余额扣减2）库存扣减这两个场景是灾备的经典场景，也是金融难点，使我们要解决的核心问题。如果余额不能保证强一致性，就有可能出现超扣的情况，比如用户只有100元，却扣掉了200元，这样就凭空产生了100元，这个就是大问题了。库存扣减同">
+<meta property="og:description" content="写在前面灾备的本质是冗余数据，而冗余的副作用就是带来数据一致性的问题。对于金融的业务场景，有些经典的强一致性场景。而这些强一致性场景就是金融灾备的难点所在。 经典场景1）余额扣减 2）库存扣减 这两个场景是灾备的经典场景，也是金融难点，使我们要解决的核心问题。 如果余额不能保证强一致性，就有可能出现超扣的情况，比如用户只有100元，却扣掉了200元，这样就凭空产生了100元，这个就是大问题了。库存">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://code.zhizus.com/images/same-city.png">
 <meta property="og:image" content="http://code.zhizus.com/images/different-city.png">
 <meta property="og:updated_time" content="2018-05-28T02:35:39.707Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="金融灾备落地实践">
-<meta name="twitter:description" content="写在前面灾备的本质是冗余数据，而冗余的副作用就是带来数据一致性的问题。对于金融的业务场景，有些经典的强一致性场景。而这些强一致性场景就是金融灾备的难点所在。 经典场景1）余额扣减2）库存扣减这两个场景是灾备的经典场景，也是金融难点，使我们要解决的核心问题。如果余额不能保证强一致性，就有可能出现超扣的情况，比如用户只有100元，却扣掉了200元，这样就凭空产生了100元，这个就是大问题了。库存扣减同">
+<meta name="twitter:description" content="写在前面灾备的本质是冗余数据，而冗余的副作用就是带来数据一致性的问题。对于金融的业务场景，有些经典的强一致性场景。而这些强一致性场景就是金融灾备的难点所在。 经典场景1）余额扣减 2）库存扣减 这两个场景是灾备的经典场景，也是金融难点，使我们要解决的核心问题。 如果余额不能保证强一致性，就有可能出现超扣的情况，比如用户只有100元，却扣掉了200元，这样就凭空产生了100元，这个就是大问题了。库存">
 <meta name="twitter:image" content="http://code.zhizus.com/images/same-city.png">
 
 
@@ -356,12 +356,23 @@
 
       
         <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>灾备的本质是冗余数据，而冗余的副作用就是带来数据一致性的问题。对于金融的业务场景，有些经典的强一致性场景。而这些强一致性场景就是金融灾备的难点所在。</p>
-<h2 id="经典场景"><a href="#经典场景" class="headerlink" title="经典场景"></a>经典场景</h2><p>1）<strong>余额扣减</strong><br>2）<strong>库存扣减</strong><br>这两个场景是灾备的经典场景，也是金融难点，使我们要解决的核心问题。<br>如果余额不能保证强一致性，就有可能出现超扣的情况，比如用户只有100元，却扣掉了200元，这样就凭空产生了100元，这个就是大问题了。库存扣减同理。<br>而充值同样是金钱相关的重要业务，但是就没有上面的问题，充值的本质是给账户加钱，加钱不会产生负数，即便冗余了数据，只要最终同步了，就能保证数据最终一致。</p>
-<h2 id="灾备的演变"><a href="#灾备的演变" class="headerlink" title="灾备的演变"></a>灾备的演变</h2><h3 id="同城“双活”"><a href="#同城“双活”" class="headerlink" title="同城“双活”"></a>同城“双活”</h3><p><img src="/images/same-city.png" alt="Alt text"><br>阿里早期的架构就是同城“<code>双活</code>”，而这个双活是业务层的双活，DB层还是单点写。机房B的数据库作为机房B的冷备，<br>故障的时候，将冷备机房的数据库切换为master。一般不经过多次演练，切换的风险还是比较高的。</p>
+<h2 id="经典场景"><a href="#经典场景" class="headerlink" title="经典场景"></a>经典场景</h2><p>1）<strong>余额扣减</strong>
+2）<strong>库存扣减</strong>
+这两个场景是灾备的经典场景，也是金融难点，使我们要解决的核心问题。
+如果余额不能保证强一致性，就有可能出现超扣的情况，比如用户只有100元，却扣掉了200元，这样就凭空产生了100元，这个就是大问题了。库存扣减同理。
+而充值同样是金钱相关的重要业务，但是就没有上面的问题，充值的本质是给账户加钱，加钱不会产生负数，即便冗余了数据，只要最终同步了，就能保证数据最终一致。</p>
+<h2 id="灾备的演变"><a href="#灾备的演变" class="headerlink" title="灾备的演变"></a>灾备的演变</h2><h3 id="同城“双活”"><a href="#同城“双活”" class="headerlink" title="同城“双活”"></a>同城“双活”</h3><p><img src="/images/same-city.png" alt="Alt text">
+阿里早期的架构就是同城“<code>双活</code>”，而这个双活是业务层的双活，DB层还是单点写。机房B的数据库作为机房B的冷备，
+故障的时候，将冷备机房的数据库切换为master。一般不经过多次演练，切换的风险还是比较高的。</p>
 <h3 id="同城“双活”，异地只读"><a href="#同城“双活”，异地只读" class="headerlink" title="同城“双活”，异地只读"></a>同城“双活”，异地只读</h3><p><img src="/images/different-city.png" alt="Alt text"></p>
-<h3 id="两地三中心"><a href="#两地三中心" class="headerlink" title="两地三中心"></a>两地三中心</h3><h3 id="异地多活"><a href="#异地多活" class="headerlink" title="异地多活"></a>异地多活</h3><h2 id="灾备实施要点"><a href="#灾备实施要点" class="headerlink" title="灾备实施要点"></a>灾备实施要点</h2><h3 id="数据同步"><a href="#数据同步" class="headerlink" title="数据同步"></a>数据同步</h3><p>1）mysql的binlog复制<br>2）otter同步</p>
-<h4 id="数据同步监控"><a href="#数据同步监控" class="headerlink" title="数据同步监控"></a>数据同步监控</h4><h3 id="切换方案"><a href="#切换方案" class="headerlink" title="切换方案"></a>切换方案</h3><h3 id="切换演练"><a href="#切换演练" class="headerlink" title="切换演练"></a>切换演练</h3><h2 id="落地要点"><a href="#落地要点" class="headerlink" title="落地要点"></a>落地要点</h2><p>1）明确需求，结合实际情况，选取合适的架构，适合的才是最好的；<br>2）剥离边缘业务，关注重点，不要被边缘业务干扰；<br>3）切换演练</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>关于金融灾备一直都是说的多，落地的少；现在除了阿里一些大公司有实力做异地双活，大部分的灾备方案也就是冷备，即便落地了，碰到机房故障的，没几个敢切的，最重要的是冷备还浪费机器。<br>但是，即便是有这么多缺点，但是依然很多公司乐此不疲的推动灾备的事情，因为大家已经意识到这个问题的重要性，对于金融灾备本质上不是一个可选项，是必须解决的一个问题。<br>所以，最好的情况是灾备我们必须实施，同时尽可能的降低切换的可能。</p>
+<h3 id="两地三中心"><a href="#两地三中心" class="headerlink" title="两地三中心"></a>两地三中心</h3><h3 id="异地多活"><a href="#异地多活" class="headerlink" title="异地多活"></a>异地多活</h3><h2 id="灾备实施要点"><a href="#灾备实施要点" class="headerlink" title="灾备实施要点"></a>灾备实施要点</h2><h3 id="数据同步"><a href="#数据同步" class="headerlink" title="数据同步"></a>数据同步</h3><p>1）mysql的binlog复制
+2）otter同步</p>
+<h4 id="数据同步监控"><a href="#数据同步监控" class="headerlink" title="数据同步监控"></a>数据同步监控</h4><h3 id="切换方案"><a href="#切换方案" class="headerlink" title="切换方案"></a>切换方案</h3><h3 id="切换演练"><a href="#切换演练" class="headerlink" title="切换演练"></a>切换演练</h3><h2 id="落地要点"><a href="#落地要点" class="headerlink" title="落地要点"></a>落地要点</h2><p>1）明确需求，结合实际情况，选取合适的架构，适合的才是最好的；
+2）剥离边缘业务，关注重点，不要被边缘业务干扰；
+3）切换演练</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>关于金融灾备一直都是说的多，落地的少；现在除了阿里一些大公司有实力做异地双活，大部分的灾备方案也就是冷备，即便落地了，碰到机房故障的，没几个敢切的，最重要的是冷备还浪费机器。
+但是，即便是有这么多缺点，但是依然很多公司乐此不疲的推动灾备的事情，因为大家已经意识到这个问题的重要性，对于金融灾备本质上不是一个可选项，是必须解决的一个问题。
+所以，最好的情况是灾备我们必须实施，同时尽可能的降低切换的可能。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2>
       
     </div>
@@ -499,7 +510,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">52</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -510,7 +521,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

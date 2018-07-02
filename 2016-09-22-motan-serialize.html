@@ -87,20 +87,20 @@
 
 
 
-<meta name="description" content="简介 序列化： 将数据结构或对象转换成二进制串的过程。反序列化：将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。  motan 将RPC请求中的参数、结果等对象进行序列化与反序列化，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）">
+<meta name="description" content="简介 序列化： 将数据结构或对象转换成二进制串的过程。 反序列化：将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。  motan 将RPC请求中的参数、结果等对象进行序列化与反序列化，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）">
 <meta name="keywords" content="motan,源码,serialization,序列化">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Motan源码解读-serialize">
 <meta property="og:url" content="http://code.zhizus.com/2016-09-22-motan-serialize.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="简介 序列化： 将数据结构或对象转换成二进制串的过程。反序列化：将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。  motan 将RPC请求中的参数、结果等对象进行序列化与反序列化，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）">
+<meta property="og:description" content="简介 序列化： 将数据结构或对象转换成二进制串的过程。 反序列化：将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。  motan 将RPC请求中的参数、结果等对象进行序列化与反序列化，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://code.zhizus.com/code/images//motan/motan-register-server-client.jpg">
 <meta property="og:image" content="http://code.zhizus.com/images/motan/serialize.png">
 <meta property="og:updated_time" content="2018-06-04T02:56:46.726Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-serialize">
-<meta name="twitter:description" content="简介 序列化： 将数据结构或对象转换成二进制串的过程。反序列化：将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。  motan 将RPC请求中的参数、结果等对象进行序列化与反序列化，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）">
+<meta name="twitter:description" content="简介 序列化： 将数据结构或对象转换成二进制串的过程。 反序列化：将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。  motan 将RPC请求中的参数、结果等对象进行序列化与反序列化，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）">
 <meta name="twitter:image" content="http://code.zhizus.com/code/images//motan/motan-register-server-client.jpg">
 
 
@@ -356,11 +356,13 @@
 
       
         <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote>
-<p><strong>序列化：</strong> 将数据结构或对象转换成二进制串的过程。<br><strong>反序列化：</strong>将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。</p>
+<p><strong>序列化：</strong> 将数据结构或对象转换成二进制串的过程。
+<strong>反序列化：</strong>将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。</p>
 </blockquote>
 <p>motan 将RPC<code>请求中的参数、结果等对象进行序列化与反序列化</code>，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）</p>
 <a id="more"></a>
-<p>一个rpc框架的性能主要取决于：线程模型，IO模型，序列化三个方面。（对于有gc机制的jvm来说，零拷贝也很关键）<br>所以一个性能优异的序列化对于rpc是非常重要的。（这里的序列化和反序列化仅仅涉及到请求中的参数、结果等对象，协议其他的信息的序列化见后续的codec章节）</p>
+<p>一个rpc框架的性能主要取决于：线程模型，IO模型，序列化三个方面。（对于有gc机制的jvm来说，零拷贝也很关键）
+所以一个性能优异的序列化对于rpc是非常重要的。（这里的序列化和反序列化仅仅涉及到请求中的参数、结果等对象，协议其他的信息的序列化见后续的codec章节）</p>
 <p>motan会对client端发送的request的请求参数对象进行序列化，也会对服务端下发给response对象进行序列化，如下图所示：</p>
 <p><img src="/code/images//motan/motan-register-server-client.jpg" alt=""></p>
 <h2 id="motan目前支持两种序列化："><a href="#motan目前支持两种序列化：" class="headerlink" title="motan目前支持两种序列化："></a>motan目前支持两种序列化：</h2><ul>
@@ -372,7 +374,8 @@
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;motan:protocol serialization=&quot;fastjson&quot; /&gt;</span><br></pre></td></tr></table></figure>
 <h2 id="各种序列化性能对比"><a href="#各种序列化性能对比" class="headerlink" title="各种序列化性能对比"></a>各种序列化性能对比</h2><p><img src="/images/motan/serialize.png" alt=""></p>
-<p>我们可以发现fastjson的序列化性能和thrift和protobuf差异已经不太大了，明显好过hession（当然上图比较的不知道hession的版本，可能不准确）<br>dubbo是有针对hession单独做优化的，但是motan默认使用hession，且没做优化。</p>
+<p>我们可以发现fastjson的序列化性能和thrift和protobuf差异已经不太大了，明显好过hession（当然上图比较的不知道hession的版本，可能不准确）
+dubbo是有针对hession单独做优化的，但是motan默认使用hession，且没做优化。</p>
 <h3 id="motan序列化的实现"><a href="#motan序列化的实现" class="headerlink" title="motan序列化的实现"></a>motan序列化的实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 这个可以可以扩展的，也就是你可以扩展motan用你想要的序列化方式</span></span><br><span class="line"><span class="meta">@Spi</span>(scope=Scope.PROTOTYPE)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Serialization</span> </span>&#123;</span><br><span class="line">	<span class="comment">// 将对象序列话称字节数组</span></span><br><span class="line">	<span class="keyword">byte</span>[] serialize(Object obj) <span class="keyword">throws</span> IOException;</span><br><span class="line">	<span class="comment">// 将字节数组反序列化成对象</span></span><br><span class="line">	&lt;T&gt; <span class="function">T <span class="title">deserialize</span><span class="params">(<span class="keyword">byte</span>[] bytes, Class&lt;T&gt; clz)</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>具体的实现要看hession2和fastjson了。</p>
 <p>motan序列化&amp;反序列化仅仅包含了请求参数和返回对象，其他对象的编解码，我们且看下一篇文章。</p>
@@ -380,7 +383,8 @@
 <p>后记：</p>
 <p>1.fastjson确实够快，使用也挺方便的。</p>
 <p>2.如果我们需要扩展motan实现thrift或者protobuf还需要hession或者fastjson来辅助序列化吗？</p>
-<p>首先hession可以排除，使用hession跨语言调用就比较难实现了。<br>那么需要辅助的fastjson来序列化吗？没必要。</p>
+<p>首先hession可以排除，使用hession跨语言调用就比较难实现了。
+那么需要辅助的fastjson来序列化吗？没必要。</p>
 
       
     </div>
@@ -432,8 +436,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-override.html" rel="next" title="Motan源码解读-源码结构">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-源码结构
+              <a href="/2016-09-21-motan-protocol.html" rel="next" title="Motan源码解读-Protocol">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-Protocol
               </a>
             
           </div>
@@ -518,7 +522,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">52</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -529,7 +533,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

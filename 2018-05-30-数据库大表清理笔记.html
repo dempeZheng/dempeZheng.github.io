@@ -368,14 +368,16 @@
 <h3 id="os上删除物理文件"><a href="#os上删除物理文件" class="headerlink" title="os上删除物理文件"></a>os上删除物理文件</h3><blockquote>
 <p>大家都知道在ext3上rm一个200G的文件会非常耗时，这是由于ext3存储数据的结构导致，如果一个很大的文件，ext3的i_block无法直接存放，需要多层嵌套才能完全存储下，在这种情况下由于映射的层次多，并且由于多层映射也不会是顺序存储的，就导致了很大的随机IO，这就导致了删除物理文件非常慢的现象。在这种情况下，建议升级到ext4，这是由于ext4比ext3使用extent分配存储空间，其最大的优势就是顺序存储。</p>
 </blockquote>
-<h2 id="采用硬链接-truncate-sleep清理"><a href="#采用硬链接-truncate-sleep清理" class="headerlink" title="采用硬链接+truncate+ sleep清理"></a>采用硬链接+truncate+ sleep清理</h2><p>　1、建立硬链接。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln table.ibd table.idb.hdlk</span><br></pre></td></tr></table></figure></p>
+<h2 id="采用硬链接-truncate-sleep清理"><a href="#采用硬链接-truncate-sleep清理" class="headerlink" title="采用硬链接+truncate+ sleep清理"></a>采用硬链接+truncate+ sleep清理</h2><p>　1、建立硬链接。
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln table.ibd table.idb.hdlk</span><br></pre></td></tr></table></figure></p>
 <p>2、mysql执行drop table操作。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop table <span class="keyword">if</span> exists tablename；</span><br></pre></td></tr></table></figure>
 <p>3、使用truncate删除物理文件。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">truncate -s 1024*1024*4 filename</span><br></pre></td></tr></table></figure>
 <p>　　其实硬链接和drop table就不用多说了，在建立硬链接之后，mysql会认为rm了硬链接文件之后就算操作完毕，不会真正去删除物理文件从而提高了速度。但是对于服务器来说，实际的物理文件还在，如果手动rm，还是会产生很多的io影响，这时候就用到了truncate这个工具。这个工具会根据指定的size大小进行逐步删除，会将对IO造成的影响降到最低。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>直接drop 大表或者在db服务器删除大文件，db性能下降的很厉害，这点算是深有体会，好几次业务抖动都是db服务器清理大文件造成的。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p>关于采用硬链接+truncate+ sleep清理大表这篇文章讲的比较清楚<br><a href="https://www.cnblogs.com/billyxp/p/3664672.html" target="_blank" rel="noopener">https://www.cnblogs.com/billyxp/p/3664672.html</a></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p>关于采用硬链接+truncate+ sleep清理大表这篇文章讲的比较清楚
+<a href="https://www.cnblogs.com/billyxp/p/3664672.html" target="_blank" rel="noopener">https://www.cnblogs.com/billyxp/p/3664672.html</a></p>
 
       
     </div>
@@ -513,7 +515,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">52</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -524,7 +526,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

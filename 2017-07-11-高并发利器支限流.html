@@ -362,14 +362,19 @@
 <p><strong>限流的目的是通过对并发访问 / 请求进行限速或者一个时间窗口内的的请求进行限速来保护系统</strong>，一旦达到限制速率则可以拒绝服务（可以直接丢弃请求，或者将溢出请求排队，引流等）。</p>
 <p>一般开发高并发系统常见的限流有：限制总并发数（比如数据库连接池、线程池）、限制瞬时并发数（如 nginx 的 limit_conn 模块，用来限制瞬时并发连接数）、限制时间窗口内的平均速率（如 Guava 的 RateLimiter 、 nginx 的 limit_req 模块，限制每秒的平均速率）；其他还有如限制远程接口调用速率、限制 MQ 的消费速率。另外还可以根据网络连接数、网络流量、 CPU 或内存负载等来限流。</p>
 <h2 id="限流算法"><a href="#限流算法" class="headerlink" title="限流算法"></a>限流算法</h2><p>常见的限流算法有漏桶算法和令牌桶算法。当然还有计算器限流。</p>
-<h3 id="计算器限流"><a href="#计算器限流" class="headerlink" title="计算器限流"></a>计算器限流</h3><p>维护一个单位时间内的Counter,如判断单位时间已经过去,则将Counter重置零。<br>实现比较简单，但是没有很好的处理单位时间的边界,比如在前一秒的最后一毫秒里和下一秒的第一毫秒都触发了最大的请求数,将目光移动一下,就看到在两毫秒内发生了两倍的QPS.</p>
-<h3 id="漏桶算法"><a href="#漏桶算法" class="headerlink" title="漏桶算法"></a>漏桶算法</h3><p>漏桶(<strong>Leaky Bucket</strong>)算法思路很简单。请求先进入到漏桶里，漏桶以一定的速度出水，请求流量过大会直接溢出。<br>漏桶算法可以<code>保证下行流量的速率</code>。<br><img src="images/20151227125739535.png" alt="Alt text"></p>
-<h3 id="令牌桶算法"><a href="#令牌桶算法" class="headerlink" title="令牌桶算法"></a>令牌桶算法</h3><p>令牌桶算法(<strong>Token Bucket</strong>)是按照固定速率往桶中添加令牌，请求是否被处理需要看桶中令牌是否足够，当令牌数减为零时则拒绝新的请求；<br><img src="images/69856-20150905181713889-1526401931.jpg" alt="Alt text"></p>
+<h3 id="计算器限流"><a href="#计算器限流" class="headerlink" title="计算器限流"></a>计算器限流</h3><p>维护一个单位时间内的Counter,如判断单位时间已经过去,则将Counter重置零。
+实现比较简单，但是没有很好的处理单位时间的边界,比如在前一秒的最后一毫秒里和下一秒的第一毫秒都触发了最大的请求数,将目光移动一下,就看到在两毫秒内发生了两倍的QPS.</p>
+<h3 id="漏桶算法"><a href="#漏桶算法" class="headerlink" title="漏桶算法"></a>漏桶算法</h3><p>漏桶(<strong>Leaky Bucket</strong>)算法思路很简单。请求先进入到漏桶里，漏桶以一定的速度出水，请求流量过大会直接溢出。
+漏桶算法可以<code>保证下行流量的速率</code>。
+<img src="images/20151227125739535.png" alt="Alt text"></p>
+<h3 id="令牌桶算法"><a href="#令牌桶算法" class="headerlink" title="令牌桶算法"></a>令牌桶算法</h3><p>令牌桶算法(<strong>Token Bucket</strong>)是按照固定速率往桶中添加令牌，请求是否被处理需要看桶中令牌是否足够，当令牌数减为零时则拒绝新的请求；
+<img src="images/69856-20150905181713889-1526401931.jpg" alt="Alt text"></p>
 <h3 id="令牌桶和漏桶对比"><a href="#令牌桶和漏桶对比" class="headerlink" title="令牌桶和漏桶对比"></a>令牌桶和漏桶对比</h3><ul>
 <li>漏桶限制的是常量流出速率（即流出速率是一个固定常量值，比如都是1的速率流出，而不能一次是1，下次又是2），从而平滑突发流入速率；</li>
 <li>令牌桶允许一定程度的突发，而漏桶主要目的是平滑流入速率；</li>
 </ul>
-<h2 id="guava实现的令牌桶算法RateLimiter"><a href="#guava实现的令牌桶算法RateLimiter" class="headerlink" title="guava实现的令牌桶算法RateLimiter"></a>guava实现的令牌桶算法RateLimiter</h2><p><img src="images/diagram.png" alt="Alt text"><br>RateLimiter其实是一个abstract类,但是它提供了几个static方法用于创建RateLimiter:</p>
+<h2 id="guava实现的令牌桶算法RateLimiter"><a href="#guava实现的令牌桶算法RateLimiter" class="headerlink" title="guava实现的令牌桶算法RateLimiter"></a>guava实现的令牌桶算法RateLimiter</h2><p><img src="images/diagram.png" alt="Alt text">
+RateLimiter其实是一个abstract类,但是它提供了几个static方法用于创建RateLimiter:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 创建一个稳定输出令牌的RateLimiter，保证了平均每秒不超过permitsPerSecond个请求</span></span><br><span class="line"><span class="comment">* 当请求到来的速度超过了permitsPerSecond，保证每秒只处理permitsPerSecond个请求</span></span><br><span class="line"><span class="comment">* 当这个RateLimiter使用不足(即请求到来速度小于permitsPerSecond)，会囤积最多permitsPerSecond个请求</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> RateLimiter <span class="title">create</span><span class="params">(<span class="keyword">double</span> permitsPerSecond)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 创建一个稳定输出令牌的RateLimiter，保证了平均每秒不超过permitsPerSecond个请求</span></span><br><span class="line"><span class="comment">* 还包含一个热身期(warmup period),热身期内，RateLimiter会平滑的将其释放令牌的速率加大，直到起达到最大速率</span></span><br><span class="line"><span class="comment">* 同样，如果RateLimiter在热身期没有足够的请求(unused),则起速率会逐渐降低到冷却状态</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* 设计这个的意图是为了满足那种资源提供方需要热身时间，而不是每次访问都能提供稳定速率的服务的情况(比如带缓存服务，需要定期刷新缓存的)</span></span><br><span class="line"><span class="comment">* 参数warmupPeriod和unit决定了其从冷却状态到达最大速率的时间</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> RateLimiter <span class="title">create</span><span class="params">(<span class="keyword">double</span> permitsPerSecond, <span class="keyword">long</span> warmupPeriod, TimeUnit unit)</span></span>;</span><br></pre></td></tr></table></figure>
 <p>提供了两个获取令牌的方法,不带参数表示获取一个令牌.如果没有令牌则一直等待,返回等待的时间(单位为秒),没有被限流则直接返回</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">acquire</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">acquire</span><span class="params">(<span class="keyword">int</span> permits)</span></span>;</span><br></pre></td></tr></table></figure>
@@ -528,7 +533,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">52</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -539,7 +544,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

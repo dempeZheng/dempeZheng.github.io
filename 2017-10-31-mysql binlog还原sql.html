@@ -87,18 +87,18 @@
 
 
 
-<meta name="description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。核心需求是将差异的binlog提取出来转换为可执行的sql语句。 这个需求涉及到两个点：1）切换主从关系前先记录主从同步的位点。2）根据位点提取binlog，并且将这部分binlog还原成sql语句。 解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的主从同">
+<meta name="description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。 核心需求是将差异的binlog提取出来转换为可执行的sql语句。 这个需求涉及到两个点： 1）切换主从关系前先记录主从同步的位点。 2）根据位点提取binlog，并且将这部分binlog还原成sql语句。 解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的">
 <meta name="keywords" content="mysql,binlog,主备切换">
 <meta property="og:type" content="article">
 <meta property="og:title" content="mysql binlog还原sql">
 <meta property="og:url" content="http://code.zhizus.com/2017-10-31-mysql binlog还原sql.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。核心需求是将差异的binlog提取出来转换为可执行的sql语句。 这个需求涉及到两个点：1）切换主从关系前先记录主从同步的位点。2）根据位点提取binlog，并且将这部分binlog还原成sql语句。 解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的主从同">
+<meta property="og:description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。 核心需求是将差异的binlog提取出来转换为可执行的sql语句。 这个需求涉及到两个点： 1）切换主从关系前先记录主从同步的位点。 2）根据位点提取binlog，并且将这部分binlog还原成sql语句。 解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:updated_time" content="2018-05-28T02:35:39.709Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql binlog还原sql">
-<meta name="twitter:description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。核心需求是将差异的binlog提取出来转换为可执行的sql语句。 这个需求涉及到两个点：1）切换主从关系前先记录主从同步的位点。2）根据位点提取binlog，并且将这部分binlog还原成sql语句。 解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的主从同">
+<meta name="twitter:description" content="场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。 核心需求是将差异的binlog提取出来转换为可执行的sql语句。 这个需求涉及到两个点： 1）切换主从关系前先记录主从同步的位点。 2）根据位点提取binlog，并且将这部分binlog还原成sql语句。 解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的">
 
 
 
@@ -352,35 +352,48 @@
       
 
       
-        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。<br>核心需求是将差异的binlog提取出来转换为可执行的sql语句。</p>
-<p>这个需求涉及到两个点：<br>1）切换主从关系前先记录主从同步的位点。<br>2）根据位点提取binlog，并且将这部分binlog还原成sql语句。</p>
+        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。
+核心需求是将差异的binlog提取出来转换为可执行的sql语句。</p>
+<p>这个需求涉及到两个点：
+1）切换主从关系前先记录主从同步的位点。
+2）根据位点提取binlog，并且将这部分binlog还原成sql语句。</p>
 <p>解决这个问题需要对binlog有一定了解。当然前提是至少对mysql的主从同步有一个初步的认识。</p>
 <h2 id="binlog概述"><a href="#binlog概述" class="headerlink" title="binlog概述"></a>binlog概述</h2><p>MySQL binlog以event的形式，记录了MySQL server从启用binlog以来所有的变更信息，能够帮助重现这之间的所有变化。MySQL引入binlog主要有两个目的：一是为了主从复制；二是某些备份还原操作后需要重新应用binlog。</p>
 <p>有三种可选的binlog格式，各有优缺点：</p>
 <ul>
 <li>statement：基于SQL语句的模式，binlog数据量小，但是某些语句和函数在复制过程可能导致数据不一致甚至出错；</li>
 <li>row：基于行的模式，记录的是行的完整变化。很安全，但是binlog会比其他两种模式大很多；</li>
-<li>mixed：混合模式，根据语句来选用是statement还是row模式；<br>利用binlog闪回，需要将binlog格式设置为row。row模式下，一条使用innodb的insert会产生如下格式的binlog：</li>
+<li>mixed：混合模式，根据语句来选用是statement还是row模式；
+利用binlog闪回，需要将binlog格式设置为row。row模式下，一条使用innodb的insert会产生如下格式的binlog：</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># at 1129</span><br><span class="line">#161225 23:15:38 server id 3773306082  end_log_pos 1197         Query   thread_id=1903021       exec_time=0     error_code=0</span><br><span class="line">SET TIMESTAMP=1482678938/*!*/;</span><br><span class="line">BEGIN</span><br><span class="line">/*!*/;</span><br><span class="line"># at 1197</span><br><span class="line">#161225 23:15:38 server id 3773306082  end_log_pos 1245         Table_map: `test`.`user` mapped to number 290</span><br><span class="line"># at 1245</span><br><span class="line">#161225 23:15:38 server id 3773306082  end_log_pos 1352         Write_rows: table id 290 flags: STMT_END_F</span><br><span class="line"></span><br><span class="line">BINLOG &apos;</span><br><span class="line">muJfWBPiFOjgMAAAAN0EAAAAACIBAAAAAAEABHRlc3QABHVzZXIAAwMPEQMeAAAC</span><br><span class="line">muJfWB7iFOjgawAAAEgFAAAAACIBAAAAAAEAAgAD//gBAAAABuWwj+i1tVhK1hH4AgAAAAblsI/p</span><br><span class="line">krFYStYg+AMAAAAG5bCP5a2ZWE/onPgEAAAABuWwj+adjlhNeAD4BQAAAAJ0dFhRYJM=</span><br><span class="line">&apos;/*!*/;</span><br><span class="line"># at 1352</span><br><span class="line">#161225 23:15:38 server id 3773306082  end_log_pos 1379         Xid = 5327954</span><br><span class="line">COMMIT/*!*/;</span><br></pre></td></tr></table></figure>
 <h3 id="binlog打开方式："><a href="#binlog打开方式：" class="headerlink" title="binlog打开方式："></a>binlog打开方式：</h3><p>1)binlog的位置</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'log_%'</span>;</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> +----------------------------------------+--------------------------------+</span><br><span class="line">| Variable_name                          | Value                          |</span><br><span class="line">+----------------------------------------+--------------------------------+</span><br><span class="line">| log_bin                                | ON                             |</span><br><span class="line">| log_bin_basename                       | /var/lib/mysql/mysql-bin       |</span><br><span class="line">| log_bin_index                          | /var/lib/mysql/mysql-bin.index |</span><br><span class="line">| log_bin_trust_function_creators        | OFF                            |</span><br><span class="line">| log_bin_use_v1_row_events              | OFF                            |</span><br><span class="line">| log_error                              | /var/log/mysql/error.log       |</span><br><span class="line">| log_output                             | FILE                           |</span><br><span class="line">| log_queries_not_using_indexes          | OFF                            |</span><br><span class="line">| log_slave_updates                      | OFF                            |</span><br><span class="line">| log_slow_admin_statements              | OFF                            |</span><br><span class="line">| log_slow_slave_statements              | OFF                            |</span><br><span class="line">| log_throttle_queries_not_using_indexes | 0                              |</span><br><span class="line">| log_warnings                           | 1                              |</span><br><span class="line">+----------------------------------------+--------------------------------+</span><br></pre></td></tr></table></figure>
-<p>binlog的位置在：/var/lib/mysql/mysql-bin<br>2)查看binlog的文件：</p>
+<p>binlog的位置在：/var/lib/mysql/mysql-bin
+2)查看binlog的文件：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="built_in">binary</span> <span class="keyword">logs</span>;</span><br></pre></td></tr></table></figure>
 <p>3)查看binlog具体的事件：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show binlog events in &apos;mysql-bin.000006&apos;;</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">+------------------+------+-------------+-----------+-------------+------------------------------------------------------------------------------------------------------------------------------------+</span><br><span class="line">| Log_name         | Pos  | Event_type  | Server_id | End_log_pos | Info                                                                                                                               |</span><br><span class="line">+------------------+------+-------------+-----------+-------------+------------------------------------------------------------------------------------------------------------------------------------+</span><br><span class="line">| mysql-bin.000006 |    4 | Format_desc |         1 |         120 | Server ver: 5.6.33-0ubuntu0.14.04.1-log, Binlog ver: 4                                                                             |</span><br><span class="line">| mysql-bin.000006 |  120 | Query       |         1 |         237 | create database `demo`character set utf8mb4                                                                                        |</span><br><span class="line">| mysql-bin.000006 |  237 | Query       |         1 |         429 | use `demo`; Create table `demo`.`test`(</span><br><span class="line">  `id` int(11) NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `name` varchar(50),</span><br><span class="line">  primary key (`id`)</span><br><span class="line">) |</span><br><span class="line">| mysql-bin.000006 |  429 | Query       |         1 |         501 | BEGIN                                                                                                                              |</span><br><span class="line"></span><br><span class="line">| mysql-bin.000006 | 2755 | Xid         |         1 |        2786 | COMMIT /* xid=1056 */                                                                                                              |</span><br><span class="line">+------------------+------+-------------+-----------+-------------+------------------------------------------------------------------------------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
 <p>4) binlog的另外另外一种查看方式</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/mysqlbinlog  --base64-output=decode-rows -v  mysql-bin.000006</span><br></pre></td></tr></table></figure>
-<p>5)查询主从同步的位点<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">master</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure></p>
+<p>5)查询主从同步的位点
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">master</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure></p>
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><blockquote>
 <p>MySQL binlog以event的形式，记录了MySQL server从启用binlog以来所有的变更信息，能够帮助重现这之间的所有变化。</p>
 </blockquote>
-<p>这个是binlog数据修复的理论依据。剩下的就是不同语言的实现。但是基本方式都是大同小异。比较通用的做法都是：<br>1）伪装成slave，拉取mysql binlog日志<br>2）解析mysql binlog日志，遍历binlog event<br>3）根据binlog event还原出sql</p>
+<p>这个是binlog数据修复的理论依据。剩下的就是不同语言的实现。但是基本方式都是大同小异。比较通用的做法都是：
+1）伪装成slave，拉取mysql binlog日志
+2）解析mysql binlog日志，遍历binlog event
+3）根据binlog event还原出sql</p>
 <h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>知晓原理，花点时间实现一个初版的工具应该不太难。但是要想实现一个靠谱的工具还是需要有点经验的。这里有一个实现的比较靠谱易用的脚本，强烈安利：<a href="https://github.com/danfengcao/binlog2sql" target="_blank" rel="noopener">https://github.com/danfengcao/binlog2sql</a></p>
 <blockquote>
-<p>当然有兴趣的也可以自己试试，多动手对巩固学习还是非常有帮助的。<br>对于java系的同学直接依赖阿里的canal来实现也是比较容易的。<br>花了大概2个小时简单了实现了下想法（还有很多坑没填），代码地址：<a href="https://github.com/dempeZheng/binlog2sql" target="_blank" rel="noopener">https://github.com/dempeZheng/binlog2sql</a><br>业余玩玩也是不错的，对巩固canal，了解binlog都是有一定帮助。<br>顺便也安利一下cannal，场景用的对，能解决复杂问题。是java解决数据库相关问题的一个比较好的case。<a href="https://github.com/alibaba/canal" target="_blank" rel="noopener">https://github.com/alibaba/canal</a> ，文档真心不错。</p>
+<p>当然有兴趣的也可以自己试试，多动手对巩固学习还是非常有帮助的。
+对于java系的同学直接依赖阿里的canal来实现也是比较容易的。
+花了大概2个小时简单了实现了下想法（还有很多坑没填），代码地址：<a href="https://github.com/dempeZheng/binlog2sql" target="_blank" rel="noopener">https://github.com/dempeZheng/binlog2sql</a>
+业余玩玩也是不错的，对巩固canal，了解binlog都是有一定帮助。
+顺便也安利一下cannal，场景用的对，能解决复杂问题。是java解决数据库相关问题的一个比较好的case。<a href="https://github.com/alibaba/canal" target="_blank" rel="noopener">https://github.com/alibaba/canal</a> ，文档真心不错。</p>
 </blockquote>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>binlog的常见运维还是比较值得去了解的，熟悉后对于误操作还可以人工恢复，不至于跪掉。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://github.com/danfengcao/binlog2sql/blob/master/example/mysql-flashback-priciple-and-practice.md" target="_blank" rel="noopener">https://github.com/danfengcao/binlog2sql/blob/master/example/mysql-flashback-priciple-and-practice.md</a></p>
@@ -521,7 +534,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">52</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -532,7 +545,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
