@@ -87,31 +87,37 @@
 
 
 
-<meta name="description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
+<meta name="description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。
+过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
 motan filter：目前实现的filter
 AccessLogFilter
 
 
-统计整个call的执行状况，尽量到最上层，最后执行.此filter会对性能产生一定">
+统计整个call的执行状况，尽量到最上层，最后执行.
+此filter会对性能产生">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Motan源码解读-Filter">
 <meta property="og:url" content="http://code.zhizus.com/2016-09-21-motan-filter.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
+<meta property="og:description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。
+过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
 motan filter：目前实现的filter
 AccessLogFilter
 
 
-统计整个call的执行状况，尽量到最上层，最后执行.此filter会对性能产生一定">
+统计整个call的执行状况，尽量到最上层，最后执行.
+此filter会对性能产生">
 <meta property="og:updated_time" content="2017-04-15T13:41:29.127Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-Filter">
-<meta name="twitter:description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
+<meta name="twitter:description" content="很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。
+过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
 motan filter：目前实现的filter
 AccessLogFilter
 
 
-统计整个call的执行状况，尽量到最上层，最后执行.此filter会对性能产生一定">
+统计整个call的执行状况，尽量到最上层，最后执行.
+此filter会对性能产生">
 
 
 
@@ -365,12 +371,14 @@ AccessLogFilter
       
 
       
-        <p>很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。<br>过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。</p>
+        <p>很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。
+过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。</p>
 <h2 id="motan-filter："><a href="#motan-filter：" class="headerlink" title="motan filter："></a>motan filter：</h2><h3 id="目前实现的filter"><a href="#目前实现的filter" class="headerlink" title="目前实现的filter"></a>目前实现的filter</h3><ul>
 <li>AccessLogFilter</li>
 </ul>
 <blockquote>
-<p>统计整个call的执行状况，尽量到最上层，最后执行.<br>此filter会对性能产生一定影响，请求量较大时建议关闭。</p>
+<p>统计整个call的执行状况，尽量到最上层，最后执行.
+此filter会对性能产生一定影响，请求量较大时建议关闭。</p>
 </blockquote>
 <ul>
 <li>AccessStatisticFilter</li>
@@ -461,8 +469,8 @@ AccessLogFilter
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-20-motan-loadbalance.html" rel="next" title="Motan源码解读-负载均衡">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-负载均衡
+              <a href="/2016-09-21-motan-hastratege.html" rel="next" title="Motan源码解读-容错策略">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-容错策略
               </a>
             
           </div>
@@ -471,8 +479,8 @@ AccessLogFilter
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-21-motan-hastratege.html" rel="prev" title="Motan源码解读-容错策略">
-                Motan源码解读-容错策略 <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-21-motan-protocol.html" rel="prev" title="Motan源码解读-Protocol">
+                Motan源码解读-Protocol <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -547,7 +555,7 @@ AccessLogFilter
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -558,7 +566,7 @@ AccessLogFilter
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

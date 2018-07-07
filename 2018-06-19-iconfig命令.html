@@ -90,7 +90,9 @@
 <meta name="description" content="ifconfig命令被用于配置和显示Linux内核中网络接口的网络参数。用ifconfig命令配置的网卡信息，在网卡重启后机器重启后，配置就不存在。要想将上述的配置信息永远的存的电脑里，那就要修改网卡的配置文件了。
 语法1ifconfig
 参数
-add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；del&amp;lt;地址&amp;gt;：删除网络设备IPv6的IP地址；down：关闭指定的网络设备；">
+add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；
+del&amp;lt;地址&amp;gt;：删除网络设备IPv6的IP地址；
+down：关闭指定的网络设备；">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ifconfig命令">
 <meta property="og:url" content="http://code.zhizus.com/2018-06-19-iconfig命令.html">
@@ -98,14 +100,18 @@ add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；del&amp;lt;地�
 <meta property="og:description" content="ifconfig命令被用于配置和显示Linux内核中网络接口的网络参数。用ifconfig命令配置的网卡信息，在网卡重启后机器重启后，配置就不存在。要想将上述的配置信息永远的存的电脑里，那就要修改网卡的配置文件了。
 语法1ifconfig
 参数
-add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；del&amp;lt;地址&amp;gt;：删除网络设备IPv6的IP地址；down：关闭指定的网络设备；">
+add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；
+del&amp;lt;地址&amp;gt;：删除网络设备IPv6的IP地址；
+down：关闭指定的网络设备；">
 <meta property="og:updated_time" content="2018-06-20T14:43:42.184Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ifconfig命令">
 <meta name="twitter:description" content="ifconfig命令被用于配置和显示Linux内核中网络接口的网络参数。用ifconfig命令配置的网卡信息，在网卡重启后机器重启后，配置就不存在。要想将上述的配置信息永远的存的电脑里，那就要修改网卡的配置文件了。
 语法1ifconfig
 参数
-add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；del&amp;lt;地址&amp;gt;：删除网络设备IPv6的IP地址；down：关闭指定的网络设备；">
+add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；
+del&amp;lt;地址&amp;gt;：删除网络设备IPv6的IP地址；
+down：关闭指定的网络设备；">
 
 
 
@@ -362,8 +368,24 @@ add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；del&amp;lt;地�
         <p>ifconfig命令被用于配置和显示Linux内核中网络接口的网络参数。用ifconfig命令配置的网卡信息，在网卡重启后机器重启后，配置就不存在。要想将上述的配置信息永远的存的电脑里，那就要修改网卡的配置文件了。</p>
 <h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ifconfig</div></pre></td></tr></table></figure>
 <h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><blockquote>
-<p>add&lt;地址&gt;：设置网络设备IPv6的ip地址；<br>del&lt;地址&gt;：删除网络设备IPv6的IP地址；<br>down：关闭指定的网络设备；</p>
-<p><hw<网络设备类型>&lt;硬件地址&gt;：设置网络设备的类型与硬件地址；<br>io_addr<i o地址="">：设置网络设备的I/O地址；<br>irq<irq地址>：设置网络设备的IRQ；<br>media&lt;网络媒介类型&gt;：设置网络设备的媒介类型；<br>mem_start&lt;内存地址&gt;：设置网络设备在主内存所占用的起始地址；<br>metric&lt;数目&gt;：指定在计算数据包的转送次数时，所要加上的数目；<br>mtu&lt;字节&gt;：设置网络设备的MTU；<br>netmask&lt;子网掩码&gt;：设置网络设备的子网掩码；<br>tunnel&lt;地址&gt;：建立IPv4与IPv6之间的隧道通信地址；<br>up：启动指定的网络设备；<br>-broadcast&lt;地址&gt;：将要送往指定地址的数据包当成广播数据包来处理；<br>-pointopoint&lt;地址&gt;：与指定地址的网络设备建立直接连线，此模式具有保密功能；<br>-promisc：关闭或启动指定网络设备的promiscuous模式；<br>IP地址：指定网络设备的IP地址；<br>网络设备：指定网络设备的名称。</irq地址></i></hw<网络设备类型></p>
+<p>add&lt;地址&gt;：设置网络设备IPv6的ip地址；
+del&lt;地址&gt;：删除网络设备IPv6的IP地址；
+down：关闭指定的网络设备；</p>
+<p><hw<网络设备类型>&lt;硬件地址&gt;：设置网络设备的类型与硬件地址；
+io_addr<i o地址="">：设置网络设备的I/O地址；
+irq<irq地址>：设置网络设备的IRQ；
+media&lt;网络媒介类型&gt;：设置网络设备的媒介类型；
+mem_start&lt;内存地址&gt;：设置网络设备在主内存所占用的起始地址；
+metric&lt;数目&gt;：指定在计算数据包的转送次数时，所要加上的数目；
+mtu&lt;字节&gt;：设置网络设备的MTU；
+netmask&lt;子网掩码&gt;：设置网络设备的子网掩码；
+tunnel&lt;地址&gt;：建立IPv4与IPv6之间的隧道通信地址；
+up：启动指定的网络设备；
+-broadcast&lt;地址&gt;：将要送往指定地址的数据包当成广播数据包来处理；
+-pointopoint&lt;地址&gt;：与指定地址的网络设备建立直接连线，此模式具有保密功能；
+-promisc：关闭或启动指定网络设备的promiscuous模式；
+IP地址：指定网络设备的IP地址；
+网络设备：指定网络设备的名称。</irq地址></i></hw<网络设备类型></p>
 </blockquote>
 <h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><blockquote>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]<span class="comment">#  ifconfig</span></div><div class="line">eth0      Link encap:Ethernet  HWaddr 00:16:3E:00:1E:51  </div><div class="line">          inet addr:10.160.7.81  Bcast:10.160.15.255  Mask:255.255.240.0</div><div class="line">          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1</div><div class="line">          RX packets:61430830 errors:0 dropped:0 overruns:0 frame:0</div><div class="line">          TX packets:88534 errors:0 dropped:0 overruns:0 carrier:0</div><div class="line">          collisions:0 txqueuelen:1000</div><div class="line">          RX bytes:3607197869 (3.3 GiB)  TX bytes:6115042 (5.8 MiB)</div><div class="line"></div><div class="line">lo        Link encap:Local Loopback  </div><div class="line">          inet addr:127.0.0.1  Mask:255.0.0.0</div><div class="line">          UP LOOPBACK RUNNING  MTU:16436  Metric:1</div><div class="line">          RX packets:56103 errors:0 dropped:0 overruns:0 frame:0</div><div class="line">          TX packets:56103 errors:0 dropped:0 overruns:0 carrier:0</div><div class="line">          collisions:0 txqueuelen:0</div><div class="line">          RX bytes:5079451 (4.8 MiB)  TX bytes:5079451 (4.8 MiB)</div></pre></td></tr></table></figure>
@@ -371,13 +393,20 @@ add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；del&amp;lt;地�
 <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>eth0表示第一块网卡，其中HWaddr表示网卡的物理地址，可以看到目前这个网卡的物理地址(MAC地址）是00:16:3E:00:1E:51。</p>
 <p>inet addr用来表示网卡的IP地址，此网卡的IP地址是10.160.7.81，广播地址Bcast:10.160.15.255，掩码地址Mask:255.255.240.0。</p>
 <p>lo是表示主机的回环地址，这个一般是用来测试一个网络程序，但又不想让局域网或外网的用户能够查看，只能在此台主机上运行和查看所用的网络接口。比如把 httpd服务器的指定到回环地址，在浏览器输入127.0.0.1就能看到你所架WEB网站了。但只是您能看得到，局域网的其它主机或用户无从知道。</p>
-<p>第一行：连接类型：Ethernet（以太网）HWaddr（硬件mac地址）。<br>第二行：网卡的IP地址、子网、掩码。<br>第三行：UP（代表网卡开启状态）RUNNING（代表网卡的网线被接上）MULTICAST（支持组播）MTU:1500（最大传输单元）：1500字节。<br>第四、五行：接收、发送数据包情况统计。<br>第七行：接收、发送数据字节数统计信息。</p>
+<p>第一行：连接类型：Ethernet（以太网）HWaddr（硬件mac地址）。
+第二行：网卡的IP地址、子网、掩码。
+第三行：UP（代表网卡开启状态）RUNNING（代表网卡的网线被接上）MULTICAST（支持组播）MTU:1500（最大传输单元）：1500字节。
+第四、五行：接收、发送数据包情况统计。
+第七行：接收、发送数据字节数统计信息。</p>
 <h2 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h2><h3 id="启动关闭指定网卡："><a href="#启动关闭指定网卡：" class="headerlink" title="启动关闭指定网卡："></a>启动关闭指定网卡：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ifconfig eth0 up</div><div class="line">ifconfig eth0 down</div></pre></td></tr></table></figure>
 <p>ifconfig eth0 up为启动网卡eth0，ifconfig eth0 down为关闭网卡eth0。<strong>ssh登陆linux服务器操作要小心，关闭了就不能开启了，除非你有多网卡</strong>。</p>
 <h3 id="为网卡配置和删除IPv6地址："><a href="#为网卡配置和删除IPv6地址：" class="headerlink" title="为网卡配置和删除IPv6地址："></a>为网卡配置和删除IPv6地址：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ifconfig eth0 add 33ffe:3240:800:1005::2/64    #为网卡eth0配置IPv6地址</div><div class="line">ifconfig eth0 del 33ffe:3240:800:1005::2/64    #为网卡eth0删除IPv6地址</div></pre></td></tr></table></figure>
 <h3 id="用ifconfig修改MAC地址："><a href="#用ifconfig修改MAC地址：" class="headerlink" title="用ifconfig修改MAC地址："></a>用ifconfig修改MAC地址：</h3><p>ifconfig eth0 hw ether 00:AA:BB:CC:dd:EE</p>
-<h3 id="配置IP地址："><a href="#配置IP地址：" class="headerlink" title="配置IP地址："></a>配置IP地址：</h3><p>[root@localhost ~]# <code>ifconfig eth0 192.168.2.10</code><br>[root@localhost ~]# <code>ifconfig eth0 192.168.2.10 netmask 255.255.255.0</code><br>[root@localhost ~]# i<code>fconfig eth0 192.168.2.10 netmask 255.255.255.0 broadcast 192.168.2.255</code></p>
-<h3 id="启用和关闭arp协议："><a href="#启用和关闭arp协议：" class="headerlink" title="启用和关闭arp协议："></a>启用和关闭arp协议：</h3><p><code>ifconfig eth0 arp</code>    #开启网卡eth0 的arp协议<br><code>ifconfig eth0 -arp</code>   #关闭网卡eth0 的arp协议</p>
+<h3 id="配置IP地址："><a href="#配置IP地址：" class="headerlink" title="配置IP地址："></a>配置IP地址：</h3><p>[root@localhost ~]# <code>ifconfig eth0 192.168.2.10</code>
+[root@localhost ~]# <code>ifconfig eth0 192.168.2.10 netmask 255.255.255.0</code>
+[root@localhost ~]# i<code>fconfig eth0 192.168.2.10 netmask 255.255.255.0 broadcast 192.168.2.255</code></p>
+<h3 id="启用和关闭arp协议："><a href="#启用和关闭arp协议：" class="headerlink" title="启用和关闭arp协议："></a>启用和关闭arp协议：</h3><p><code>ifconfig eth0 arp</code>    #开启网卡eth0 的arp协议
+<code>ifconfig eth0 -arp</code>   #关闭网卡eth0 的arp协议</p>
 <h3 id="设置最大传输单元："><a href="#设置最大传输单元：" class="headerlink" title="设置最大传输单元："></a>设置最大传输单元：</h3><p><code>ifconfig eth0 mtu 1500</code>    #设置能通过的最大数据包大小为 1500 bytes</p>
 
       
@@ -516,7 +545,7 @@ add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；del&amp;lt;地�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -527,7 +556,7 @@ add&amp;lt;地址&amp;gt;：设置网络设备IPv6的ip地址；del&amp;lt;地�
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

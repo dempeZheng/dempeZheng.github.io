@@ -362,15 +362,19 @@
 <p>explain了一下sql，已经索引已经走了是预期的了。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">+----+-------------+------------------------+-------+------------------------+------------------------+---------+------+--------+-----------------------------+</div><div class="line">| id | select_type | table                  | type  | possible_keys          | key                    | key_len | ref  | rows   | Extra                       |</div><div class="line">+----+-------------+------------------------+-------+------------------------+------------------------+---------+------+--------+-----------------------------+</div><div class="line">|  1 | SIMPLE      | t_consume_log | range | idx_consume | idx_consume | 6       | NULL | 247357 | Using where; Using filesort |</div><div class="line">+----+-------------+------------------------+-------+------------------------+------------------------+---------+------+--------+-----------------------------+</div></pre></td></tr></table></figure>
 <p>直接在备库执行了下sql，整整花费了一分钟。<code>12 rows in set (1 min 56.10 sec)</code></p>
-<p>mysql没有想象的那么只能， <code>LIMIT 100000, 12</code> ，mysql会读取100000+12行，然后过滤最后12行！！！<br>也就是说分页查询，越到后面越慢。</p>
+<p>mysql没有想象的那么只能， <code>LIMIT 100000, 12</code> ，mysql会读取100000+12行，然后过滤最后12行！！！
+也就是说分页查询，越到后面越慢。</p>
 <h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>这个是个比较常规的问题，搜索了一下，很多解决方案。大概可以分为三种。</p>
 <h3 id="1-业务限制"><a href="#1-业务限制" class="headerlink" title="1)业务限制"></a>1)业务限制</h3><p>通过业务限制，超过100页的数据不让查询。简单粗暴，但是并不是所有的产品经理都能接受。</p>
 <h3 id="2-查询带上上一页最后的id"><a href="#2-查询带上上一页最后的id" class="headerlink" title="2)查询带上上一页最后的id"></a>2)查询带上上一页最后的id</h3><p>以上面的场景为例，这里可以带上addtime，</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_consume_log`</span> <span class="keyword">FORCE</span> <span class="keyword">INDEX</span>(idx_consume) <span class="keyword">WHERE</span> userid = <span class="number">301465268</span> <span class="keyword">and</span> appid <span class="keyword">in</span>(<span class="number">0</span>,<span class="number">1</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">16</span>) <span class="keyword">and</span> <span class="keyword">addtime</span>&gt;<span class="number">1524998982</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">addtime</span> <span class="keyword">desc</span> <span class="keyword">LIMIT</span>  <span class="number">12</span></div></pre></td></tr></table></figure>
-<p>explain了一下，扫描的行数减少了很多。性能至少提升了1000倍以上。查询一下，需要<code>12 rows in set (0.03 sec)</code><br>但是问题在于是不是一定能拿到上一页的最大的addtime，如果能，那是个不错的选择。</p>
+<p>explain了一下，扫描的行数减少了很多。性能至少提升了1000倍以上。查询一下，需要<code>12 rows in set (0.03 sec)</code>
+但是问题在于是不是一定能拿到上一页的最大的addtime，如果能，那是个不错的选择。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">+----+-------------+------------------------+-------+-----------------------------------+------------------------+---------+------+-------+------------------------------------------+</div><div class="line">| id | select_type | table                  | type  | possible_keys                     | key                    | key_len | ref  | rows  | Extra                                    |</div><div class="line">+----+-------------+------------------------+-------+-----------------------------------+------------------------+---------+------+-------+------------------------------------------+</div><div class="line">|  1 | SIMPLE      | t_consume_log | range | ix_addTime,idx_consume | idx_consume | 10      | NULL | 26252 | Using where; Using index; Using filesort |</div><div class="line">+----+-------------+------------------------+-------+-----------------------------------+------------------------+---------+------+-------+------------------------------------------+</div></pre></td></tr></table></figure>
 <h3 id="3-延时关联，利用覆盖索引"><a href="#3-延时关联，利用覆盖索引" class="headerlink" title="3)延时关联，利用覆盖索引"></a>3)延时关联，利用覆盖索引</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_consume_log`</span> <span class="keyword">FORCE</span> <span class="keyword">INDEX</span>(idx_consume) <span class="keyword">WHERE</span> userid = <span class="number">301465268</span> <span class="keyword">and</span> appid <span class="keyword">in</span>(<span class="number">0</span>,<span class="number">1</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">16</span>) <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">addtime</span> <span class="keyword">desc</span> <span class="keyword">LIMIT</span> <span class="number">100000</span>, <span class="number">12</span></div></pre></td></tr></table></figure>
-<p> 这条sql慢的原因是因为要查询很多附属的字段，<br> 假设我们只需要查询有索引的字段，比如consumeid，appi，addtime，userid，那么查询速度是很快的，<br> 执行了一下，只要<code>12 rows in set (0.08 sec)</code></p>
+<p> 这条sql慢的原因是因为要查询很多附属的字段，
+ 假设我们只需要查询有索引的字段，比如consumeid，appi，addtime，userid，那么查询速度是很快的，
+ 执行了一下，只要<code>12 rows in set (0.08 sec)</code></p>
 <p> 所以，我们不妨把sql优化一下，改成</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t_consume_log a <span class="keyword">JOIN</span> (<span class="keyword">SELECT</span> consumeid  <span class="keyword">FROM</span> <span class="string">`t_consume_log`</span>  <span class="keyword">WHERE</span> userid = <span class="number">301465268</span> <span class="keyword">and</span> appid <span class="keyword">in</span>(<span class="number">0</span>,<span class="number">1</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">16</span>) <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">addtime</span> <span class="keyword">desc</span> <span class="keyword">LIMIT</span> <span class="number">72888</span>, <span class="number">12</span>) b <span class="keyword">ON</span> a.consumeid = b.consumeid;</div></pre></td></tr></table></figure>
 <p>测试了一下，性能也提升将近1000倍，<code>12 rows in set (0.08 sec)</code></p>
@@ -511,7 +515,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -522,7 +526,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

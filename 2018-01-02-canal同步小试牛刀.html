@@ -88,18 +88,30 @@
 
 
 <meta name="description" content="场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
-解决方案解决方案一）在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。解决方案二）既然mysql binlog同步无法做到，我们可以依赖cana">
+解决方案解决方案一）
+在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
+这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。
+解决方案二）
+既然mysql binlog同步无法做到，我们可以依赖">
 <meta property="og:type" content="article">
 <meta property="og:title" content="canal binlog同步小试牛刀">
 <meta property="og:url" content="http://code.zhizus.com/2018-01-02-canal同步小试牛刀.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
-解决方案解决方案一）在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。解决方案二）既然mysql binlog同步无法做到，我们可以依赖cana">
+解决方案解决方案一）
+在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
+这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。
+解决方案二）
+既然mysql binlog同步无法做到，我们可以依赖">
 <meta property="og:updated_time" content="2018-01-02T14:42:17.525Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="canal binlog同步小试牛刀">
 <meta name="twitter:description" content="场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
-解决方案解决方案一）在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。解决方案二）既然mysql binlog同步无法做到，我们可以依赖cana">
+解决方案解决方案一）
+在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
+这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。
+解决方案二）
+既然mysql binlog同步无法做到，我们可以依赖">
 
 
 
@@ -354,7 +366,11 @@
 
       
         <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>解决方案一）<br>在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。<br>这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。<br>解决方案二）<br>既然mysql binlog同步无法做到，我们可以依赖canal的同步来满足需求。canal同步本质上 也是模拟mysql slave，接收binlog，然后解析binglog。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>解决方案一）
+在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
+这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。
+解决方案二）
+既然mysql binlog同步无法做到，我们可以依赖canal的同步来满足需求。canal同步本质上 也是模拟mysql slave，接收binlog，然后解析binglog。</p>
 <h2 id="canal数据同步"><a href="#canal数据同步" class="headerlink" title="canal数据同步"></a>canal数据同步</h2><h3 id="canal原理"><a href="#canal原理" class="headerlink" title="canal原理"></a>canal原理</h3><ul>
 <li>canal模拟mysql slave的交互协议，伪装自己为mysql slave，向mysql master发送dump协议</li>
 <li>mysql master收到dump请求，开始推送binary log给slave(也就是canal)</li>
@@ -376,7 +392,9 @@
 <ul>
 <li>1.Statement：每一条会修改数据的sql都会记录在binlog中。</li>
 </ul>
-<p><strong>优点</strong>：不需要记录每一行的变化，减少了binlog日志量，节约了IO，提高性能。(相比row能节约多少性能与日志量，这个取决于应用的SQL情况，正常同一条记录修改或者插入row格式所产生的日志量还小于Statement产生的日志量，但是考虑到如果带条件的update操作，以及整表删除，alter表等操作，ROW格式会产生大量日志，因此在考虑是否使用ROW格式日志时应该跟据应用的实际情况，其所产生的日志量会增加多少，以及带来的IO性能问题。)<br><strong>缺点</strong>：由于记录的只是执行语句，为了这些语句能在slave上正确运行，因此还必须记录每条语句在执行的时候的一些相关信息，以保证所有语句能在slave得到和在master端执行时候相同 的结果。另外mysql 的复制,像一些特定函数功能，slave可与master上要保持一致会有很多相关问题(如sleep()函数， last_insert_id()，以及user-defined functions(udf)会出现问题).<br>使用以下函数的语句也无法被复制：</p>
+<p><strong>优点</strong>：不需要记录每一行的变化，减少了binlog日志量，节约了IO，提高性能。(相比row能节约多少性能与日志量，这个取决于应用的SQL情况，正常同一条记录修改或者插入row格式所产生的日志量还小于Statement产生的日志量，但是考虑到如果带条件的update操作，以及整表删除，alter表等操作，ROW格式会产生大量日志，因此在考虑是否使用ROW格式日志时应该跟据应用的实际情况，其所产生的日志量会增加多少，以及带来的IO性能问题。)
+<strong>缺点</strong>：由于记录的只是执行语句，为了这些语句能在slave上正确运行，因此还必须记录每条语句在执行的时候的一些相关信息，以保证所有语句能在slave得到和在master端执行时候相同 的结果。另外mysql 的复制,像一些特定函数功能，slave可与master上要保持一致会有很多相关问题(如sleep()函数， last_insert_id()，以及user-defined functions(udf)会出现问题).
+使用以下函数的语句也无法被复制：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">* LOAD_FILE()</div><div class="line"></div><div class="line">* UUID()</div><div class="line"></div><div class="line">* USER()</div><div class="line"></div><div class="line">* FOUND_ROWS()</div><div class="line"></div><div class="line">* SYSDATE() (除非启动时启用了 --sysdate-is-now 选项)</div></pre></td></tr></table></figure>
 <p>同时在INSERT …SELECT 会产生比 RBR 更多的行级锁</p>
 <ul>
@@ -389,7 +407,11 @@
 </ul>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>canal在给mysql扩展出无限的可能，将静态的mysql演变成异步事件模型。有了异步事件，其实可以做很多有意思的事情。比如数据同步，业务cache刷新，余额变更等等。但是canal在使用上仍然需要谨慎，canal并不包括高可用的部分，如果对可用性要求较高，可以参考阿里的otter</p>
 <hr>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>canal在使用上还是比较简单，github的wiki也描述的比较清晰，另，由于最近时间比较少，所以没花时间来描述canal使用细节。<br>但是在使用上还是有一些需要注意的地方，<br>1）exception canal异常退出，单点的模式是不会自动重连的，建议用集群的client，尽管canal就是单点模式<br>2）canal批量消费 ack机制，业务实现上是跳过还是阻断是需要根据具体场景仔细思考的<br>3）批量消费注意事务</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>canal在使用上还是比较简单，github的wiki也描述的比较清晰，另，由于最近时间比较少，所以没花时间来描述canal使用细节。
+但是在使用上还是有一些需要注意的地方，
+1）exception canal异常退出，单点的模式是不会自动重连的，建议用集群的client，尽管canal就是单点模式
+2）canal批量消费 ack机制，业务实现上是跳过还是阻断是需要根据具体场景仔细思考的
+3）批量消费注意事务</p>
 
       
     </div>
@@ -527,7 +549,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -538,7 +560,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

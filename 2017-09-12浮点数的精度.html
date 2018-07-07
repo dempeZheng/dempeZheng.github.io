@@ -87,12 +87,14 @@
 
 
 
-<meta name="description" content="写在前面最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金钱">
+<meta name="description" content="写在前面最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。
+说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浮点数的精度">
 <meta property="og:url" content="http://code.zhizus.com/2017-09-12浮点数的精度.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="写在前面最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金钱">
+<meta property="og:description" content="写在前面最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。
+说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金">
 <meta property="og:image" content="http://code.zhizus.com/images/1505222990516.png">
 <meta property="og:image" content="http://code.zhizus.com/images/1505223188647.png">
 <meta property="og:image" content="http://code.zhizus.com/images/1505223452920.png">
@@ -101,7 +103,8 @@
 <meta property="og:updated_time" content="2018-06-02T11:16:43.607Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浮点数的精度">
-<meta name="twitter:description" content="写在前面最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金钱">
+<meta name="twitter:description" content="写在前面最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。
+说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金">
 <meta name="twitter:image" content="http://code.zhizus.com/images/1505222990516.png">
 
 
@@ -356,27 +359,50 @@
       
 
       
-        <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。<br>说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金钱相关，甚至到现在都懒得去了解相关知识。<br>很多人都和我一样，不太把这个浮点数问题当回事，也懒得去了解其原理。但是，浮点数的精度这个问题真的只是一个基础问题，如果做个金钱相关的业务，那这个应该是个必须考察的知识点。<br>所以，是非常值得花5~10min来了解学习浮点数的精度。</p>
-<h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>随便来个例子，演示一下浮点数的 精度计算：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Double a = <span class="number">2.2</span>;</div><div class="line">Double b = <span class="number">3.6</span>;</div><div class="line">System.out.println(a + b);</div></pre></td></tr></table></figure></p>
+        <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。
+说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的计算要BigDecimal这个类型来处理，但是对于其中的详细原理一直是似懂非懂。如果不是最近业务和金钱相关，甚至到现在都懒得去了解相关知识。
+很多人都和我一样，不太把这个浮点数问题当回事，也懒得去了解其原理。但是，浮点数的精度这个问题真的只是一个基础问题，如果做个金钱相关的业务，那这个应该是个必须考察的知识点。
+所以，是非常值得花5~10min来了解学习浮点数的精度。</p>
+<h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>随便来个例子，演示一下浮点数的 精度计算：
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Double a = <span class="number">2.2</span>;</div><div class="line">Double b = <span class="number">3.6</span>;</div><div class="line">System.out.println(a + b);</div></pre></td></tr></table></figure></p>
 <p>输出：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">5.800000000000001</div></pre></td></tr></table></figure>
-<p>对于完全不了解浮点数精度问题的同学，可能都不相信自己的眼睛，为什么计算机连小学生的计算都做不了；甚至有些老鸟，也会觉得奇怪，对于浮点数计算丢失精度一般人的直觉应该是在计算小数位数过多的时候，不能得出精确的结果，但是为什么就以为小数的计算也会不准确。<br>当然，要了解其中的缘由，我们得深入了解浮点数的存储，相信了解了浮点数的存储之后，一定会豁然开朗，以后再也不会被关于浮点数精度的问题困扰。</p>
+<p>对于完全不了解浮点数精度问题的同学，可能都不相信自己的眼睛，为什么计算机连小学生的计算都做不了；甚至有些老鸟，也会觉得奇怪，对于浮点数计算丢失精度一般人的直觉应该是在计算小数位数过多的时候，不能得出精确的结果，但是为什么就以为小数的计算也会不准确。
+当然，要了解其中的缘由，我们得深入了解浮点数的存储，相信了解了浮点数的存储之后，一定会豁然开朗，以后再也不会被关于浮点数精度的问题困扰。</p>
 <h2 id="浮点数的存储方式"><a href="#浮点数的存储方式" class="headerlink" title="浮点数的存储方式"></a>浮点数的存储方式</h2><p>国际标准IEEE 754规定，任意一个二进制浮点数V都可以表示成下列形式：</p>
 <p><img src="/images/1505222990516.png" alt="Alt text"></p>
 <blockquote>
-<p>符号位(<code>Sign</code>) : (-1)^s 表示符号位，当s=0，V为整数；s=1，V为负数；<br>指数位（<code>Exponent</code>）:2^E 表示指数位,用于存储科学计数法中的指数数据，并且采用移位存储;<br>尾数部分（<code>Mantissa</code>）：M 表示有效数字，1≤M&lt;2；尾数部分;</p>
+<p>符号位(<code>Sign</code>) : (-1)^s 表示符号位，当s=0，V为整数；s=1，V为负数；
+指数位（<code>Exponent</code>）:2^E 表示指数位,用于存储科学计数法中的指数数据，并且采用移位存储;
+尾数部分（<code>Mantissa</code>）：M 表示有效数字，1≤M&lt;2；尾数部分;</p>
 </blockquote>
-<p>对于有效数字M和指数E，这个IEEE 754还规定了：<br><strong>有效数字M</strong><br>（1）1≤M&lt;2，也即M可以写成1.xxxxx的形式，其中xxxxx表小数部分<br>（2）计算机内部保存M时，默认这个数第一位总是1，所以舍去。只保存后面的xxxxx部分，节省一位有效数字<br><strong>指数E（阶码）</strong><br>（1）E为无符号整数。E为8位，范围是0～255；E为11位，范围是0～2047<br>（2）因为科学计数法中的E是可以出现负数的，所以IEEE 754规定E的真实值必须再减去一个中间数（偏移值），127或1023</p>
+<p>对于有效数字M和指数E，这个IEEE 754还规定了：
+<strong>有效数字M</strong>
+（1）1≤M&lt;2，也即M可以写成1.xxxxx的形式，其中xxxxx表小数部分
+（2）计算机内部保存M时，默认这个数第一位总是1，所以舍去。只保存后面的xxxxx部分，节省一位有效数字
+<strong>指数E（阶码）</strong>
+（1）E为无符号整数。E为8位，范围是0～255；E为11位，范围是0～2047
+（2）因为科学计数法中的E是可以出现负数的，所以IEEE 754规定E的真实值必须再减去一个中间数（偏移值），127或1023</p>
 <p>IEEE 754又规定了，浮点数分单精度双精度之分：</p>
 <blockquote>
-<p>32位的单精度浮点数，最高1位是符号位s，接着的8位是指数E，剩下的23位是有效数字M<br>64位的双精度浮点数，最高1位是符号位s，接着的11位是指数E，剩下的52位为有效数字M</p>
+<p>32位的单精度浮点数，最高1位是符号位s，接着的8位是指数E，剩下的23位是有效数字M
+64位的双精度浮点数，最高1位是符号位s，接着的11位是指数E，剩下的52位为有效数字M</p>
 </blockquote>
-<p><strong>单精度float的存储：</strong><br><img src="/images/1505223188647.png" alt="Alt text"><br><strong>双精度double的存储：</strong><br><img src="/images/1505223452920.png" alt="Alt text"></p>
-<p> R32.24和R64.53的存储方式都是用科学计数法来存储数据的，比如8.25用十进制的科学计数法表示就为:8.25<em>$10^0$,而120.5可以表示为:1.205</em>$10^2$。而计算机不认识十进制的数据，他只认识0，1，所以在计算机存储中，首先要将上面的数更改为二进制的科学计数法表示，8.25用二进制表示可表示为1000.01。120.5用二进制表示为：1110110.1用二进制的科学计数法表示1000.01可以表示为1.0001<em>$2^3$,1110110.1可以表示为1.1101101</em>$2^6$[3],任何一个数都的科学计数法表示都为1.xxx<em>$2^n$,尾数部分就可以表示为xxxx,第一位都是1嘛，干嘛还要表示呀？可以将小数点前面的1省略，所以23bit的尾数部分，可以表示的精度却变成了24bit，道理就是在这里，那24bit能精确到小数点后几位呢，我们知道9的二进制表示为1001，所以4bit能精确十进制中的1位小数点，24bit就能使float能精确到小数点后6位，而对于指数部分，因为指数可正可负，8位的指数位能表示的指数范围就应该为:-127-128了，所以指数部分的存储采用移位存储，存储的数据为元数据+127，下面就看看8.25和120.5在内存中真正的存储方式。<br>     首先看下8.25，用二进制的科学计数法表示为:1.0001</em>$2^3$<br>按照上面的存储方式，符号位为:0，表示为正，指数位为:3+127=130 ,位数部分为,故8.25的存储方式如下图所示:</p>
+<p><strong>单精度float的存储：</strong>
+<img src="/images/1505223188647.png" alt="Alt text">
+<strong>双精度double的存储：</strong>
+<img src="/images/1505223452920.png" alt="Alt text"></p>
+<p> R32.24和R64.53的存储方式都是用科学计数法来存储数据的，比如8.25用十进制的科学计数法表示就为:8.25<em>$10^0$,而120.5可以表示为:1.205</em>$10^2$。而计算机不认识十进制的数据，他只认识0，1，所以在计算机存储中，首先要将上面的数更改为二进制的科学计数法表示，8.25用二进制表示可表示为1000.01。120.5用二进制表示为：1110110.1用二进制的科学计数法表示1000.01可以表示为1.0001<em>$2^3$,1110110.1可以表示为1.1101101</em>$2^6$[3],任何一个数都的科学计数法表示都为1.xxx<em>$2^n$,尾数部分就可以表示为xxxx,第一位都是1嘛，干嘛还要表示呀？可以将小数点前面的1省略，所以23bit的尾数部分，可以表示的精度却变成了24bit，道理就是在这里，那24bit能精确到小数点后几位呢，我们知道9的二进制表示为1001，所以4bit能精确十进制中的1位小数点，24bit就能使float能精确到小数点后6位，而对于指数部分，因为指数可正可负，8位的指数位能表示的指数范围就应该为:-127-128了，所以指数部分的存储采用移位存储，存储的数据为元数据+127，下面就看看8.25和120.5在内存中真正的存储方式。
+     首先看下8.25，用二进制的科学计数法表示为:1.0001</em>$2^3$
+按照上面的存储方式，符号位为:0，表示为正，指数位为:3+127=130 ,位数部分为,故8.25的存储方式如下图所示:</p>
 <p><img src="/images/1505223484994.png" alt="Alt text"></p>
-<p>而单精度浮点数120.5的存储方式如下图所示:<br><img src="/images/1505223515471.png" alt="Alt text"></p>
-<h2 id="产生误差的根源"><a href="#产生误差的根源" class="headerlink" title="产生误差的根源"></a>产生误差的根源</h2><p>了解了存储原理了后，我们来追踪前面浮点数计算例子中丢失精度的根源。<br>首先，我们分别用二进制来表示浮点数2.2和3.6<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">10.00110011001100110011001100110011001100110011001101</div><div class="line">11.100110011001100110011001100110011001100110011001101</div></pre></td></tr></table></figure></p>
-<p>看到这里，你应该会觉得计算机表示小数很傻帽了，有些小数竟然无法精确表示。<br>我们知道双精度精确的有效位数也是有限的，对于超过精确范围的数据就会丢失，而丢失就会造成精度的丢失。</p>
+<p>而单精度浮点数120.5的存储方式如下图所示:
+<img src="/images/1505223515471.png" alt="Alt text"></p>
+<h2 id="产生误差的根源"><a href="#产生误差的根源" class="headerlink" title="产生误差的根源"></a>产生误差的根源</h2><p>了解了存储原理了后，我们来追踪前面浮点数计算例子中丢失精度的根源。
+首先，我们分别用二进制来表示浮点数2.2和3.6
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">10.00110011001100110011001100110011001100110011001101</div><div class="line">11.100110011001100110011001100110011001100110011001101</div></pre></td></tr></table></figure></p>
+<p>看到这里，你应该会觉得计算机表示小数很傻帽了，有些小数竟然无法精确表示。
+我们知道双精度精确的有效位数也是有限的，对于超过精确范围的数据就会丢失，而丢失就会造成精度的丢失。</p>
 <h2 id="浮点数运算常见的问题"><a href="#浮点数运算常见的问题" class="headerlink" title="浮点数运算常见的问题"></a>浮点数运算常见的问题</h2><h3 id="double类型转BigDecimal容易踩的坑"><a href="#double类型转BigDecimal容易踩的坑" class="headerlink" title="double类型转BigDecimal容易踩的坑"></a>double类型转BigDecimal容易踩的坑</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">double</span> a = <span class="number">2.2</span>d;</div><div class="line">System.out.println(<span class="keyword">new</span> BigDecimal(a));</div></pre></td></tr></table></figure>
 <p>输出：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.20000000000000017763568394002504646778106689453125</div></pre></td></tr></table></figure>
@@ -390,17 +416,28 @@
 <h3 id="小心浮点数类型转换"><a href="#小心浮点数类型转换" class="headerlink" title="小心浮点数类型转换"></a>小心浮点数类型转换</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">float</span> a = <span class="number">2.2f</span>;</div><div class="line"><span class="keyword">double</span> b = a;</div><div class="line"><span class="keyword">double</span> c = <span class="number">2.2</span>d;</div><div class="line">System.out.println(b);</div><div class="line">System.out.println(a == c);</div><div class="line">System.out.println(b == c);</div></pre></td></tr></table></figure>
 <p>输出：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">2.200000047683716</div><div class="line">false</div><div class="line">false</div></pre></td></tr></table></figure>
-<p> 诧异吗？其实了解了上面的原理，也不觉得奇怪了。你始终要记住，计算机无法精确的表示有些小数。<br> 涉及到浮点数的计算要多加小心了。</p>
+<p> 诧异吗？其实了解了上面的原理，也不觉得奇怪了。你始终要记住，计算机无法精确的表示有些小数。
+ 涉及到浮点数的计算要多加小心了。</p>
 <p>正确的打开方式：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">float</span> a = <span class="number">2.2f</span>;</div><div class="line"><span class="keyword">double</span> c = <span class="number">2.2</span>d;</div><div class="line"><span class="keyword">double</span> b = Double.valueOf(String.valueOf(a));</div><div class="line"><span class="keyword">double</span> d = <span class="keyword">new</span> BigDecimal(String.valueOf(a)).doubleValue();</div><div class="line">System.out.println(b);</div><div class="line">System.out.println(d);</div><div class="line">System.out.println(b == c);</div><div class="line">System.out.println(d == c);</div></pre></td></tr></table></figure>
 <p><strong>结论</strong>：先将float转换为string，在转换为double，或者通过BigDecimal转换。记住，不要随便强转就好了。</p>
 <h3 id="double-类型toString科学计数法的问题"><a href="#double-类型toString科学计数法的问题" class="headerlink" title="double 类型toString科学计数法的问题"></a>double 类型toString科学计数法的问题</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">double</span> a = <span class="number">9876543210123456789.2</span>d;</div><div class="line">System.out.println(a);</div></pre></td></tr></table></figure>
-<p>输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">9.876543210123457E18</div></pre></td></tr></table></figure></p>
-<p>double类型在超过一千万就会使用科学计数法，很多语言也支持将科学计数法的string转成double类型。但是在数据量大的时候，还是会丢失一些信息的，如例子中，后面三个数字的信息就给抹掉了。<br><strong>还有另外一个问题，也是我工作中遇到的问题：</strong><br>我们在接口参数签名的时候，将所有的参数转换为string，拼接，加salt，md5生成sign，对于有double类型的，double类型大数据会toString会使用科学计数法，这样调用方传字符串过来就签名失败了。<br>那么怎么样让double在toString的时候不适用科学计数法呢？</p>
+<p>输出：
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">9.876543210123457E18</div></pre></td></tr></table></figure></p>
+<p>double类型在超过一千万就会使用科学计数法，很多语言也支持将科学计数法的string转成double类型。但是在数据量大的时候，还是会丢失一些信息的，如例子中，后面三个数字的信息就给抹掉了。
+<strong>还有另外一个问题，也是我工作中遇到的问题：</strong>
+我们在接口参数签名的时候，将所有的参数转换为string，拼接，加salt，md5生成sign，对于有double类型的，double类型大数据会toString会使用科学计数法，这样调用方传字符串过来就签名失败了。
+那么怎么样让double在toString的时候不适用科学计数法呢？</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">double</span> a = <span class="number">9876543210123456789.2</span>d;</div><div class="line">System.out.println(<span class="keyword">new</span> BigDecimal(a).toPlainString());<span class="comment">//这个方法有多少位数就展示多少</span></div></pre></td></tr></table></figure>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于精度有要求的，特别是金钱类系统，我们尽量避免使用浮点型，这样后期就会少很多麻烦；另外，如果接手就项目，已经用了double类型来表示，也不必大惊小怪，只要我们在浮点数的运算和转换的时候小心谨慎一点，也出不了什么幺蛾子。<br>比如我们现在数据库还有double（32,2）表示余额，理论上存在丢失精度的可能，但是真出现这样的案例，账户余额，刨除小数位2位，还要有14位，已经算不清是多少钱了。即便是这种情况，也仅仅是小数位丢精度。<br>总的来说，对于浮点数的运算，不管新手或者老司机，多多留神。</p>
-<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>最近发现Double.toString()方法本省也会丢失精度。<br>比如Double.valueOf(Long.MAX_VALUE).toString()其实已经丢失了精度，<br>这个时候转换成BigDecimal已经不是原始值了，</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.cnblogs.com/grefr/p/6088515.html" target="_blank" rel="external">http://www.cnblogs.com/grefr/p/6088515.html</a><br><a href="http://blog.csdn.net/rsp19801226/article/details/3085343" target="_blank" rel="external">http://blog.csdn.net/rsp19801226/article/details/3085343</a><br><a href="https://zhuanlan.zhihu.com/p/28162086" target="_blank" rel="external">https://zhuanlan.zhihu.com/p/28162086</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于精度有要求的，特别是金钱类系统，我们尽量避免使用浮点型，这样后期就会少很多麻烦；另外，如果接手就项目，已经用了double类型来表示，也不必大惊小怪，只要我们在浮点数的运算和转换的时候小心谨慎一点，也出不了什么幺蛾子。
+比如我们现在数据库还有double（32,2）表示余额，理论上存在丢失精度的可能，但是真出现这样的案例，账户余额，刨除小数位2位，还要有14位，已经算不清是多少钱了。即便是这种情况，也仅仅是小数位丢精度。
+总的来说，对于浮点数的运算，不管新手或者老司机，多多留神。</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>最近发现Double.toString()方法本省也会丢失精度。
+比如Double.valueOf(Long.MAX_VALUE).toString()其实已经丢失了精度，
+这个时候转换成BigDecimal已经不是原始值了，</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.cnblogs.com/grefr/p/6088515.html" target="_blank" rel="external">http://www.cnblogs.com/grefr/p/6088515.html</a>
+<a href="http://blog.csdn.net/rsp19801226/article/details/3085343" target="_blank" rel="external">http://blog.csdn.net/rsp19801226/article/details/3085343</a>
+<a href="https://zhuanlan.zhihu.com/p/28162086" target="_blank" rel="external">https://zhuanlan.zhihu.com/p/28162086</a></p>
 
       
     </div>
@@ -538,7 +575,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -549,7 +586,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

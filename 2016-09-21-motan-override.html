@@ -88,18 +88,33 @@
 
 
 <meta name="description" content="旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
-motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码，也是源码解析的主要包motan-demo    // 示例，快速上手的最佳方法motan-extension // 扩展motan-manager // 管理后台motan-registry-consul    //基于">
+motan包结构motan-benchmark // 压测相关
+motan-core    //motan核心代码，也是源码解析的主要包
+motan-demo    // 示例，快速上手的最佳方法
+motan-extension // 扩展
+motan-manager // 管理后台
+motan-registry-consul">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Motan源码解读-源码结构">
 <meta property="og:url" content="http://code.zhizus.com/2016-09-21-motan-override.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
-motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码，也是源码解析的主要包motan-demo    // 示例，快速上手的最佳方法motan-extension // 扩展motan-manager // 管理后台motan-registry-consul    //基于">
+motan包结构motan-benchmark // 压测相关
+motan-core    //motan核心代码，也是源码解析的主要包
+motan-demo    // 示例，快速上手的最佳方法
+motan-extension // 扩展
+motan-manager // 管理后台
+motan-registry-consul">
 <meta property="og:updated_time" content="2017-04-15T13:35:49.105Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Motan源码解读-源码结构">
 <meta name="twitter:description" content="旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
-motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码，也是源码解析的主要包motan-demo    // 示例，快速上手的最佳方法motan-extension // 扩展motan-manager // 管理后台motan-registry-consul    //基于">
+motan包结构motan-benchmark // 压测相关
+motan-core    //motan核心代码，也是源码解析的主要包
+motan-demo    // 示例，快速上手的最佳方法
+motan-extension // 扩展
+motan-manager // 管理后台
+motan-registry-consul">
 
 
 
@@ -354,7 +369,15 @@ motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码�
 
       
         <p>旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。</p>
-<h2 id="motan包结构"><a href="#motan包结构" class="headerlink" title="motan包结构"></a>motan包结构</h2><div class="note primary"><p>motan-benchmark // 压测相关<br>motan-core    //motan核心代码，也是源码解析的主要包<br>motan-demo    // 示例，快速上手的最佳方法<br>motan-extension // 扩展<br>motan-manager // 管理后台<br>motan-registry-consul    //基于consul的服务发现实现<br>motan-registry-zookeeper // 基于zookeeper的服务发现实现<br>motan-springsupport // spring容器的支持，也支持springboot<br>motan-transport-netty // netty传输的封装</p>
+<h2 id="motan包结构"><a href="#motan包结构" class="headerlink" title="motan包结构"></a>motan包结构</h2><div class="note primary"><p>motan-benchmark // 压测相关
+motan-core    //motan核心代码，也是源码解析的主要包
+motan-demo    // 示例，快速上手的最佳方法
+motan-extension // 扩展
+motan-manager // 管理后台
+motan-registry-consul    //基于consul的服务发现实现
+motan-registry-zookeeper // 基于zookeeper的服务发现实现
+motan-springsupport // spring容器的支持，也支持springboot
+motan-transport-netty // netty传输的封装</p>
 </div>
 <h3 id="motan-core"><a href="#motan-core" class="headerlink" title="motan-core"></a>motan-core</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">└─com</div><div class="line">    └─weibo</div><div class="line">        └─api</div><div class="line">            └─motan</div><div class="line">                ├─cluster</div><div class="line">                │  ├─ha //①容灾策略</div><div class="line">                │  ├─loadbalanc //②负载均衡</div><div class="line">                │  └─support</div><div class="line">                ├─codec //③编解码</div><div class="line">                ├─common</div><div class="line">                ├─config //④配置</div><div class="line">                │  ├─annotation</div><div class="line">                │  └─handler</div><div class="line">                ├─core</div><div class="line">                │  └─extension //⑤ SPI机制扩展</div><div class="line">                ├─exception // ⑥异常</div><div class="line">                ├─filter //⑦过滤器</div><div class="line">                ├─log //⑧日志</div><div class="line">                ├─protocol //⑨责点到点的通讯(有别于我们理解的protocol)</div><div class="line">                │  ├─injvm</div><div class="line">                │  ├─rpc</div><div class="line">                │  └─support</div><div class="line">                ├─proxy //⑩代理</div><div class="line">                │  └─spi</div><div class="line">                ├─registry //⑪服务注册</div><div class="line">                │  └─support</div><div class="line">                │      └─comman</div><div class="line">                ├─rpc</div><div class="line">                ├─serialize //⑫序列化</div><div class="line">                ├─switcher</div><div class="line">                ├─transport</div><div class="line">                │  └─support</div><div class="line">                └─util</div></pre></td></tr></table></figure>
 <p>这个包是motan的核心实现，里面的大部分代码，接下的文章都会涉及到。</p>
@@ -418,8 +441,8 @@ motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-hastratege.html" rel="next" title="Motan源码解读-容错策略">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-容错策略
+              <a href="/2016-09-21-motan-protocol.html" rel="next" title="Motan源码解读-Protocol">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-Protocol
               </a>
             
           </div>
@@ -428,8 +451,8 @@ motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-21-motan-protocol.html" rel="prev" title="Motan源码解读-Protocol">
-                Motan源码解读-Protocol <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-22-motan-serialize.html" rel="prev" title="Motan源码解读-serialize">
+                Motan源码解读-serialize <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -504,7 +527,7 @@ motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -515,7 +538,7 @@ motan包结构motan-benchmark // 压测相关motan-core    //motan核心代码�
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

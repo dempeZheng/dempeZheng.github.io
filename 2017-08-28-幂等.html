@@ -373,28 +373,38 @@
 <p><strong>幂等性是系统的接口对外一种承诺(而不是实现), 承诺只要调用接口成功, 外部多次调用对系统的影响是一致的. 声明为幂等的接口会认为外部调用失败是常态, 并且失败之后必然会有重试.</strong></p>
 <p>幂等(idempotence)是来自于高等代数中的概念。</p>
 <blockquote>
-<p><strong>单目运算</strong>, x为某集合内的任意数, f为运算子如果满足f(x)=f(f(x)), 那么我们称f运算为具有幂等性(idempotent)<br>比如在实数集中,绝对值运算就是一个例子: abs(a)=abs(abs(a))</p>
-<p><strong>双目运算</strong>，x为某集合内的任意数, f为运算子如果满足f(x,x)=x, f运算的前提是两个参数都同为x, 那么我们也称f运算为具有幂等性<br>比如在实数集中,求两个数的最大值的函数: max(x,x) = x, 还有布尔代数中,逻辑运算 “与”, “或” 也都是幂等运算, 因为他们符合AND(0,0) = 0, AND(1,1) = 1, OR(0,0) = 0, OR(1,1) = 1</p>
+<p><strong>单目运算</strong>, x为某集合内的任意数, f为运算子如果满足f(x)=f(f(x)), 那么我们称f运算为具有幂等性(idempotent)
+比如在实数集中,绝对值运算就是一个例子: abs(a)=abs(abs(a))</p>
+<p><strong>双目运算</strong>，x为某集合内的任意数, f为运算子如果满足f(x,x)=x, f运算的前提是两个参数都同为x, 那么我们也称f运算为具有幂等性
+比如在实数集中,求两个数的最大值的函数: max(x,x) = x, 还有布尔代数中,逻辑运算 “与”, “或” 也都是幂等运算, 因为他们符合AND(0,0) = 0, AND(1,1) = 1, OR(0,0) = 0, OR(1,1) = 1</p>
 </blockquote>
 <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>在微服务架构下，我们在完成一个订单流程时经常遇到下面的场景：</p>
 <blockquote>
-<p>1.一个订单创建接口，第一次调用超时了，然后调用方重试了一次<br>2.在订单创建时，我们需要去扣减库存，这时接口发生了超时，调用方重试了一次<br>3.当这笔订单开始支付，在支付请求发出之后，在服务端发生了扣钱操作，接口响应超时了，调用方重试了一次<br>4.一个订单状态更新接口，调用方连续发送了两个消息，一个是已创建，一个是已付款。但是你先接收到已付款，然后又接收到了已创建<br>5.在支付完成订单之后，需要发送一条短信，当一台机器接收到短信发送的消息之后，处理较慢。消息中间件又把消息投递给另外一台机器处理</p>
+<p>1.一个订单创建接口，第一次调用超时了，然后调用方重试了一次
+2.在订单创建时，我们需要去扣减库存，这时接口发生了超时，调用方重试了一次
+3.当这笔订单开始支付，在支付请求发出之后，在服务端发生了扣钱操作，接口响应超时了，调用方重试了一次
+4.一个订单状态更新接口，调用方连续发送了两个消息，一个是已创建，一个是已付款。但是你先接收到已付款，然后又接收到了已创建
+5.在支付完成订单之后，需要发送一条短信，当一台机器接收到短信发送的消息之后，处理较慢。消息中间件又把消息投递给另外一台机器处理</p>
 </blockquote>
 <p>为了解决以上问题，就需要保证接口的幂等性，接口的幂等性实际上就是接口可重复调用，在调用方多次调用的情况下，多次执行所产生的影响均与一次执行的<code>影响相同</code>。有些接口可以天然的实现幂等性，比如查询接口，对于查询来说，你查询一次和两次，对于系统来说，没有任何影响，查出的结果也是一样。</p>
-<h2 id="幂等实现方式"><a href="#幂等实现方式" class="headerlink" title="幂等实现方式"></a>幂等实现方式</h2><p>除了查询功能具有天然的幂等性之外，增加、更新、删除都要保证幂等性。那么如何来保证幂等性呢？<br>幂等实现方式有以下两种：</p>
+<h2 id="幂等实现方式"><a href="#幂等实现方式" class="headerlink" title="幂等实现方式"></a>幂等实现方式</h2><p>除了查询功能具有天然的幂等性之外，增加、更新、删除都要保证幂等性。那么如何来保证幂等性呢？
+幂等实现方式有以下两种：</p>
 <ul>
 <li>通过业务本身实现幂等性；</li>
 <li>系统缓存处理结果，检测到重复请求，返回之前处理结果；</li>
 </ul>
 <h3 id="全局唯一ID"><a href="#全局唯一ID" class="headerlink" title="全局唯一ID"></a>全局唯一ID</h3><p>如果使用全局唯一ID，就是根据业务的操作和内容生成一个全局ID，在执行操作前先根据这个全局唯一ID是否存在，来判断这个操作是否已经执行。如果不存在则把全局ID，存储到存储系统中，比如数据库、redis等。如果存在则表示该方法已经执行。</p>
-<h3 id="插入或更新"><a href="#插入或更新" class="headerlink" title="插入或更新"></a>插入或更新</h3><p>这种方法插入并且有唯一索引的情况，比如我们要关联商品品类，其中商品的ID和品类的ID可以构成唯一索引，并且在数据表中也增加了唯一索引。这时就可以使用InsertOrUpdate操作。在MySQL数据库中如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">insert</span> <span class="keyword">into</span> goods_category (goods_id,category_id,create_time,update_time)</div><div class="line">       <span class="keyword">values</span>(#&#123;goodsId&#125;,#&#123;categoryId&#125;,<span class="keyword">now</span>(),<span class="keyword">now</span>())</div><div class="line">       <span class="keyword">on</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span></div><div class="line">       update_time=<span class="keyword">now</span>()</div></pre></td></tr></table></figure></p>
+<h3 id="插入或更新"><a href="#插入或更新" class="headerlink" title="插入或更新"></a>插入或更新</h3><p>这种方法插入并且有唯一索引的情况，比如我们要关联商品品类，其中商品的ID和品类的ID可以构成唯一索引，并且在数据表中也增加了唯一索引。这时就可以使用InsertOrUpdate操作。在MySQL数据库中如下：
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">insert</span> <span class="keyword">into</span> goods_category (goods_id,category_id,create_time,update_time)</div><div class="line">       <span class="keyword">values</span>(#&#123;goodsId&#125;,#&#123;categoryId&#125;,<span class="keyword">now</span>(),<span class="keyword">now</span>())</div><div class="line">       <span class="keyword">on</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span></div><div class="line">       update_time=<span class="keyword">now</span>()</div></pre></td></tr></table></figure></p>
 <h3 id="多版本控制"><a href="#多版本控制" class="headerlink" title="多版本控制"></a>多版本控制</h3><p>这种方法适合在更新的场景中，比如我们要更新商品的名字，这时我们就可以在更新的接口中增加一个版本号，来做幂等</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Update</span>（<span class="string">"update goods set name=#&#123;newName&#125;,version=#&#123;version&#125; where id=#&#123;id&#125; and version&lt;$&#123;version&#125;"</span>）</div><div class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">updateGoodsName</span><span class="params">(<span class="keyword">int</span> id,String newName,<span class="keyword">int</span> version)</span></span>;</div></pre></td></tr></table></figure>
 <h3 id="状态机控制"><a href="#状态机控制" class="headerlink" title="状态机控制"></a>状态机控制</h3><p>这种方法适合在有状态机流转的情况下，比如就会订单的创建和付款，订单的付款肯定是在之前，这时我们可以通过在设计状态字段时，使用int类型，并且通过值类型的大小来做幂等，比如订单的创建为0，付款成功为100。付款失败为99</p>
 <p>在做状态机更新时，我们就这可以这样控制</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">update</span> <span class="string">`order`</span> <span class="keyword">set</span> <span class="keyword">status</span>=#&#123;<span class="keyword">status</span>&#125; <span class="keyword">where</span> <span class="keyword">id</span>=#&#123;<span class="keyword">id</span>&#125; <span class="keyword">and</span> <span class="keyword">status</span>&lt;#&#123;<span class="keyword">status</span>&#125;</div></pre></td></tr></table></figure>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>幂等性应该是合格架构师的一个基因，在设计系统时，是设计平台api首要要考虑的问题。提供平台服务的时候也必须标注接口是否幂等，不然调用方遇到异常可能不知道该不该重试。特别是超时的时候，根本没法知道服务的状态。<br><strong>幂等是一个稳定平台服务接口的必备特性。</strong></p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://blog.csdn.net/jks456/article/details/71453053" target="_blank" rel="external"> 后端接口的幂等性</a><br>[理解HTTP幂等性](<a href="http://www.cnblogs.com/we" target="_blank" rel="external">http://www.cnblogs.com/we</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>幂等性应该是合格架构师的一个基因，在设计系统时，是设计平台api首要要考虑的问题。提供平台服务的时候也必须标注接口是否幂等，不然调用方遇到异常可能不知道该不该重试。特别是超时的时候，根本没法知道服务的状态。
+<strong>幂等是一个稳定平台服务接口的必备特性。</strong></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://blog.csdn.net/jks456/article/details/71453053" target="_blank" rel="external"> 后端接口的幂等性</a>
+[理解HTTP幂等性](<a href="http://www.cnblogs.com/we" target="_blank" rel="external">http://www.cnblogs.com/we</a></p>
 
       
     </div>
@@ -532,7 +542,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -543,7 +553,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

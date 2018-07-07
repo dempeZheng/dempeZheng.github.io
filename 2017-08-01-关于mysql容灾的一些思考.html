@@ -368,11 +368,25 @@
 <h2 id="容灾的技术方案"><a href="#容灾的技术方案" class="headerlink" title="容灾的技术方案"></a>容灾的技术方案</h2><p><img src="./images/Transaction-Across-DataCenter.jpg" alt="Alt text"></p>
 <p>这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。</p>
 <p>总结一下各个高可用方案的的问题：</p>
-<p>对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会出现数据差异性。<br>对于强一致性来说，要么使用性能比较慢的XA系的两阶段提交的方案，要么使用性能比较好，但是实现比较复杂的Paxos协议。</p>
+<p>对于最终一致性来说，在宕机的情况下，会出现数据没有完全同步完成，会出现数据差异性。
+对于强一致性来说，要么使用性能比较慢的XA系的两阶段提交的方案，要么使用性能比较好，但是实现比较复杂的Paxos协议。</p>
 <h2 id="同步复制"><a href="#同步复制" class="headerlink" title="同步复制"></a>同步复制</h2><h2 id="半同步复制"><a href="#半同步复制" class="headerlink" title="半同步复制"></a>半同步复制</h2><h2 id="异步复制"><a href="#异步复制" class="headerlink" title="异步复制"></a>异步复制</h2><h2 id="同城MHA"><a href="#同城MHA" class="headerlink" title="同城MHA"></a>同城MHA</h2><h2 id="异地多活"><a href="#异地多活" class="headerlink" title="异地多活"></a>异地多活</h2><p>最近异地双活或者异地多活的概念很火。很多公司都在尝试异地多活。</p>
-<p><strong>异地多活本质上是无法实现强一致性的</strong>。<br>这是物理条件限制的，即：光速的传播速度真空中每秒30万公里，光纤中每秒大约20万公里，加上中间各种网络设备的处理和时延，实际上远远没有那么快。<br>广州到北京的光纤，正常情况下50ms延时已经是很好的网络了，不可能达到几毫秒的延时。<br>所以理论上我们是没有办法实现一个强一致性的异地多活系统。例如“库存”，“余额”相关的系统，我们是没办法做多活的。这个不管是银行还是余额宝都做不到。<br>尽管用户余额类系统做不了多活，但是我们可以换种思路，在应用层做多活。<br>通过将用户分布在多地，实现系统层面用户异地多活，即：某个数据中心有故障只影响部分用户，其它数据中心的用户是可以继续使用业务的。</p>
-<h3 id="异地多活的一些想法"><a href="#异地多活的一些想法" class="headerlink" title="异地多活的一些想法"></a>异地多活的一些想法</h3><p>当然，如果对数据一致性要求不高，<br>                user<br>                ||<br>        proxy<br>                      ||<br>                      ||<br>Master &lt;==otter==&gt; Master</p>
-<h2 id="异地冷备"><a href="#异地冷备" class="headerlink" title="异地冷备"></a>异地冷备</h2><p>对于余额系统这类强一致性系统，无法做异地双活，但是又非常重要的系统，异地冷备不失为在异常情况及时止损的一种选择。事实上，现在很多公司采用的也是异地冷备。<br>异地冷备的有点很明显，简单易操作，可行性较好。<br>当然缺点也很致命，冷备如果一直不需要启用还好，那仅仅是浪费机器而已。但是如果发生异常情况，将冷备的DB且为Master也是需要勇气的。没有经过业务的考验。切换的时候是否同步完成，如果数据同步未完成 将面临数据一致性问题。切换后是否能抗住线上压力等等问题。</p>
+<p><strong>异地多活本质上是无法实现强一致性的</strong>。
+这是物理条件限制的，即：光速的传播速度真空中每秒30万公里，光纤中每秒大约20万公里，加上中间各种网络设备的处理和时延，实际上远远没有那么快。
+广州到北京的光纤，正常情况下50ms延时已经是很好的网络了，不可能达到几毫秒的延时。
+所以理论上我们是没有办法实现一个强一致性的异地多活系统。例如“库存”，“余额”相关的系统，我们是没办法做多活的。这个不管是银行还是余额宝都做不到。
+尽管用户余额类系统做不了多活，但是我们可以换种思路，在应用层做多活。
+通过将用户分布在多地，实现系统层面用户异地多活，即：某个数据中心有故障只影响部分用户，其它数据中心的用户是可以继续使用业务的。</p>
+<h3 id="异地多活的一些想法"><a href="#异地多活的一些想法" class="headerlink" title="异地多活的一些想法"></a>异地多活的一些想法</h3><p>当然，如果对数据一致性要求不高，
+                user
+                ||
+        proxy
+                      ||
+                      ||
+Master &lt;==otter==&gt; Master</p>
+<h2 id="异地冷备"><a href="#异地冷备" class="headerlink" title="异地冷备"></a>异地冷备</h2><p>对于余额系统这类强一致性系统，无法做异地双活，但是又非常重要的系统，异地冷备不失为在异常情况及时止损的一种选择。事实上，现在很多公司采用的也是异地冷备。
+异地冷备的有点很明显，简单易操作，可行性较好。
+当然缺点也很致命，冷备如果一直不需要启用还好，那仅仅是浪费机器而已。但是如果发生异常情况，将冷备的DB且为Master也是需要勇气的。没有经过业务的考验。切换的时候是否同步完成，如果数据同步未完成 将面临数据一致性问题。切换后是否能抗住线上压力等等问题。</p>
 <h3 id="数据一致性问题"><a href="#数据一致性问题" class="headerlink" title="数据一致性问题"></a>数据一致性问题</h3><h2 id="数据同步利器Otter"><a href="#数据同步利器Otter" class="headerlink" title="数据同步利器Otter"></a>数据同步利器Otter</h2><h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>未完待续</p>
 <h2 id="补充充电"><a href="#补充充电" class="headerlink" title="补充充电"></a>补充充电</h2><p><a href="http://coolshell.cn/articles/17459.html" target="_blank" rel="external">http://coolshell.cn/articles/17459.html</a></p>
 
@@ -512,7 +526,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -523,7 +537,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

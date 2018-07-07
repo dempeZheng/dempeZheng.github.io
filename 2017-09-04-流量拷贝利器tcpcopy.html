@@ -89,21 +89,24 @@
 
 <meta name="description" content="tcpcopy是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。
 
-曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2">
+曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。
+现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（">
 <meta property="og:type" content="article">
 <meta property="og:title" content="流量拷贝利器tcpcopy">
 <meta property="og:url" content="http://code.zhizus.com/2017-09-04-流量拷贝利器tcpcopy.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="tcpcopy是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。
 
-曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2">
+曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。
+现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（">
 <meta property="og:image" content="http://code.zhizus.com/images/tcpcopy.gif">
 <meta property="og:updated_time" content="2017-09-04T14:00:13.384Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="流量拷贝利器tcpcopy">
 <meta name="twitter:description" content="tcpcopy是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。
 
-曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2">
+曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。
+现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（">
 <meta name="twitter:image" content="http://code.zhizus.com/images/tcpcopy.gif">
 
 
@@ -360,29 +363,52 @@
       
         <p><code>tcpcopy</code>是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。</p>
 <blockquote>
-<p>曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。<br>现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2009年设计并代码实现，仅仅300多行代码就支撑了网易广告投放系统的最初开发，上线零失误，解决上线前数百个问题）,当然这个最简单的版本应用范围非常有限，王斌(@wangbin579)在2010年末在这个架构上面进行了深度改造，扩展到1000多行代码）。最新版本1.0.0。</p>
+<p>曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。
+现在此工具已经广泛应用于各大互联网公司。tcpcopy鼻祖王波同学（@wbo65），是他在这方面进行了最初探索。（2009年设计并代码实现，仅仅300多行代码就支撑了网易广告投放系统的最初开发，上线零失误，解决上线前数百个问题）,当然这个最简单的版本应用范围非常有限，王斌(@wangbin579)在2010年末在这个架构上面进行了深度改造，扩展到1000多行代码）。最新版本1.0.0。</p>
 </blockquote>
-<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h2><p>1）分布式压力测试工具，利用在线数据，可以测试系统能够承受的压力大小（远比ab压力测试工具真实地多）,也可以提前发现一些bug<br>2）对于后端的短连接，请求丢失率非常低(1/10万)，可以应用于热备份<br>3）普通上线测试，可以发现新系统是否稳定，提前发现上线过程中会出现的诸多问题，让开发者有信心上线<br>4）对比试验，同样请求，针对不同或不同版本程序，可以做性能对比等试验<br>5）流量放大功能，可以利用多种手段构造无限在线压力，满足中小网站压力测试要求（同时也支持部分引流）</p>
+<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h2><p>1）分布式压力测试工具，利用在线数据，可以测试系统能够承受的压力大小（远比ab压力测试工具真实地多）,也可以提前发现一些bug
+2）对于后端的短连接，请求丢失率非常低(1/10万)，可以应用于热备份
+3）普通上线测试，可以发现新系统是否稳定，提前发现上线过程中会出现的诸多问题，让开发者有信心上线
+4）对比试验，同样请求，针对不同或不同版本程序，可以做性能对比等试验
+5）流量放大功能，可以利用多种手段构造无限在线压力，满足中小网站压力测试要求（同时也支持部分引流）</p>
 <h2 id="tcpcopy架构"><a href="#tcpcopy架构" class="headerlink" title="tcpcopy架构"></a>tcpcopy架构</h2><p><img src="/images/tcpcopy.gif" alt="Alt text"></p>
-<p>tcpcopy最新架构上图，分为以下三个角色：<br><strong>Online Server(OS)</strong>：上面要部署 TCPCopy，从数据链路层(pcap 接口)抓请求数据包，发包是从IP层发出去；<br><strong>Test Server(TS)</strong>：最新的架构调整把 intercept 的工作从 TS 中 offload 出来。TS 设置路由信息，把 被测应用 的需要被捕获的响应数据包信息路由到 AS；<br><strong>Assistant Server(AS)</strong>：这是一台独立的辅助服务器，原则上一定要用同网段的一台闲置服务器来充当辅助服务器。AS 在数据链路层截获到响应包，从中抽取出有用的信息，再返回给相应的 OS 上的 tcpcopy 进程。</p>
-<p>其中，tcpcopy拷贝一次流量访问的步骤如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">①　一个访问到达线上前端机；</div><div class="line">②　socket数据包在ip层被拷贝了一份传给tcpcopy进程；</div><div class="line">③　tcpcopy修改包的目的及源地址，发给目标测试机；</div><div class="line">④　拷贝的包到达目标测试机；</div><div class="line">⑤　目标测试机的nginx处理访问，并返回结果；</div><div class="line">⑥　返回结果在ip层被截获、丢弃，由intercpet进程拷贝返回结果的ip header并返回；</div><div class="line">⑦　ip header被发送给线上前端机的tcpcopy进程。</div></pre></td></tr></table></figure></p>
+<p>tcpcopy最新架构上图，分为以下三个角色：
+<strong>Online Server(OS)</strong>：上面要部署 TCPCopy，从数据链路层(pcap 接口)抓请求数据包，发包是从IP层发出去；
+<strong>Test Server(TS)</strong>：最新的架构调整把 intercept 的工作从 TS 中 offload 出来。TS 设置路由信息，把 被测应用 的需要被捕获的响应数据包信息路由到 AS；
+<strong>Assistant Server(AS)</strong>：这是一台独立的辅助服务器，原则上一定要用同网段的一台闲置服务器来充当辅助服务器。AS 在数据链路层截获到响应包，从中抽取出有用的信息，再返回给相应的 OS 上的 tcpcopy 进程。</p>
+<p>其中，tcpcopy拷贝一次流量访问的步骤如下
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">①　一个访问到达线上前端机；</div><div class="line">②　socket数据包在ip层被拷贝了一份传给tcpcopy进程；</div><div class="line">③　tcpcopy修改包的目的及源地址，发给目标测试机；</div><div class="line">④　拷贝的包到达目标测试机；</div><div class="line">⑤　目标测试机的nginx处理访问，并返回结果；</div><div class="line">⑥　返回结果在ip层被截获、丢弃，由intercpet进程拷贝返回结果的ip header并返回；</div><div class="line">⑦　ip header被发送给线上前端机的tcpcopy进程。</div></pre></td></tr></table></figure></p>
 <h2 id="安装和配置"><a href="#安装和配置" class="headerlink" title="安装和配置"></a>安装和配置</h2><h3 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h3><p>tcpcopy有两种工作模式：</p>
-<p><strong>安装部署如下：</strong><br>1）Assistant Server 安装intercept</p>
+<p><strong>安装部署如下：</strong>
+1）Assistant Server 安装intercept</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">yum -y install libpcap-devel</div><div class="line">wget  https://github.com/session-replay-tools/intercept/archive/1.0.0.tar.gz</div><div class="line">tar xvf 1.0.0.tar.gz</div><div class="line"><span class="built_in">cd</span> intercept-1.0.0</div><div class="line">./configure --prefix=/opt/tcpcopy/</div><div class="line">make</div><div class="line">make install</div></pre></td></tr></table></figure>
 <p>2）Online Server安装tcpcopy</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">wget https://github.com/session-replay-tools/tcpcopy/archive/1.0.0.tar.gz</div><div class="line">tar xvf 1.0.0.tar.gz</div><div class="line"><span class="built_in">cd</span> tcpcopy-1.0.0</div><div class="line">./configure --prefix=/opt/tcpcopy/</div><div class="line">make</div><div class="line">make install</div></pre></td></tr></table></figure>
-<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><p>1 实时拷贝数据包<br>2 通过使用tcpdump等抓包生成的文件进行离线（offline）请求重放</p>
-<h4 id="online在线实时复制"><a href="#online在线实时复制" class="headerlink" title="online在线实时复制"></a>online在线实时复制</h4><p>假定：需要将Online Server流量拷贝到Test Server<br><strong>Online Server(OS)</strong>：192.168.124.67<br><strong>Test Server(TS)</strong>：192.168.124.68<br><strong>Assistant Server(AS)</strong>：192.168.124.180</p>
-<p>1）Assistant Server上启动intercept<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/opt/tcpcopy/sbin/intercept -i eth0 -F <span class="string">'tcp and src port 8080'</span> <span class="_">-d</span></div></pre></td></tr></table></figure></p>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><p>1 实时拷贝数据包
+2 通过使用tcpdump等抓包生成的文件进行离线（offline）请求重放</p>
+<h4 id="online在线实时复制"><a href="#online在线实时复制" class="headerlink" title="online在线实时复制"></a>online在线实时复制</h4><p>假定：需要将Online Server流量拷贝到Test Server
+<strong>Online Server(OS)</strong>：192.168.124.67
+<strong>Test Server(TS)</strong>：192.168.124.68
+<strong>Assistant Server(AS)</strong>：192.168.124.180</p>
+<p>1）Assistant Server上启动intercept
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/opt/tcpcopy/sbin/intercept -i eth0 -F <span class="string">'tcp and src port 8080'</span> <span class="_">-d</span></div></pre></td></tr></table></figure></p>
 <blockquote>
-<p><code>-i,</code> intercept会监听端口，和tcpcopy进行通信，-i就是指定监听在哪个端口。tcpcopy启动的时候会来连这个端口，如果连不上，就会启动失败。<br><code>-F</code>, 过滤规则，语法和pcap一样。<br><code>-d</code>, 已守护进程方式运行</p>
+<p><code>-i,</code> intercept会监听端口，和tcpcopy进行通信，-i就是指定监听在哪个端口。tcpcopy启动的时候会来连这个端口，如果连不上，就会启动失败。
+<code>-F</code>, 过滤规则，语法和pcap一样。
+<code>-d</code>, 已守护进程方式运行</p>
 </blockquote>
 <p>2) Online Server 启动tcpcopy</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/opt/tcpcopy/sbin/tcpcopy -x 8080-192.168.124.68:8080 <span class="_">-s</span> 192.168.124.180 -c 192.168.2.254 -n 2 <span class="_">-d</span> <span class="_">-l</span> tcpcopy.log</div></pre></td></tr></table></figure>
 <blockquote>
-<p><code>-x,</code> 是指本机8080端口的流量copy到192.168.124.68的8080端口<br><code>-s</code> 指定intercept机器的地址，tcpcopy要和intercept建立连接<br><code>-c</code> 伪装地址，在把流量复制到测试服务器的时候，修改数据包的源地址为192.168.2.254，这样方便指定路由。也可以写成192.168.2.x，这样源地址就是指定网段中的地址了。<br><code>-n</code> 流量放大倍数，如果不是压测目的就不用指定这个参数。<br><code>-d</code> 以守护模式运行。<br><code>-l</code> 输出日志</p>
+<p><code>-x,</code> 是指本机8080端口的流量copy到192.168.124.68的8080端口
+<code>-s</code> 指定intercept机器的地址，tcpcopy要和intercept建立连接
+<code>-c</code> 伪装地址，在把流量复制到测试服务器的时候，修改数据包的源地址为192.168.2.254，这样方便指定路由。也可以写成192.168.2.x，这样源地址就是指定网段中的地址了。
+<code>-n</code> 流量放大倍数，如果不是压测目的就不用指定这个参数。
+<code>-d</code> 以守护模式运行。
+<code>-l</code> 输出日志</p>
 </blockquote>
-<p>3） Test Server配置路由(<code>辅助服务器要和测试服务器在一个子网里</code>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">route add -net 192.168.2.0 netmask 255.255.255.0 gw 192.168.124.180</div></pre></td></tr></table></figure></p>
+<p>3） Test Server配置路由(<code>辅助服务器要和测试服务器在一个子网里</code>)
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">route add -net 192.168.2.0 netmask 255.255.255.0 gw 192.168.124.180</div></pre></td></tr></table></figure></p>
 <p>192.168.2.0/24地址的数据包全部转给辅助服务器192.168.124.180</p>
 <p>【注】如果机器不够，将intercept部署到Test Server，这种情况下就不如要配置路由了。</p>
 <h4 id="offline离线复制"><a href="#offline离线复制" class="headerlink" title="offline离线复制"></a>offline离线复制</h4><p>1） 在线上服务器抓包</p>
@@ -390,12 +416,17 @@
 <p>2） 将抓包生成的文件拷贝到测试服务器</p>
 <p>3） 在测试服务器上进行执行如下命令进行重放</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/tcpcopy/bin</div><div class="line">sudo ./intercept</div><div class="line">sudo ./tcpcopy -i /path/online.pcap -x 80-10.16.12.11:80</div><div class="line"></div><div class="line">tcpcopy -i &lt;抓包文件地址&gt; -x &lt;port&gt;-&lt;本地ip&gt;:&lt;port&gt;</div></pre></td></tr></table></figure>
-<h2 id="潜在的问题"><a href="#潜在的问题" class="headerlink" title="潜在的问题"></a>潜在的问题</h2><p>1）ip_conntrack<br>2014年6月，微博的唐福林曾说：“Tcpcopy 引流工具是线上问题排查的绝佳之选，但使用者很少有人去关注开启 tcpcopy 服务时，同时会开启 ip_conntrack 内核模块，这个模块负责追踪所有 tcp 链接的状态，而且它的内部存储有长度限制，一旦超过，所有新建链接都会失败。”</p>
+<h2 id="潜在的问题"><a href="#潜在的问题" class="headerlink" title="潜在的问题"></a>潜在的问题</h2><p>1）ip_conntrack
+2014年6月，微博的唐福林曾说：“Tcpcopy 引流工具是线上问题排查的绝佳之选，但使用者很少有人去关注开启 tcpcopy 服务时，同时会开启 ip_conntrack 内核模块，这个模块负责追踪所有 tcp 链接的状态，而且它的内部存储有长度限制，一旦超过，所有新建链接都会失败。”</p>
 <blockquote>
 <p>王斌则回应说：“开启 tcpcopy，自身不会去开启 ip_conntrack 内核模块。开不开启 ip_conntrack 内核模块，是用户自己决定的，跟 tcpcopy 没关系。”他还建议：“当连接数量非常多的时候，本身就应该关闭 ip_conntrack，否则严重影响性能。至于 tcpcopy，默认是从 ip 层发包的，所以也会被 ip_conntrack 干涉，文档中也有描述，其实也可以采用 –enable-dlinject 来发包，避开ip层的ip_conntrack。如果没有报“ip_conntrack: table full, dropping packet”，一般无需去操心ip_conntrack。”以及“线上连接不多的场合，开启 ip_conntrack 并没有问题。线上连接比较多的场合，最好关闭 ip_conntrack，或者对线上应用系统端口设置 NOTRACK，至少我周围的系统都是这样的，这是为性能考虑，也是一种好的运维习惯。”</p>
 </blockquote>
-<p>2）少量丢包<br>如何发现 TCPCopy 丢包多还是少呢？<br>王斌自己称，在某些场景下，pcap 抓包丢包率会远高于 raw socket 抓包，因此最好利用 pf_ring 来辅助或者采用 raw socket 来抓包。<br>丢包率需要在测试环境中按照定量请求发送进行对比才能展开计算，另外还需要对日志内容进行分析，有待测试。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/session-replay-tools/tcpcopy" target="_blank" rel="external">https://github.com/session-replay-tools/tcpcopy</a><br><a href="http://blog.csdn.net/wangbin579/article/details/8949315" target="_blank" rel="external">http://blog.csdn.net/wangbin579/article/details/8949315</a></p>
+<p>2）少量丢包
+如何发现 TCPCopy 丢包多还是少呢？
+王斌自己称，在某些场景下，pcap 抓包丢包率会远高于 raw socket 抓包，因此最好利用 pf_ring 来辅助或者采用 raw socket 来抓包。
+丢包率需要在测试环境中按照定量请求发送进行对比才能展开计算，另外还需要对日志内容进行分析，有待测试。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/session-replay-tools/tcpcopy" target="_blank" rel="external">https://github.com/session-replay-tools/tcpcopy</a>
+<a href="http://blog.csdn.net/wangbin579/article/details/8949315" target="_blank" rel="external">http://blog.csdn.net/wangbin579/article/details/8949315</a></p>
 
       
     </div>
@@ -533,7 +564,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -544,7 +575,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

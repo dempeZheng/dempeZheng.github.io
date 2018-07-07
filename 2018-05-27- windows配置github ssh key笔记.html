@@ -369,21 +369,42 @@ ssh
 <h3 id="ssh"><a href="#ssh" class="headerlink" title="ssh"></a>ssh</h3><blockquote>
 <p>什么是ssh：ssh是Secure Shell（安全外壳协议）的缩写，建立在应用层和传输层基础上的安全协议。为了便于访问github，要生成ssh公钥，这样就不用每一次访问github都要输入用户名和密码。</p>
 </blockquote>
-<h3 id="适用范围"><a href="#适用范围" class="headerlink" title="适用范围"></a>适用范围</h3><p>1）window环境git设置ssh key，linux环境同理；（应该更简单）<br>2）已经安装好git<br>3）有git账号</p>
-<h2 id="配置步骤"><a href="#配置步骤" class="headerlink" title="配置步骤"></a>配置步骤</h2><p>1）使用 <code>ssh-keygen</code> 生成密钥<br>进入git 安装的bin目录，执行<code>bash</code>（D:\Program Files\Git\bin\bash）,邮箱为git注册邮箱（三次提示可以回车跳过）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-keygen -t rsa -C &quot;email@email.com&quot;</div></pre></td></tr></table></figure></p>
+<h3 id="适用范围"><a href="#适用范围" class="headerlink" title="适用范围"></a>适用范围</h3><p>1）window环境git设置ssh key，linux环境同理；（应该更简单）
+2）已经安装好git
+3）有git账号</p>
+<h2 id="配置步骤"><a href="#配置步骤" class="headerlink" title="配置步骤"></a>配置步骤</h2><p>1）使用 <code>ssh-keygen</code> 生成密钥
+进入git 安装的bin目录，执行<code>bash</code>（D:\Program Files\Git\bin\bash）,邮箱为git注册邮箱（三次提示可以回车跳过）
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-keygen -t rsa -C &quot;email@email.com&quot;</div></pre></td></tr></table></figure></p>
 <p>~/.ssh目录下面会生成 id_rsa&amp;id_rsa.pub两个文件。</p>
 <h3 id="ssh-1"><a href="#ssh-1" class="headerlink" title="ssh-"></a>ssh-</h3><blockquote>
-<p>-b：指定密钥长度；<br>-e：读取openssh的私钥或者公钥文件；<br>-C：添加注释；<br>-f：指定用来保存密钥的文件名；<br>-i：读取未加密的ssh-v2兼容的私钥/公钥文件，然后在标准输出设备上显示openssh兼容的私钥/公钥；<br>-l：显示公钥文件的指纹数据；<br>-N：提供一个新密语；<br>-P：提供（旧）密语；<br>-q：静默模式；<br>-t：指定要创建的密钥类型。</p>
+<p>-b：指定密钥长度； 
+-e：读取openssh的私钥或者公钥文件； 
+-C：添加注释； 
+-f：指定用来保存密钥的文件名； 
+-i：读取未加密的ssh-v2兼容的私钥/公钥文件，然后在标准输出设备上显示openssh兼容的私钥/公钥； 
+-l：显示公钥文件的指纹数据； 
+-N：提供一个新密语； 
+-P：提供（旧）密语；
+-q：静默模式； 
+-t：指定要创建的密钥类型。</p>
 </blockquote>
 <p>2）git设置develop key（这里以github为例）</p>
-<p>可以设置项目级别的ssh key，也可以设置为全局的，这里是家里的个人电脑，直接设置为全局的。<br>setting\SSH and GPG keys<br>到~/.ssh(C:\Users\Administrator.ssh)目录，找到id_rsa.pub文件，拷贝内容添加到git ssh key里面。如图：<br><img src="./images/1527389183912.png" alt="Alt text"><br>3）测试配置</p>
+<p>可以设置项目级别的ssh key，也可以设置为全局的，这里是家里的个人电脑，直接设置为全局的。
+setting\SSH and GPG keys
+到~/.ssh(C:\Users\Administrator.ssh)目录，找到id_rsa.pub文件，拷贝内容添加到git ssh key里面。如图：
+<img src="./images/1527389183912.png" alt="Alt text">
+3）测试配置</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -T git@github.com</div></pre></td></tr></table></figure>
 <p>如果出现以下内容，说明配置成功</p>
-<p>如果出现以下内容即表示配置完成并且成功！<br><img src="./images/1527389450563.png" alt="Alt text"></p>
+<p>如果出现以下内容即表示配置完成并且成功！
+<img src="./images/1527389450563.png" alt="Alt text"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Hi username! You&apos;ve successfully authenticated, but GitHub does not</div><div class="line">provide shell access.</div></pre></td></tr></table></figure>
-<h2 id="补充-gt-多个账号的配置"><a href="#补充-gt-多个账号的配置" class="headerlink" title="补充-&gt;多个账号的配置"></a>补充-&gt;多个账号的配置</h2><p>事实上，我们常常会需要配置多个账号，比如公司的gitlab，个人github账号。<br>大体上是一样的，只是多了个config配置。<br>1)生成密钥，加上-f指定文件名</p>
+<h2 id="补充-gt-多个账号的配置"><a href="#补充-gt-多个账号的配置" class="headerlink" title="补充-&gt;多个账号的配置"></a>补充-&gt;多个账号的配置</h2><p>事实上，我们常常会需要配置多个账号，比如公司的gitlab，个人github账号。
+大体上是一样的，只是多了个config配置。
+1)生成密钥，加上-f指定文件名</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-keygen -t rsa -C &quot;email@email.com&quot; -f ~/.ssh/id_rsa_github</div></pre></td></tr></table></figure>
-<p>2)在~/.ssh文件加下面新增config文件，加入配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># gitlab</div><div class="line">Host git.XXXX</div><div class="line">    HostName git.XXXX</div><div class="line">    PreferredAuthentications publickey</div><div class="line">    IdentityFile ~/.ssh/id_rsa</div><div class="line"></div><div class="line"># github</div><div class="line">Host github.com</div><div class="line">    HostName github.com</div><div class="line">    PreferredAuthentications publickey</div><div class="line">    IdentityFile ~/.ssh/id_rsa_github</div></pre></td></tr></table></figure></p>
+<p>2)在~/.ssh文件加下面新增config文件，加入配置
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># gitlab</div><div class="line">Host git.XXXX</div><div class="line">    HostName git.XXXX</div><div class="line">    PreferredAuthentications publickey</div><div class="line">    IdentityFile ~/.ssh/id_rsa</div><div class="line"></div><div class="line"># github</div><div class="line">Host github.com</div><div class="line">    HostName github.com</div><div class="line">    PreferredAuthentications publickey</div><div class="line">    IdentityFile ~/.ssh/id_rsa_github</div></pre></td></tr></table></figure></p>
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://blog.csdn.net/hhgggggg/article/details/77853665" target="_blank" rel="external">https://blog.csdn.net/hhgggggg/article/details/77853665</a></p>
 
       
@@ -522,7 +543,7 @@ ssh
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -533,7 +554,7 @@ ssh
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

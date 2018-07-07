@@ -390,14 +390,16 @@ ActiveWeight(缺省)
 </ul>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">loadbalance</span>=<span class="string">"activeWeight"</span>/&gt;</span></div></pre></td></tr></table></figure>
 <blockquote>
-<p>低并发度优先： referer 的某时刻的 call 数越小优先级越高<br>由于 Referer List 可能很多，比如上百台，如果每次都要从这上百个 Referer 或者最低并发的几个，性能有些损耗，因此 random.nextInt(list.size()) 获取一个起始的 index，然后获取最多不超过 MAX_REFERER_COUNT 的状态是 isAvailable 的 referer 进行判断 activeCount.</p>
+<p>低并发度优先： referer 的某时刻的 call 数越小优先级越高
+由于 Referer List 可能很多，比如上百台，如果每次都要从这上百个 Referer 或者最低并发的几个，性能有些损耗，因此 random.nextInt(list.size()) 获取一个起始的 index，然后获取最多不超过 MAX_REFERER_COUNT 的状态是 isAvailable 的 referer 进行判断 activeCount.</p>
 </blockquote>
 <ul>
 <li>Random</li>
 </ul>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">loadbalance</span>=<span class="string">"random"</span>/&gt;</span></div></pre></td></tr></table></figure>
 <blockquote>
-<p>随机，按权重设置随机概率。<br>在一个截面上碰撞的概率高，但调用量越大分布越均匀，而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。</p>
+<p>随机，按权重设置随机概率。
+在一个截面上碰撞的概率高，但调用量越大分布越均匀，而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。</p>
 </blockquote>
 <ul>
 <li>RoundRobin</li>
@@ -411,7 +413,9 @@ ActiveWeight(缺省)
 </ul>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">motan:protocol</span> <span class="attr">...</span> <span class="attr">loadbalance</span>=<span class="string">"localFirst"</span>/&gt;</span></div></pre></td></tr></table></figure>
 <blockquote>
-<p>本地服务优先获取策略，对referers根据ip顺序查找本地服务，多存在多个本地服务，获取Active最小的本地服务进行服务。<br>当不存在本地服务，但是存在远程RPC服务，则根据ActivWeight获取远程RPC服务<br>当两者都存在，所有本地服务都应优先于远程服务，本地RPC服务与远程RPC服务内部则根据ActiveWeight进行</p>
+<p>本地服务优先获取策略，对referers根据ip顺序查找本地服务，多存在多个本地服务，获取Active最小的本地服务进行服务。
+当不存在本地服务，但是存在远程RPC服务，则根据ActivWeight获取远程RPC服务
+当两者都存在，所有本地服务都应优先于远程服务，本地RPC服务与远程RPC服务内部则根据ActiveWeight进行</p>
 </blockquote>
 <ul>
 <li>Consistent</li>
@@ -430,7 +434,8 @@ ActiveWeight(缺省)
 <h2 id="motan加载loadbalance策略的机制"><a href="#motan加载loadbalance策略的机制" class="headerlink" title="motan加载loadbalance策略的机制"></a>motan加载loadbalance策略的机制</h2><p>上面我们了解了motan支持的负载均衡的策略，下面我们来剖析一下motan怎么实现的。</p>
 <p>RPCClient首先会经过一层HA（这里 motan实现了两种容灾策略，failfast&amp;failover），然后会根据配置的loadbalance的策略选取相应的nettyClient发送请求到RPCServer。流程如下图所示：</p>
 <p><img src="/images/motan/14612385789967.jpg" alt=""></p>
-<p>motan的loadbalance策略实现在客户端，客户端初始化时会根据配置，基于spi机制查找对应的实现（不了解SPI的可以看<a href="http://zhizus.com/code/motan-spi" target="_blank" rel="external">Motan源码解读-SPI机制</a>加载loadbalance的实现。<br>调用链如下图所示：</p>
+<p>motan的loadbalance策略实现在客户端，客户端初始化时会根据配置，基于spi机制查找对应的实现（不了解SPI的可以看<a href="http://zhizus.com/code/motan-spi" target="_blank" rel="external">Motan源码解读-SPI机制</a>加载loadbalance的实现。
+调用链如下图所示：</p>
 <p><img src="/images/motan/motan-lb.png" alt=""></p>
 <h2 id="motan-LoadBalance实现"><a href="#motan-LoadBalance实现" class="headerlink" title="motan LoadBalance实现"></a>motan LoadBalance实现</h2><p><img src="/images/motan/loadbalance.png" alt=""></p>
 <p>接下来，我们看loadbalance接口</p>
@@ -510,8 +515,8 @@ ActiveWeight(缺省)
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-21-motan-filter.html" rel="prev" title="Motan源码解读-Filter">
-                Motan源码解读-Filter <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-21-motan-hastratege.html" rel="prev" title="Motan源码解读-容错策略">
+                Motan源码解读-容错策略 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -586,7 +591,7 @@ ActiveWeight(缺省)
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -597,7 +602,7 @@ ActiveWeight(缺省)
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

@@ -446,14 +446,16 @@ Failfas">
 </blockquote>
 <p>motan容错的接口：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 可以通过motan的SPI机制扩展</span></div><div class="line"><span class="meta">@Spi</span>(scope = Scope.PROTOTYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HaStrategy</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="comment">// 从后面的实现来看，没发现有什么用</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setUrl</span><span class="params">(URL url)</span></span>;</div><div class="line">    <span class="comment">//基于具体的LoadBalance调用请求，问答模式，一个request返回一个response，</span></div><div class="line">    <span class="function">Response <span class="title">call</span><span class="params">(Request request, LoadBalance&lt;T&gt; loadBalance)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>AbstractHaStrategy这个抽象方法做的事情貌似没什么用，直接看具体的实现：<br>failfast很简单，直接略去。看failover的实现：</p>
+<p>AbstractHaStrategy这个抽象方法做的事情貌似没什么用，直接看具体的实现：
+failfast很简单，直接略去。看failover的实现：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="meta">@SpiMeta</span>(name = <span class="string">"failover"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FailoverHaStrategy</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractHaStrategy</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">//确保每个线程持有一份单独的ArrayList&lt;Referer&lt;T&gt;（FailoverHaStrategy，会有单个实例被多个线程调用）</span></div><div class="line">    <span class="keyword">protected</span> ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt; referersHolder = <span class="keyword">new</span> ThreadLocal&lt;List&lt;Referer&lt;T&gt;&gt;&gt;() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="keyword">protected</span> java.util.List&lt;com.weibo.api.motan.rpc.Referer&lt;T&gt;&gt; initialValue() &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;Referer&lt;T&gt;&gt;();</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Response <span class="title">call</span><span class="params">(Request request, LoadBalance&lt;T&gt; loadBalance)</span> </span>&#123;</div><div class="line"></div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = selectReferers(request, loadBalance);</div><div class="line">        <span class="keyword">if</span> (referers.isEmpty()) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> MotanServiceException(String.format(<span class="string">"FailoverHaStrategy No referers for request:%s, loadbalance:%s"</span>, request,</div><div class="line">                    loadBalance));</div><div class="line">        &#125;</div><div class="line">        URL refUrl = referers.get(<span class="number">0</span>).getUrl();</div><div class="line">        <span class="comment">// 先使用method的配置</span></div><div class="line">        <span class="keyword">int</span> tryCount =</div><div class="line">                refUrl.getMethodParameter(request.getMethodName(), request.getParamtersDesc(), URLParamType.retries.getName(),</div><div class="line">                        URLParamType.retries.getIntValue());</div><div class="line">        <span class="comment">// 如果有问题，则设置为不重试</span></div><div class="line">        <span class="keyword">if</span> (tryCount &lt; <span class="number">0</span>) &#123;</div><div class="line">            tryCount = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= tryCount; i++) &#123;</div><div class="line">            Referer&lt;T&gt; refer = referers.get(i % referers.size());</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                request.setRetries(i);</div><div class="line">                <span class="keyword">return</span> refer.call(request);</div><div class="line">            &#125; <span class="keyword">catch</span> (RuntimeException e) &#123;</div><div class="line">                <span class="comment">// 对于业务异常，直接抛出</span></div><div class="line">                <span class="keyword">if</span> (ExceptionUtil.isBizException(e)) &#123;</div><div class="line">                    <span class="keyword">throw</span> e;</div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i &gt;= tryCount) &#123;</div><div class="line">                    <span class="keyword">throw</span> e;</div><div class="line">                &#125;</div><div class="line">                LoggerUtil.warn(String.format(<span class="string">"FailoverHaStrategy Call false for request:%s error=%s"</span>, request, e.getMessage()));</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">      <span class="comment">// 从逻辑来看 代码不会到这个地方（如果是业务逻辑直接抛出，如果达到重试次数，也直接抛出异常了二中断了）</span></div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> MotanFrameworkException(<span class="string">"FailoverHaStrategy.call should not come here!"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 先从threadLocal拿到当前线程持有的List&lt;Referer&lt;T&gt;&gt; referers，然后清除，再从loadbalance哪里复制一份最新的引用添加进去</div><div class="line">     * haStratege能感知到引用列表的实时变化</div><div class="line">     * <span class="doctag">@param</span> request</div><div class="line">     * <span class="doctag">@param</span> loadBalance</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    <span class="keyword">protected</span> List&lt;Referer&lt;T&gt;&gt; selectReferers(Request request, LoadBalance&lt;T&gt; loadBalance) &#123;</div><div class="line">        List&lt;Referer&lt;T&gt;&gt; referers = referersHolder.get();</div><div class="line">        referers.clear();</div><div class="line">        loadBalance.selectToHolder(request, referers);</div><div class="line">        <span class="keyword">return</span> referers;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>这段代码花费了些时间理解。</p>
 <ul>
 <li>1.为什么要将引用放到new ThreadLocal<list<referer<t>&gt;&gt;()?</list<referer<t></li>
 </ul>
 <blockquote>
-<p>首先单个HAStratege会被多个线程调用，加入ThreadLocal必然是为了保证每个线程持有单独的一份refererList。<br>如果没有ThreadLocal，当其他线程调用selectReferers()会改变refererList，这个时候call方法中的循环会有问题，临界条件可能会抛异常。</p>
+<p>首先单个HAStratege会被多个线程调用，加入ThreadLocal必然是为了保证每个线程持有单独的一份refererList。
+如果没有ThreadLocal，当其他线程调用selectReferers()会改变refererList，这个时候call方法中的循环会有问题，临界条件可能会抛异常。</p>
 </blockquote>
 <ul>
 <li>2.为什么需要selectReferers？</li>
@@ -532,8 +534,8 @@ Failfas">
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-21-motan-filter.html" rel="next" title="Motan源码解读-Filter">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-Filter
+              <a href="/2016-09-20-motan-loadbalance.html" rel="next" title="Motan源码解读-负载均衡">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-负载均衡
               </a>
             
           </div>
@@ -542,8 +544,8 @@ Failfas">
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-21-motan-override.html" rel="prev" title="Motan源码解读-源码结构">
-                Motan源码解读-源码结构 <i class="fa fa-chevron-right"></i>
+              <a href="/2016-09-21-motan-filter.html" rel="prev" title="Motan源码解读-Filter">
+                Motan源码解读-Filter <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -618,7 +620,7 @@ Failfas">
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -629,7 +631,7 @@ Failfas">
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

@@ -424,7 +424,8 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 </blockquote>
 </li>
 </ul>
-<h2 id="从Caller调用说起"><a href="#从Caller调用说起" class="headerlink" title="从Caller调用说起"></a>从Caller调用说起</h2><p>motan本质上还是一个RPC服务，RPC的本质是实现无差别的调用远程服务。所以，优雅的RPC应该是无论是服务端还是客户端调用都自同一个接口。<br>对于motan，这个接口就是Caller中的</p>
+<h2 id="从Caller调用说起"><a href="#从Caller调用说起" class="headerlink" title="从Caller调用说起"></a>从Caller调用说起</h2><p>motan本质上还是一个RPC服务，RPC的本质是实现无差别的调用远程服务。所以，优雅的RPC应该是无论是服务端还是客户端调用都自同一个接口。
+对于motan，这个接口就是Caller中的</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Response call(Request request);</div></pre></td></tr></table></figure>
 <p><img src="/images/motan/caller.png" alt="Alt text"></p>
 <p>实现Caller接口的主要可以分为一下三类：</p>
@@ -445,11 +446,16 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 </blockquote>
 </li>
 </ul>
-<h4 id="一个request到一个response的过程"><a href="#一个request到一个response的过程" class="headerlink" title="一个request到一个response的过程"></a>一个request到一个response的过程</h4><p>首先我们通过RefererConfig获取一个客户端调用Service的Proxy，当我们在客户端执行service的方法时，Proxy就会InvokeHandler就会拦截到执行其invoke方法。<br>在执行invoke的时候，我们会调用Cluster.call()方法，而cluster.call()，实际上是一个代理(这个代理主要是用来处理集群功能的，容灾和负载均衡)，真正执行的是Referer.call()<br>referer是一个服务的引用（我们可以理解为他引用了一个调用特定的provider的client），referer.call()会将request消息编码打包，通过netty tcp长连接传输到服务端（在referer.call()调用的时候其实motan用了装饰模式，经过了filter层，对所有的调用做了一层过滤），<br>服务端收到了Request会对其进行解码，并根据协议body里面穿的interfaceName&amp;methodName&amp;parameterDesc（或者是方法签名）找到对应的provider，并执行，获取返回结果Resonse<br>并将response编码传输返回给客户端。</p>
+<h4 id="一个request到一个response的过程"><a href="#一个request到一个response的过程" class="headerlink" title="一个request到一个response的过程"></a>一个request到一个response的过程</h4><p>首先我们通过RefererConfig获取一个客户端调用Service的Proxy，当我们在客户端执行service的方法时，Proxy就会InvokeHandler就会拦截到执行其invoke方法。
+在执行invoke的时候，我们会调用Cluster.call()方法，而cluster.call()，实际上是一个代理(这个代理主要是用来处理集群功能的，容灾和负载均衡)，真正执行的是Referer.call()
+referer是一个服务的引用（我们可以理解为他引用了一个调用特定的provider的client），referer.call()会将request消息编码打包，通过netty tcp长连接传输到服务端（在referer.call()调用的时候其实motan用了装饰模式，经过了filter层，对所有的调用做了一层过滤），
+服务端收到了Request会对其进行解码，并根据协议body里面穿的interfaceName&amp;methodName&amp;parameterDesc（或者是方法签名）找到对应的provider，并执行，获取返回结果Resonse
+并将response编码传输返回给客户端。</p>
 <h2 id="Protocol"><a href="#Protocol" class="headerlink" title="Protocol"></a>Protocol</h2><p>上面我们已经看到Referer&amp;Provider的重要性，他是服务提供方和服务的引用方。可以说是整个motan RPC最重要的地方之一。那么Referer&amp;Provider分别是在哪里构造的呢？</p>
 <p>这个时候我们需要看Protocol了.</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Spi</span>(scope = Scope.SINGLETON)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Protocol</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 暴露服务</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> &lt;T&gt;</div><div class="line">     * <span class="doctag">@param</span> provider</div><div class="line">     * <span class="doctag">@param</span> url</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    &lt;T&gt; <span class="function">Exporter&lt;T&gt; <span class="title">export</span><span class="params">(Provider&lt;T&gt; provider, URL url)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 引用服务</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> &lt;T&gt;</div><div class="line">     * <span class="doctag">@param</span> clz</div><div class="line">     * <span class="doctag">@param</span> url</div><div class="line">     * <span class="doctag">@param</span> serviceUrl</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    &lt;T&gt; <span class="function">Referer&lt;T&gt; <span class="title">refer</span><span class="params">(Class&lt;T&gt; clz, URL url, URL serviceUrl)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * &lt;pre&gt;</div><div class="line">	 * 		1） exporter destroy</div><div class="line">	 * 		2） referer destroy</div><div class="line">	 * &lt;/pre&gt;</div><div class="line">     *</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>从protocol的接口我们看到，他提供了暴露服务的方法，提供了获取引用的方法。<br>如果需要详细了解motan的Protocol，请穿越<a href="http://zhizus.com/code/motan-protocol" target="_blank" rel="external">Motan源码解读-Protocol</a></p>
+<p>从protocol的接口我们看到，他提供了暴露服务的方法，提供了获取引用的方法。
+如果需要详细了解motan的Protocol，请穿越<a href="http://zhizus.com/code/motan-protocol" target="_blank" rel="external">Motan源码解读-Protocol</a></p>
 <h2 id="transport"><a href="#transport" class="headerlink" title="transport"></a>transport</h2><h3 id="传输协议header："><a href="#传输协议header：" class="headerlink" title="传输协议header："></a>传输协议header：</h3><table style="border-collapse:collapse;border-spacing:0;border-color:#999"><tr><th style="font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#fff;background-color:#26ADE4;text-align:center" colspan="7">header</th></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center">0-15</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center">16-23</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top" colspan="3">24-31</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">32-95</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">96-127</td></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center">magic</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center">version</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top" colspan="3">extend flag</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">request id</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">body content length</td></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center" rowspan="2">魔数</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center" rowspan="2">协议版本</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">24-28</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">29-30</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">31</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top" rowspan="2"><br>消息id<br></td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top" rowspan="2"><br>body包长</td></tr><tr><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">保留</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">event( 可支持4种event，<br>如normal, exception等)</td><td style="font-family:Arial, sans-serif;font-size:14px;padding:10px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;text-align:center;vertical-align:top">0 is request , 1 is response</td></tr></table>
 
 
@@ -517,8 +523,8 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016-09-22-motan-serialize.html" rel="next" title="Motan源码解读-serialize">
-                <i class="fa fa-chevron-left"></i> Motan源码解读-serialize
+              <a href="/2016-09-23-motan-codec.html" rel="next" title="Motan源码解读-codec">
+                <i class="fa fa-chevron-left"></i> Motan源码解读-codec
               </a>
             
           </div>
@@ -527,8 +533,8 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016-09-23-motan-codec.html" rel="prev" title="Motan源码解读-codec">
-                Motan源码解读-codec <i class="fa fa-chevron-right"></i>
+              <a href="/2016-11-05-guava-cache.html" rel="prev" title="Guava Cache 分析">
+                Guava Cache 分析 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -603,7 +609,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -614,7 +620,7 @@ Motan是一套基于java开发的RPC框架，除了常规的点对点调用外�
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
