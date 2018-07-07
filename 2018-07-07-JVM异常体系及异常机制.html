@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="微服务，弹性化，调优，rpc，服务降级，服务治理" />
+  <meta name="keywords" content="jvm,异常,字节码" />
 
 
 
@@ -87,49 +87,32 @@
 
 
 
-<meta name="description" content="分享今天听了几个vip p6大神的分享，当然包括vip的网红大神江南白衣，见了这些大神的真身，微服务部分干货也不少，好东西应该共享，
-目录
-1.Saturn-弹性任务调度系统的探索与演进
-2.唯品会服务化架构
-3.Java Tuning GuideV1.8.1
+<meta name="description" content="JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）。
 
-
-
-
-
-
-后记距大神还有很多路要走，但貌似并不是完全不可及，之后要多努力">
+jvm异常原理
+JVM try catch原理你理解吗？
+–据说是阿里巴">
 <meta property="og:type" content="article">
-<meta property="og:title" content="一个服务化的分享">
-<meta property="og:url" content="http://code.zhizus.com/2017-04-28-一些感悟.html">
+<meta property="og:title" content="JVM异常体系及异常机制">
+<meta property="og:url" content="http://code.zhizus.com/2018-07-07-JVM异常体系及异常机制.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="分享今天听了几个vip p6大神的分享，当然包括vip的网红大神江南白衣，见了这些大神的真身，微服务部分干货也不少，好东西应该共享，
-目录
-1.Saturn-弹性任务调度系统的探索与演进
-2.唯品会服务化架构
-3.Java Tuning GuideV1.8.1
+<meta property="og:description" content="JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）。
 
-
-
-
-
-
-后记距大神还有很多路要走，但貌似并不是完全不可及，之后要多努力">
-<meta property="og:updated_time" content="2017-07-13T13:29:03.315Z">
+jvm异常原理
+JVM try catch原理你理解吗？
+–据说是阿里巴">
+<meta property="og:image" content="http://code.zhizus.com/./images/ex-class-strut.jpg">
+<meta property="og:image" content="http://code.zhizus.com/./images/1530967496815.png">
+<meta property="og:image" content="http://code.zhizus.com/./images/1530967526425.png">
+<meta property="og:updated_time" content="2018-07-07T13:23:38.552Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="一个服务化的分享">
-<meta name="twitter:description" content="分享今天听了几个vip p6大神的分享，当然包括vip的网红大神江南白衣，见了这些大神的真身，微服务部分干货也不少，好东西应该共享，
-目录
-1.Saturn-弹性任务调度系统的探索与演进
-2.唯品会服务化架构
-3.Java Tuning GuideV1.8.1
+<meta name="twitter:title" content="JVM异常体系及异常机制">
+<meta name="twitter:description" content="JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）。
 
-
-
-
-
-
-后记距大神还有很多路要走，但貌似并不是完全不可及，之后要多努力">
+jvm异常原理
+JVM try catch原理你理解吗？
+–据说是阿里巴">
+<meta name="twitter:image" content="http://code.zhizus.com/./images/ex-class-strut.jpg">
 
 
 
@@ -157,13 +140,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-04-28-一些感悟.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2018-07-07-JVM异常体系及异常机制.html"/>
 
 
 
 
 
-  <title> 一个服务化的分享 | 郑大侠的博客 </title>
+  <title> JVM异常体系及异常机制 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -311,8 +294,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-04-28-一些感悟.html">
+  <article class="post post-type-java " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-07-07-JVM异常体系及异常机制.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -333,7 +316,7 @@
             
             
               
-                一个服务化的分享
+                JVM异常体系及异常机制
               
             
           </h1>
@@ -356,7 +339,7 @@
 
           
           
-             <span id="/2017-04-28-一些感悟.html" class="leancloud_visitors" data-flag-title="一个服务化的分享">
+             <span id="/2018-07-07-JVM异常体系及异常机制.html" class="leancloud_visitors" data-flag-title="JVM异常体系及异常机制">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -383,18 +366,67 @@
       
 
       
-        <h2 id="分享"><a href="#分享" class="headerlink" title="分享"></a>分享</h2><p>今天听了几个vip p6大神的分享，当然包括vip的网红大神江南白衣，见了这些大神的真身，微服务部分干货也不少，好东西应该共享，</p>
-<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
-<li>1.Saturn-弹性任务调度系统的探索与演进</li>
-<li>2.唯品会服务化架构</li>
-<li>3.Java Tuning GuideV1.8.1</li>
+        <h2 id="JVM异常体系"><a href="#JVM异常体系" class="headerlink" title="JVM异常体系"></a>JVM异常体系</h2><p>异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）。</p>
+<p><img src="./images/ex-class-strut.jpg" alt="Alt text"></p>
+<h2 id="jvm异常原理"><a href="#jvm异常原理" class="headerlink" title="jvm异常原理"></a>jvm异常原理</h2><blockquote>
+<p>JVM try catch原理你理解吗？
+–据说是阿里巴巴的一道面试题</p>
+</blockquote>
+<h3 id="反编译一段小程序"><a href="#反编译一段小程序" class="headerlink" title="反编译一段小程序"></a>反编译一段小程序</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">       <span class="keyword">int</span> a = <span class="number">1</span>;</div><div class="line">       <span class="keyword">int</span> b = <span class="number">3</span>;</div><div class="line">       <span class="keyword">try</span> &#123;</div><div class="line">           b = a + b;</div><div class="line">           <span class="keyword">return</span>;</div><div class="line">       &#125; <span class="keyword">catch</span> (RuntimeException e1) &#123;</div><div class="line">           b = a - b;</div><div class="line">       &#125; <span class="keyword">catch</span> (Exception e2) &#123;</div><div class="line">           b = a * b;</div><div class="line">       &#125; <span class="keyword">finally</span> &#123;</div><div class="line">           a = <span class="number">0</span>;</div><div class="line">       &#125;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p>通过命令javap -c Main 反编译.class文件得到一下输出：
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">0: iconst_1</div><div class="line">     1: istore_1 // 给局部变量表1号slot赋值为1，代表a</div><div class="line">     2: iconst_3</div><div class="line">     3: istore_2 // 给局部变量表2号slot赋值为3，代表b</div><div class="line">     4: iload_1  // try块开始！</div><div class="line">     5: iload_2</div><div class="line">     6: iadd</div><div class="line">     7: istore_2 // 指令4-7 完成了操作：b = a + b</div><div class="line">     8: iconst_0 // finally块开始！</div><div class="line">     9: istore_1 // 指令8-9 完成操作a=0</div><div class="line">    10: return // 函数执行完毕，返回</div><div class="line">    11: astore_3 // RuntimeException e1异常处理块开始！</div><div class="line">    12: iload_1</div><div class="line">    13: iload_2</div><div class="line">    14: isub</div><div class="line">    15: istore_2</div><div class="line">    16: iconst_0 // finally处理块</div><div class="line">    17: istore_1</div><div class="line">    18: goto          38 // RuntimeException e1异常处理块结束！</div><div class="line">    21: astore_3 // Exception e2异常处理块开始！</div><div class="line">    22: iload_1</div><div class="line">    23: iload_2</div><div class="line">    24: imul</div><div class="line">    25: istore_2</div><div class="line">    26: iconst_0 // finally处理块</div><div class="line">    27: istore_1</div><div class="line">    28: goto          38 // Exception e2 异常处理块结束！</div><div class="line">    31: astore        4 // 其他任何异常处理块</div><div class="line">    33: iconst_0</div><div class="line">    34: istore_1</div><div class="line">    35: aload         4</div><div class="line">    37: athrow // 往将异常外抛</div><div class="line">    38: return</div><div class="line">  Exception table: // 异常表</div><div class="line">     from    to  target type</div><div class="line">         4     8    11   Class java/lang/RuntimeException //4-8 号指令中，碰到 NullPointerException时，跳到 11 号指令</div><div class="line">         4     8    21   Class java/lang/Exception</div><div class="line">         4     8    31   any</div><div class="line">        11    16    31   any</div><div class="line">        21    26    31   any</div><div class="line">        31    33    31   any</div></pre></td></tr></table></figure></p>
+<h3 id="异常表"><a href="#异常表" class="headerlink" title="异常表"></a>异常表</h3><p>异常表的每个入口信息包括：</p>
+<ul>
+<li>1起点</li>
+<li>2终点</li>
+<li>3将要跳转到的字节码序列的pc指针偏移量</li>
+<li>4被捕获异常类的常量池索引</li>
 </ul>
-<center class="full-image"><embed src="doc/唯品会后端服务架构与优化技术介绍.pdf" width="1100" height="800"></center>
-
-
-
-<hr>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>距大神还有很多路要走，但貌似并不是完全不可及，之后要多努力</p>
+<p>异常表实际上记录了try catch的关键逻辑。
+try的起点，和try的终点，以及catch的起点（及时将要跳转的位置）</p>
+<p>另外，我们从反编译的字节码可以看到，异常表与字节码序列一起存到class 文件中。</p>
+<p>jvm的异常处理的逻辑：</p>
+<ul>
+<li>1.如果发生异常，jvm在表中查找异常，如果找到异常，就跳转到实现catch字句的字节码序列。</li>
+<li>2.如果没有发现相匹配的项，jvm将当前栈帧从栈中弹出，再次抛出同样的异常。</li>
+<li>3.当jvm弹出当前栈帧时，jvm马上终止当前方法的执行，并且返回到调用本方法</li>
+<li><ol>
+<li>但是并非继续正常执行该方法，而是在该方法中抛出同样的异常，使得jvm在该方法中再次执行同样的搜索异常表的操作。</li>
+</ol>
+</li>
+</ul>
+<h2 id="异常的开销"><a href="#异常的开销" class="headerlink" title="异常的开销"></a>异常的开销</h2><p>首先异常是有开销的，也就是使用异常是有成本的。这点基本上是共识。
+现在的问题是异常的开销究竟有多大?
+要搞清楚这个问题，就要弄明白异常的消耗主要来自哪里？</p>
+<p>1、当代码出现异常的时候，首先需要创建一个异常
+2、创建一个异常时，需要收集一个栈用来跟踪异常情况
+3、栈跟踪异常情况需要记录下来（入栈，出栈），一直跟踪到我们扑捉到异常并且进行处理后截止</p>
+<blockquote>
+<p>根本原因在于:
+异常基类Throwable.java的public synchronized native Throwable fillInStackTrace()方法
+方法介绍:
+Fills in the execution stack trace. This method records within this Throwable object information about the current state of the stack frames for the current thread.
+性能开销在于:
+<strong>1. 是一个<code>synchronized</code>方法(主因)</strong>
+<strong>2. 需要填充线程运行堆栈信息</strong></p>
+</blockquote>
+<h2 id="异常控制流程的一些争论"><a href="#异常控制流程的一些争论" class="headerlink" title="异常控制流程的一些争论"></a>异常控制流程的一些争论</h2><p>关于要不要以来异常机制来处理控制流程，一直以来就有这个争论。不少帖子都讨论过这个问题。
+在两本不同的书里面也见到了截然不同的观点：</p>
+<ul>
+<li>effect Java不建议用异常来控制业务流程，理由是异常消耗比较大。</li>
+<li>代码简洁之道则是相反，建议用异常来处理业务控制流程，减少不必要的return</li>
+</ul>
+<p>这个是一个取舍问题，关键点在你想要什么，如果对性能没有极致追求，其实用异常来控制业务流程也不错，清晰直观。</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><h3 id="try-catch-finally-return执行顺序"><a href="#try-catch-finally-return执行顺序" class="headerlink" title="try catch finally return执行顺序"></a>try catch finally return执行顺序</h3><p>这里有一个常见的面试题，就是return 和finally的执行顺序问题，
+从java语言的角度理解很诡异，但是从指令就比较容易理解。
+结论：finally的代码执行是在最后一条return指令之前。</p>
+<h3 id="idea-字节码工具插件jclasslib"><a href="#idea-字节码工具插件jclasslib" class="headerlink" title="idea 字节码工具插件jclasslib"></a>idea 字节码工具插件jclasslib</h3><p>在了解异常原理的过程中发现了一个很不错的查看修改字节码的 idea插件 <code>jclasslib</code> 。
+<a href="https://github.com/ingokegel/jclasslib" target="_blank" rel="external">https://github.com/ingokegel/jclasslib</a>
+用它来查看字节码是这样的。
+<img src="./images/1530967496815.png" alt="Alt text">
+<img src="./images/1530967526425.png" alt="Alt text"></p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://blog.csdn.net/TellH/article/details/70940757" target="_blank" rel="external">https://blog.csdn.net/TellH/article/details/70940757</a></p>
+<p><a href="http://icyfenix.iteye.com/blog/857722" target="_blank" rel="external">http://icyfenix.iteye.com/blog/857722</a></p>
 
       
     </div>
@@ -446,8 +478,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-06-19Java内存区域.html" rel="next" title="深入理解Java虚拟机-Java内存区域读书笔记">
-                <i class="fa fa-chevron-left"></i> 深入理解Java虚拟机-Java内存区域读书笔记
+              <a href="/2018-07-07-如何快速提高代码测试覆盖率.html" rel="next" title="如何快速提高测试代码覆盖率">
+                <i class="fa fa-chevron-left"></i> 如何快速提高测试代码覆盖率
               </a>
             
           </div>
@@ -455,10 +487,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017-07-09-Hystrix初探.html" rel="prev" title="Hystrix初探">
-                Hystrix初探 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -623,7 +651,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分享"><span class="nav-number">1.</span> <span class="nav-text">分享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目录"><span class="nav-number">2.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM异常体系"><span class="nav-number">1.</span> <span class="nav-text">JVM异常体系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jvm异常原理"><span class="nav-number">2.</span> <span class="nav-text">jvm异常原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反编译一段小程序"><span class="nav-number">2.1.</span> <span class="nav-text">反编译一段小程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常表"><span class="nav-number">2.2.</span> <span class="nav-text">异常表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常的开销"><span class="nav-number">3.</span> <span class="nav-text">异常的开销</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常控制流程的一些争论"><span class="nav-number">4.</span> <span class="nav-text">异常控制流程的一些争论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充"><span class="nav-number">5.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#try-catch-finally-return执行顺序"><span class="nav-number">5.1.</span> <span class="nav-text">try catch finally return执行顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#idea-字节码工具插件jclasslib"><span class="nav-number">5.2.</span> <span class="nav-text">idea 字节码工具插件jclasslib</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">6.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
             
 
           </div>
