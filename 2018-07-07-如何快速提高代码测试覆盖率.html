@@ -1,0 +1,882 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="测试,覆盖率,jacoco" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="今天一天都是在折腾代码覆盖率，如何快速提升代码覆盖率。虽然快速提高代码覆盖率不一定有用，但是覆盖率作为了一个明确的指标，快速提高也是没有办法的事情。 折腾了一天貌似也没有太大的收获，但是还是随手记录一下。 如何快速提高下面的快速提高的前提是覆盖率的统计是jacoco统计的。 渠道一：过滤掉不想统计的目录或者类现在通过maven或者gradle的插件配置，根据目录剔除不想统计的是比较容易的。但是根据">
+<meta name="keywords" content="测试,覆盖率,jacoco">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何快速提高测试代码覆盖率">
+<meta property="og:url" content="http://code.zhizus.com/2018-07-07-如何快速提高代码测试覆盖率.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="今天一天都是在折腾代码覆盖率，如何快速提升代码覆盖率。虽然快速提高代码覆盖率不一定有用，但是覆盖率作为了一个明确的指标，快速提高也是没有办法的事情。 折腾了一天貌似也没有太大的收获，但是还是随手记录一下。 如何快速提高下面的快速提高的前提是覆盖率的统计是jacoco统计的。 渠道一：过滤掉不想统计的目录或者类现在通过maven或者gradle的插件配置，根据目录剔除不想统计的是比较容易的。但是根据">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-07-11T02:22:26.283Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何快速提高测试代码覆盖率">
+<meta name="twitter:description" content="今天一天都是在折腾代码覆盖率，如何快速提升代码覆盖率。虽然快速提高代码覆盖率不一定有用，但是覆盖率作为了一个明确的指标，快速提高也是没有办法的事情。 折腾了一天貌似也没有太大的收获，但是还是随手记录一下。 如何快速提高下面的快速提高的前提是覆盖率的统计是jacoco统计的。 渠道一：过滤掉不想统计的目录或者类现在通过maven或者gradle的插件配置，根据目录剔除不想统计的是比较容易的。但是根据">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://code.zhizus.com/2018-07-07-如何快速提高代码测试覆盖率.html"/>
+
+
+
+
+
+  <title> 如何快速提高测试代码覆盖率 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-test " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-07-07-如何快速提高代码测试覆盖率.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                如何快速提高测试代码覆盖率
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-07-07-如何快速提高代码测试覆盖率.html" class="leancloud_visitors" data-flag-title="如何快速提高测试代码覆盖率">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>今天一天都是在折腾代码覆盖率，如何快速提升代码覆盖率。虽然快速提高代码覆盖率不一定有用，但是覆盖率作为了一个明确的指标，快速提高也是没有办法的事情。
+折腾了一天貌似也没有太大的收获，但是还是随手记录一下。</p>
+<h2 id="如何快速提高"><a href="#如何快速提高" class="headerlink" title="如何快速提高"></a>如何快速提高</h2><p>下面的快速提高的前提是覆盖率的统计是jacoco统计的。</p>
+<h3 id="渠道一：过滤掉不想统计的目录或者类"><a href="#渠道一：过滤掉不想统计的目录或者类" class="headerlink" title="渠道一：过滤掉不想统计的目录或者类"></a>渠道一：过滤掉不想统计的目录或者类</h3><p>现在通过maven或者gradle的插件配置，根据目录剔除不想统计的是比较容易的。但是根据方法级别的剔除就比较麻烦。
+.Net貌似有实现注解的方式，目前对于java语言，貌似是不支持过滤掉方法的，比较可惜。</p>
+<blockquote>
+<p>相关内容详见官方wiki关于filterOption的讲解。<a href="https://github.com/jacoco/jacoco/wiki/FilteringOptions" target="_blank" rel="noopener">https://github.com/jacoco/jacoco/wiki/FilteringOptions</a></p>
+</blockquote>
+<p>Jacoco github issues上面看到可以 hard code the <code>lombok.Generated</code> annotation</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">instrumentation</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ignoreMethodAnnotations</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">ignoreMethodAnnotation</span>&gt;</span>lombok.Generated<span class="tag">&lt;/<span class="name">ignoreMethodAnnotation</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ignoreMethodAnnotations</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">instrumentation</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>尽管这样可以实现过滤不想被统计的方法，一方面侵入了代码，另一方面，通过伪装成lombok生成的代码来规避jacoco覆盖率的统计始终是有点奇怪。
+<a href="https://github.com/jacoco/jacoco/issues/15#issuecomment-285302964" target="_blank" rel="noopener">https://github.com/jacoco/jacoco/issues/15#issuecomment-285302964</a></p>
+<h3 id="渠道二：通过反射类的工具提升一些pojo的覆盖率"><a href="#渠道二：通过反射类的工具提升一些pojo的覆盖率" class="headerlink" title="渠道二：通过反射类的工具提升一些pojo的覆盖率"></a>渠道二：通过反射类的工具提升一些pojo的覆盖率</h3><p>通过ide生成的pojo对象，equals hashcode方法都不一定覆盖到，但是这些方法覆盖的意义实在不大。</p>
+<p>例如通过这个反射工具，将pojo对象的setter，getter，equal，hash方法调用，大部分pojo的覆盖率都可以提升100%</p>
+<p>顺便推荐一下这个jar，使用起来比较简单，成本低。
+<a href="https://www.pojo.pl/" target="_blank" rel="noopener">https://www.pojo.pl/</a>
+sample</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Should_Pass_All_Pojo_Tests</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// given</span></span><br><span class="line">    <span class="keyword">final</span> Class&lt;?&gt; classUnderTest = Pojo.class;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// when</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// then</span></span><br><span class="line">    assertPojoMethodsFor(classUnderTest).areWellImplemented();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>but，这个并不推荐，如果不是强制指标或者有办法通过其他手段排除掉这些统计，没必要通过这种手段来让覆盖率数据好看。</p>
+<h2 id="渠道三：扩展jacoco代码，定制化过滤"><a href="#渠道三：扩展jacoco代码，定制化过滤" class="headerlink" title="渠道三：扩展jacoco代码，定制化过滤"></a>渠道三：扩展jacoco代码，定制化过滤</h2><p>最后的当然是重点，虽然实现成本比上面略大，但是比较灵活。基于扩展jacoco代码，可以定制注解过滤，可以定制配置过滤文件过滤。属于一劳永逸的解法。</p>
+<p>扩展jacoco听起来比较难，乍一看起来也比较麻烦。要侵入字节码进行插桩，都是些汇编指令。但是我们仅仅是需要根据文件名和方法进行过滤，而jacoco又是基于asm实现的，asm可以很很方便的对方法进行拦截。所以一切可能没有那么复杂了。
+JaCoCo默认的注入方式为全量注入。通过阅读源码，发现注入的逻辑主要在ClassProbesAdapter中。ASM在遍历字节码时，每次访问一个方法定义，都会回调这个类的visitMethod方法
+，在visitMethod方法中再调用ClassProbeVisitor的visitMethod方法，并最终调用MethodInstrumenter完成注入。部分代码片段如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> MethodVisitor <span class="title">visitMethod</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> access, <span class="keyword">final</span> String name,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> String desc, <span class="keyword">final</span> String signature, <span class="keyword">final</span> String[] exceptions)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">final</span> MethodProbesVisitor methodProbes;</span><br><span class="line">   <span class="keyword">final</span> MethodProbesVisitor mv = cv.visitMethod(access, name, desc,</span><br><span class="line">         signature, exceptions);</span><br><span class="line">   <span class="keyword">if</span> (mv == <span class="keyword">null</span>) &#123;</span><br><span class="line">      methodProbes = EMPTY_METHOD_PROBES_VISITOR;</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      methodProbes = mv;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">new</span> MethodSanitizer(<span class="keyword">null</span>, access, name, desc, signature,</span><br><span class="line">         exceptions) &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">visitEnd</span><span class="params">()</span> </span>&#123;</span><br><span class="line">         <span class="keyword">super</span>.visitEnd();</span><br><span class="line">         LabelFlowAnalyzer.markLabels(<span class="keyword">this</span>);</span><br><span class="line">         <span class="keyword">final</span> MethodProbesAdapter probesAdapter = <span class="keyword">new</span> MethodProbesAdapter(</span><br><span class="line">               methodProbes, ClassProbesAdapter.<span class="keyword">this</span>);</span><br><span class="line">         <span class="keyword">if</span> (trackFrames) &#123;</span><br><span class="line">            <span class="keyword">final</span> AnalyzerAdapter analyzer = <span class="keyword">new</span> AnalyzerAdapter(</span><br><span class="line">                  ClassProbesAdapter.<span class="keyword">this</span>.name, access, name, desc,</span><br><span class="line">                  probesAdapter);</span><br><span class="line">            probesAdapter.setAnalyzer(analyzer);</span><br><span class="line">            <span class="keyword">this</span>.accept(analyzer);</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.accept(probesAdapter);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看到这里基本上已经知道如何去修改JaCoCo的源码了。继承原有的ClassInstrumenter和ClassProbesAdapter，修改其中的visitMethod方法，只对变化了方法进行注入：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> MethodVisitor <span class="title">visitMethod</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> access, <span class="keyword">final</span> String name,</span></span></span><br><span class="line"><span class="function"><span class="params">                                       <span class="keyword">final</span> String desc, <span class="keyword">final</span> String signature, <span class="keyword">final</span> String[] exceptions)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (Utils.shoudHackMethod(name,desc,signature,changedMethods,cv.getClassName())) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span>  cv.getCv().visitMethod(access, name, desc, signature, exceptions);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>首先盲目追求快速提高覆盖率其实意义不大。但是自定义过滤覆盖率统计代码这个还是比较有用的，特别是低于测试部门。如果覆盖率的统计不能自定义过滤，很难对覆盖率有一个量化统计的指标。</p>
+<p>最后附上美团相关方面的一次实践<a href="https://tech.meituan.com/android-jacoco-practace.html" target="_blank" rel="noopener">增量代码测试覆盖率工具</a>
+只对增量代码测试覆盖率进行阻断，这个是个不错的折中解法。文中对实现也有很详细的描述。</p>
+<p>关于测试覆盖率，详见：<a href="http://zhizus.com/2018-06-04-%E6%B5%85%E8%B0%88%E4%BB%A3%E7%A0%81%E8%A6%86%E7%9B%96%E7%8E%87.html" target="_blank" rel="noopener">浅谈代码覆盖率</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-07-02-jdk线程上限.html" rel="next" title="jdk线程上限">
+                <i class="fa fa-chevron-left"></i> jdk线程上限
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-07-07-JVM异常体系及异常机制.html" rel="prev" title="JVM异常体系及异常机制">
+                JVM异常体系及异常机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">55</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#如何快速提高"><span class="nav-number">1.</span> <span class="nav-text">如何快速提高</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#渠道一：过滤掉不想统计的目录或者类"><span class="nav-number">1.1.</span> <span class="nav-text">渠道一：过滤掉不想统计的目录或者类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#渠道二：通过反射类的工具提升一些pojo的覆盖率"><span class="nav-number">1.2.</span> <span class="nav-text">渠道二：通过反射类的工具提升一些pojo的覆盖率</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#渠道三：扩展jacoco代码，定制化过滤"><span class="nav-number">2.</span> <span class="nav-text">渠道三：扩展jacoco代码，定制化过滤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
