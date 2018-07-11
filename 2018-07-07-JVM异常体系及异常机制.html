@@ -87,31 +87,28 @@
 
 
 
-<meta name="description" content="JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）。
+<meta name="description" content="JVM 异常的本质
+Java异常时java语言支持的唯一之中错误上报机制。
 
-jvm异常原理
-JVM try catch原理你理解吗？
-–据说是阿里巴">
+JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM异常体系及异常机制">
 <meta property="og:url" content="http://code.zhizus.com/2018-07-07-JVM异常体系及异常机制.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）。
+<meta property="og:description" content="JVM 异常的本质
+Java异常时java语言支持的唯一之中错误上报机制。
 
-jvm异常原理
-JVM try catch原理你理解吗？
-–据说是阿里巴">
+JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）">
 <meta property="og:image" content="http://code.zhizus.com/./images/ex-class-strut.jpg">
 <meta property="og:image" content="http://code.zhizus.com/./images/1530967496815.png">
 <meta property="og:image" content="http://code.zhizus.com/./images/1530967526425.png">
-<meta property="og:updated_time" content="2018-07-07T13:28:03.823Z">
+<meta property="og:updated_time" content="2018-07-11T14:24:55.037Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM异常体系及异常机制">
-<meta name="twitter:description" content="JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）。
+<meta name="twitter:description" content="JVM 异常的本质
+Java异常时java语言支持的唯一之中错误上报机制。
 
-jvm异常原理
-JVM try catch原理你理解吗？
-–据说是阿里巴">
+JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）">
 <meta name="twitter:image" content="http://code.zhizus.com/./images/ex-class-strut.jpg">
 
 
@@ -366,7 +363,10 @@ JVM try catch原理你理解吗？
       
 
       
-        <h2 id="JVM异常体系"><a href="#JVM异常体系" class="headerlink" title="JVM异常体系"></a>JVM异常体系</h2><p>异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）。</p>
+        <h2 id="JVM-异常的本质"><a href="#JVM-异常的本质" class="headerlink" title="JVM 异常的本质"></a>JVM 异常的本质</h2><blockquote>
+<p>Java异常时java语言支持的唯一之中<code>错误上报机制</code>。</p>
+</blockquote>
+<h2 id="JVM异常体系"><a href="#JVM异常体系" class="headerlink" title="JVM异常体系"></a>JVM异常体系</h2><p>异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeException及其子类成为未检查异常（unchecked），其它异常成为已检查异常（checked）。</p>
 <p><img src="./images/ex-class-strut.jpg" alt="Alt text"></p>
 <h2 id="jvm异常原理"><a href="#jvm异常原理" class="headerlink" title="jvm异常原理"></a>jvm异常原理</h2><blockquote>
 <p>JVM try catch原理你理解吗？
@@ -425,8 +425,7 @@ Fills in the execution stack trace. This method records within this Throwable ob
 用它来查看字节码是这样的。
 <img src="./images/1530967496815.png" alt="Alt text">
 <img src="./images/1530967526425.png" alt="Alt text"></p>
-<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://blog.csdn.net/TellH/article/details/70940757" target="_blank" rel="external">https://blog.csdn.net/TellH/article/details/70940757</a></p>
-<p><a href="http://icyfenix.iteye.com/blog/857722" target="_blank" rel="external">http://icyfenix.iteye.com/blog/857722</a></p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://blog.csdn.net/TellH/article/details/70940757" target="_blank" rel="external">https://blog.csdn.net/TellH/article/details/70940757</a><br><a href="http://icyfenix.iteye.com/blog/857722" target="_blank" rel="external">http://icyfenix.iteye.com/blog/857722</a></p>
 
       
     </div>
@@ -655,7 +654,7 @@ Fills in the execution stack trace. This method records within this Throwable ob
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM异常体系"><span class="nav-number">1.</span> <span class="nav-text">JVM异常体系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jvm异常原理"><span class="nav-number">2.</span> <span class="nav-text">jvm异常原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反编译一段小程序"><span class="nav-number">2.1.</span> <span class="nav-text">反编译一段小程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常表"><span class="nav-number">2.2.</span> <span class="nav-text">异常表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常的开销"><span class="nav-number">3.</span> <span class="nav-text">异常的开销</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常控制流程的一些争论"><span class="nav-number">4.</span> <span class="nav-text">异常控制流程的一些争论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充"><span class="nav-number">5.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#try-catch-finally-return执行顺序"><span class="nav-number">5.1.</span> <span class="nav-text">try catch finally return执行顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#idea-字节码工具插件jclasslib"><span class="nav-number">5.2.</span> <span class="nav-text">idea 字节码工具插件jclasslib</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">6.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-异常的本质"><span class="nav-number">1.</span> <span class="nav-text">JVM 异常的本质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM异常体系"><span class="nav-number">2.</span> <span class="nav-text">JVM异常体系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jvm异常原理"><span class="nav-number">3.</span> <span class="nav-text">jvm异常原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反编译一段小程序"><span class="nav-number">3.1.</span> <span class="nav-text">反编译一段小程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常表"><span class="nav-number">3.2.</span> <span class="nav-text">异常表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常的开销"><span class="nav-number">4.</span> <span class="nav-text">异常的开销</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常控制流程的一些争论"><span class="nav-number">5.</span> <span class="nav-text">异常控制流程的一些争论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充"><span class="nav-number">6.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#try-catch-finally-return执行顺序"><span class="nav-number">6.1.</span> <span class="nav-text">try catch finally return执行顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#idea-字节码工具插件jclasslib"><span class="nav-number">6.2.</span> <span class="nav-text">idea 字节码工具插件jclasslib</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">7.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
             
 
           </div>
