@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="mysql,binlog,同步,canal" />
+  <meta name="keywords" content="java,并发,mesi,cpu，一致性协议" />
 
 
 
@@ -87,31 +87,23 @@
 
 
 
-<meta name="description" content="场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
-解决方案解决方案一）
-在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
-这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。
-解决方案二）
-既然mysql binlog同步无法做到，我们可以依赖">
+<meta name="description" content="写在前面  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。
+单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含">
 <meta property="og:type" content="article">
-<meta property="og:title" content="canal binlog同步小试牛刀">
-<meta property="og:url" content="http://code.zhizus.com/2018-01-02-canal同步小试牛刀.html">
+<meta property="og:title" content="CPU缓存一致性协议MESI">
+<meta property="og:url" content="http://code.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
-解决方案解决方案一）
-在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
-这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。
-解决方案二）
-既然mysql binlog同步无法做到，我们可以依赖">
-<meta property="og:updated_time" content="2018-01-02T14:42:17.525Z">
+<meta property="og:description" content="写在前面  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。
+单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含">
+<meta property="og:image" content="http://code.zhizus.com/./images/1531305589537.png">
+<meta property="og:image" content="http://code.zhizus.com/./images/1531318187632.png">
+<meta property="og:image" content="http://code.zhizus.com/./images/1531318504688.png">
+<meta property="og:updated_time" content="2018-07-11T14:20:45.811Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="canal binlog同步小试牛刀">
-<meta name="twitter:description" content="场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
-解决方案解决方案一）
-在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
-这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。
-解决方案二）
-既然mysql binlog同步无法做到，我们可以依赖">
+<meta name="twitter:title" content="CPU缓存一致性协议MESI">
+<meta name="twitter:description" content="写在前面  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。
+单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含">
+<meta name="twitter:image" content="http://code.zhizus.com/./images/1531305589537.png">
 
 
 
@@ -139,13 +131,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2018-01-02-canal同步小试牛刀.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html"/>
 
 
 
 
 
-  <title> canal binlog同步小试牛刀 | 郑大侠的博客 </title>
+  <title> CPU缓存一致性协议MESI | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -293,8 +285,8 @@
   
   
 
-  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-01-02-canal同步小试牛刀.html">
+  <article class="post post-type-并发 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -315,7 +307,7 @@
             
             
               
-                canal binlog同步小试牛刀
+                CPU缓存一致性协议MESI
               
             
           </h1>
@@ -338,7 +330,7 @@
 
           
           
-             <span id="/2018-01-02-canal同步小试牛刀.html" class="leancloud_visitors" data-flag-title="canal binlog同步小试牛刀">
+             <span id="/2018-07-11-浅谈CPU缓存一致性协议MESI.html" class="leancloud_visitors" data-flag-title="CPU缓存一致性协议MESI">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -365,53 +357,79 @@
       
 
       
-        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>解决方案一）
-在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
-这种方案实现比较简单，但是需要在旧服务中侵入代码，另外双写数据一致性较难保证。
-解决方案二）
-既然mysql binlog同步无法做到，我们可以依赖canal的同步来满足需求。canal同步本质上 也是模拟mysql slave，接收binlog，然后解析binglog。</p>
-<h2 id="canal数据同步"><a href="#canal数据同步" class="headerlink" title="canal数据同步"></a>canal数据同步</h2><h3 id="canal原理"><a href="#canal原理" class="headerlink" title="canal原理"></a>canal原理</h3><ul>
-<li>canal模拟mysql slave的交互协议，伪装自己为mysql slave，向mysql master发送dump协议</li>
-<li>mysql master收到dump请求，开始推送binary log给slave(也就是canal)</li>
-<li>canal解析binary log对象(原始为byte流)</li>
+        <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。</p>
+<p>单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含了描述共享的状态。</p>
+<p>在MESI协议中，每个Cache line有4个状态，可用2个bit表示，它们分别是： </p>
+<table cellspacing="0" cellpadding="0" border="1"><tbody><tr><td valign="top">
+<p align="center">状态</p>
+</td>
+<td valign="top">
+<p align="center">描述</p>
+</td>
+</tr><tr><td valign="top">
+<p align="center">M(Modified)</p>
+</td>
+<td valign="top">
+<p align="center">这行数据有效，数据被修改了，和内存中的数据不一致，数据只存在于本Cache中。</p>
+</td>
+</tr><tr><td valign="top">
+<p align="center">E(Exclusive)</p>
+</td>
+<td valign="top">
+<p align="center">这行数据有效，数据和内存中的数据一致，数据只存在于本Cache中。</p>
+</td>
+</tr><tr><td valign="top">
+<p align="center">S(Shared)</p>
+</td>
+<td valign="top">
+<p align="center">这行数据有效，数据和内存中的数据一致，数据存在于很多Cache中。</p>
+</td>
+</tr><tr><td valign="top">
+<p align="center">I(Invalid)</p>
+</td>
+<td valign="top">
+<p align="center">这行数据无效。</p>
+</td>
+</tr></tbody></table>
+
+<p>MESI状态场景
+<img src="./images/1531305589537.png" alt="Alt text"></p>
+<h3 id="修改数据"><a href="#修改数据" class="headerlink" title="修改数据"></a>修改数据</h3><p>那么执行流程是：
+CPU A 计算完成后发指令需要修改x.
+CPU A 将x设置为M状态（修改）并通知缓存了x的CPU B, CPU B将本地cache b中的x设置为I状态(无效)
+CPU A 对x进行赋值。</p>
+<p><img src="./images/1531318187632.png" alt="Alt text"></p>
+<h3 id="同步数据"><a href="#同步数据" class="headerlink" title="同步数据"></a>同步数据</h3><p>CPU B 发出了要读取x的指令。
+CPU B 通知CPU A,CPU A将修改后的数据同步到主内存时cache a 修改为E（独享）
+CPU A同步数据到CPU B的x,将cache a和同步后cache b中的x设置为S状态（共享）。</p>
+<p><img src="./images/1531318504688.png" alt="Alt text"></p>
+<h2 id="MESI优化和引入的问题"><a href="#MESI优化和引入的问题" class="headerlink" title="MESI优化和引入的问题"></a>MESI优化和引入的问题</h2><p>缓存的一致性消息传递是要时间的，这就使其切换时会产生延迟。当一个缓存被切换状态时其他缓存收到消息完成各自的切换并且发出回应消息这么一长串的时间中CPU都会等待所有缓存响应完成。可能出现的阻塞都会导致各种各样的性能问题和稳定性问题。</p>
+<h3 id="Store-Bufferes"><a href="#Store-Bufferes" class="headerlink" title="Store Bufferes"></a>Store Bufferes</h3><p>为了避免这种CPU运算能力的浪费，Store Bufferes被引入使用。处理器把它想要写入到主存的值写到缓存，然后继续去处理其他事情。当所有失效确认（Invalidate Acknowledge）都接收到时，数据才会最终被提交。
+这么做有两个风险</p>
+<h3 id="Store-Bufferes的风险"><a href="#Store-Bufferes的风险" class="headerlink" title="Store Bufferes的风险"></a>Store Bufferes的风险</h3><p>第一、就是处理器会尝试从存储缓存（Store buffer）中读取值，但它还没有进行提交。这个的解决方案称为Store Forwarding，它使得加载的时候，如果存储缓存中存在，则进行返回。
+第二、保存什么时候会完成，这个并没有任何保证。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">value = <span class="number">3</span>；</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">exeToCPUA</span><span class="params">()</span></span>&#123;</div><div class="line">  value = <span class="number">10</span>;</div><div class="line">  isFinsh = <span class="keyword">true</span>;</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">exeToCPUB</span><span class="params">()</span></span>&#123;</div><div class="line">  <span class="keyword">if</span>(isFinsh)&#123;</div><div class="line">    <span class="comment">//value一定等于10？！</span></div><div class="line">    <span class="keyword">assert</span> value == <span class="number">10</span>;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>试想一下开始执行时，CPU A保存着finished在E(独享)状态，而value并没有保存在它的缓存中。（例如，Invalid）。在这种情况下，value会比finished更迟地抛弃存储缓存。完全有可能CPU B读取finished的值为true，而value的值不等于10。</p>
+<p>即isFinsh的赋值在value赋值之前。</p>
+<p>这种在可识别的行为中发生的变化称为重排序（reordings）。注意，这不意味着你的指令的位置被恶意（或者好意）地更改。</p>
+<p>它只是意味着其他的CPU会读到跟程序中写入的顺序不一样的结果。</p>
+<h2 id="硬件内存模型"><a href="#硬件内存模型" class="headerlink" title="硬件内存模型"></a>硬件内存模型</h2><p>执行失效也不是一个简单的操作，它需要处理器去处理。另外，存储缓存（<code>Store Buffers</code>）并不是无穷大的，所以处理器有时需要等待失效确认的返回。这两个操作都会使得性能大幅降低。为了应付这种情况，引入了失效队列。它们的约定如下：</p>
+<ul>
+<li>对于所有的收到的Invalidate请求，Invalidate Acknowlege消息必须立刻发送</li>
+<li>Invalidate并不真正执行，而是被放在一个特殊的队列中，在方便的时候才会去执行。</li>
+<li>处理器不会发送任何消息给所处理的缓存条目，直到它处理Invalidate。</li>
 </ul>
-<h3 id="canal使用场景"><a href="#canal使用场景" class="headerlink" title="canal使用场景"></a>canal使用场景</h3><ul>
-<li>数据库镜像</li>
-<li>数据库实时备份</li>
-<li>多级索引 (卖家和买家各自分库索引)</li>
-<li>search build</li>
-<li>业务cache刷新</li>
-<li>价格变化等重要业务消息</li>
-</ul>
-<h3 id="quickstart"><a href="#quickstart" class="headerlink" title="quickstart"></a>quickstart</h3><p><a href="https://github.com/alibaba/canal/wiki/QuickStart" target="_blank" rel="external">https://github.com/alibaba/canal/wiki/QuickStart</a></p>
-<h3 id="canal同步sample"><a href="#canal同步sample" class="headerlink" title="canal同步sample"></a>canal同步sample</h3><p><a href="https://github.com/dempeZheng/canalsync" target="_blank" rel="external">https://github.com/dempeZheng/canalsync</a></p>
-<h2 id="binlog-format格式"><a href="#binlog-format格式" class="headerlink" title="binlog format格式"></a>binlog format格式</h2><blockquote>
-<p>Mysql binlog日志有三种格式，分别为Statement,MiXED,以及ROW！</p>
+<p>即便是这样处理器已然不知道什么时候优化是允许的，而什么时候并不允许。
+干脆处理器将这个任务丢给了写代码的人。这就是内存屏障（Memory Barriers）。</p>
+<blockquote>
+<p><code>写屏障</code> Store Memory Barrier(a.k.a. ST, SMB, smp_wmb)是一条告诉处理器在执行这之后的指令之前，应用所有已经在存储缓存（store buffer）中的保存的指令。</p>
+<p><code>读屏障</code>Load Memory Barrier (a.k.a. LD, RMB, smp_rmb)是一条告诉处理器在执行任何的加载前，先应用所有已经在失效队列中的失效操作的指令。</p>
 </blockquote>
-<ul>
-<li>1.Statement：每一条会修改数据的sql都会记录在binlog中。</li>
-</ul>
-<p><strong>优点</strong>：不需要记录每一行的变化，减少了binlog日志量，节约了IO，提高性能。(相比row能节约多少性能与日志量，这个取决于应用的SQL情况，正常同一条记录修改或者插入row格式所产生的日志量还小于Statement产生的日志量，但是考虑到如果带条件的update操作，以及整表删除，alter表等操作，ROW格式会产生大量日志，因此在考虑是否使用ROW格式日志时应该跟据应用的实际情况，其所产生的日志量会增加多少，以及带来的IO性能问题。)
-<strong>缺点</strong>：由于记录的只是执行语句，为了这些语句能在slave上正确运行，因此还必须记录每条语句在执行的时候的一些相关信息，以保证所有语句能在slave得到和在master端执行时候相同 的结果。另外mysql 的复制,像一些特定函数功能，slave可与master上要保持一致会有很多相关问题(如sleep()函数， last_insert_id()，以及user-defined functions(udf)会出现问题).
-使用以下函数的语句也无法被复制：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">* LOAD_FILE()</div><div class="line"></div><div class="line">* UUID()</div><div class="line"></div><div class="line">* USER()</div><div class="line"></div><div class="line">* FOUND_ROWS()</div><div class="line"></div><div class="line">* SYSDATE() (除非启动时启用了 --sysdate-is-now 选项)</div></pre></td></tr></table></figure>
-<p>同时在INSERT …SELECT 会产生比 RBR 更多的行级锁</p>
-<ul>
-<li>2.Row:不记录sql语句上下文相关信息，仅保存哪条记录被修改。</li>
-</ul>
-<p><strong>优点</strong>： binlog中可以不记录执行的sql语句的上下文相关的信息，仅需要记录那一条记录被修改成什么了。所以rowlevel的日志内容会非常清楚的记录下每一行数据修改的细节。而且不会出现某些特定情况下的存储过程，或function，以及trigger的调用和触发无法被正确复制的问题</p>
-<p><strong>缺点</strong>:所有的执行的语句当记录到日志中的时候，都将以每行记录的修改来记录，这样可能会产生大量的日志内容,比如一条update语句，修改多条记录，则binlog中每一条修改都会有记录，这样造成binlog日志量会很大，特别是当执行alter table之类的语句的时候，由于表结构修改，每条记录都发生改变，那么该表每一条记录都会记录到日志中。</p>
-<ul>
-<li>3.Mixedlevel: 是以上两种level的混合使用，一般的语句修改使用statment格式保存binlog，如一些函数，statement无法完成主从复制的操作，则采用row格式保存binlog,MySQL会根据执行的每一条具体的sql语句来区分对待记录的日志形式，也就是在Statement和Row之间选择一种.新版本的MySQL中队row level模式也被做了优化，并不是所有的修改都会以row level来记录，像遇到表结构变更的时候就会以statement模式来记录。至于update或者delete等修改数据的语句，还是会记录所有行的变更。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>canal在给mysql扩展出无限的可能，将静态的mysql演变成异步事件模型。有了异步事件，其实可以做很多有意思的事情。比如数据同步，业务cache刷新，余额变更等等。但是canal在使用上仍然需要谨慎，canal并不包括高可用的部分，如果对可用性要求较高，可以参考阿里的otter</p>
-<hr>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>canal在使用上还是比较简单，github的wiki也描述的比较清晰，另，由于最近时间比较少，所以没花时间来描述canal使用细节。
-但是在使用上还是有一些需要注意的地方，
-1）exception canal异常退出，单点的模式是不会自动重连的，建议用集群的client，尽管canal就是单点模式
-2）canal批量消费 ack机制，业务实现上是跳过还是阻断是需要根据具体场景仔细思考的
-3）批量消费注意事务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">executedOnCpu0</span><span class="params">()</span> </span>&#123;</div><div class="line">    value = <span class="number">10</span>;</div><div class="line">    <span class="comment">//在更新数据之前必须将所有存储缓存（store buffer）中的指令执行完毕。</span></div><div class="line">    storeMemoryBarrier();</div><div class="line">    finished = <span class="keyword">true</span>;</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">executedOnCpu1</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">while</span>(!finished);</div><div class="line">    <span class="comment">//在读取之前将所有失效队列中关于该数据的指令执行完毕。</span></div><div class="line">    loadMemoryBarrier();</div><div class="line">    <span class="keyword">assert</span> value == <span class="number">10</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>现在确实安全了。完美无暇！</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>然而，对于程序员来说简直是一个灾难。不想和平台耦合我们要跨平台。Write One,Run Everywhere!
+幸好java解决了这个问题，至于如何解决的请关注JMM(JavaMemoryMode)与物理内存相爱相杀。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://www.cnblogs.com/yanlong300/p/8986041.html" target="_blank" rel="external">https://www.cnblogs.com/yanlong300/p/8986041.html</a></p>
 
       
     </div>
@@ -463,8 +481,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-12-06-记一次服务性能压测.html" rel="next" title="记一次服务性能压测">
-                <i class="fa fa-chevron-left"></i> 记一次服务性能压测
+              <a href="/2018-07-11-Java DNS cache.html" rel="next" title="Java DNS Cache小记">
+                <i class="fa fa-chevron-left"></i> Java DNS Cache小记
               </a>
             
           </div>
@@ -472,10 +490,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018-04-02-金钱灾备跨机房自动切换落地实践.html" rel="prev" title="金钱灾备跨机房自动切换落地实践">
-                金钱灾备跨机房自动切换落地实践 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -640,7 +654,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#canal数据同步"><span class="nav-number">3.</span> <span class="nav-text">canal数据同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#canal原理"><span class="nav-number">3.1.</span> <span class="nav-text">canal原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#canal使用场景"><span class="nav-number">3.2.</span> <span class="nav-text">canal使用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#quickstart"><span class="nav-number">3.3.</span> <span class="nav-text">quickstart</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#canal同步sample"><span class="nav-number">3.4.</span> <span class="nav-text">canal同步sample</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#binlog-format格式"><span class="nav-number">4.</span> <span class="nav-text">binlog format格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在前面"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改数据"><span class="nav-number">1.1.</span> <span class="nav-text">修改数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步数据"><span class="nav-number">1.2.</span> <span class="nav-text">同步数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MESI优化和引入的问题"><span class="nav-number">2.</span> <span class="nav-text">MESI优化和引入的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Store-Bufferes"><span class="nav-number">2.1.</span> <span class="nav-text">Store Bufferes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Store-Bufferes的风险"><span class="nav-number">2.2.</span> <span class="nav-text">Store Bufferes的风险</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#硬件内存模型"><span class="nav-number">3.</span> <span class="nav-text">硬件内存模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
             
 
           </div>
