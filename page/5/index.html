@@ -281,6 +281,133 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-03-31-netty-buffer-recycler.html" itemprop="url">
+                  记一次netty内存溢出的问题(下)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-03-31-netty-buffer-recycler.html" class="leancloud_visitors" data-flag-title="记一次netty内存溢出的问题(下)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>上一篇：<a href="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">记一次netty内存溢出的问题(上)</a></p>
+<p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发<code>full gc</code>也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
+<div class="note default"><p>Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中<code>get()</code>,实际上是从FastLocalThread中获取，如果有便不重新分配。内存的<code>release()</code>的时候又会调用recycler()将对象回收。netty采用这种机制减少对象创建的损耗和减少垃圾回收从而提升性能。</p>
+</div>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017-03-31-netty-buffer-recycler.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1059,7 +1186,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-hastratege.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-protocol.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1081,8 +1208,8 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-hastratege.html" itemprop="url">
-                  Motan源码解读-容错策略
+                <a class="post-title-link" href="/2016-09-21-motan-protocol.html" itemprop="url">
+                  Motan源码解读-Protocol
                 </a>
               
             
@@ -1106,7 +1233,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 
           
           
-             <span id="/2016-09-21-motan-hastratege.html" class="leancloud_visitors" data-flag-title="Motan源码解读-容错策略">
+             <span id="/2016-09-21-motan-protocol.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Protocol">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1135,17 +1262,13 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
       
         
           
-          Motan的容错策略
-Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
-
-
-Failover 失效切换（缺省）
-
-1&lt;motan:protocol ... haStrateg
+          protocol可以说是motan最重要的部分之一。
+暴露一个服务引用一个服务都是在这块实现的。
+1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface 
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-hastratege.html#more" rel="contents">
+            <a class="btn" href="/2016-09-21-motan-protocol.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1321,7 +1444,7 @@ motan-extension //
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-protocol.html">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-hastratege.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1343,8 +1466,8 @@ motan-extension //
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-protocol.html" itemprop="url">
-                  Motan源码解读-Protocol
+                <a class="post-title-link" href="/2016-09-21-motan-hastratege.html" itemprop="url">
+                  Motan源码解读-容错策略
                 </a>
               
             
@@ -1368,7 +1491,7 @@ motan-extension //
 
           
           
-             <span id="/2016-09-21-motan-protocol.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Protocol">
+             <span id="/2016-09-21-motan-hastratege.html" class="leancloud_visitors" data-flag-title="Motan源码解读-容错策略">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1397,142 +1520,17 @@ motan-extension //
       
         
           
-          protocol可以说是motan最重要的部分之一。
-暴露一个服务引用一个服务都是在这块实现的。
-1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface 
+          Motan的容错策略
+Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
+
+
+Failover 失效切换（缺省）
+
+1&lt;motan:protocol ... haStrateg
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-protocol.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-09-21-motan-filter.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016-09-21-motan-filter.html" itemprop="url">
-                  Motan源码解读-Filter
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2016-09-21-motan-filter.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Filter">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。
-过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter
-AccessLo
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-filter.html#more" rel="contents">
+            <a class="btn" href="/2016-09-21-motan-hastratege.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1618,7 +1616,7 @@ AccessLo
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">55</span>
+                <span class="site-state-item-count">56</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1629,7 +1627,7 @@ AccessLo
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

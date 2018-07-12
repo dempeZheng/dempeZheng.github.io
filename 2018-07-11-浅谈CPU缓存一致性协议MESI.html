@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="队列,消息必达,消息幂等,消息落地,ack机制" />
+  <meta name="keywords" content="java,并发,mesi,cpu，一致性协议" />
 
 
 
@@ -87,20 +87,22 @@
 
 
 
-<meta name="description" content="背景最近工作中遇到送礼必达的业务，送礼必达的本质是队列消息必达，而队列消息必达的核心是： 1）消息ack 2）消息落地 下图展示一个可靠的消息从生产到消费的整个流程：  12345678910111）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；2）mq server收到消息，将消息落地存储；3）mq server回">
-<meta name="keywords" content="队列,消息必达,消息幂等,消息落地,ack机制">
+<meta name="description" content="写在前面  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。 单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含">
+<meta name="keywords" content="java,并发,mesi,cpu，一致性协议">
 <meta property="og:type" content="article">
-<meta property="og:title" content="消息必达">
-<meta property="og:url" content="http://code.zhizus.com/2017-09-05-消息必达.html">
+<meta property="og:title" content="CPU缓存一致性协议MESI">
+<meta property="og:url" content="http://code.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="背景最近工作中遇到送礼必达的业务，送礼必达的本质是队列消息必达，而队列消息必达的核心是： 1）消息ack 2）消息落地 下图展示一个可靠的消息从生产到消费的整个流程：  12345678910111）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；2）mq server收到消息，将消息落地存储；3）mq server回">
+<meta property="og:description" content="写在前面  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。 单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://code.zhizus.com/images/mq.png">
-<meta property="og:updated_time" content="2018-05-28T02:35:39.699Z">
+<meta property="og:image" content="http://code.zhizus.com/images/1531305589537.png">
+<meta property="og:image" content="http://code.zhizus.com/images/1531318187632.png">
+<meta property="og:image" content="http://code.zhizus.com/images/1531318504688.png">
+<meta property="og:updated_time" content="2018-07-12T00:58:42.498Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="消息必达">
-<meta name="twitter:description" content="背景最近工作中遇到送礼必达的业务，送礼必达的本质是队列消息必达，而队列消息必达的核心是： 1）消息ack 2）消息落地 下图展示一个可靠的消息从生产到消费的整个流程：  12345678910111）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；2）mq server收到消息，将消息落地存储；3）mq server回">
-<meta name="twitter:image" content="http://code.zhizus.com/images/mq.png">
+<meta name="twitter:title" content="CPU缓存一致性协议MESI">
+<meta name="twitter:description" content="写在前面  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。 单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含">
+<meta name="twitter:image" content="http://code.zhizus.com/images/1531305589537.png">
 
 
 
@@ -128,13 +130,13 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-09-05-消息必达.html"/>
+  <link rel="canonical" href="http://code.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html"/>
 
 
 
 
 
-  <title> 消息必达 | 郑大侠的博客 </title>
+  <title> CPU缓存一致性协议MESI | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -282,8 +284,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-09-05-消息必达.html">
+  <article class="post post-type-并发 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -304,7 +306,7 @@
             
             
               
-                消息必达
+                CPU缓存一致性协议MESI
               
             
           </h1>
@@ -327,7 +329,7 @@
 
           
           
-             <span id="/2017-09-05-消息必达.html" class="leancloud_visitors" data-flag-title="消息必达">
+             <span id="/2018-07-11-浅谈CPU缓存一致性协议MESI.html" class="leancloud_visitors" data-flag-title="CPU缓存一致性协议MESI">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -354,51 +356,81 @@
       
 
       
-        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近工作中遇到送礼必达的业务，送礼必达的本质是队列消息必达，而队列消息必达的核心是：
-1）<strong>消息ack</strong>
-2）<strong>消息落地</strong>
-下图展示一个可靠的消息从生产到消费的整个流程：
-<span itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="/images/mq.png" class="full-image" alt="alt"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；</span><br><span class="line"><span class="number">2</span>）mq server收到消息，将消息落地存储；</span><br><span class="line"><span class="number">3</span>）mq server回复ack，告知client成功收到消息；</span><br><span class="line"><span class="comment">//如果 client未能收到ack</span></span><br><span class="line"><span class="comment">//a.mq Server没有收到消息，或者消息落地失败，这种情况，依赖producer client重发。producer client可以在发送消息之前将消息落地，收到ack再将消息删除（当然，大部分业务场景，没有收到ack，简单重试就好）</span></span><br><span class="line"><span class="comment">//b.mq Server收到消息，并且落地成功，第3步回复ack失败，或者回复成功，但producer client收ack消息，这种情况，producer也是要重发消息，mq Server会有重复消息</span></span><br><span class="line"></span><br><span class="line"><span class="number">4</span>）consume client 消费msg，（消费需要业务方保证消费业务幂等）；</span><br><span class="line"><span class="number">5</span>）consume client消费成功后，回复mq Server ack消息；</span><br><span class="line"><span class="number">6</span>）mq Server 收到consume client 发来的ack后，移动消息offset，并删除对应的落地消息。</span><br><span class="line"><span class="comment">// 第6步，删除对应的msg不一定需要，例如rocketmq或者kafka的存储机制就不需要，他们都特定的删除策略。</span></span><br></pre></td></tr></table></figure>
+        <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。</p>
+<p>单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含了描述共享的状态。</p>
+<p>在MESI协议中，每个Cache line有4个状态，可用2个bit表示，它们分别是： </p>
+<table cellspacing="0" cellpadding="0" border="1"><tbody><tr><td valign="top">
+<p align="center">状态</p>
+</td>
+<td valign="top">
+<p align="center">描述</p>
+</td>
+</tr><tr><td valign="top">
+<p align="center">M(Modified)</p>
+</td>
+<td valign="top">
+<p align="center">这行数据有效，数据被修改了，和内存中的数据不一致，数据只存在于本Cache中。</p>
+</td>
+</tr><tr><td valign="top">
+<p align="center">E(Exclusive)</p>
+</td>
+<td valign="top">
+<p align="center">这行数据有效，数据和内存中的数据一致，数据只存在于本Cache中。</p>
+</td>
+</tr><tr><td valign="top">
+<p align="center">S(Shared)</p>
+</td>
+<td valign="top">
+<p align="center">这行数据有效，数据和内存中的数据一致，数据存在于很多Cache中。</p>
+</td>
+</tr><tr><td valign="top">
+<p align="center">I(Invalid)</p>
+</td>
+<td valign="top">
+<p align="center">这行数据无效。</p>
+</td>
+</tr></tbody></table>
+
+<p>MESI状态场景
+<img src="./images/1531305589537.png" alt="Alt text"></p>
+<h3 id="修改数据"><a href="#修改数据" class="headerlink" title="修改数据"></a>修改数据</h3><p>那么执行流程是：
+CPU A 计算完成后发指令需要修改x.
+CPU A 将x设置为M状态（修改）并通知缓存了x的CPU B, CPU B将本地cache b中的x设置为I状态(无效)
+CPU A 对x进行赋值。</p>
+<p><img src="./images/1531318187632.png" alt="Alt text"></p>
+<h3 id="同步数据"><a href="#同步数据" class="headerlink" title="同步数据"></a>同步数据</h3><p>CPU B 发出了要读取x的指令。
+CPU B 通知CPU A,CPU A将修改后的数据同步到主内存时cache a 修改为E（独享）
+CPU A同步数据到CPU B的x,将cache a和同步后cache b中的x设置为S状态（共享）。</p>
+<p><img src="./images/1531318504688.png" alt="Alt text"></p>
+<h2 id="MESI优化和引入的问题"><a href="#MESI优化和引入的问题" class="headerlink" title="MESI优化和引入的问题"></a>MESI优化和引入的问题</h2><p>缓存的一致性消息传递是要时间的，这就使其切换时会产生延迟。当一个缓存被切换状态时其他缓存收到消息完成各自的切换并且发出回应消息这么一长串的时间中CPU都会等待所有缓存响应完成。可能出现的阻塞都会导致各种各样的性能问题和稳定性问题。</p>
+<h3 id="Store-Bufferes"><a href="#Store-Bufferes" class="headerlink" title="Store Bufferes"></a>Store Bufferes</h3><p>为了避免这种CPU运算能力的浪费，Store Bufferes被引入使用。处理器把它想要写入到主存的值写到缓存，然后继续去处理其他事情。当所有失效确认（Invalidate Acknowledge）都接收到时，数据才会最终被提交。
+这么做有两个风险</p>
+<h3 id="Store-Bufferes的风险"><a href="#Store-Bufferes的风险" class="headerlink" title="Store Bufferes的风险"></a>Store Bufferes的风险</h3><p>第一、就是处理器会尝试从存储缓存（Store buffer）中读取值，但它还没有进行提交。这个的解决方案称为Store Forwarding，它使得加载的时候，如果存储缓存中存在，则进行返回。
+第二、保存什么时候会完成，这个并没有任何保证。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">value = 3；</span><br><span class="line"></span><br><span class="line">void exeToCPUA()&#123;</span><br><span class="line">  value = 10;</span><br><span class="line">  isFinsh = true;</span><br><span class="line">&#125;</span><br><span class="line">void exeToCPUB()&#123;</span><br><span class="line">  if(isFinsh)&#123;</span><br><span class="line">    //value一定等于10？！</span><br><span class="line">    assert value == 10;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>试想一下开始执行时，CPU A保存着finished在E(独享)状态，而value并没有保存在它的缓存中。（例如，Invalid）。在这种情况下，value会比finished更迟地抛弃存储缓存。完全有可能CPU B读取finished的值为true，而value的值不等于10。</p>
+<p>即isFinsh的赋值在value赋值之前。</p>
+<p>这种在可识别的行为中发生的变化称为重排序（reordings）。注意，这不意味着你的指令的位置被恶意（或者好意）地更改。</p>
+<p>它只是意味着其他的CPU会读到跟程序中写入的顺序不一样的结果。</p>
+<h2 id="硬件内存模型"><a href="#硬件内存模型" class="headerlink" title="硬件内存模型"></a>硬件内存模型</h2><p>执行失效也不是一个简单的操作，它需要处理器去处理。另外，存储缓存（<code>Store Buffers</code>）并不是无穷大的，所以处理器有时需要等待失效确认的返回。这两个操作都会使得性能大幅降低。为了应付这种情况，引入了失效队列。它们的约定如下：</p>
 <ul>
-<li>producer==&gt;broker必达（broker将消息落地之后再回复producer ack消息确认）</li>
-<li>broker==&gt;consumer必达（consumer消费完消息在回复ack消息，broker收到ack消息后才能将对应消息删除）</li>
+<li>对于所有的收到的Invalidate请求，Invalidate Acknowlege消息必须立刻发送</li>
+<li>Invalidate并不真正执行，而是被放在一个特殊的队列中，在方便的时候才会去执行。</li>
+<li>处理器不会发送任何消息给所处理的缓存条目，直到它处理Invalidate。</li>
 </ul>
-<h2 id="消息的ack机制"><a href="#消息的ack机制" class="headerlink" title="消息的ack机制"></a>消息的ack机制</h2><p>消息的ack机制也就是消息的确认机制，是可靠消息的必要条件。可以粗暴的说，没有ack机制的消息系统一定不能保证消息必达。
-   JMS API中约定了Client端可以使用四种ACK模式,在javax.jms.Session接口中:
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AUTO_ACKNOWLEDGE = <span class="number">1</span>    <span class="comment">//自动确认</span></span><br><span class="line">CLIENT_ACKNOWLEDGE = <span class="number">2</span>   <span class="comment">// 客户端手动确认</span></span><br><span class="line">DUPS_OK_ACKNOWLEDGE = <span class="number">3</span>   <span class="comment">// 自动批量确认</span></span><br><span class="line">SESSION_TRANSACTED = <span class="number">0</span>    <span class="comment">//事务提交并确认</span></span><br></pre></td></tr></table></figure></p>
-<p>ACK模式描述了Consumer与broker确认消息的方式(时机),比如当消息被Consumer接收之后,Consumer将在何时确认消息。对于broker而言，只有接收到ACK指令,才会认为消息被正确的接收或者处理成功了,通过ACK，可以在consumer（/producer）与Broker之间建立一种简单的“<code>担保</code>”机制.</p>
-<p>  Client端指定了ACK模式,但是在Client与broker在交换ACK指令的时候,还需要告知ACK_TYPE,ACK_TYPE表示此确认指令的类型，不同的ACK_TYPE将传递着消息的状态，broker可以根据不同的ACK_TYPE对消息进行不同的操作。</p>
-<p>  比如Consumer消费消息时出现异常,就需要向broker发送ACK指令,ACK_TYPE为”REDELIVERED_ACK_TYPE”,那么broker就会重新发送此消息。在JMS API中并没有定义ACT_TYPE,因为它通常是一种内部机制,并不会面向开发者。ActiveMQ中定义了如下几种ACK_TYPE(参看MessageAck类):</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DELIVERED_ACK_TYPE = <span class="number">0</span>    <span class="comment">//消息"已接收"，但尚未处理结束</span></span><br><span class="line">STANDARD_ACK_TYPE = <span class="number">2</span>    <span class="comment">//"标准"类型,通常表示为消息"处理成功"，broker端可以删除消息了</span></span><br><span class="line">POSION_ACK_TYPE = <span class="number">1</span>    <span class="comment">//消息"错误",通常表示"抛弃"此消息，比如消息重发多次后，都无法正确处理时，消息将会被删除或者DLQ(死信队列)</span></span><br><span class="line">REDELIVERED_ACK_TYPE = <span class="number">3</span>    <span class="comment">//消息需"重发"，比如consumer处理消息时抛出了异常，broker稍后会重新发送此消息</span></span><br><span class="line">INDIVIDUAL_ACK_TYPE = <span class="number">4</span>    <span class="comment">//表示只确认"单条消息",无论在任何ACK_MODE下</span></span><br><span class="line">UNMATCHED_ACK_TYPE = <span class="number">5</span>    <span class="comment">//在Topic中，如果一条消息在转发给“订阅者”时，发现此消息不符合Selector过滤条件，那么此消息将 不会转发给订阅者，消息将会被存储引擎删除(相当于在Broker上确认了消息)。</span></span><br></pre></td></tr></table></figure>
-<p>不同的消息队列对ack机制的实现不尽相同。比如activemq还实现了<code>optimizeACK</code>“延迟确认”的语义。但是，它们本质上都是通过ACK，在consumer（/producer）与Broker之间建立一种“<code>担保</code>”机制.</p>
-<h3 id="消息传递语义（Message-delivery-semantics）"><a href="#消息传递语义（Message-delivery-semantics）" class="headerlink" title="消息传递语义（Message delivery semantics）"></a>消息传递语义（Message delivery semantics）</h3><p>消息传递语义：
-“至多一次(<code>At Most Once</code>)”，消息发布完全依赖于底层TCP/IP网络。消息有可能丢失或重复。这一级别可应用于如下情景，如环境传感器数据，丢失一次读记录无所谓，因为很快下一次读记录就会产生。
-“至少一次(<code>At Least Once</code>)”，确保消息到达，但消息重复有可能发生。
-“只有一次(<code>Exactly Once</code>)”，确保消息到达且只到达一次。这一级别可用于如计费系统等场景，在计费系统中，消息丢失或重复可能会导致生成错误的费用。</p>
-<p>消息必达实际上是消息传递语义的一个子集，至少一次和只有一次都可以保证消息必达。
-但只有一次的实现成本较高，互联网的一般业务都是选择通过至少一次+业务方去重来满足只有一次的业务场景。</p>
-<h3 id="消息幂等性"><a href="#消息幂等性" class="headerlink" title="消息幂等性"></a>消息幂等性</h3><p>消息系统中，消息<code>重复</code>和<code>丢失</code>两大恶魔，我们必须面对其中一个。
-通过ack机制来保证消息不丢失，但是也引入了重复消息的问题，但是重复还可以去重，消息丢了，就无力回天。
-可能有的消息系统会在server端去重，但这个代价也不小。大部分消息系统选择把消息去重的逻辑丢给了业务。因为业务方才是最容易理解需不需要去重，怎样去重最优。</p>
-<p>而，<code>去重</code>也是消息幂等的一个解决方案之一。只要保证了消费逻辑的幂等性，也就解决了重复消息的问题。
-关于幂等，请看<a href="http://code.zhizus.com/2017-08-28-%E5%B9%82%E7%AD%89.html">幂等</a></p>
-<h2 id="消息落地"><a href="#消息落地" class="headerlink" title="消息落地"></a>消息落地</h2><p>消息落地就是将消息持久化而已，比较简单，但是对于不同的队列对消息落地的实现不同，也是非常值得学习研究的。</p>
-<p>消息落地是消息可靠性的基本保障，只有消息落地了，才有资格谈消息可靠，但是消息落地并不代表消息一定可靠，永不丢失。</p>
-<h3 id="消息可靠性"><a href="#消息可靠性" class="headerlink" title="消息可靠性"></a>消息可靠性</h3><p>不同的mq对消息可靠性有不同的保障，有的对性能要求较高，对可靠性要求较低，可能将消息落地到内存。
-下面是RocketMq的消息可靠性：</p>
+<p>即便是这样处理器已然不知道什么时候优化是允许的，而什么时候并不允许。
+干脆处理器将这个任务丢给了写代码的人。这就是内存屏障（Memory Barriers）。</p>
 <blockquote>
-<p>(1)Broker正常关闭
-(2)Broker异常Crash
-(3)OS Crash
-(4)机器掉电，但是能立即恢复供电情况。
-(5)机器无法开机（可能是cpu、主板、内存等关键设备损坏）
-(6)磁盘设备损坏。</p>
+<p><code>写屏障</code> Store Memory Barrier(a.k.a. ST, SMB, smp_wmb)是一条告诉处理器在执行这之后的指令之前，应用所有已经在存储缓存（store buffer）中的保存的指令。</p>
 </blockquote>
-<p>(1)、(2)、(3)、(4)四种情况都属于硬件资源可立即恢复情况，RocketMQ在这四种情况下能保证消息不丢，或者丢失少量数据（依赖刷盘方式是同步还是异步）。</p>
-<p>(5)、(6)属于单点故障，且无法恢复，一旦发生，在此单点上的消息全部丢失。RocketMQ在这两种情况下，通过异步复制，可保证99%的消息不丢，但是仍然会有极少量的消息可能丢失。通过同步双写技术可以完全避免单点，同步双写势必会影响性能，适合对消息可靠性要求极高的场合，例如与Money相关的应用。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>消息必达是队列的很重的的特性，也是很基础的特性，选择队列的首要考虑条件。一个无法保证消息必达的队列，使用时一定要慎重，会给业务带来很多不必要的麻烦。</p>
-<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://wely.iteye.com/blog/2363981" target="_blank" rel="noopener">http://wely.iteye.com/blog/2363981</a></p>
+<blockquote>
+<p><code>读屏障</code>Load Memory Barrier (a.k.a. LD, RMB, smp_rmb)是一条告诉处理器在执行任何的加载前，先应用所有已经在失效队列中的失效操作的指令。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void executedOnCpu0() &#123;</span><br><span class="line">    value = 10;</span><br><span class="line">    //在更新数据之前必须将所有存储缓存（store buffer）中的指令执行完毕。</span><br><span class="line">    storeMemoryBarrier();</span><br><span class="line">    finished = true;</span><br><span class="line">&#125;</span><br><span class="line">void executedOnCpu1() &#123;</span><br><span class="line">    while(!finished);</span><br><span class="line">    //在读取之前将所有失效队列中关于该数据的指令执行完毕。</span><br><span class="line">    loadMemoryBarrier();</span><br><span class="line">    assert value == 10;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在确实安全了。完美无暇！</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>然而，对于程序员来说简直是一个灾难。不想和平台耦合我们要跨平台。Write One,Run Everywhere!
+幸好java解决了这个问题，至于如何解决的请关注JMM(JavaMemoryMode)与物理内存相爱相杀。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://www.cnblogs.com/yanlong300/p/8986041.html" target="_blank" rel="noopener">https://www.cnblogs.com/yanlong300/p/8986041.html</a></p>
 
       
     </div>
@@ -450,8 +482,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-09-04-流量拷贝利器tcpcopy.html" rel="next" title="流量拷贝利器tcpcopy">
-                <i class="fa fa-chevron-left"></i> 流量拷贝利器tcpcopy
+              <a href="/2018-07-11-Java DNS cache.html" rel="next" title="Java DNS Cache小记">
+                <i class="fa fa-chevron-left"></i> Java DNS Cache小记
               </a>
             
           </div>
@@ -459,10 +491,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017-09-08-浅谈事务.html" rel="prev" title="浅谈事务">
-                浅谈事务 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -627,7 +655,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#消息的ack机制"><span class="nav-number">2.</span> <span class="nav-text">消息的ack机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#消息传递语义（Message-delivery-semantics）"><span class="nav-number">2.1.</span> <span class="nav-text">消息传递语义（Message delivery semantics）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#消息幂等性"><span class="nav-number">2.2.</span> <span class="nav-text">消息幂等性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#消息落地"><span class="nav-number">3.</span> <span class="nav-text">消息落地</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#消息可靠性"><span class="nav-number">3.1.</span> <span class="nav-text">消息可靠性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">5.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在前面"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改数据"><span class="nav-number">1.1.</span> <span class="nav-text">修改数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步数据"><span class="nav-number">1.2.</span> <span class="nav-text">同步数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MESI优化和引入的问题"><span class="nav-number">2.</span> <span class="nav-text">MESI优化和引入的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Store-Bufferes"><span class="nav-number">2.1.</span> <span class="nav-text">Store Bufferes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Store-Bufferes的风险"><span class="nav-number">2.2.</span> <span class="nav-text">Store Bufferes的风险</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#硬件内存模型"><span class="nav-number">3.</span> <span class="nav-text">硬件内存模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
             
 
           </div>

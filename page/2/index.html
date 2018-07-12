@@ -280,6 +280,134 @@
   
   
 
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-05-29- mysql千万级分页优化.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018-05-29- mysql千万级分页优化.html" itemprop="url">
+                   mysq千万级分页优化
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-05-29- mysql千万级分页优化.html" class="leancloud_visitors" data-flag-title=" mysq千万级分页优化">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          写在前面最近碰到一个分页查询消费记录问题，某个大主播消费记录十万级别的，翻页都后面越来越慢，消费表是亿级别的数据量，
+业务反馈问题sql如下：
+1SELECT * FROM `t_consume_log` FORCE INDEX(idx_consume) WHERE userid = 3014652
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018-05-29- mysql千万级分页优化.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
   <article class="post post-type-笔记 " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-05-27- windows配置github ssh key笔记.html">
 
@@ -1430,136 +1558,6 @@ bug还原123String msg = "&#123;\"globalId\":1036210063725043712,\"name\":\"\",\
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-灾备 " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-10-31-mysql binlog还原sql.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017-10-31-mysql binlog还原sql.html" itemprop="url">
-                  mysql binlog还原sql
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2017-10-31-mysql binlog还原sql.html" class="leancloud_visitors" data-flag-title="mysql binlog还原sql">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。
-核心需求是将差异的binlog提取出来转换为可执行的sql语句。
-这个需求涉及到两个点：
-1）切换主从关系前先记录主从同步的位点。
-2）根据位点提取binlog，并且将这部分b
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017-10-31-mysql binlog还原sql.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1609,7 +1607,7 @@ bug还原123String msg = "&#123;\"globalId\":1036210063725043712,\"name\":\"\",\
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">55</span>
+                <span class="site-state-item-count">56</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1620,7 +1618,7 @@ bug还原123String msg = "&#123;\"globalId\":1036210063725043712,\"name\":\"\",\
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
