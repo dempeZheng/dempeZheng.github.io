@@ -5,7 +5,7 @@
     
   <url>
     <loc>http://code.zhizus.com/2018-07-16-%E8%AE%B0%E4%B8%80%E6%AC%A1Druid%E8%BF%9E%E6%8E%A5%E6%B1%A0CannotGetJdbcConnectionException%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5.html</loc>
-    <lastmod>2018-07-16T01:38:19.480Z</lastmod>
+    <lastmod>2018-07-16T09:57:37.319Z</lastmod>
     <data>
         <display>
         <title>记一次Druid连接池CannotGetJdbcConnectionException问题排查</title>
@@ -14,7 +14,7 @@
          
            
              
-              <breadCrumb title="线上排查" url="http://code.zhizus.com/categories/%E7%BA%BF%E4%B8%8A%E6%8E%92%E6%9F%A5/"/>
+              <breadCrumb title="case" url="http://code.zhizus.com/categories/case/"/>
           
         </display>
     </data>
