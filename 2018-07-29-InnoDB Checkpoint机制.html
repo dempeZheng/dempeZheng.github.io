@@ -95,7 +95,7 @@
 如果每次页发生变化，就将也的版本刷新到磁盘，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="InnoDB的Checkpoint机制">
-<meta property="og:url" content="http://code.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html">
+<meta property="og:url" content="http://www.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="写在前面
 从上图（Mysq InnoDB存储引擎架构图）我们可以看到比较核心的一块就是InnoDB存储引擎内存池。缓冲池的设计目的是为了协调CPU速度和磁盘速度的鸿沟。页的操作首先是再缓冲池中完成的。
@@ -103,7 +103,7 @@
 如果一条DML语句，如Update或Delete改变了页中的记录，那么此时页是脏的,即缓冲池中页的版本要比磁盘的新。数据库需要将新的版本刷新到磁盘。
 
 如果每次页发生变化，就将也的版本刷新到磁盘，">
-<meta property="og:image" content="http://code.zhizus.com/./images/InnoDB体系架构xml.png">
+<meta property="og:image" content="http://www.zhizus.com/./images/InnoDB体系架构xml.png">
 <meta property="og:updated_time" content="2018-07-29T13:00:52.234Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB的Checkpoint机制">
@@ -113,7 +113,7 @@
 如果一条DML语句，如Update或Delete改变了页中的记录，那么此时页是脏的,即缓冲池中页的版本要比磁盘的新。数据库需要将新的版本刷新到磁盘。
 
 如果每次页发生变化，就将也的版本刷新到磁盘，">
-<meta name="twitter:image" content="http://code.zhizus.com/./images/InnoDB体系架构xml.png">
+<meta name="twitter:image" content="http://www.zhizus.com/./images/InnoDB体系架构xml.png">
 
 
 
@@ -141,7 +141,7 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html"/>
 
 
 
@@ -296,7 +296,7 @@
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -474,8 +474,8 @@ InnoDB 1.2.X版本开始，这部分刷新操作放到了Page Cleaner Thread中�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-16-记一次Druid连接池CannotGetJdbcConnectionException问题排查.html" rel="next" title="记一次Druid连接池CannotGetJdbcConnectionException问题排查">
-                <i class="fa fa-chevron-left"></i> 记一次Druid连接池CannotGetJdbcConnectionException问题排查
+              <a href="/2018-07-29-InnoDB的内存结构.html" rel="next" title="InnoDB的内存结构">
+                <i class="fa fa-chevron-left"></i> InnoDB的内存结构
               </a>
             
           </div>

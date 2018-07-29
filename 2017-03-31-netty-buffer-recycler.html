@@ -92,12 +92,12 @@
 Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取，如果">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次netty内存溢出的问题(下)">
-<meta property="og:url" content="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html">
+<meta property="og:url" content="http://www.zhizus.com/2017-03-31-netty-buffer-recycler.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="上一篇：记一次netty内存溢出的问题(上)
 在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发full gc也不会被回收。通过工具dump下来发现跟Recycler相关。
 Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中get(),实际上是从FastLocalThread中获取，如果">
-<meta property="og:updated_time" content="2017-04-15T12:59:21.653Z">
+<meta property="og:updated_time" content="2018-07-29T13:34:03.586Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次netty内存溢出的问题(下)">
 <meta name="twitter:description" content="上一篇：记一次netty内存溢出的问题(上)
@@ -130,7 +130,7 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2017-03-31-netty-buffer-recycler.html"/>
 
 
 
@@ -285,7 +285,7 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-03-31-netty-buffer-recycler.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -356,7 +356,7 @@ Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象�
       
 
       
-        <p>上一篇：<a href="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">记一次netty内存溢出的问题(上)</a></p>
+        <p>上一篇：<a href="http://www.zhizus.com/2017-03-28-netty-outofmemory.html">记一次netty内存溢出的问题(上)</a></p>
 <p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发<code>full gc</code>也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
 <div class="note default"><p>Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中<code>get()</code>,实际上是从FastLocalThread中获取，如果有便不重新分配。内存的<code>release()</code>的时候又会调用recycler()将对象回收。netty采用这种机制减少对象创建的损耗和减少垃圾回收从而提升性能。</p>
 </div>

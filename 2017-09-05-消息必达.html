@@ -95,7 +95,7 @@
 12345678910111）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；2）mq server收到消息，将消息落地存储；3）mq server回">
 <meta property="og:type" content="article">
 <meta property="og:title" content="消息必达">
-<meta property="og:url" content="http://code.zhizus.com/2017-09-05-消息必达.html">
+<meta property="og:url" content="http://www.zhizus.com/2017-09-05-消息必达.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="背景最近工作中遇到送礼必达的业务，送礼必达的本质是队列消息必达，而队列消息必达的核心是：
 1）消息ack
@@ -103,8 +103,8 @@
 下图展示一个可靠的消息从生产到消费的整个流程：
 
 12345678910111）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；2）mq server收到消息，将消息落地存储；3）mq server回">
-<meta property="og:image" content="http://code.zhizus.com/images/mq.png">
-<meta property="og:updated_time" content="2017-09-06T13:11:16.593Z">
+<meta property="og:image" content="http://www.zhizus.com/images/mq.png">
+<meta property="og:updated_time" content="2018-07-29T13:34:03.607Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="消息必达">
 <meta name="twitter:description" content="背景最近工作中遇到送礼必达的业务，送礼必达的本质是队列消息必达，而队列消息必达的核心是：
@@ -113,7 +113,7 @@
 下图展示一个可靠的消息从生产到消费的整个流程：
 
 12345678910111）producer client 发送message，message中包含sequenceId（唯一id，可以是业务的订单id）；2）mq server收到消息，将消息落地存储；3）mq server回">
-<meta name="twitter:image" content="http://code.zhizus.com/images/mq.png">
+<meta name="twitter:image" content="http://www.zhizus.com/images/mq.png">
 
 
 
@@ -141,7 +141,7 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-09-05-消息必达.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2017-09-05-消息必达.html"/>
 
 
 
@@ -296,7 +296,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-09-05-消息必达.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-05-消息必达.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -395,7 +395,7 @@
 通过ack机制来保证消息不丢失，但是也引入了重复消息的问题，但是重复还可以去重，消息丢了，就无力回天。
 可能有的消息系统会在server端去重，但这个代价也不小。大部分消息系统选择把消息去重的逻辑丢给了业务。因为业务方才是最容易理解需不需要去重，怎样去重最优。</p>
 <p>而，<code>去重</code>也是消息幂等的一个解决方案之一。只要保证了消费逻辑的幂等性，也就解决了重复消息的问题。
-关于幂等，请看<a href="http://code.zhizus.com/2017-08-28-%E5%B9%82%E7%AD%89.html">幂等</a></p>
+关于幂等，请看<a href="http://www.zhizus.com/2017-08-28-%E5%B9%82%E7%AD%89.html">幂等</a></p>
 <h2 id="消息落地"><a href="#消息落地" class="headerlink" title="消息落地"></a>消息落地</h2><p>消息落地就是将消息持久化而已，比较简单，但是对于不同的队列对消息落地的实现不同，也是非常值得学习研究的。</p>
 <p>消息落地是消息可靠性的基本保障，只有消息落地了，才有资格谈消息可靠，但是消息落地并不代表消息一定可靠，永不丢失。</p>
 <h3 id="消息可靠性"><a href="#消息可靠性" class="headerlink" title="消息可靠性"></a>消息可靠性</h3><p>不同的mq对消息可靠性有不同的保障，有的对性能要求较高，对可靠性要求较低，可能将消息落地到内存。
