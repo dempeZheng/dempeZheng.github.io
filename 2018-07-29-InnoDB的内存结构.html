@@ -1,0 +1,912 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="mysql,InnoDB,缓冲池" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
+对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）
+
+主要包括：
+
+缓冲池innodb_buffer_pool（数据页、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB的内存结构">
+<meta property="og:url" content="http://code.zhizus.com/2018-07-29-InnoDB的内存结构.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
+对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）
+
+主要包括：
+
+缓冲池innodb_buffer_pool（数据页、">
+<meta property="og:image" content="http://code.zhizus.com/./images/InnoDB体系架构-内存 1.png">
+<meta property="og:updated_time" content="2018-07-29T13:11:23.054Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="InnoDB的内存结构">
+<meta name="twitter:description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
+对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）
+
+主要包括：
+
+缓冲池innodb_buffer_pool（数据页、">
+<meta name="twitter:image" content="http://code.zhizus.com/./images/InnoDB体系架构-内存 1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://code.zhizus.com/2018-07-29-InnoDB的内存结构.html"/>
+
+
+
+
+
+  <title> InnoDB的内存结构 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-07-29-InnoDB的内存结构.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                InnoDB的内存结构
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-07-29-InnoDB的内存结构.html" class="leancloud_visitors" data-flag-title="InnoDB的内存结构">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="InnoDB的内存结构"><a href="#InnoDB的内存结构" class="headerlink" title="InnoDB的内存结构"></a>InnoDB的内存结构</h2><p>InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
+对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制<a href="http://www.zhizus.com/2018-07-29-InnoDB%20Checkpoint%E6%9C%BA%E5%88%B6.html" target="_blank" rel="external">InnoDB Checkpoint机制</a>刷新到磁盘，从而提高数据库整体的性能）
+<img src="./images/InnoDB体系架构-内存 1.png" alt="Alt text">
+主要包括：</p>
+<ul>
+<li>缓冲池<code>innodb_buffer_pool</code>（数据页、索引页、插入缓冲，自适应hash索引、锁信息、数据字典）</li>
+<li>重做日志缓冲<code>redo_log_buffer</code></li>
+<li>额外内存池<code>innodb_additional_mem_pool_size</code></li>
+</ul>
+<h2 id="缓冲池"><a href="#缓冲池" class="headerlink" title="缓冲池"></a>缓冲池</h2><p>innoDB缓冲池的大小可以通过<code>innodb_buffer_pool_size</code>来设置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW VARIABLES LIKE &apos;innodb_buffer_pool_size&apos;\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">Variable_name: innodb_buffer_pool_size</div><div class="line">        Value: 21474836480</div></pre></td></tr></table></figure>
+<blockquote>
+<p>从InnoDB 1.0.x版本开始，允许有多个缓冲池实例。每个页根据hash值平均分配到不同的缓冲实例中。从而减少数据库内部资源的竞争，增加数据库的并发处理能力。可以通过<code>innodb_buffer_pool_instances</code>来进行设置，默认值为1；</p>
+</blockquote>
+<h2 id="重做日志缓冲"><a href="#重做日志缓冲" class="headerlink" title="重做日志缓冲"></a>重做日志缓冲</h2><p>InnoDB存储引擎首先将重做日志信息放入redo_log_buffer，然后以一定的频率将其刷新到重做日志文件。
+重做日志的大小可以有参数innodb_log_buffer_size控制，</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW VARIABLES LIKE 'innodb_log_buffer_size'\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">Variable_name: innodb_log_buffer_size</div><div class="line">        Value: 16777216</div><div class="line">1 row in set (0.03 sec)</div></pre></td></tr></table></figure>
+<h3 id="重做日志缓冲的刷盘时机"><a href="#重做日志缓冲的刷盘时机" class="headerlink" title="重做日志缓冲的刷盘时机"></a>重做日志缓冲的刷盘时机</h3><ul>
+<li>Master Thread每1s将重做日志刷新到重做日志文件</li>
+<li>每个事务提交时会讲重做日志刷新到重做日志稳紧啊</li>
+<li>当重做日志缓冲剩余空间小于1/2时，将重做日志刷新到重做日志</li>
+</ul>
+<blockquote>
+<p>当重做日志不可用（重做日志被覆盖）时，会将缓存的脏页刷到磁盘，避免宕机后缓存脏页数据丢失无法恢复。</p>
+</blockquote>
+<h2 id="额外内存池"><a href="#额外内存池" class="headerlink" title="额外内存池"></a>额外内存池</h2><p>一些数据结构本省的内存分配时，需要从额外的缓存池中进行申请，当该区域的内存不够时，会从缓冲池中进行申请。</p>
+<h2 id="LRU-List"><a href="#LRU-List" class="headerlink" title="LRU List"></a>LRU List</h2><p>通常来说数据库中的缓冲池是通过LRU(<code>Latest Recent Used</code>,最近最少使用)算法来管理。即最频繁使用的页再LRU列表的前端，而最少使用的页再LRU列表的尾端。当缓存池空间不够的时候，首先释放LRU列表尾端的页。
+在InnoDB存储引擎中，缓冲池中的页大小默认是16KB，同样使用LRU进行管理。但是，稍有不同的是InnoDB存储引擎对LRU算法做了一些针对性的优化。在LRU列表中加入了<code>midpoint</code>位置。当读到最新的页，并不是将其放入LRU的首部，<strong>而是放入LRU列表的modpoint位置</strong>。</p>
+<h3 id="LRU-List-midpoint"><a href="#LRU-List-midpoint" class="headerlink" title="LRU List midpoint"></a>LRU List midpoint</h3><p><code>midpoint</code>位置可以用参数<code>innodb_old_blocks_pct</code>控制，默认位置再LRU列表5/8（37%）处。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW VARIABLES LIKE 'innodb_old_blocks_pct'\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">Variable_name: innodb_old_blocks_pct</div><div class="line">        Value: 37</div></pre></td></tr></table></figure>
+<p>InnoDB把midpoint之前的数据成为new 列表，之后的数据称为old列表，如果每次都在将数据插入到midpoints位置，那么midpoint之前的数据恐怕一直没有机会刷新了。
+为了解决这个问题，InnoDB引擎引入了<code>innodb_old_blocks_times</code>来进一步管理LRU列表，用于表示页读取到mid位置后需要等待多久才会被加入LRU列表的热端。</p>
+<p>那么为什么不采用朴素的LRU算法呢？
+这是因为若直接将读取到的页放入LRU的首部，那么某些SQL操作可能将会使缓冲池中的页被刷出，从而影响缓冲池的效率。比如索引或数据的扫描操作，这类操作需要访问列表中的许多页，甚至是全部的页。而这些数据通常紧紧是本次需要，并不是活跃的热点数据。</p>
+<h3 id="避免缓存热数据刷出的方法"><a href="#避免缓存热数据刷出的方法" class="headerlink" title="避免缓存热数据刷出的方法"></a>避免缓存热数据刷出的方法</h3><p>尽管有midpoint机制，扫描操作的SQL可能还是会将缓存的热数据刷出。 
+1）我们可以选择执行扫描SQL前先将<code>innodb_old_blocks_time</code>设置为0，来尽可能保证LRU列表的热点数据不被刷出。 
+2）如果热点数据不止63%，那么可以执行SQL前先调整<code>innodb_old_blocks_ptc</code>.</p>
+<h3 id="缓存命中率查看"><a href="#缓存命中率查看" class="headerlink" title="缓存命中率查看"></a>缓存命中率查看</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SHOW ENGINE INNODB STATUS\G;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">----------------------</div><div class="line">BUFFER POOL AND MEMORY</div><div class="line">----------------------</div><div class="line">Total memory allocated 21978152960; in additional pool allocated 0</div><div class="line">Dictionary memory allocated 3921193</div><div class="line">Buffer pool size   1310719</div><div class="line">Free buffers       110</div><div class="line">Database pages     1244160</div><div class="line">Old database pages 459250</div><div class="line">Modified db pages  0</div><div class="line">Pending reads 0</div><div class="line">Pending writes: LRU 0, flush list 0, single page 0</div><div class="line">Pages made young 1739542, not young 0</div><div class="line">0.00 youngs/s, 0.00 non-youngs/s</div><div class="line">Pages read 2725046, created 236354, written 24868623</div><div class="line">0.00 reads/s, 0.00 creates/s, 0.00 writes/s</div><div class="line">Buffer pool hit rate 1000 / 1000, young-making rate 0 / 1000 not 0 / 1000</div><div class="line">Pages read ahead 0.00/s, evicted without access 0.00/s, Random read ahead 0.00/s</div><div class="line">LRU len: 1244160, unzip_LRU len: 0</div><div class="line">I/O sum[0]:cur[0], unzip sum[0]:cur[0]</div></pre></td></tr></table></figure>
+<p>可以看到<code>Buffer pool hit rate</code> 1000 / 1000 的命中率为100%，说明缓冲池运行良好，如果<code>Buffer pool hit rate</code>的值小于95%，用户需要观察是否由于全表扫描引起LRU列表被污染的问题。</p>
+<h3 id="缓存列表被污染的case"><a href="#缓存列表被污染的case" class="headerlink" title="缓存列表被污染的case"></a>缓存列表被污染的case</h3><p>线上有张亿级别的用户表，根据用户id查询qps 4k左右，平常都运行良好。后来有场景需要对用户表进行全表扫描比对数据。
+全表扫描也是单线程扫描，但是主库的负载明显上涨。
+这种场景基本上可以确认是由于全表扫描导致缓存热数据刷出，缓存命中率下降导致的。</p>
+<p>故对强烈依赖缓存的场景，我们需要慎重使用全表扫描的SQL语句。如果必须使用，那么要评估是否有必要通过调整<code>innodb_old_blocks_time</code>或者<code>innodb_old_blocks_ptc</code>参数来避免缓存热数据被刷出。
+同时需要关注缓存命中率，如果<code>Buffer pool hit rate</code>低于<code>95%</code>，且数据库负载升高，那么我就需要多加小心了。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-07-29-InnoDB后台线程.html" rel="next" title="InnoDB的后台线程">
+                <i class="fa fa-chevron-left"></i> InnoDB的后台线程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-07-29-MySQL的体系结构及存储引擎.html" rel="prev" title="MySQL的体系结构及存储引擎">
+                MySQL的体系结构及存储引擎 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB的内存结构"><span class="nav-number">1.</span> <span class="nav-text">InnoDB的内存结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缓冲池"><span class="nav-number">2.</span> <span class="nav-text">缓冲池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重做日志缓冲"><span class="nav-number">3.</span> <span class="nav-text">重做日志缓冲</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重做日志缓冲的刷盘时机"><span class="nav-number">3.1.</span> <span class="nav-text">重做日志缓冲的刷盘时机</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#额外内存池"><span class="nav-number">4.</span> <span class="nav-text">额外内存池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LRU-List"><span class="nav-number">5.</span> <span class="nav-text">LRU List</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LRU-List-midpoint"><span class="nav-number">5.1.</span> <span class="nav-text">LRU List midpoint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#避免缓存热数据刷出的方法"><span class="nav-number">5.2.</span> <span class="nav-text">避免缓存热数据刷出的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存命中率查看"><span class="nav-number">5.3.</span> <span class="nav-text">缓存命中率查看</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存列表被污染的case"><span class="nav-number">5.4.</span> <span class="nav-text">缓存列表被污染的case</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
