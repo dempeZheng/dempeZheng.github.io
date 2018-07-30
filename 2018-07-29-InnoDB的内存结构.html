@@ -87,19 +87,19 @@
 
 
 
-<meta name="description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）  主要包括：  缓冲池innodb_buffer_pool（数据页、">
+<meta name="description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）  InnoDB的内存体系主要包括：  缓冲池innodb_buffe">
 <meta name="keywords" content="mysql,InnoDB,缓冲池">
 <meta property="og:type" content="article">
 <meta property="og:title" content="InnoDB的内存结构">
 <meta property="og:url" content="http://www.zhizus.com/2018-07-29-InnoDB的内存结构.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）  主要包括：  缓冲池innodb_buffer_pool（数据页、">
+<meta property="og:description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）  InnoDB的内存体系主要包括：  缓冲池innodb_buffe">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://www.zhizus.com/images/InnoDB体系架构-内存%201.png">
-<meta property="og:updated_time" content="2018-07-30T00:59:58.686Z">
+<meta property="og:updated_time" content="2018-07-30T01:06:55.950Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB的内存结构">
-<meta name="twitter:description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）  主要包括：  缓冲池innodb_buffer_pool（数据页、">
+<meta name="twitter:description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）  InnoDB的内存体系主要包括：  缓冲池innodb_buffe">
 <meta name="twitter:image" content="http://www.zhizus.com/images/InnoDB体系架构-内存%201.png">
 
 
@@ -357,19 +357,19 @@
         <h2 id="InnoDB的内存结构"><a href="#InnoDB的内存结构" class="headerlink" title="InnoDB的内存结构"></a>InnoDB的内存结构</h2><p>InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制<a href="http://www.zhizus.com/2018-07-29-InnoDB%20Checkpoint%E6%9C%BA%E5%88%B6.html">InnoDB Checkpoint机制</a>刷新到磁盘，从而提高数据库整体的性能）
 <img src="./images/InnoDB体系架构-内存 1.png" alt="Alt text">
-主要包括：</p>
+InnoDB的内存体系主要包括：</p>
 <ul>
 <li>缓冲池<code>innodb_buffer_pool</code>（数据页、索引页、插入缓冲，自适应hash索引、锁信息、数据字典）</li>
 <li>重做日志缓冲<code>redo_log_buffer</code></li>
 <li>额外内存池<code>innodb_additional_mem_pool_size</code></li>
 </ul>
 <h2 id="缓冲池"><a href="#缓冲池" class="headerlink" title="缓冲池"></a>缓冲池</h2><p>innoDB缓冲池的大小可以通过<code>innodb_buffer_pool_size</code>来设置。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW VARIABLES LIKE &apos;innodb_buffer_pool_size&apos;\G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">Variable_name: innodb_buffer_pool_size</span><br><span class="line">        Value: 21474836480</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW VARIABLES LIKE 'innodb_buffer_pool_size'\G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">Variable_name: innodb_buffer_pool_size</span><br><span class="line">        Value: 21474836480</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>从InnoDB 1.0.x版本开始，允许有多个缓冲池实例。每个页根据hash值平均分配到不同的缓冲实例中。从而减少数据库内部资源的竞争，增加数据库的并发处理能力。可以通过<code>innodb_buffer_pool_instances</code>来进行设置，默认值为1；</p>
 </blockquote>
-<h2 id="重做日志缓冲"><a href="#重做日志缓冲" class="headerlink" title="重做日志缓冲"></a>重做日志缓冲</h2><p>InnoDB存储引擎首先将重做日志信息放入redo_log_buffer，然后以一定的频率将其刷新到重做日志文件。
-重做日志的大小可以有参数innodb_log_buffer_size控制，</p>
+<h2 id="重做日志缓冲"><a href="#重做日志缓冲" class="headerlink" title="重做日志缓冲"></a>重做日志缓冲</h2><p>InnoDB存储引擎首先将重做日志信息放入<code>redo_log_buffer</code>，然后以一定的频率将其刷新到重做日志文件。
+重做日志的大小可以有参数<code>innodb_log_buffer_size</code>控制，</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW VARIABLES LIKE 'innodb_log_buffer_size'\G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">Variable_name: innodb_log_buffer_size</span><br><span class="line">        Value: 16777216</span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.03</span> sec)</span><br></pre></td></tr></table></figure>
 <h3 id="重做日志缓冲的刷盘时机"><a href="#重做日志缓冲的刷盘时机" class="headerlink" title="重做日志缓冲的刷盘时机"></a>重做日志缓冲的刷盘时机</h3><ul>
 <li>Master Thread每1s将重做日志刷新到重做日志文件</li>

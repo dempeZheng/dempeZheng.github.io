@@ -96,7 +96,7 @@
 <meta property="og:description" content="InnoDB的关键特性InnoDB是一个完整支持事务的Mysql存储引擎，也是Mysql的默认引擎。特点是行锁设计、支持MVCC、支持外键、提供一致性非锁定读。同时也被设计用来最有效地利用以及使用内存和CPU。 关键特性如下：  插入缓冲（Insert Buffer） 两次写（Double Write） 自适应哈希索引（Adaptive Hash Index） 异步IO(Async IO) 刷新邻">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://www.zhizus.com/images/1113510-20170726195345906-321682602.png">
-<meta property="og:updated_time" content="2018-07-30T00:44:48.240Z">
+<meta property="og:updated_time" content="2018-07-30T01:08:44.913Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB的关键特性">
 <meta name="twitter:description" content="InnoDB的关键特性InnoDB是一个完整支持事务的Mysql存储引擎，也是Mysql的默认引擎。特点是行锁设计、支持MVCC、支持外键、提供一致性非锁定读。同时也被设计用来最有效地利用以及使用内存和CPU。 关键特性如下：  插入缓冲（Insert Buffer） 两次写（Double Write） 自适应哈希索引（Adaptive Hash Index） 异步IO(Async IO) 刷新邻">
@@ -368,10 +368,10 @@
 <ul>
 <li>索引是辅助索引（sencondary index）</li>
 <li>索引不是唯一（unique）
-因为插入缓冲，数据库并不会查找索引页来验证唯一性，如果查找就会有离散读取的情况发生，Insert Buffer句i失去了意义。<h3 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h3>InnoDB从1.0.x版本开始引入了Change Buffer，可将其市委Insert Buffer的升级。
+因为插入缓冲，数据库并不会查找索引页来验证唯一性，如果查找就会有离散读取的情况发生，Insert Buffer就失去了意义。<h3 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h3>InnoDB从1.0.x版本开始引入了Change Buffer，可将其市委Insert Buffer的升级。
 从这个版本开始，InnoDB存储引擎可以对DML操作-INSERT,DELETE,UPDATE都进行换从，分别是Insert Buffer, Delete Buffer,Purge Buffer</li>
 </ul>
-<h2 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h2><p>hash的时间复杂度为Q（1），而B+书的查找次数取决于B+数的高度，在生产环境中B+数的高度一般为3~4层，故需要3~4次查询。
+<h2 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h2><p>hash的时间复杂度为Q(1)，而B+书的查找次数取决于B+数的高度，在生产环境中B+数的高度一般为3~4层，故需要3~4次查询。
 InnoDB存储引擎会监控对表上各数据索引页的查询，如果观察到建立hash缩影能够带来速度的提升，则建立hash索引，称之为子使用hash索引（Adaptive Hash Index，AHI），AHI通过缓冲池的B+构建而来，因此建立的速度很快，而且不需要整张表建立hash索引。
 AHI有一个要求，即对这个页的连续访问模式必须是一样的。例如对于（a,b）</p>
 <ul>
@@ -459,8 +459,8 @@ AIO的相比同步IO可以减少等待的时间。
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-29-InnoDB Checkpoint机制.html" rel="next" title="InnoDB的Checkpoint机制">
-                <i class="fa fa-chevron-left"></i> InnoDB的Checkpoint机制
+              <a href="/2018-07-29-InnoDB后台线程.html" rel="next" title="InnoDB的后台线程">
+                <i class="fa fa-chevron-left"></i> InnoDB的后台线程
               </a>
             
           </div>
