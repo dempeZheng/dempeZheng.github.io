@@ -91,16 +91,16 @@
 <meta name="keywords" content="spring cloud,hystrix,微服务">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hystrix初探">
-<meta property="og:url" content="http://code.zhizus.com/2017-07-09-Hystrix初探.html">
+<meta property="og:url" content="http://www.zhizus.com/2017-07-09-Hystrix初探.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="写在前面很早听闻Hystrix的大名，一直没有机会尝试。正好，最近工作中频繁要求到做好服务降级和容灾，就在一个项目里面小试了一下Hystrix。工期紧，直接用了Hystrix 默认的参数，也没有详细测试。结果压测时候悲剧了，几百个并发线程就触发了Hystrix的熔断策略。根本不是我期望的结果。 所以今天花点时间对Hystrix做一些整理，以便以后的使用少踩一下低级的坑。 HystixNetflix">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://code.zhizus.com/images/hystrix_soa1.png">
+<meta property="og:image" content="http://www.zhizus.com/images/hystrix_soa1.png">
 <meta property="og:updated_time" content="2018-05-28T02:35:39.678Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hystrix初探">
 <meta name="twitter:description" content="写在前面很早听闻Hystrix的大名，一直没有机会尝试。正好，最近工作中频繁要求到做好服务降级和容灾，就在一个项目里面小试了一下Hystrix。工期紧，直接用了Hystrix 默认的参数，也没有详细测试。结果压测时候悲剧了，几百个并发线程就触发了Hystrix的熔断策略。根本不是我期望的结果。 所以今天花点时间对Hystrix做一些整理，以便以后的使用少踩一下低级的坑。 HystixNetflix">
-<meta name="twitter:image" content="http://code.zhizus.com/images/hystrix_soa1.png">
+<meta name="twitter:image" content="http://www.zhizus.com/images/hystrix_soa1.png">
 
 
 
@@ -128,7 +128,7 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-07-09-Hystrix初探.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2017-07-09-Hystrix初探.html"/>
 
 
 
@@ -283,7 +283,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-07-09-Hystrix初探.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-07-09-Hystrix初探.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -449,8 +449,8 @@ hystrix是线程隔离的，每个服务有可能有不同的线程池。现如�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-06-19Java内存区域.html" rel="next" title="深入理解Java虚拟机-Java内存区域读书笔记">
-                <i class="fa fa-chevron-left"></i> 深入理解Java虚拟机-Java内存区域读书笔记
+              <a href="/2017-07-09-微服务下，如何保证服务可用性.html" rel="next" title="微服务下，如何保证服务可用性">
+                <i class="fa fa-chevron-left"></i> 微服务下，如何保证服务可用性
               </a>
             
           </div>
@@ -459,8 +459,8 @@ hystrix是线程隔离的，每个服务有可能有不同的线程池。现如�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017-07-09-微服务下，如何保证服务可用性.html" rel="prev" title="微服务下，如何保证服务可用性">
-                微服务下，如何保证服务可用性 <i class="fa fa-chevron-right"></i>
+              <a href="/2017-07-11-高并发利器支限流.html" rel="prev" title="高并发利器之限流">
+                高并发利器之限流 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -535,7 +535,7 @@ hystrix是线程隔离的，每个服务有可能有不同的线程池。现如�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

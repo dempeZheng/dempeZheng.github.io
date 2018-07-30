@@ -91,7 +91,7 @@
 <meta name="keywords" content="guava,cache,expireAfterWrite,refreshAfterWrite">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Guava Cache 分析">
-<meta property="og:url" content="http://code.zhizus.com/2016-11-05-guava-cache.html">
+<meta property="og:url" content="http://www.zhizus.com/2016-11-05-guava-cache.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="guava的单线程回源缓存的更新有两种方法:  被动更新：先从缓存获取，没有则回源获取，再更新缓存； 主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）  在高并发环境，被动回源是需要注意的。 问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务崩溃（也容易引起并发问题）。 guava cache解决办法： guava cache保证单线程回源">
 <meta property="og:locale" content="zh-Hans">
@@ -126,7 +126,7 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2016-11-05-guava-cache.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2016-11-05-guava-cache.html"/>
 
 
 
@@ -281,7 +281,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2016-11-05-guava-cache.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-11-05-guava-cache.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -521,7 +521,7 @@ guava cache支持我们同时使用expireAfterWrite&amp;refreshAfterWrite，我�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

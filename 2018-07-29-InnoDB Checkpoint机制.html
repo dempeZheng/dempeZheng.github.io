@@ -1,0 +1,910 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="mysql,InnoDB,Checkpoint,LSN" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="写在前面 从上图（Mysq InnoDB存储引擎架构图）我们可以看到比较核心的一块就是InnoDB存储引擎内存池。缓冲池的设计目的是为了协调CPU速度和磁盘速度的鸿沟。页的操作首先是再缓冲池中完成的。  如果一条DML语句，如Update或Delete改变了页中的记录，那么此时页是脏的,即缓冲池中页的版本要比磁盘的新。数据库需要将新的版本刷新到磁盘。  如果每次页发生变化，就将也的版本刷新到磁盘，">
+<meta name="keywords" content="mysql,InnoDB,Checkpoint,LSN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB的Checkpoint机制">
+<meta property="og:url" content="http://www.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="写在前面 从上图（Mysq InnoDB存储引擎架构图）我们可以看到比较核心的一块就是InnoDB存储引擎内存池。缓冲池的设计目的是为了协调CPU速度和磁盘速度的鸿沟。页的操作首先是再缓冲池中完成的。  如果一条DML语句，如Update或Delete改变了页中的记录，那么此时页是脏的,即缓冲池中页的版本要比磁盘的新。数据库需要将新的版本刷新到磁盘。  如果每次页发生变化，就将也的版本刷新到磁盘，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.zhizus.com/images/InnoDB体系架构xml.png">
+<meta property="og:updated_time" content="2018-07-30T00:44:48.237Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="InnoDB的Checkpoint机制">
+<meta name="twitter:description" content="写在前面 从上图（Mysq InnoDB存储引擎架构图）我们可以看到比较核心的一块就是InnoDB存储引擎内存池。缓冲池的设计目的是为了协调CPU速度和磁盘速度的鸿沟。页的操作首先是再缓冲池中完成的。  如果一条DML语句，如Update或Delete改变了页中的记录，那么此时页是脏的,即缓冲池中页的版本要比磁盘的新。数据库需要将新的版本刷新到磁盘。  如果每次页发生变化，就将也的版本刷新到磁盘，">
+<meta name="twitter:image" content="http://www.zhizus.com/images/InnoDB体系架构xml.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html"/>
+
+
+
+
+
+  <title> InnoDB的Checkpoint机制 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                InnoDB的Checkpoint机制
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-07-29-InnoDB Checkpoint机制.html" class="leancloud_visitors" data-flag-title="InnoDB的Checkpoint机制">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p><img src="./images/InnoDB体系架构xml.png" alt="Alt text">
+从上图（Mysq InnoDB存储引擎架构图）我们可以看到比较核心的一块就是InnoDB存储引擎内存池。缓冲池的设计目的是为了协调CPU速度和磁盘速度的鸿沟。页的操作首先是再缓冲池中完成的。</p>
+<blockquote>
+<p>如果一条DML语句，如Update或Delete改变了页中的记录，那么此时页是脏的,即缓冲池中页的版本要比磁盘的新。数据库需要将新的版本刷新到磁盘。</p>
+</blockquote>
+<p>如果每次页发生变化，就将也的版本刷新到磁盘，那么这个开销是非常大的，缓冲池也就没有意义了。如果热点数据集中在某几个页中，那么数据库性能将会变的非常差。</p>
+<p>如果缓冲池的新版本刷新到磁盘前发生了宕机，那么数据就不能恢复，为了避免数据丢失问题，当前十五数据库系统普遍采用了<code>Write Ahead Log</code>策略，即当事务提交时，先写重做日志，再修改页。通过重做日志来完成数据恢复。这也是事务ACID中D（Durablity持久性）的要求。</p>
+<p>我们设想一下以下场景：
+1）缓存池不够用，根据LRU算法，会溢出最近最少使用的页，如果此页正好是脏页，如果没有机制来将缓存池中的脏页数据刷新到磁盘，那么数据就会丢失。
+2）重做日志的设计并不是无限增大的，都是循环使用的。那么假设重做日志被覆盖使用的时候，缓存池的数据还没有刷新到磁盘，这个时候数据库宕机，那么数据就会丢失，没办法恢复。
+3）数据库运行很长时间，突然发生宕机，数据库应用重做日志需要非常久，恢复代价也会非常大</p>
+<h2 id="Checkpoint"><a href="#Checkpoint" class="headerlink" title="Checkpoint"></a>Checkpoint</h2><p><code>Checkpoint</code>（检查点）技术也主要是解决这些问题</p>
+<ul>
+<li>缩短数据库恢复的时间；</li>
+<li>缓冲池不够用的时候，将脏页刷新到磁盘；</li>
+<li>重做日志被覆盖的时候，将缓存的脏页刷新到磁盘。</li>
+</ul>
+<h3 id="LSN（Log-Sequnce-Number）"><a href="#LSN（Log-Sequnce-Number）" class="headerlink" title="LSN（Log Sequnce Number）"></a>LSN（Log Sequnce Number）</h3><p>InnoDB存储引擎是通过<code>LSN</code>（Log Sequnce Number）来标记版本的。LSN是8个字节的整形，每个页有LSN（重做日志有LSN，Checkpoint也有LSN）。以下命令观察LSN</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOW ENGINE INNODB STATUS</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">LOG</span><br><span class="line">---</span><br><span class="line">Log sequence number 496790097248</span><br><span class="line">Log flushed up to   496790097248</span><br><span class="line">Last checkpoint at  496790097248</span><br></pre></td></tr></table></figure>
+<h2 id="Checkpoint的分类"><a href="#Checkpoint的分类" class="headerlink" title="Checkpoint的分类"></a>Checkpoint的分类</h2><ul>
+<li><strong>Sharp Checkpoint</strong></li>
+<li><strong>Fuzzy Checkpoint</strong>
+<code>Sharp Checkpoint</code>发生在数据库关闭所有的脏也都刷新回磁盘。这是默认的工作方式，即参数<code>innodb_fast_shutdown=1</code></li>
+</ul>
+<p>如果数据库在运行过程中使用Sharp Checkpoint，数据库的可用性就会受到很大的影响。
+故，在InnoDB存储引擎内部使用Fuzzy Checkpoint进行页的刷新，即只刷新一部分脏页。</p>
+<h2 id="Fuzzy-Checkpoint的场景"><a href="#Fuzzy-Checkpoint的场景" class="headerlink" title="Fuzzy Checkpoint的场景"></a>Fuzzy Checkpoint的场景</h2><ul>
+<li>Master Thread Checkpoint</li>
+<li>FLUSH_LRU_LIST_Checkpoint</li>
+<li>Async/Aync Flush Checkpoint</li>
+<li>Dirty Page too mush Checkpoint</li>
+</ul>
+<h3 id="Master-Thread-Checkpoint"><a href="#Master-Thread-Checkpoint" class="headerlink" title="Master Thread Checkpoint"></a>Master Thread Checkpoint</h3><p><code>Master Thread</code>定期将缓存池中的脏页列表中刷新一定比例的脏页到磁盘。这个过程是<code>异步</code>的，不会阻塞用户查询线程。</p>
+<h3 id="FLUSH-LRU-LIST-Checkpoint"><a href="#FLUSH-LRU-LIST-Checkpoint" class="headerlink" title="FLUSH_LRU_LIST_Checkpoint"></a>FLUSH_LRU_LIST_Checkpoint</h3><p>InnoDB存储引擎需要保证LRU列表中有差不多100多个空闲页可用。
+1）在InnoDB 1.1.X版本之前，用户查询县城回检查是否有足够的空间可用，这个会<code>阻塞查询线程</code>，如果没有100个可用空闲页，那么InnoDB存储引擎会将LRU列表尾端的页移除。如果这些页中有脏页，那么需要进行Checkpoint技术，而这些页是来自LRU列表，因此称为<code>FLUSH_LRU_Checkpoint.</code>
+2)InnoDB 1.2.X版本开始，这个检查放在一个单独的线程，也就是<code>Page Cleaner Thread</code>，并且用户可以通过参数innodb_lru_scan_depth控制LRU列表中可用页的数量。该值默认是1024，如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'innodb_lru_scan_depth'</span> \G;</span><br></pre></td></tr></table></figure>
+<h3 id="Async-Sync-Flush-Checkpoint"><a href="#Async-Sync-Flush-Checkpoint" class="headerlink" title="Async/Sync Flush Checkpoint"></a>Async/Sync Flush Checkpoint</h3><p><code>Async/Sync Flush Checkpoint</code>指的是重做日志文件不可用的情况，需要强制刷新脏页到磁盘，保证重做日志的可用性。重做日志不可用的场景，其实就是重做日志循环使用被覆盖的情况，重做日志设置的太小或者段时间产生了大量的重做日志。
+redo_lsn:重做日志的lsn
+checkpoint_lsn:已经刷新到磁盘的lsn
+定义：
+checkpoint_age = redo_lsn - checkpoint_lsn
+async_water_mark = 75% <em> total_redo_log_file_size
+aync_water_mark = 90% </em> total_redo_log_file_size</p>
+<p><strong>那么可以分为以下情况：</strong></p>
+<ul>
+<li>1）当checkpoint_age&lt;async_water_mark时，不需要将脏页刷新到磁盘；</li>
+<li>2）当async_water_mark&lt;checkpoint_age&lt;sync_water_mark时，Async Flush；</li>
+<li>3）当checkpoint_age&gt;sync_water_mark时，Sync Flush，这种情况一般很少发生，除非重做日志设置的太小。</li>
+</ul>
+<p>[注] InnoDB  1.2.X版本之前，<code>Async/Sync Flush</code>会<code>阻塞所有发现问题的线程</code>，而<code>Sync Flush</code>则会<code>阻塞</code>所有的查询线程。
+InnoDB 1.2.X版本开始，这部分刷新操作放到了Page Cleaner Thread中故不会阻塞查询线程。</p>
+<h3 id="Dirty-Page-too-much"><a href="#Dirty-Page-too-much" class="headerlink" title="Dirty Page too much"></a>Dirty Page too much</h3><p>脏页数量太多，导致InnoDB存储引擎强制进行Checkpoint，保证缓冲池中有足够的可用的页。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_max_dirty_pages_pct' \G; </span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">Variable_name: innodb_max_dirty_pages_pct</span><br><span class="line">        Value: 90</span><br></pre></td></tr></table></figure>
+<p>innodb_max_dirty_pages_pct=90表示脏页数量占用90%的时候强制刷新一部分脏页到磁盘，InnoDB 1.2.X默认值是75</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-07-29-InnoDB的内存结构.html" rel="next" title="InnoDB的内存结构">
+                <i class="fa fa-chevron-left"></i> InnoDB的内存结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-07-29-InnoDB后台线程.html" rel="prev" title="InnoDB的后台线程">
+                InnoDB的后台线程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在前面"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Checkpoint"><span class="nav-number">2.</span> <span class="nav-text">Checkpoint</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LSN（Log-Sequnce-Number）"><span class="nav-number">2.1.</span> <span class="nav-text">LSN（Log Sequnce Number）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Checkpoint的分类"><span class="nav-number">3.</span> <span class="nav-text">Checkpoint的分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fuzzy-Checkpoint的场景"><span class="nav-number">4.</span> <span class="nav-text">Fuzzy Checkpoint的场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Master-Thread-Checkpoint"><span class="nav-number">4.1.</span> <span class="nav-text">Master Thread Checkpoint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FLUSH-LRU-LIST-Checkpoint"><span class="nav-number">4.2.</span> <span class="nav-text">FLUSH_LRU_LIST_Checkpoint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Async-Sync-Flush-Checkpoint"><span class="nav-number">4.3.</span> <span class="nav-text">Async/Sync Flush Checkpoint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dirty-Page-too-much"><span class="nav-number">4.4.</span> <span class="nav-text">Dirty Page too much</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

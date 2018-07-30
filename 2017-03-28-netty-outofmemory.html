@@ -91,17 +91,17 @@
 <meta name="keywords" content="netty,ByteBuf,pool,outOfMemory">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次netty内存溢出的问题(上)">
-<meta property="og:url" content="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">
+<meta property="og:url" content="http://www.zhizus.com/2017-03-28-netty-outofmemory.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。 起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。 第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。 通过如下命令 1s">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://code.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
-<meta property="og:image" content="http://code.zhizus.com/images/7679748d-5928-4666-9e57-59ceeadb9058.png">
-<meta property="og:updated_time" content="2018-05-28T02:35:39.668Z">
+<meta property="og:image" content="http://www.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
+<meta property="og:image" content="http://www.zhizus.com/images/7679748d-5928-4666-9e57-59ceeadb9058.png">
+<meta property="og:updated_time" content="2018-07-30T00:44:48.197Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次netty内存溢出的问题(上)">
 <meta name="twitter:description" content="最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。 起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。 第二天加大压测力度，一会cpu就飙升上去了，压测停止cpu降下来，发现内存也不降的。 通过如下命令 1s">
-<meta name="twitter:image" content="http://code.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
+<meta name="twitter:image" content="http://www.zhizus.com/images/9e7aeccf-539e-4986-8fb4-a8d4753e1557.png">
 
 
 
@@ -129,7 +129,7 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-03-28-netty-outofmemory.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2017-03-28-netty-outofmemory.html"/>
 
 
 
@@ -284,7 +284,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-03-28-netty-outofmemory.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-03-28-netty-outofmemory.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -404,7 +404,7 @@ Recycler内部主要包含三个核心组件，各个组件负责对象池实现
 通过阅读Recycler的代码我们看到，默认情况，这个上限是32k。那么我们基本可通过线程的数量来判断出实例堆积的上限基本就是线程数量×32k。而我们项目中用到这个Recycler的就是内存的分配是释放，这个都是在IO的线程里面处理的，而IO的线程数就是通过核数×2来获取的，线上压测的核数是24核，故IO线程数量为48。 48×32k已经不是一个小数目了。至于占用内存的上限要通过压测得出。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_INITIAL_MAX_CAPACITY = <span class="number">32768</span>; <span class="comment">// Use 32k instances as default max capacity.</span></span><br><span class="line"> <span class="keyword">int</span> maxCapacity = SystemPropertyUtil.getInt(<span class="string">"io.netty.recycler.maxCapacity"</span>, DEFAULT_INITIAL_MAX_CAPACITY);</span><br></pre></td></tr></table></figure>
 <p>当然，还有一个问题需要确认，内存的申请和回收速度是否同步，如果是同步的那么这个queue里面的对象就不会膨胀。
-<a href="http://code.zhizus.com/2017-03-31-netty-buffer-recycler.html">netty内存分配Recycler容量膨胀问题跟踪</a></p>
+<a href="http://www.zhizus.com/2017-03-31-netty-buffer-recycler.html">netty内存分配Recycler容量膨胀问题跟踪</a></p>
 <h2 id="4-解决方案"><a href="#4-解决方案" class="headerlink" title="4.解决方案"></a>4.解决方案</h2><p>严格来说，这种情况不能算内存泄漏，如果内存分配再大点，IO线程数量设置少些，也是没什么问题的。但是netty也给我们提供了一些解决方案。</p>
 <p><strong>第一种：直接禁用掉Recycler的功能，功过设置<code>-Dio.netty.recycler.maxCapacity.default=0</code></strong>
 当然如果禁用 Recycler可惜的话，可以将maxCapcity设置一个合适的值。</p>
@@ -575,7 +575,7 @@ Set sane WRITE_BUFFER_HIGH_WATER_MARK and WRITE_BUFFER_LOW_WATER_MARK</p>
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

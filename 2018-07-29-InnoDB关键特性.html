@@ -1,0 +1,908 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="mysql,InnoDB,Insert Buffer,AHI" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="InnoDB的关键特性InnoDB是一个完整支持事务的Mysql存储引擎，也是Mysql的默认引擎。特点是行锁设计、支持MVCC、支持外键、提供一致性非锁定读。同时也被设计用来最有效地利用以及使用内存和CPU。 关键特性如下：  插入缓冲（Insert Buffer） 两次写（Double Write） 自适应哈希索引（Adaptive Hash Index） 异步IO(Async IO) 刷新邻">
+<meta name="keywords" content="mysql,InnoDB,Insert Buffer,AHI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB的关键特性">
+<meta property="og:url" content="http://www.zhizus.com/2018-07-29-InnoDB关键特性.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="InnoDB的关键特性InnoDB是一个完整支持事务的Mysql存储引擎，也是Mysql的默认引擎。特点是行锁设计、支持MVCC、支持外键、提供一致性非锁定读。同时也被设计用来最有效地利用以及使用内存和CPU。 关键特性如下：  插入缓冲（Insert Buffer） 两次写（Double Write） 自适应哈希索引（Adaptive Hash Index） 异步IO(Async IO) 刷新邻">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.zhizus.com/images/1113510-20170726195345906-321682602.png">
+<meta property="og:updated_time" content="2018-07-30T00:44:48.240Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="InnoDB的关键特性">
+<meta name="twitter:description" content="InnoDB的关键特性InnoDB是一个完整支持事务的Mysql存储引擎，也是Mysql的默认引擎。特点是行锁设计、支持MVCC、支持外键、提供一致性非锁定读。同时也被设计用来最有效地利用以及使用内存和CPU。 关键特性如下：  插入缓冲（Insert Buffer） 两次写（Double Write） 自适应哈希索引（Adaptive Hash Index） 异步IO(Async IO) 刷新邻">
+<meta name="twitter:image" content="http://www.zhizus.com/images/1113510-20170726195345906-321682602.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zhizus.com/2018-07-29-InnoDB关键特性.html"/>
+
+
+
+
+
+  <title> InnoDB的关键特性 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB关键特性.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                InnoDB的关键特性
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-07-29-InnoDB关键特性.html" class="leancloud_visitors" data-flag-title="InnoDB的关键特性">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="InnoDB的关键特性"><a href="#InnoDB的关键特性" class="headerlink" title="InnoDB的关键特性"></a>InnoDB的关键特性</h2><p>InnoDB是一个完整支持事务的Mysql存储引擎，也是Mysql的默认引擎。特点是行锁设计、支持MVCC、支持外键、提供一致性非锁定读。同时也被设计用来最有效地利用以及使用内存和CPU。</p>
+<p>关键特性如下：</p>
+<ul>
+<li>插入缓冲（Insert Buffer）</li>
+<li>两次写（Double Write）</li>
+<li>自适应哈希索引（Adaptive Hash Index）</li>
+<li>异步IO(Async IO)</li>
+<li>刷新邻接页（Flush Neighbor Page）</li>
+</ul>
+<h2 id="插入缓冲"><a href="#插入缓冲" class="headerlink" title="插入缓冲"></a>插入缓冲</h2><h3 id="Insert-Buffer"><a href="#Insert-Buffer" class="headerlink" title="Insert Buffer"></a>Insert Buffer</h3><p>InnoDB存储引擎开创性的设计了Insert Buffer，对于非聚集索引（非唯一）的插入或者更新操作，不是每一次都直接插入到索引页中，而是先判断插入的非聚集索引页是否在缓冲池中，如果在，则直接插入，如果不在，则先放入到一个Insert Buffer对象中。然后以一定的频率进行Insert Buffer和辅助索引页子节点的merge操作。通常能够将多个插入操作合并到一个插入操作，从而大大提高了对于非聚集索引的插入性能。</p>
+<p>Insert Buffer必须同时满足一下两个条件：</p>
+<ul>
+<li>索引是辅助索引（sencondary index）</li>
+<li>索引不是唯一（unique）
+因为插入缓冲，数据库并不会查找索引页来验证唯一性，如果查找就会有离散读取的情况发生，Insert Buffer句i失去了意义。<h3 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h3>InnoDB从1.0.x版本开始引入了Change Buffer，可将其市委Insert Buffer的升级。
+从这个版本开始，InnoDB存储引擎可以对DML操作-INSERT,DELETE,UPDATE都进行换从，分别是Insert Buffer, Delete Buffer,Purge Buffer</li>
+</ul>
+<h2 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h2><p>hash的时间复杂度为Q（1），而B+书的查找次数取决于B+数的高度，在生产环境中B+数的高度一般为3~4层，故需要3~4次查询。
+InnoDB存储引擎会监控对表上各数据索引页的查询，如果观察到建立hash缩影能够带来速度的提升，则建立hash索引，称之为子使用hash索引（Adaptive Hash Index，AHI），AHI通过缓冲池的B+构建而来，因此建立的速度很快，而且不需要整张表建立hash索引。
+AHI有一个要求，即对这个页的连续访问模式必须是一样的。例如对于（a,b）</p>
+<ul>
+<li>where a=x</li>
+<li>where a=x and b=y
+如果上述两种场景交替进行，则InnoDB存储引擎不会对该页构造AHI。<blockquote>
+<p>根据InnoDB存储引擎官方的文档显示，启用AHI后，读取和写入的速度可以提升两倍，辅助索引的连接操作性能可以提升5倍。</p>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>[注]并不是很理解为什么AHI启用后能提升写入的性能，难道写入AHI就会异步写入辅助索引？</p>
+</blockquote>
+<p>但是AHI是InnoDB存储引擎控制的，其设计思想是自优化，开发人员或是DBA无需对其调整。
+当然开发人员页可以依赖其原理，尽可能让InnoDB创建AHI来提供性能。
+通过SHOW ENGINE INNODB STATUS;可以看到AHI的使用状况；
+包括AHI的大小以及使用情况。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-------------------------------------</span></span><br><span class="line"><span class="keyword">INSERT</span> BUFFER <span class="keyword">AND</span> ADAPTIVE <span class="keyword">HASH</span> <span class="keyword">INDEX</span></span><br><span class="line"><span class="comment">-------------------------------------</span></span><br><span class="line">Ibuf: <span class="keyword">size</span> <span class="number">1</span>, free <span class="keyword">list</span> <span class="keyword">len</span> <span class="number">335954</span>, seg <span class="keyword">size</span> <span class="number">335956</span>, <span class="number">320</span> merges</span><br><span class="line">merged <span class="keyword">operations</span>:</span><br><span class="line"> <span class="keyword">insert</span> <span class="number">47</span>, <span class="keyword">delete</span> mark <span class="number">4740</span>, <span class="keyword">delete</span> <span class="number">0</span></span><br><span class="line">discarded <span class="keyword">operations</span>:</span><br><span class="line"> <span class="keyword">insert</span> <span class="number">0</span>, <span class="keyword">delete</span> mark <span class="number">0</span>, <span class="keyword">delete</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">Hash</span> <span class="keyword">table</span> <span class="keyword">size</span> <span class="number">42499631</span>, node <span class="keyword">heap</span> has <span class="number">66449</span> buffer(s)</span><br><span class="line"><span class="number">0.00</span> <span class="keyword">hash</span> searches/s, <span class="number">3.00</span> non-<span class="keyword">hash</span> searches/s</span><br></pre></td></tr></table></figure>
+<p>另外，AHI只能因用于等值查询，对于返回查询是无法使用Hash索引的。</p>
+<h2 id="Double-Write"><a href="#Double-Write" class="headerlink" title="Double Write"></a>Double Write</h2><p>InnoDB通过Double Write来保障数据页的可靠性。
+试想一种场景：当数据库发生宕机，InnoDB存储引擎正在写入某个16KB的页，而这个页写入4KB的时候发生了宕机。这种情况被成为部分写失效（<code>partial page write</code>）。在InnoDB使用Double write技术之前，曾经出现因为部分写失效导致数据丢失的情况。</p>
+<p>可能我们会想，如果写失效的时候为什么不能通过重做日志进行恢复？ </p>
+<p>这可能是一个办法，但是必须清楚的认识到，重做日志是记录对页的物理操作，如偏移量800，写记录’aaa’。如果这个页本身已经发生了损坏，再对其重做是没有意义的。
+<img src="./images/1113510-20170726195345906-321682602.png" alt="Alt text">
+doublewrite由两个部分组成，一部分是内存中的doublewrite buffer，大小为2M，另一部分是物理磁盘上的共享表空间中连续的128个页，即两个区（extend）大小同样为2M。
+在对缓冲池脏也进行刷新的时候，并不直接写磁盘，而是通过<code>memcpy</code>函数将脏页先复制到内存中的doublewrite buffer，之后通过doublewrite buffer分两次，每次1M的顺序写入共享表空间的屋里磁盘上。然后马上调用<code>fsync</code>函数，同步磁盘。
+因为doublewrite页是连续的，顺序写的开销并不是很大。</p>
+<h2 id="异步IO"><a href="#异步IO" class="headerlink" title="异步IO"></a>异步IO</h2><p>为了提高硬盘操作性能，当前数据库系统都是采用AIO的方式来处理磁盘操作的，InnoDB也是如此。
+AIO的相比同步IO可以减少等待的时间。
+另外一个主要优势在于可以进行<code>IO Merge</code>操作，也就是将多个IO合并为1个IO，这样可以提供IOPS的性能。</p>
+<h2 id="刷新邻接页"><a href="#刷新邻接页" class="headerlink" title="刷新邻接页"></a>刷新邻接页</h2><p>InnoDB存储引擎还提供了Flush Neighbor Page（刷新邻接页）的特性，其工作原理为：当刷新一个脏页时，InnoDB会检测该页所在的区（extent）所有的页，如果是脏页，那么一起进行刷新。这样做的好处就是通过AIO可以将多个IO写入操作合并为一个IO操作。故该工作机制再传统的机械硬盘下有显著的优势。但是需要考虑下面两个问题：</p>
+<ul>
+<li>是不是可能将两个不怎么脏的页进行了写入，而该页之后有很快会变成脏页？</li>
+<li>固态硬盘有着较高的IOQPS，是否还需要这个特性？
+因此 InnoDB 1.2.X的版本页提供了参数<code>innodb_flush_neighbors</code>来控制是否启用该特性。</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-07-16-记一次Druid连接池CannotGetJdbcConnectionException问题排查.html" rel="next" title="记一次Druid连接池CannotGetJdbcConnectionException问题排查">
+                <i class="fa fa-chevron-left"></i> 记一次Druid连接池CannotGetJdbcConnectionException问题排查
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-07-29-InnoDB的内存结构.html" rel="prev" title="InnoDB的内存结构">
+                InnoDB的内存结构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB的关键特性"><span class="nav-number">1.</span> <span class="nav-text">InnoDB的关键特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#插入缓冲"><span class="nav-number">2.</span> <span class="nav-text">插入缓冲</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Insert-Buffer"><span class="nav-number">2.1.</span> <span class="nav-text">Insert Buffer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Change-Buffer"><span class="nav-number">2.2.</span> <span class="nav-text">Change Buffer</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自适应哈希索引"><span class="nav-number">3.</span> <span class="nav-text">自适应哈希索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Double-Write"><span class="nav-number">4.</span> <span class="nav-text">Double Write</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步IO"><span class="nav-number">5.</span> <span class="nav-text">异步IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#刷新邻接页"><span class="nav-number">6.</span> <span class="nav-text">刷新邻接页</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

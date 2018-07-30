@@ -91,18 +91,18 @@
 <meta name="keywords" content="java,并发,mesi,cpu，一致性协议">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CPU缓存一致性协议MESI">
-<meta property="og:url" content="http://code.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html">
+<meta property="og:url" content="http://www.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="写在前面  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。 单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://code.zhizus.com/images/1531305589537.png">
-<meta property="og:image" content="http://code.zhizus.com/images/1531318187632.png">
-<meta property="og:image" content="http://code.zhizus.com/images/1531318504688.png">
-<meta property="og:updated_time" content="2018-07-16T01:37:23.967Z">
+<meta property="og:image" content="http://www.zhizus.com/images/1531305589537.png">
+<meta property="og:image" content="http://www.zhizus.com/images/1531318187632.png">
+<meta property="og:image" content="http://www.zhizus.com/images/1531318504688.png">
+<meta property="og:updated_time" content="2018-07-30T00:44:48.234Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CPU缓存一致性协议MESI">
 <meta name="twitter:description" content="写在前面  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。 单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的数据关系(数据是否有效，数据是否被修改)，而在多核处理器中，多个核会共享一些数据，MESI协议就包含">
-<meta name="twitter:image" content="http://code.zhizus.com/images/1531305589537.png">
+<meta name="twitter:image" content="http://www.zhizus.com/images/1531305589537.png">
 
 
 
@@ -130,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html"/>
 
 
 
@@ -285,7 +285,7 @@
   
 
   <article class="post post-type-并发 " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -407,7 +407,7 @@ CPU A同步数据到CPU B的x,将cache a和同步后cache b中的x设置为S状�
 这么做有两个风险</p>
 <h3 id="Store-Bufferes的风险"><a href="#Store-Bufferes的风险" class="headerlink" title="Store Bufferes的风险"></a>Store Bufferes的风险</h3><p>第一、就是处理器会尝试从存储缓存（Store buffer）中读取值，但它还没有进行提交。这个的解决方案称为Store Forwarding，它使得加载的时候，如果存储缓存中存在，则进行返回。
 第二、保存什么时候会完成，这个并没有任何保证。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">value = 3；</span><br><span class="line"></span><br><span class="line">void exeToCPUA()&#123;</span><br><span class="line">  value = 10;</span><br><span class="line">  isFinsh = true;</span><br><span class="line">&#125;</span><br><span class="line">void exeToCPUB()&#123;</span><br><span class="line">  if(isFinsh)&#123;</span><br><span class="line">    //value一定等于10？！</span><br><span class="line">    assert value == 10;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">value = <span class="number">3</span>；</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">exeToCPUA</span><span class="params">()</span></span>&#123;</span><br><span class="line">  value = <span class="number">10</span>;</span><br><span class="line">  isFinsh = <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">exeToCPUB</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(isFinsh)&#123;</span><br><span class="line">    <span class="comment">//value一定等于10？！</span></span><br><span class="line">    <span class="keyword">assert</span> value == <span class="number">10</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>试想一下开始执行时，CPU A保存着finished在E(独享)状态，而value并没有保存在它的缓存中。（例如，Invalid）。在这种情况下，value会比finished更迟地抛弃存储缓存。完全有可能CPU B读取finished的值为true，而value的值不等于10。</p>
 <p>即isFinsh的赋值在value赋值之前。</p>
 <p>这种在可识别的行为中发生的变化称为重排序（reordings）。注意，这不意味着你的指令的位置被恶意（或者好意）地更改。</p>
@@ -426,7 +426,7 @@ CPU A同步数据到CPU B的x,将cache a和同步后cache b中的x设置为S状�
 <blockquote>
 <p><code>读屏障</code>Load Memory Barrier (a.k.a. LD, RMB, smp_rmb)是一条告诉处理器在执行任何的加载前，先应用所有已经在失效队列中的失效操作的指令。</p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void executedOnCpu0() &#123;</span><br><span class="line">    value = 10;</span><br><span class="line">    //在更新数据之前必须将所有存储缓存（store buffer）中的指令执行完毕。</span><br><span class="line">    storeMemoryBarrier();</span><br><span class="line">    finished = true;</span><br><span class="line">&#125;</span><br><span class="line">void executedOnCpu1() &#123;</span><br><span class="line">    while(!finished);</span><br><span class="line">    //在读取之前将所有失效队列中关于该数据的指令执行完毕。</span><br><span class="line">    loadMemoryBarrier();</span><br><span class="line">    assert value == 10;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">executedOnCpu0</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    value = <span class="number">10</span>;</span><br><span class="line">    <span class="comment">//在更新数据之前必须将所有存储缓存（store buffer）中的指令执行完毕。</span></span><br><span class="line">    storeMemoryBarrier();</span><br><span class="line">    finished = <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">executedOnCpu1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(!finished);</span><br><span class="line">    <span class="comment">//在读取之前将所有失效队列中关于该数据的指令执行完毕。</span></span><br><span class="line">    loadMemoryBarrier();</span><br><span class="line">    <span class="keyword">assert</span> value == <span class="number">10</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>现在确实安全了。完美无暇！</p>
 <h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>然而，对于程序员来说简直是一个灾难。不想和平台耦合我们要跨平台。Write One,Run Everywhere!
 幸好java解决了这个问题，至于如何解决的请关注JMM(JavaMemoryMode)与物理内存相爱相杀。</p>
@@ -568,7 +568,7 @@ CPU A同步数据到CPU B的x,将cache a和同步后cache b中的x设置为S状�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

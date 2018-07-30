@@ -91,11 +91,11 @@
 <meta name="keywords" content="微服务,重试,幂等,超时">
 <meta property="og:type" content="article">
 <meta property="og:title" content="重试机制">
-<meta property="og:url" content="http://code.zhizus.com/2017-08-26-重试机制.html">
+<meta property="og:url" content="http://www.zhizus.com/2017-08-26-重试机制.html">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="重试机制就是一种容错机制。是的最后一根救命稻草！ Retry模式能够通过重复之前失败的操作来处理那些调用远端服务或者网络资源的时候发生的一些可以预期的临时性的错误。Retry模式可以提高应用的稳定性。 适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结束。 如果错误并非暂时性的，或者通过重复很难成功的话（举例来说，由于错误的用户名和密码造成的验证失败），应用">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-28T02:35:39.691Z">
+<meta property="og:updated_time" content="2018-07-30T00:44:48.212Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="重试机制">
 <meta name="twitter:description" content="重试机制就是一种容错机制。是的最后一根救命稻草！ Retry模式能够通过重复之前失败的操作来处理那些调用远端服务或者网络资源的时候发生的一些可以预期的临时性的错误。Retry模式可以提高应用的稳定性。 适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结束。 如果错误并非暂时性的，或者通过重复很难成功的话（举例来说，由于错误的用户名和密码造成的验证失败），应用">
@@ -126,7 +126,7 @@
 
 
 
-  <link rel="canonical" href="http://code.zhizus.com/2017-08-26-重试机制.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2017-08-26-重试机制.html"/>
 
 
 
@@ -281,7 +281,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://code.zhizus.com/2017-08-26-重试机制.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-08-26-重试机制.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -424,7 +424,7 @@ BackOffPolicy 提供了如下策略实现：</p>
 个人比较期待能有一个针对负载均衡的重试策略的抽象类(大概就是基础的loadbalancer里面加上抽象的retryPolicy)，可以继承出来随便扩展，不过比较可惜，目前读的版本貌似没有这样的方法。
 这一块现在也在困惑期，等理清楚逻辑后再来补充。</p>
 <hr>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>和重试相关的东西其实还有<a href="http://code.zhizus.com/2017-08-28-%E5%B9%82%E7%AD%89.html">幂等</a>和<code>超时</code>。一般说到重试都会说幂等重试<code>，</code>超时重试`</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>和重试相关的东西其实还有<a href="http://www.zhizus.com/2017-08-28-%E5%B9%82%E7%AD%89.html">幂等</a>和<code>超时</code>。一般说到重试都会说幂等重试<code>，</code>超时重试`</p>
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://blog.csdn.net/paul_wei2008/article/details/53871442" target="_blank" rel="noopener">http://blog.csdn.net/paul_wei2008/article/details/53871442</a>
 <a href="http://blog.csdn.net/broadview2006/article/details/72841056" target="_blank" rel="noopener">http://blog.csdn.net/broadview2006/article/details/72841056</a>
 <a href="https://github.com/spring-projects/spring-retry" target="_blank" rel="noopener">spring-retry</a></p>
@@ -565,7 +565,7 @@ BackOffPolicy 提供了如下策略实现：</p>
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
