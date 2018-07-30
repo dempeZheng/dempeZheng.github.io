@@ -87,20 +87,20 @@
 
 
 
-<meta name="description" content="InnoDB是单进程多线程，主要的后台线程有：   [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主要负责将缓冲池中的数据">
+<meta name="description" content="InnoDB是单进程多线程，主要的后台线程有： InnoDB的后台线程  [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主">
 <meta name="keywords" content="mysql,InnoDB,Master Thread">
 <meta property="og:type" content="article">
 <meta property="og:title" content="InnoDB的后台线程">
 <meta property="og:url" content="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="InnoDB是单进程多线程，主要的后台线程有：   [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主要负责将缓冲池中的数据">
+<meta property="og:description" content="InnoDB是单进程多线程，主要的后台线程有： InnoDB的后台线程  [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://www.zhizus.com/images/1532827884301.png">
 <meta property="og:image" content="http://www.zhizus.com/images/1532826905089.png">
-<meta property="og:updated_time" content="2018-07-30T00:44:48.243Z">
+<meta property="og:updated_time" content="2018-07-30T00:54:43.061Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB的后台线程">
-<meta name="twitter:description" content="InnoDB是单进程多线程，主要的后台线程有：   [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主要负责将缓冲池中的数据">
+<meta name="twitter:description" content="InnoDB是单进程多线程，主要的后台线程有： InnoDB的后台线程  [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主">
 <meta name="twitter:image" content="http://www.zhizus.com/images/1532827884301.png">
 
 
@@ -356,7 +356,7 @@
 
       
         <p>InnoDB是单进程多线程，主要的后台线程有：</p>
-<p><img src="./images/1532827884301.png" alt="Alt text"></p>
+<h2 id="InnoDB的后台线程"><a href="#InnoDB的后台线程" class="headerlink" title="InnoDB的后台线程"></a>InnoDB的后台线程</h2><p><img src="./images/1532827884301.png" alt="Alt text"></p>
 <blockquote>
 <p><code>[注]</code> InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)</p>
 </blockquote>
@@ -422,8 +422,8 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-29-InnoDB Checkpoint机制.html" rel="next" title="InnoDB的Checkpoint机制">
-                <i class="fa fa-chevron-left"></i> InnoDB的Checkpoint机制
+              <a href="/2018-07-16-记一次Druid连接池CannotGetJdbcConnectionException问题排查.html" rel="next" title="记一次Druid连接池CannotGetJdbcConnectionException问题排查">
+                <i class="fa fa-chevron-left"></i> 记一次Druid连接池CannotGetJdbcConnectionException问题排查
               </a>
             
           </div>
@@ -432,8 +432,8 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018-07-29-MySQL的体系结构及存储引擎.html" rel="prev" title="MySQL的体系结构及存储引擎">
-                MySQL的体系结构及存储引擎 <i class="fa fa-chevron-right"></i>
+              <a href="/2018-07-29-InnoDB Checkpoint机制.html" rel="prev" title="InnoDB的Checkpoint机制">
+                InnoDB的Checkpoint机制 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -599,7 +599,7 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Master-Thread（InnoDB-1-0-x之前的版本）"><span class="nav-number">1.</span> <span class="nav-text">Master Thread（InnoDB 1.0.x之前的版本）</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB的后台线程"><span class="nav-number">1.</span> <span class="nav-text">InnoDB的后台线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master-Thread（InnoDB-1-0-x之前的版本）"><span class="nav-number">2.</span> <span class="nav-text">Master Thread（InnoDB 1.0.x之前的版本）</span></a></li></ol></div>
             
 
           </div>
