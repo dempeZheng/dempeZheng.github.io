@@ -96,7 +96,7 @@
 <meta property="og:description" content="Connectors 指的是不同的语言是Mysql的交互； Management Serveices &amp;amp; Utilities： 系统管理和控制工具，例如备份恢复、Mysql复制、集群等 ； Connection Pool: 连接池：管理缓冲用户连接、用户名、密码、权限校验、线程处理等需要缓存的需求  SQL Interface: SQL接口：接受用户的SQL命令，并且返回用户需要查询的">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://www.zhizus.com/images/Mysql体系结构%201.png">
-<meta property="og:updated_time" content="2018-07-30T00:44:48.249Z">
+<meta property="og:updated_time" content="2018-07-31T01:41:20.194Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL的体系结构及存储引擎">
 <meta name="twitter:description" content="Connectors 指的是不同的语言是Mysql的交互； Management Serveices &amp;amp; Utilities： 系统管理和控制工具，例如备份恢复、Mysql复制、集群等 ； Connection Pool: 连接池：管理缓冲用户连接、用户名、密码、权限校验、线程处理等需要缓存的需求  SQL Interface: SQL接口：接受用户的SQL命令，并且返回用户需要查询的">
@@ -377,7 +377,8 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
 <h3 id="2-2-InnoDB-内存"><a href="#2-2-InnoDB-内存" class="headerlink" title="2.2 InnoDB 内存"></a>2.2 InnoDB 内存</h3><p><a href="http://www.zhizus.com/2018-07-29-InnoDB的内存结构.html">InnoDB的内存结构</a></p>
 <h3 id="2-3-Checkpoint技术"><a href="#2-3-Checkpoint技术" class="headerlink" title="2.3 Checkpoint技术"></a>2.3 Checkpoint技术</h3><p><a href="http://www.zhizus.com/2018-07-29-InnoDB%20Checkpoint%E6%9C%BA%E5%88%B6.html">InnoDB Checkpoint机制</a></p>
 <h3 id="2-4-InnoDB的关键特性"><a href="#2-4-InnoDB的关键特性" class="headerlink" title="2.4 InnoDB的关键特性"></a>2.4 InnoDB的关键特性</h3><p><a href="http://www.zhizus.com/2018-07-29-InnoDB关键特性.html">InnoDB关键特性</a></p>
-<h2 id="3-文件概述"><a href="#3-文件概述" class="headerlink" title="3. 文件概述"></a>3. 文件概述</h2><h3 id="3-1-binlog文件"><a href="#3-1-binlog文件" class="headerlink" title="3.1 binlog文件"></a>3.1 binlog文件</h3><h3 id="3-2-InnoDB存储引擎文件"><a href="#3-2-InnoDB存储引擎文件" class="headerlink" title="3.2 InnoDB存储引擎文件"></a>3.2 InnoDB存储引擎文件</h3><h2 id="表"><a href="#表" class="headerlink" title="表"></a>表</h2><hr>
+<h2 id="3-文件概述"><a href="#3-文件概述" class="headerlink" title="3. 文件概述"></a>3. 文件概述</h2><h3 id="3-1-binlog文件"><a href="#3-1-binlog文件" class="headerlink" title="3.1 binlog文件"></a>3.1 binlog文件</h3><p><a href="http://www.zhizus.com/2018-07-31-Mysql%E6%96%87%E4%BB%B6-binlog%E6%97%A5%E5%BF%97.html">MySql 文件-binlog</a></p>
+<h3 id="3-2-InnoDB存储引擎文件"><a href="#3-2-InnoDB存储引擎文件" class="headerlink" title="3.2 InnoDB存储引擎文件"></a>3.2 InnoDB存储引擎文件</h3><h2 id="表"><a href="#表" class="headerlink" title="表"></a>表</h2><hr>
 <h2 id="附"><a href="#附" class="headerlink" title="附"></a>附</h2><h3 id="Mysql-参数详解"><a href="#Mysql-参数详解" class="headerlink" title="Mysql 参数详解"></a>Mysql 参数详解</h3><h3 id="Mysql"><a href="#Mysql" class="headerlink" title="Mysql"></a>Mysql</h3><h3 id="Mysql-协议"><a href="#Mysql-协议" class="headerlink" title="Mysql 协议"></a>Mysql 协议</h3><p><a href="http://hutaow.com/blog/2013/11/06/mysql-protocol-analysis/" target="_blank" rel="noopener">Mysql协议分析（胡桃夹子）</a></p>
 <h3 id="JDBC的实现为什么不用NIO？"><a href="#JDBC的实现为什么不用NIO？" class="headerlink" title="JDBC的实现为什么不用NIO？"></a>JDBC的实现为什么不用NIO？</h3><h3 id="mysql默认8小时连接断开，如何解决？"><a href="#mysql默认8小时连接断开，如何解决？" class="headerlink" title="mysql默认8小时连接断开，如何解决？"></a>mysql默认8小时连接断开，如何解决？</h3><h3 id="Mysql为什么最好不要用null"><a href="#Mysql为什么最好不要用null" class="headerlink" title="Mysql为什么最好不要用null"></a>Mysql为什么最好不要用null</h3>
       
@@ -430,8 +431,8 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-29-InnoDB的内存结构.html" rel="next" title="InnoDB的内存结构">
-                <i class="fa fa-chevron-left"></i> InnoDB的内存结构
+              <a href="/2018-07-29-InnoDB后台线程.html" rel="next" title="InnoDB的后台线程">
+                <i class="fa fa-chevron-left"></i> InnoDB的后台线程
               </a>
             
           </div>
@@ -439,6 +440,10 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-07-31-Mysql文件-binlog日志.html" rel="prev" title="MySql 文件-binlog">
+                MySql 文件-binlog <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -512,7 +517,7 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">63</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
