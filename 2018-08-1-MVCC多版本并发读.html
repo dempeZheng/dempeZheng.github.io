@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="偏向锁,高并发" />
+  <meta name="keywords" content="mysql,InnoDB,mvcc" />
 
 
 
@@ -87,18 +87,18 @@
 
 
 
-<meta name="description" content="场景最近查找服务时延增长的问题，通过在jvm启动前加参数：-XX:+PrintGCApplicationStoppedTime，打印日志如下： 12345678910111213141516171.784: Total time for which application threads were stopped: 0.0541497 seconds, Stopping threads took:">
-<meta name="keywords" content="偏向锁,高并发">
+<meta name="description" content="概念MVCC是一种多版本并发控制机制。提供非锁定一致性读。 作用 消除锁开销 提高并行性度  实现原理InnoDB为了实现多版本的一致读，采用的是基于回滚段的协议。 行结构InnoDB表数据的组织方式为主键聚簇索引。由于采用索引组织表结构，记录的ROWID是可变的(索引页分裂的时候，Structure Modification Operation，SMO)，因此二级索引中采用的是(索引键值, 主键">
+<meta name="keywords" content="mysql,InnoDB,mvcc">
 <meta property="og:type" content="article">
-<meta property="og:title" content="记一次java偏向锁的优化">
-<meta property="og:url" content="http://www.zhizus.com/2017-11-16-记一次java偏向锁优化.html">
+<meta property="og:title" content="MySql MVCC多版本并发读">
+<meta property="og:url" content="http://www.zhizus.com/2018-08-1-MVCC多版本并发读.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="场景最近查找服务时延增长的问题，通过在jvm启动前加参数：-XX:+PrintGCApplicationStoppedTime，打印日志如下： 12345678910111213141516171.784: Total time for which application threads were stopped: 0.0541497 seconds, Stopping threads took:">
+<meta property="og:description" content="概念MVCC是一种多版本并发控制机制。提供非锁定一致性读。 作用 消除锁开销 提高并行性度  实现原理InnoDB为了实现多版本的一致读，采用的是基于回滚段的协议。 行结构InnoDB表数据的组织方式为主键聚簇索引。由于采用索引组织表结构，记录的ROWID是可变的(索引页分裂的时候，Structure Modification Operation，SMO)，因此二级索引中采用的是(索引键值, 主键">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-28T02:35:39.713Z">
+<meta property="og:updated_time" content="2018-08-01T00:47:34.174Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="记一次java偏向锁的优化">
-<meta name="twitter:description" content="场景最近查找服务时延增长的问题，通过在jvm启动前加参数：-XX:+PrintGCApplicationStoppedTime，打印日志如下： 12345678910111213141516171.784: Total time for which application threads were stopped: 0.0541497 seconds, Stopping threads took:">
+<meta name="twitter:title" content="MySql MVCC多版本并发读">
+<meta name="twitter:description" content="概念MVCC是一种多版本并发控制机制。提供非锁定一致性读。 作用 消除锁开销 提高并行性度  实现原理InnoDB为了实现多版本的一致读，采用的是基于回滚段的协议。 行结构InnoDB表数据的组织方式为主键聚簇索引。由于采用索引组织表结构，记录的ROWID是可变的(索引页分裂的时候，Structure Modification Operation，SMO)，因此二级索引中采用的是(索引键值, 主键">
 
 
 
@@ -126,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="http://www.zhizus.com/2017-11-16-记一次java偏向锁优化.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2018-08-1-MVCC多版本并发读.html"/>
 
 
 
 
 
-  <title> 记一次java偏向锁的优化 | 郑大侠的博客 </title>
+  <title> MySql MVCC多版本并发读 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -280,8 +280,8 @@
   
   
 
-  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-11-16-记一次java偏向锁优化.html">
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-1-MVCC多版本并发读.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -302,7 +302,7 @@
             
             
               
-                记一次java偏向锁的优化
+                MySql MVCC多版本并发读
               
             
           </h1>
@@ -325,7 +325,7 @@
 
           
           
-             <span id="/2017-11-16-记一次java偏向锁优化.html" class="leancloud_visitors" data-flag-title="记一次java偏向锁的优化">
+             <span id="/2018-08-1-MVCC多版本并发读.html" class="leancloud_visitors" data-flag-title="MySql MVCC多版本并发读">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -352,32 +352,66 @@
       
 
       
-        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>最近查找服务时延增长的问题，通过在jvm启动前加参数：<code>-XX:+PrintGCApplicationStoppedTime</code>，打印日志如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">1.784: Total time for which application threads were stopped: 0.0541497 seconds, Stopping threads took: 0.0000441 seconds</span><br><span class="line">1.933: Total time for which application threads were stopped: 0.0004939 seconds, Stopping threads took: 0.0000210 seconds</span><br><span class="line">2.013: Total time for which application threads were stopped: 0.0003884 seconds, Stopping threads took: 0.0000223 seconds</span><br><span class="line">2.014: Total time for which application threads were stopped: 0.0001317 seconds, Stopping threads took: 0.0000117 seconds</span><br><span class="line">2.505: Total time for which application threads were stopped: 0.0007190 seconds, Stopping threads took: 0.0000516 seconds</span><br><span class="line">2.519: Total time for which application threads were stopped: 0.0005469 seconds, Stopping threads took: 0.0000273 seconds</span><br><span class="line">2.894: Total time for which application threads were stopped: 0.0002649 seconds, Stopping threads took: 0.0000723 seconds</span><br><span class="line">3.171: Total time for which application threads were stopped: 0.0002707 seconds, Stopping threads took: 0.0000259 seconds</span><br><span class="line">3.899: Total time for which application threads were stopped: 0.0006577 seconds, Stopping threads took: 0.0000253 seconds</span><br><span class="line">4.057: Total time for which application threads were stopped: 0.0006618 seconds, Stopping threads took: 0.0000251 seconds</span><br><span class="line">4.130: Total time for which application threads were stopped: 0.0007136 seconds, Stopping threads took: 0.0000615 seconds</span><br><span class="line">4.218: Total time for which application threads were stopped: 0.0006155 seconds, Stopping threads took: 0.0000250 seconds</span><br><span class="line">4.406: Total time for which application threads were stopped: 0.0006617 seconds, Stopping threads took: 0.0000289 seconds</span><br><span class="line">4.427: Total time for which application threads were stopped: 0.0005132 seconds, Stopping threads took: 0.0000261 seconds</span><br><span class="line">4.510: Total time for which application threads were stopped: 0.0002178 seconds, Stopping threads took: 0.0000296 seconds</span><br><span class="line">4.622: [GC (Metadata GC Threshold) [PSYoungGen: 801127K-&gt;22368K(1223168K)] 820102K-&gt;41351K(4019712K), 0.0195913 secs] [Times: user=0.11 sys=0.07, real=0.02 secs] </span><br><span class="line">4.641: [Full GC (Metadata GC Threshold) [PSYoungGen: 22368K-&gt;0K(1223168K)] [ParOldGen: 18983K-&gt;29281K(2796544K)] 41351K-&gt;29281K(4019712K), [Metaspace: 34906K-&gt;34906K(1079296K)], 0.0481762 secs] [Times: user=0.39 sys=0.03, real=0.05 secs]</span><br></pre></td></tr></table></figure>
-<p>发现有大量的Total time for which application threads were stopped的日志，尽管耗时不多，但是比较密集，整体耗时也不算少。
-查阅资料确认这个是由于线程进入safepoint导致的停顿。
-那么safepoint是什么？</p>
-<h2 id="SafePoint"><a href="#SafePoint" class="headerlink" title="SafePoint"></a>SafePoint</h2><blockquote>
-<p>Safepoint是java代码中一个线程可能暂停执行的一个位置，SafePoint保存了其他位置没有的一些运行信息。在这个位置上保存了线程上下文的任何信息，包括对象或者非对象的内部指针。在接收到JVM的进入Stop The World 的信息，在safepoint上，用户线程会被挂起。如果JNI代码想要访问在安全点上的用户线程，那么JNI所在线程也会阻塞直到用户线程离开安全点。因为在安全点上jvm线程信息被很好的描述，所以特别适合做一些全局性的操作，例如代码反优化，线程快照等等。<a href="http://peg.hengtiansoft.com/article/jvm-zhong-de-safepoint/" target="_blank" rel="noopener">http://peg.hengtiansoft.com/article/jvm-zhong-de-safepoint/</a></p>
+        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>MVCC是一种多版本并发控制机制。提供非锁定一致性读。</p>
+<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><ul>
+<li>消除锁开销</li>
+<li>提高并行性度</li>
+</ul>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>InnoDB为了实现多版本的一致读，采用的是基于回滚段的协议。</p>
+<h3 id="行结构"><a href="#行结构" class="headerlink" title="行结构"></a>行结构</h3><p>InnoDB表数据的组织方式为主键聚簇索引。由于采用索引组织表结构，记录的ROWID是可变的(索引页分裂的时候，Structure Modification Operation，SMO)，因此二级索引中采用的是(索引键值, 主键键值)的组合来唯一确定一条记录。</p>
+<p>无论是聚簇索引，还是二级索引，其每条记录都包含了一个DELETED BIT位，用于标识该记录是否是删除记录。除此之外，聚簇索引记录还有两个系统列：DATA_TRX_ID，DATA_ROLL_PTR。DATA _TRX_ID表示产生当前记录项的事务ID；DATA _ROLL_PTR指向当前记录项的undo信息。</p>
+<p>聚簇索引行结构(与多版本一致读有关的部分，DELETED BIT省略)：
+聚集索引结构：
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">|---------------|</span><br><span class="line">| primary Key 1 |</span><br><span class="line">| primary Key 2 |</span><br><span class="line">| DB_TRX_ID     |</span><br><span class="line">| DB_ROLL_PTR   |</span><br><span class="line">| other columns |</span><br></pre></td></tr></table></figure></p>
+<p>二级索引结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">|---------------|</span><br><span class="line">| Index Key 1   |</span><br><span class="line">| Index Key 2   |</span><br><span class="line">| Primary Key 1 |</span><br><span class="line">| Primary Key 2 |</span><br></pre></td></tr></table></figure>
+<p>简单的来说：
+InnoDB的MVCC,是通过在每行记录后面保存两个隐藏的列来实现的,这两个列，分别保存了这个行的创建时间，一个保存的是行的删除时间。这里存储的并不是实际的时间值,而是系统版本号(可以理解为事务的ID)，没开始一个新的事务，系统版本号就会自动递增，事务开始时刻的系统版本号会作为事务的ID.
+example:</p>
+<table>
+<thead>
+<tr>
+  <th>id</th>
+  <th>name</th>
+  <th>创建时间(事务ID)</th>
+  <th>删除时间(事务ID)</th>
+</tr>
+</thead>
+<tbody><tr>
+  <td>1</td>
+  <td>yang</td>
+  <td>1</td>
+  <td>undefined</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>long</td>
+  <td>1</td>
+  <td>undefined</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>fei</td>
+  <td>1</td>
+  <td>undefined</td>
+</tr>
+</tbody></table>
+
+
+<p> 从聚簇索引行结构，与二级索引行结构可以看出，聚簇索引中包含版本信息(事务号+回滚指针)，二级索引不包含版本信息，二级索引项的可见性如何判断？下面将会给出。</p>
+<p>Read View
+InnoDB默认的隔离级别为Repeatable Read (RR)，可重复读。InnoDB在开始一个RR读之前，会创建一个Read View。Read View用于判断一条记录的可见性。Read View定义在read0read.h文件中，其中最主要的与可见性相关的属性如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">  dulint    low_limit_id;    <span class="comment">/* 事务号 &gt;= low_limit_id的记录，对于当前Read View都是不可见的 */</span></span><br><span class="line"></span><br><span class="line">    dulint    up_limit_id;    <span class="comment">/* 事务号 &lt; up_limit_id ，对于当前Read View都是可见的 */</span></span><br><span class="line"></span><br><span class="line">    ulint    n_trx_ids;    <span class="comment">/* Number of cells in the trx_ids array */</span></span><br><span class="line"></span><br><span class="line">    dulint*    trx_ids;    <span class="comment">/* Additional trx ids which the read should</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                not see: typically, these are the active</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                transactions at the time when the read is</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                serialized, except the reading transaction</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                itself; the trx ids in this array are in a</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                descending order */</span></span><br><span class="line"></span><br><span class="line">dulint    creator_trx_id;    <span class="comment">/* trx id of creating transaction, or</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                (0, 0) used in purge */</span></span><br></pre></td></tr></table></figure>
+<p>简单来说，Read View记录读开始时，所有的活动事务，这些事务所做的修改对于Read View是不可见的。除此之外，所有其他的小于创建Read View的事务号的所有记录均可见。可见包括两层含义：</p>
+<p>记录可见，且Deleted bit = 0；当前记录是可见的有效记录。
+记录可见，且Deleted bit = 1；当前记录是可见的删除记录。此记录在本事务开始之前，已经删除。</p>
+<h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><blockquote>
+<p>InnoDB中如果设置数据库隔离级别是RR的话，会用到InnoDB的mvcc机制，我的理解mvcc是在每行记录的后面加了两列，分别表示更新版本和删除版本，这样的话普通的快照读就不需要加锁，直接判断版本号，只读取更新版本小于当前事务版本以及删除版本为空或小于当前事务版本的，我的理解这两列版本是在聚簇索引里面存放，那么问题来了，覆盖索引是因为只走索引而不需要查询聚簇索引所以速度很快，但是只走索引怎么检查版本号，不检查版本号怎么保证幻行的发生，亦或是索引本身也有版本号？</p>
 </blockquote>
-<blockquote>
-<p>一个线程可以在SafePoint上，也可以不在SafePoint上。一个线程在SafePoint时，它的状态可以安全地其他JVM线程所操作和观测；不在SafePoint时，就不能。在SafePoint上不代表被阻塞（比如：JNI方法就可以在SafePoint上运行），但是被阻塞一定发生在SafePoint上。当JVM决定达到一个全局的SafePoint（也叫做Stop the World），JVM里面所有的线程都要在SafePoint上并且不能离开，直到JVM让线程允许为止。这对要求所有线程都要被良好的描述的操作(比如CG，代码反优化等等)非常有好处。一些JVM可以持有一些私有的线程到SafePoint上而不需要全局的SafePoint，比如Zing.当你写一些非安全的代码的时候，你必须假设SafePoint有可能发生在任何两个字节码之间。非安全代码的调用并不要求必须有安全点，但是他们可以包含一个或者多个安全点。所有类型的JVM有一些效率非常高的技巧和去快速的穿过SafePoint，线程并不需要真正地进入SafePoint除非虚拟机指示线程这么做。所有的JNI方法都在SafePoint上执行。在安全点，JNI代码都不能改变和观测发起调用JNI代码线程的java机器状态。任何通过JNI API改变和观测调用线程的状态必须在调用线程离开安全点之后，以及再次进入SafePoint之前的时间内发生。 </p>
-</blockquote>
-<p>深入了解 ，请查阅：<a href="https://www.zhihu.com/question/57722838/answer/156390795" target="_blank" rel="noopener">https://www.zhihu.com/question/57722838/answer/156390795</a></p>
-<p>什时候线程需要进入SafePoint的呢
-看一下OpenJDK里面关于safepoint的一些说明：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">// Begin the process of bringing the system to a safepoint.    </span><br><span class="line">// Java threads can be in several different states and are    </span><br><span class="line">// stopped by different mechanisms:    </span><br><span class="line">//    </span><br><span class="line">//  1. Running interpreted    </span><br><span class="line">//     The interpeter dispatch table is changed to force it to    </span><br><span class="line">//     check for a safepoint condition between bytecodes.    </span><br><span class="line">//  2. Running in native code    </span><br><span class="line">//     When returning from the native code, a Java thread must check    </span><br><span class="line">//     the safepoint _state to see if we must block.  If the    </span><br><span class="line">//     VM thread sees a Java thread in native, it does    </span><br><span class="line">//     not wait for this thread to block.  The order of the memory    </span><br><span class="line">//     writes and reads of both the safepoint state and the Java    </span><br><span class="line">//     threads state is critical.  In order to guarantee that the    </span><br><span class="line">//     memory writes are serialized with respect to each other,    </span><br><span class="line">//     the VM thread issues a memory barrier instruction    </span><br><span class="line">//     (on MP systems).  In order to avoid the overhead of issuing    </span><br><span class="line">//     a mem barrier for each Java thread making native calls, each Java    </span><br><span class="line">//     thread performs a write to a single memory page after changing    </span><br><span class="line">//     the thread state.  The VM thread performs a sequence of    </span><br><span class="line">//     mprotect OS calls which forces all previous writes from all    </span><br><span class="line">//     Java threads to be serialized.  This is done in the    </span><br><span class="line">//     os::serialize_thread_states() call.  This has proven to be    </span><br><span class="line">//     much more efficient than executing a membar instruction    </span><br><span class="line">//     on every call to native code.    </span><br><span class="line">//  3. Running compiled Code    </span><br><span class="line">//     Compiled code reads a global (Safepoint Polling) page that    </span><br><span class="line">//     is set to fault if we are trying to get to a safepoint.    </span><br><span class="line">//  4. Blocked    </span><br><span class="line">//     A thread which is blocked will not be allowed to return from the    </span><br><span class="line">//     block condition until the safepoint operation is complete.    </span><br><span class="line">//  5. In VM or Transitioning between states    </span><br><span class="line">//     If a Java thread is currently running in the VM or transitioning    </span><br><span class="line">//     between states, the safepointing code will wait for the thread to    </span><br><span class="line">//     block itself when it attempts transitions to a new state.</span><br></pre></td></tr></table></figure>
-<p><a href="http://blog.csdn.net/iter_zc/article/details/41892567" target="_blank" rel="noopener">http://blog.csdn.net/iter_zc/article/details/41892567</a>
-读完也不能确认具体哪些场景会导致线程进入SafePoint,不过印象中貌似偏向锁的释放会涉及到SafePoint
-google发现：</p>
-<blockquote>
-<p>偏向锁的撤销，需要等待全局安全点（在这个时间点上没有字节码正在执行），它会首先暂停拥有偏向锁的线程，判断锁对象是否处于被锁定状态，撤销偏向锁后恢复到未锁定（标志位为“01”）或轻量级锁（标志位为“00”）的状态。</p>
-</blockquote>
-<p>看到这里，我们至少有理由相信，偏向锁竞争失败也是导致线程进入SafePoint的一个原因。
-接下来要详细了解一下偏向锁</p>
-<h2 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h2><h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>高并发场景，如何优化呢？
-通过以下参数  <code>-XX:-UseBiasedLocking</code>禁用偏向锁。这一点在很多jvm性能调优里面也可以看到，说明偏向锁在高并发的损耗还是不容忽视的。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>
+<p>覆盖索引遇到mvcc的情况，因为非聚集索引里面没有存放版本号的相关信息，所以要查版本号来实现读的可见性那么一定是要去查聚集索引的。
+结论是：二级索引的可见性需要查询聚集索引来完成。
+所以另外一个推论是:覆盖索引并不是所有的时候都那么有用。</p>
+
       
     </div>
 
@@ -428,8 +462,8 @@ google发现：</p>
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-11-16-记一次服务时延增长问题排查.html" rel="next" title="记一次服务时延增长问题排查">
-                <i class="fa fa-chevron-left"></i> 记一次服务时延增长问题排查
+              <a href="/2018-07-31-Mysql文件-binlog日志.html" rel="next" title="MySql 文件-binlog">
+                <i class="fa fa-chevron-left"></i> MySql 文件-binlog
               </a>
             
           </div>
@@ -437,10 +471,6 @@ google发现：</p>
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017-11-19-小记JVM参数调优（初）.html" rel="prev" title="记JVM参数调优">
-                记JVM参数调优 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -605,7 +635,7 @@ google发现：</p>
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SafePoint"><span class="nav-number">2.</span> <span class="nav-text">SafePoint</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#偏向锁"><span class="nav-number">3.</span> <span class="nav-text">偏向锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化"><span class="nav-number">4.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#作用"><span class="nav-number">2.</span> <span class="nav-text">作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">3.</span> <span class="nav-text">实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#行结构"><span class="nav-number">3.1.</span> <span class="nav-text">行结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思考"><span class="nav-number">4.</span> <span class="nav-text">思考</span></a></li></ol></div>
             
 
           </div>

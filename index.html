@@ -281,6 +281,138 @@
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-1-MVCC多版本并发读.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018-08-1-MVCC多版本并发读.html" itemprop="url">
+                  MySql MVCC多版本并发读
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-08-1-MVCC多版本并发读.html" class="leancloud_visitors" data-flag-title="MySql MVCC多版本并发读">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          概念MVCC是一种多版本并发控制机制。提供非锁定一致性读。
+作用
+消除锁开销
+提高并行性度
+
+实现原理InnoDB为了实现多版本的一致读，采用的是基于回滚段的协议。
+行结构InnoDB表数据的组织方式为主键聚簇索引。由于采用索引组织表结构，记录的ROWID是可变的(索引页分裂的时候，Structur
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018-08-1-MVCC多版本并发读.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-31-Mysql文件-binlog日志.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -408,7 +540,7 @@
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-MySQL的体系结构及存储引擎.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -430,8 +562,8 @@
             
               
                 
-                <a class="post-title-link" href="/2018-07-29-MySQL的体系结构及存储引擎.html" itemprop="url">
-                  MySQL的体系结构及存储引擎
+                <a class="post-title-link" href="/2018-07-29-InnoDB Checkpoint机制.html" itemprop="url">
+                  InnoDB的Checkpoint机制
                 </a>
               
             
@@ -455,7 +587,7 @@
 
           
           
-             <span id="/2018-07-29-MySQL的体系结构及存储引擎.html" class="leancloud_visitors" data-flag-title="MySQL的体系结构及存储引擎">
+             <span id="/2018-07-29-InnoDB Checkpoint机制.html" class="leancloud_visitors" data-flag-title="InnoDB的Checkpoint机制">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -484,15 +616,271 @@
       
         
           
-          
+          写在前面
+从上图（Mysq InnoDB存储引擎架构图）我们可以看到比较核心的一块就是InnoDB存储引擎内存池。缓冲池的设计目的是为了协调CPU速度和磁盘速度的鸿沟。页的操作首先是再缓冲池中完成的。
 
-Connectors 指的是不同的语言是Mysql的交互；
-Management Serveices &amp; Utilities： 系统管理和控制工具，例如备份恢复、Mysql复制、集群等 ；
-Connection Pool: 连接池：管理缓冲用户连接、用户名、密码、权限校验、线程处理等需要
+如果一条DML语句，如Update或Delete改变了页中的记录，那么此时页是脏的,即缓冲池中页
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-07-29-MySQL的体系结构及存储引擎.html#more" rel="contents">
+            <a class="btn" href="/2018-07-29-InnoDB Checkpoint机制.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB关键特性.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018-07-29-InnoDB关键特性.html" itemprop="url">
+                  InnoDB的关键特性
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-07-29-InnoDB关键特性.html" class="leancloud_visitors" data-flag-title="InnoDB的关键特性">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          InnoDB的关键特性InnoDB是一个完整支持事务的Mysql存储引擎，也是Mysql的默认引擎。特点是行锁设计、支持MVCC、支持外键、提供一致性非锁定读。同时也被设计用来最有效地利用以及使用内存和CPU。
+关键特性如下：
+
+插入缓冲（Insert Buffer）
+两次写（Double Writ
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018-07-29-InnoDB关键特性.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB的内存结构.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018-07-29-InnoDB的内存结构.html" itemprop="url">
+                  InnoDB的内存结构
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-07-29-InnoDB的内存结构.html" class="leancloud_visitors" data-flag-title="InnoDB的内存结构">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
+对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018-07-29-InnoDB的内存结构.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -669,7 +1057,7 @@ Master Thread（InnoD
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB关键特性.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-MySQL的体系结构及存储引擎.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -691,8 +1079,8 @@ Master Thread（InnoD
             
               
                 
-                <a class="post-title-link" href="/2018-07-29-InnoDB关键特性.html" itemprop="url">
-                  InnoDB的关键特性
+                <a class="post-title-link" href="/2018-07-29-MySQL的体系结构及存储引擎.html" itemprop="url">
+                  MySQL的体系结构及存储引擎
                 </a>
               
             
@@ -716,7 +1104,7 @@ Master Thread（InnoD
 
           
           
-             <span id="/2018-07-29-InnoDB关键特性.html" class="leancloud_visitors" data-flag-title="InnoDB的关键特性">
+             <span id="/2018-07-29-MySQL的体系结构及存储引擎.html" class="leancloud_visitors" data-flag-title="MySQL的体系结构及存储引擎">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -745,271 +1133,15 @@ Master Thread（InnoD
       
         
           
-          InnoDB的关键特性InnoDB是一个完整支持事务的Mysql存储引擎，也是Mysql的默认引擎。特点是行锁设计、支持MVCC、支持外键、提供一致性非锁定读。同时也被设计用来最有效地利用以及使用内存和CPU。
-关键特性如下：
+          
 
-插入缓冲（Insert Buffer）
-两次写（Double Writ
+Connectors 指的是不同的语言是Mysql的交互；
+Management Serveices &amp; Utilities： 系统管理和控制工具，例如备份恢复、Mysql复制、集群等 ；
+Connection Pool: 连接池：管理缓冲用户连接、用户名、密码、权限校验、线程处理等需要
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-07-29-InnoDB关键特性.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018-07-29-InnoDB Checkpoint机制.html" itemprop="url">
-                  InnoDB的Checkpoint机制
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2018-07-29-InnoDB Checkpoint机制.html" class="leancloud_visitors" data-flag-title="InnoDB的Checkpoint机制">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          写在前面
-从上图（Mysq InnoDB存储引擎架构图）我们可以看到比较核心的一块就是InnoDB存储引擎内存池。缓冲池的设计目的是为了协调CPU速度和磁盘速度的鸿沟。页的操作首先是再缓冲池中完成的。
-
-如果一条DML语句，如Update或Delete改变了页中的记录，那么此时页是脏的,即缓冲池中页
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018-07-29-InnoDB Checkpoint机制.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB的内存结构.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018-07-29-InnoDB的内存结构.html" itemprop="url">
-                  InnoDB的内存结构
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2018-07-29-InnoDB的内存结构.html" class="leancloud_visitors" data-flag-title="InnoDB的内存结构">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
-对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018-07-29-InnoDB的内存结构.html#more" rel="contents">
+            <a class="btn" href="/2018-07-29-MySQL的体系结构及存储引擎.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1432,135 +1564,6 @@ Java DNS Cache缓存源代码 InetAddress123456789101112131415161718192021222324
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-java " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-07-JVM异常体系及异常机制.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018-07-07-JVM异常体系及异常机制.html" itemprop="url">
-                  JVM异常体系及异常机制
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2018-07-07-JVM异常体系及异常机制.html" class="leancloud_visitors" data-flag-title="JVM异常体系及异常机制">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          JVM 异常的本质
-Java异常时java语言支持的唯一之中错误上报机制。
-
-JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeEx
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018-07-07-JVM异常体系及异常机制.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1610,7 +1613,7 @@ JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-count">64</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
