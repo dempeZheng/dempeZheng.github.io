@@ -413,6 +413,133 @@
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-1-Mysql的复制-半同步复制.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018-08-1-Mysql的复制-半同步复制.html" itemprop="url">
+                  Mysql的半同步复制（转）
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-08-1-Mysql的复制-半同步复制.html" class="leancloud_visitors" data-flag-title="Mysql的半同步复制（转）">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          Mysql复制架构的演变
+在2000年，MySQL 3.23.15版本引入了Replication。Replication作为一种准实时同步方式，得到广泛应用。这个时候的Replicaton的实现涉及到两个线程，一个在Master，一个在Slave。Slave的I/O和SQL功能是作为一个线程，从M
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018-08-1-Mysql的复制-半同步复制.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-31-Mysql文件-binlog日志.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -669,6 +796,133 @@
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB的内存结构.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018-07-29-InnoDB的内存结构.html" itemprop="url">
+                  InnoDB的内存结构
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-07-29-InnoDB的内存结构.html" class="leancloud_visitors" data-flag-title="InnoDB的内存结构">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
+对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018-07-29-InnoDB的内存结构.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB关键特性.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -799,7 +1053,7 @@
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB的内存结构.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-MySQL的体系结构及存储引擎.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -821,8 +1075,8 @@
             
               
                 
-                <a class="post-title-link" href="/2018-07-29-InnoDB的内存结构.html" itemprop="url">
-                  InnoDB的内存结构
+                <a class="post-title-link" href="/2018-07-29-MySQL的体系结构及存储引擎.html" itemprop="url">
+                  MySQL的体系结构及存储引擎
                 </a>
               
             
@@ -846,7 +1100,7 @@
 
           
           
-             <span id="/2018-07-29-InnoDB的内存结构.html" class="leancloud_visitors" data-flag-title="InnoDB的内存结构">
+             <span id="/2018-07-29-MySQL的体系结构及存储引擎.html" class="leancloud_visitors" data-flag-title="MySQL的体系结构及存储引擎">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -875,12 +1129,15 @@
       
         
           
-          InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
-对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁
+          
+
+Connectors 指的是不同的语言是Mysql的交互；
+Management Serveices &amp; Utilities： 系统管理和控制工具，例如备份恢复、Mysql复制、集群等 ；
+Connection Pool: 连接池：管理缓冲用户连接、用户名、密码、权限校验、线程处理等需要
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-07-29-InnoDB的内存结构.html#more" rel="contents">
+            <a class="btn" href="/2018-07-29-MySQL的体系结构及存储引擎.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1012,136 +1269,6 @@ Master Thread（InnoD
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2018-07-29-InnoDB后台线程.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-MySQL的体系结构及存储引擎.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018-07-29-MySQL的体系结构及存储引擎.html" itemprop="url">
-                  MySQL的体系结构及存储引擎
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2018-07-29-MySQL的体系结构及存储引擎.html" class="leancloud_visitors" data-flag-title="MySQL的体系结构及存储引擎">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          
-
-Connectors 指的是不同的语言是Mysql的交互；
-Management Serveices &amp; Utilities： 系统管理和控制工具，例如备份恢复、Mysql复制、集群等 ；
-Connection Pool: 连接池：管理缓冲用户连接、用户名、密码、权限校验、线程处理等需要
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018-07-29-MySQL的体系结构及存储引擎.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1432,138 +1559,6 @@ Connection Pool: 连接池：管理缓冲用户连接、用户名、密码、权
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-札记 " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-11-Java DNS cache.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018-07-11-Java DNS cache.html" itemprop="url">
-                  Java DNS Cache小记
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2018-07-11-Java DNS cache.html" class="leancloud_visitors" data-flag-title="Java DNS Cache小记">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          写在前面默认缓存时间30s
-缓存策略：
-永不过期
-禁用缓存
-设置缓存时间ttl
-
-Java DNS Cache缓存源代码 InetAddress123456789101112131415161718192021222324252627282930313233343536373839404142pri
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018-07-11-Java DNS cache.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1613,7 +1608,7 @@ Java DNS Cache缓存源代码 InetAddress123456789101112131415161718192021222324
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

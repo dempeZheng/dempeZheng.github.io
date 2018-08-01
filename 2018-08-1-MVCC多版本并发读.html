@@ -95,7 +95,7 @@
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="概念MVCC是一种多版本并发控制机制。提供非锁定一致性读。 作用 消除锁开销 提高并行性度  实现原理InnoDB为了实现多版本的一致读，采用的是基于回滚段的协议。 行结构InnoDB表数据的组织方式为主键聚簇索引。由于采用索引组织表结构，记录的ROWID是可变的(索引页分裂的时候，Structure Modification Operation，SMO)，因此二级索引中采用的是(索引键值, 主键">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-08-01T00:47:34.174Z">
+<meta property="og:updated_time" content="2018-08-01T00:52:37.612Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySql MVCC多版本并发读">
 <meta name="twitter:description" content="概念MVCC是一种多版本并发控制机制。提供非锁定一致性读。 作用 消除锁开销 提高并行性度  实现原理InnoDB为了实现多版本的一致读，采用的是基于回滚段的协议。 行结构InnoDB表数据的组织方式为主键聚簇索引。由于采用索引组织表结构，记录的ROWID是可变的(索引页分裂的时候，Structure Modification Operation，SMO)，因此二级索引中采用的是(索引键值, 主键">
@@ -399,18 +399,16 @@ example:</p>
 
 
 <p> 从聚簇索引行结构，与二级索引行结构可以看出，聚簇索引中包含版本信息(事务号+回滚指针)，二级索引不包含版本信息，二级索引项的可见性如何判断？下面将会给出。</p>
-<p>Read View
-InnoDB默认的隔离级别为Repeatable Read (RR)，可重复读。InnoDB在开始一个RR读之前，会创建一个Read View。Read View用于判断一条记录的可见性。Read View定义在read0read.h文件中，其中最主要的与可见性相关的属性如下：</p>
+<p><code>Read View</code>
+InnoDB默认的隔离级别为<code>Repeatable Read (RR)</code>，可重复读。InnoDB在开始一个RR读之前，会创建一个Read View。Read View用于判断一条记录的可见性。Read View定义在read0read.h文件中，其中最主要的与可见性相关的属性如下：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">  dulint    low_limit_id;    <span class="comment">/* 事务号 &gt;= low_limit_id的记录，对于当前Read View都是不可见的 */</span></span><br><span class="line"></span><br><span class="line">    dulint    up_limit_id;    <span class="comment">/* 事务号 &lt; up_limit_id ，对于当前Read View都是可见的 */</span></span><br><span class="line"></span><br><span class="line">    ulint    n_trx_ids;    <span class="comment">/* Number of cells in the trx_ids array */</span></span><br><span class="line"></span><br><span class="line">    dulint*    trx_ids;    <span class="comment">/* Additional trx ids which the read should</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                not see: typically, these are the active</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                transactions at the time when the read is</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                serialized, except the reading transaction</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                itself; the trx ids in this array are in a</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                descending order */</span></span><br><span class="line"></span><br><span class="line">dulint    creator_trx_id;    <span class="comment">/* trx id of creating transaction, or</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">                (0, 0) used in purge */</span></span><br></pre></td></tr></table></figure>
-<p>简单来说，Read View记录读开始时，所有的活动事务，这些事务所做的修改对于Read View是不可见的。除此之外，所有其他的小于创建Read View的事务号的所有记录均可见。可见包括两层含义：</p>
+<p>Read View记录读开始时，所有的活动事务，这些事务所做的修改对于Read View是不可见的。除此之外，所有其他的小于创建Read View的事务号的所有记录均可见。可见包括两层含义：</p>
 <p>记录可见，且Deleted bit = 0；当前记录是可见的有效记录。
 记录可见，且Deleted bit = 1；当前记录是可见的删除记录。此记录在本事务开始之前，已经删除。</p>
 <h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><blockquote>
 <p>InnoDB中如果设置数据库隔离级别是RR的话，会用到InnoDB的mvcc机制，我的理解mvcc是在每行记录的后面加了两列，分别表示更新版本和删除版本，这样的话普通的快照读就不需要加锁，直接判断版本号，只读取更新版本小于当前事务版本以及删除版本为空或小于当前事务版本的，我的理解这两列版本是在聚簇索引里面存放，那么问题来了，覆盖索引是因为只走索引而不需要查询聚簇索引所以速度很快，但是只走索引怎么检查版本号，不检查版本号怎么保证幻行的发生，亦或是索引本身也有版本号？</p>
 </blockquote>
-<p>覆盖索引遇到mvcc的情况，因为非聚集索引里面没有存放版本号的相关信息，所以要查版本号来实现读的可见性那么一定是要去查聚集索引的。
-结论是：二级索引的可见性需要查询聚集索引来完成。
-所以另外一个推论是:覆盖索引并不是所有的时候都那么有用。</p>
+<p>覆盖索引遇到mvcc的情况，因为非聚集索引里面没有存放版本号的相关信息，所以要查版本号来实现读的可见性那么一定是要去查聚集索引的。<br>结论是：<code>二级索引的可见性需要查询聚集索引来完成</code>.<br>所以另外一个推论是:覆盖索引并不是所有的时候都那么有用。</p>
 
       
     </div>
@@ -462,8 +460,8 @@ InnoDB默认的隔离级别为Repeatable Read (RR)，可重复读。InnoDB在开
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-31-Mysql文件-binlog日志.html" rel="next" title="MySql 文件-binlog">
-                <i class="fa fa-chevron-left"></i> MySql 文件-binlog
+              <a href="/2018-08-1-Mysql的复制-半同步复制.html" rel="next" title="Mysql的半同步复制（转）">
+                <i class="fa fa-chevron-left"></i> Mysql的半同步复制（转）
               </a>
             
           </div>
@@ -544,7 +542,7 @@ InnoDB默认的隔离级别为Repeatable Read (RR)，可重复读。InnoDB在开
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
