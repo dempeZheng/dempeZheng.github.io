@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="mysql,InnoDB,Master Thread" />
+  <meta name="keywords" content="mysql,InnoDB,mvcc,一致性非锁定读" />
 
 
 
@@ -87,21 +87,20 @@
 
 
 
-<meta name="description" content="InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：   [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主">
-<meta name="keywords" content="mysql,InnoDB,Master Thread">
+<meta name="description" content="概念一致性非锁定读（consistent nonlocking read）是指InnoDB存储引擎通过行多版本控制（MVCC）的方式来读取当前执行时间数据库中行的数据。如果读取数据的行正在执行DELETE或UPDATE操作，这是读取的操作不会因此去等待锁的释放。而是会直接读取行的一个快照数据。  上图可以直观展示出查询不需要等待访问数据行上面的X锁的释放，而是直接读取快照版本。（快照版本主要是通过">
+<meta name="keywords" content="mysql,InnoDB,mvcc,一致性非锁定读">
 <meta property="og:type" content="article">
-<meta property="og:title" content="InnoDB的后台线程">
-<meta property="og:url" content="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html">
+<meta property="og:title" content="InnoDB一致性非锁定读">
+<meta property="og:url" content="http://www.zhizus.com/2018-08-6-InnoDB一致性非锁定读.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：   [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主">
+<meta property="og:description" content="概念一致性非锁定读（consistent nonlocking read）是指InnoDB存储引擎通过行多版本控制（MVCC）的方式来读取当前执行时间数据库中行的数据。如果读取数据的行正在执行DELETE或UPDATE操作，这是读取的操作不会因此去等待锁的释放。而是会直接读取行的一个快照数据。  上图可以直观展示出查询不需要等待访问数据行上面的X锁的释放，而是直接读取快照版本。（快照版本主要是通过">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://www.zhizus.com/images/1532827884301.png">
-<meta property="og:image" content="http://www.zhizus.com/images/1532826905089.png">
-<meta property="og:updated_time" content="2018-07-30T01:04:20.049Z">
+<meta property="og:image" content="http://www.zhizus.com/images/非锁定的一致性读.png">
+<meta property="og:updated_time" content="2018-08-06T00:55:11.151Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="InnoDB的后台线程">
-<meta name="twitter:description" content="InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：   [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主">
-<meta name="twitter:image" content="http://www.zhizus.com/images/1532827884301.png">
+<meta name="twitter:title" content="InnoDB一致性非锁定读">
+<meta name="twitter:description" content="概念一致性非锁定读（consistent nonlocking read）是指InnoDB存储引擎通过行多版本控制（MVCC）的方式来读取当前执行时间数据库中行的数据。如果读取数据的行正在执行DELETE或UPDATE操作，这是读取的操作不会因此去等待锁的释放。而是会直接读取行的一个快照数据。  上图可以直观展示出查询不需要等待访问数据行上面的X锁的释放，而是直接读取快照版本。（快照版本主要是通过">
+<meta name="twitter:image" content="http://www.zhizus.com/images/非锁定的一致性读.png">
 
 
 
@@ -129,13 +128,13 @@
 
 
 
-  <link rel="canonical" href="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2018-08-6-InnoDB一致性非锁定读.html"/>
 
 
 
 
 
-  <title> InnoDB的后台线程 | 郑大侠的博客 </title>
+  <title> InnoDB一致性非锁定读 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -284,7 +283,7 @@
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-6-InnoDB一致性非锁定读.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -305,7 +304,7 @@
             
             
               
-                InnoDB的后台线程
+                InnoDB一致性非锁定读
               
             
           </h1>
@@ -328,7 +327,7 @@
 
           
           
-             <span id="/2018-07-29-InnoDB后台线程.html" class="leancloud_visitors" data-flag-title="InnoDB的后台线程">
+             <span id="/2018-08-6-InnoDB一致性非锁定读.html" class="leancloud_visitors" data-flag-title="InnoDB一致性非锁定读">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -355,22 +354,27 @@
       
 
       
-        <h2 id="InnoDB的后台线程"><a href="#InnoDB的后台线程" class="headerlink" title="InnoDB的后台线程"></a>InnoDB的后台线程</h2><p>InnoDB是单进程多线程，主要的后台线程有：</p>
-<p><img src="./images/1532827884301.png" alt="Alt text"></p>
+        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>一致性非锁定读（<code>consistent nonlocking read</code>）是指InnoDB存储引擎通过行多版本控制（MVCC）的方式来读取当前执行时间数据库中行的数据。如果读取数据的行正在执行DELETE或UPDATE操作，这是读取的操作不会因此去等待锁的释放。而是会直接读取行的一个快照数据。</p>
+<p><img src="./images/非锁定的一致性读.png" alt="Alt text">
+上图可以直观展示出查询不需要等待访问数据行上面的X锁的释放，而是直接读取快照版本。（快照版本主要是通过undo端来记录），由于快照数据没有被修改的场景，因此读取快照数据是不需要上锁的。这也是为什么被成为一致性非锁定读。</p>
+<h2 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h2><p>非锁定读机制极大的提高了数据库的并发性。这个也是InnoDB存储引擎默认的读取方式。
+但是再不同的事务隔离级别之下，读取的方式不同。且不是每个事务隔离级别都采用一致性非锁定读。</p>
+<p>在事务隔离级别READ COMMITTED和REPEATABLE READ(InnoDB存储引擎的默认隔离级别)下，InnoDB存储引擎使用非锁定一致性读。然而这两个隔离级别读取的快照数据定义也不同。</p>
+<h3 id="READ-COMMITTED隔离级别的一致性非锁定读"><a href="#READ-COMMITTED隔离级别的一致性非锁定读" class="headerlink" title="READ COMMITTED隔离级别的一致性非锁定读"></a>READ COMMITTED隔离级别的一致性非锁定读</h3><p>在READ COMMITTED事务隔离级别下，一致性非锁定读总是读取锁定行最新的一份快照版本。</p>
 <blockquote>
-<p><code>[注]</code> InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)</p>
+<p>[注]READ COMMITTED的事务隔离级别而言，从数据库理论角度来看，其违反了ACID中I（隔离）的特性。</p>
 </blockquote>
-<h2 id="Master-Thread（InnoDB-1-0-x之前的版本）"><a href="#Master-Thread（InnoDB-1-0-x之前的版本）" class="headerlink" title="Master Thread（InnoDB 1.0.x之前的版本）"></a>Master Thread（InnoDB 1.0.x之前的版本）</h2><p>master thread是一个非常核心的后台线程，具有<code>最高的线程级别</code>，主要负责将缓冲池中的数据异步刷新到磁盘，保证数据的一致性，包括：脏页（<code>dirty page</code>）的刷新、合并插入缓冲（<code>insert buffer merge</code>）、回滚页回收（<code>undo purge</code>）等。
-Master Thread 内部由多个循环（loop）组成：主循环（loop）、后台循环（background loop）、刷新循环（flush loop）、暂停循环（suspend loop）。Master Thread 会根据数据库运行状态在loop，background loop，flush loop 和suspend loop中进行切换。</p>
-<p>Loop被成为主循环，大多数的操作都是在这个循环中做的。分为两类：
-1）每秒操作 
-2）每10秒操作 
-伪代码如下： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">void  master_thread()&#123;</span><br><span class="line">loop:</span><br><span class="line">for(int i=0; i&lt;10; i++)&#123;</span><br><span class="line">	do thing once per second</span><br><span class="line">	sleep 1 second if neccessary</span><br><span class="line">&#125;</span><br><span class="line">do things once per 10 seconds</span><br><span class="line">goto loop;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，loop循环通过thread sleep来实现，这意味了每1s或者每10s的操作是不精确的，在负载很大的情况下可能会有延迟（delay）。只能说InnoDB会尽可能保证这个频率。</p>
-<p><img src="./images/1532826905089.png" alt="Alt text"></p>
-<p>上图清晰的描述出Master Thread的主要loop的工作及流转。如果仔细看的话，会发现很多硬编码的参数，随着磁盘的升级，有些参数可能已经不是最佳值了。
-InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。甚至可以做到根据数据库状态自适应。</p>
+<h3 id="REPEATABLE-READ隔离级别的一致性非锁定读"><a href="#REPEATABLE-READ隔离级别的一致性非锁定读" class="headerlink" title="REPEATABLE READ隔离级别的一致性非锁定读"></a>REPEATABLE READ隔离级别的一致性非锁定读</h3><p>在REPEATABLE READ事务隔离级别下，一致性非锁定读总是读取锁定行事务开始时行数据版本。</p>
+<h2 id="MVCC多版本并发读"><a href="#MVCC多版本并发读" class="headerlink" title="MVCC多版本并发读"></a>MVCC多版本并发读</h2><p><a href="http://zhizus.com/2018-08-1-MVCC%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E8%AF%BB.html" target="_blank" rel="noopener">InnoDB MVCC多版本并发读</a></p>
+<h2 id="一致性锁定读"><a href="#一致性锁定读" class="headerlink" title="一致性锁定读"></a>一致性锁定读</h2><p>在某些场景下，用户需要显示的对数据库读取操作进行加锁。InnoDB存储引擎对SELECT语句支持两个一致性锁定读（locking read）操作：</p>
+<ul>
+<li>SELECT … FOR UPDATE
+对读取的记录加一个X（排他锁），其他事务不能对已锁定的行加上任何锁。</li>
+<li>SELECT … LOCK IN SHARE MODE
+对读取的行加一个S锁（共享锁），其他的事务可以对想被锁定的行加S锁，但是如果加X锁，就会被阻塞。</li>
+</ul>
+<p>而对于一致性的非锁定读，及时读取的行已经执行了<code>SELECT ... FOR UPDATE</code>也是可以被执行的。</p>
+<p>另外，对于<code>SELECT ... FOR UPDATE</code>和<code>SELECT ... LOCK IN SHARE MODE</code>必须在事务中，当事务提交，锁就释放了。务必加上BEGIN,START TRANSATION 或者SET AUTOCOMMIT=0</p>
 
       
     </div>
@@ -422,8 +426,8 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-16-记一次Druid连接池CannotGetJdbcConnectionException问题排查.html" rel="next" title="记一次Druid连接池CannotGetJdbcConnectionException问题排查">
-                <i class="fa fa-chevron-left"></i> 记一次Druid连接池CannotGetJdbcConnectionException问题排查
+              <a href="/2018-08-6-SQL事务隔离级别.html" rel="next" title="SQL事务隔离级别">
+                <i class="fa fa-chevron-left"></i> SQL事务隔离级别
               </a>
             
           </div>
@@ -432,8 +436,8 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018-07-29-InnoDB关键特性.html" rel="prev" title="InnoDB的关键特性">
-                InnoDB的关键特性 <i class="fa fa-chevron-right"></i>
+              <a href="/2018-08-6-InnoDB Phantom Problem.html" rel="prev" title="InnoDB Phantom Problem(幻读)">
+                InnoDB Phantom Problem(幻读) <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -599,7 +603,7 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB的后台线程"><span class="nav-number">1.</span> <span class="nav-text">InnoDB的后台线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master-Thread（InnoDB-1-0-x之前的版本）"><span class="nav-number">2.</span> <span class="nav-text">Master Thread（InnoDB 1.0.x之前的版本）</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务隔离级别"><span class="nav-number">2.</span> <span class="nav-text">事务隔离级别</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#READ-COMMITTED隔离级别的一致性非锁定读"><span class="nav-number">2.1.</span> <span class="nav-text">READ COMMITTED隔离级别的一致性非锁定读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#REPEATABLE-READ隔离级别的一致性非锁定读"><span class="nav-number">2.2.</span> <span class="nav-text">REPEATABLE READ隔离级别的一致性非锁定读</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MVCC多版本并发读"><span class="nav-number">3.</span> <span class="nav-text">MVCC多版本并发读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一致性锁定读"><span class="nav-number">4.</span> <span class="nav-text">一致性锁定读</span></a></li></ol></div>
             
 
           </div>

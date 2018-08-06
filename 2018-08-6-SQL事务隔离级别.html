@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="mysql,InnoDB,Master Thread" />
+  <meta name="keywords" content="mysql,InnoDB,mvcc,一致性非锁定读" />
 
 
 
@@ -87,21 +87,18 @@
 
 
 
-<meta name="description" content="InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：   [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主">
-<meta name="keywords" content="mysql,InnoDB,Master Thread">
+<meta name="description" content="隔离级别的种类SQL标准定义了四种隔离级别（一般来说隔离级别越低，并发越高）  ​READ UNCOMMITTED(未提交读)  ​事务的修改即使没有提交，对其他事务也是可见的，也成为脏读。从性能上来说这个隔离级别没有比其他的隔离级别好太多，但是却会导致很多问题，在实际应用中一般很少用到   ​READ COMMITTED(提交读)  ​大多数的数据库系统默认的隔离级别都是READ COMMITT">
+<meta name="keywords" content="mysql,InnoDB,mvcc,一致性非锁定读">
 <meta property="og:type" content="article">
-<meta property="og:title" content="InnoDB的后台线程">
-<meta property="og:url" content="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html">
+<meta property="og:title" content="SQL事务隔离级别">
+<meta property="og:url" content="http://www.zhizus.com/2018-08-6-SQL事务隔离级别.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：   [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主">
+<meta property="og:description" content="隔离级别的种类SQL标准定义了四种隔离级别（一般来说隔离级别越低，并发越高）  ​READ UNCOMMITTED(未提交读)  ​事务的修改即使没有提交，对其他事务也是可见的，也成为脏读。从性能上来说这个隔离级别没有比其他的隔离级别好太多，但是却会导致很多问题，在实际应用中一般很少用到   ​READ COMMITTED(提交读)  ​大多数的数据库系统默认的隔离级别都是READ COMMITT">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://www.zhizus.com/images/1532827884301.png">
-<meta property="og:image" content="http://www.zhizus.com/images/1532826905089.png">
-<meta property="og:updated_time" content="2018-07-30T01:04:20.049Z">
+<meta property="og:updated_time" content="2018-08-06T01:03:19.839Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="InnoDB的后台线程">
-<meta name="twitter:description" content="InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：   [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)  Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主">
-<meta name="twitter:image" content="http://www.zhizus.com/images/1532827884301.png">
+<meta name="twitter:title" content="SQL事务隔离级别">
+<meta name="twitter:description" content="隔离级别的种类SQL标准定义了四种隔离级别（一般来说隔离级别越低，并发越高）  ​READ UNCOMMITTED(未提交读)  ​事务的修改即使没有提交，对其他事务也是可见的，也成为脏读。从性能上来说这个隔离级别没有比其他的隔离级别好太多，但是却会导致很多问题，在实际应用中一般很少用到   ​READ COMMITTED(提交读)  ​大多数的数据库系统默认的隔离级别都是READ COMMITT">
 
 
 
@@ -129,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html"/>
+  <link rel="canonical" href="http://www.zhizus.com/2018-08-6-SQL事务隔离级别.html"/>
 
 
 
 
 
-  <title> InnoDB的后台线程 | 郑大侠的博客 </title>
+  <title> SQL事务隔离级别 | 郑大侠的博客 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -284,7 +281,7 @@
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-6-SQL事务隔离级别.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -305,7 +302,7 @@
             
             
               
-                InnoDB的后台线程
+                SQL事务隔离级别
               
             
           </h1>
@@ -328,7 +325,7 @@
 
           
           
-             <span id="/2018-07-29-InnoDB后台线程.html" class="leancloud_visitors" data-flag-title="InnoDB的后台线程">
+             <span id="/2018-08-6-SQL事务隔离级别.html" class="leancloud_visitors" data-flag-title="SQL事务隔离级别">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -355,22 +352,80 @@
       
 
       
-        <h2 id="InnoDB的后台线程"><a href="#InnoDB的后台线程" class="headerlink" title="InnoDB的后台线程"></a>InnoDB的后台线程</h2><p>InnoDB是单进程多线程，主要的后台线程有：</p>
-<p><img src="./images/1532827884301.png" alt="Alt text"></p>
+        <h2 id="隔离级别的种类"><a href="#隔离级别的种类" class="headerlink" title="隔离级别的种类"></a>隔离级别的种类</h2><p>SQL标准定义了四种隔离级别（一般来说隔离级别越低，并发越高）</p>
+<ul>
+<li><p>​READ UNCOMMITTED(未提交读)</p>
 <blockquote>
-<p><code>[注]</code> InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)</p>
+<p>​事务的修改即使没有提交，对其他事务也是可见的，也成为脏读。从性能上来说这个隔离级别没有比其他的隔离级别好太多，但是却会导致很多问题，在实际应用中一般很少用到</p>
 </blockquote>
-<h2 id="Master-Thread（InnoDB-1-0-x之前的版本）"><a href="#Master-Thread（InnoDB-1-0-x之前的版本）" class="headerlink" title="Master Thread（InnoDB 1.0.x之前的版本）"></a>Master Thread（InnoDB 1.0.x之前的版本）</h2><p>master thread是一个非常核心的后台线程，具有<code>最高的线程级别</code>，主要负责将缓冲池中的数据异步刷新到磁盘，保证数据的一致性，包括：脏页（<code>dirty page</code>）的刷新、合并插入缓冲（<code>insert buffer merge</code>）、回滚页回收（<code>undo purge</code>）等。
-Master Thread 内部由多个循环（loop）组成：主循环（loop）、后台循环（background loop）、刷新循环（flush loop）、暂停循环（suspend loop）。Master Thread 会根据数据库运行状态在loop，background loop，flush loop 和suspend loop中进行切换。</p>
-<p>Loop被成为主循环，大多数的操作都是在这个循环中做的。分为两类：
-1）每秒操作 
-2）每10秒操作 
-伪代码如下： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">void  master_thread()&#123;</span><br><span class="line">loop:</span><br><span class="line">for(int i=0; i&lt;10; i++)&#123;</span><br><span class="line">	do thing once per second</span><br><span class="line">	sleep 1 second if neccessary</span><br><span class="line">&#125;</span><br><span class="line">do things once per 10 seconds</span><br><span class="line">goto loop;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，loop循环通过thread sleep来实现，这意味了每1s或者每10s的操作是不精确的，在负载很大的情况下可能会有延迟（delay）。只能说InnoDB会尽可能保证这个频率。</p>
-<p><img src="./images/1532826905089.png" alt="Alt text"></p>
-<p>上图清晰的描述出Master Thread的主要loop的工作及流转。如果仔细看的话，会发现很多硬编码的参数，随着磁盘的升级，有些参数可能已经不是最佳值了。
-InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。甚至可以做到根据数据库状态自适应。</p>
+</li>
+<li><p>​READ COMMITTED(提交读)</p>
+<blockquote>
+<p>​大多数的数据库系统默认的隔离级别都是READ COMMITTED(但MySQL不是)，一个事务开始时只能看见已经提交的事务所做的修改。这个级别也叫做不可重复读。两次执行同样的查询可能会读到不一样的结果。存在幻读的问题</p>
+</blockquote>
+</li>
+<li><p>​REPEATABLE READ(可重复读)</p>
+<blockquote>
+<p>​保证同一个事务多次读取相同的记录结果是一致的。理论上可重读还是无法解决幻读。</p>
+</blockquote>
+</li>
+</ul>
+<p>关于幻读，详见：</p>
+<ul>
+<li>​SERIALIZEABLE(可串行化)<blockquote>
+<p>​最高的隔离级别。通过强制事务串行执行，避免了幻读的问题。简单来说，SERIALIZEABLE会在读取的没一行数据上都加锁，所以可能导致大量的超市和锁争用的问题。实际应用中也很少用到这个隔离级别。只有在非常需要保证数据一致性而且可以接受没有并发的情况，才考虑采用该级别。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="隔离级别的场景模拟"><a href="#隔离级别的场景模拟" class="headerlink" title="隔离级别的场景模拟"></a>隔离级别的场景模拟</h2><p>要深入理解事务隔离级别以及幻读脏读的场景，最有效的办法还是去模拟脏读，可重复读，幻读的场景。
+模拟场景见：
+<a href="http://zhizus.com/2018-08-6-InnoDB%20Phantom%20Problem.html" target="_blank" rel="noopener">InnoDB 幻读</a></p>
+<h2 id="ANSI-SQL隔离级别表"><a href="#ANSI-SQL隔离级别表" class="headerlink" title="ANSI SQL隔离级别表"></a>ANSI SQL隔离级别表</h2><table>
+<thead>
+<tr>
+<th style="text-align:left">隔离级别</th>
+<th style="text-align:right">脏读可能性</th>
+<th style="text-align:center">不可重复读可能性</th>
+<th style="text-align:center">幻读可能性</th>
+<th style="text-align:center">加锁读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">READ UNCOMMITTED(未提交读)</td>
+<td style="text-align:right">yes</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">no</td>
+</tr>
+<tr>
+<td style="text-align:left">READ COMMITTED （提交读）</td>
+<td style="text-align:right">no</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">no</td>
+</tr>
+<tr>
+<td style="text-align:left">REPEATABLE READ（可重复度）</td>
+<td style="text-align:right">no</td>
+<td style="text-align:center">no</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">no</td>
+</tr>
+<tr>
+<td style="text-align:left">SERIALIZBLE（串行读）</td>
+<td style="text-align:right">yes</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">no</td>
+<td style="text-align:center">yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="隔离级别的查询和设置"><a href="#隔离级别的查询和设置" class="headerlink" title="隔离级别的查询和设置"></a>隔离级别的查询和设置</h2><h3 id="查询事务隔离级别"><a href="#查询事务隔离级别" class="headerlink" title="查询事务隔离级别"></a>查询事务隔离级别</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">​ <span class="keyword">SELECT</span> @@tx_isolation</span><br></pre></td></tr></table></figure>
+<h3 id="设置隔离级别"><a href="#设置隔离级别" class="headerlink" title="设置隔离级别"></a>设置隔离级别</h3><p>1） session范围（设置为read uncommitted）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">​<span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">read</span> uncommitted;</span><br></pre></td></tr></table></figure>
+<p>2）global范围（设置为read uncommitted）
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">​<span class="keyword">set</span> <span class="keyword">global</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">read</span> uncommitted;</span><br></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -422,8 +477,8 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-16-记一次Druid连接池CannotGetJdbcConnectionException问题排查.html" rel="next" title="记一次Druid连接池CannotGetJdbcConnectionException问题排查">
-                <i class="fa fa-chevron-left"></i> 记一次Druid连接池CannotGetJdbcConnectionException问题排查
+              <a href="/2018-08-1-MVCC多版本并发读.html" rel="next" title="MySql MVCC多版本并发读">
+                <i class="fa fa-chevron-left"></i> MySql MVCC多版本并发读
               </a>
             
           </div>
@@ -432,8 +487,8 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018-07-29-InnoDB关键特性.html" rel="prev" title="InnoDB的关键特性">
-                InnoDB的关键特性 <i class="fa fa-chevron-right"></i>
+              <a href="/2018-08-6-InnoDB一致性非锁定读.html" rel="prev" title="InnoDB一致性非锁定读">
+                InnoDB一致性非锁定读 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -599,7 +654,7 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB的后台线程"><span class="nav-number">1.</span> <span class="nav-text">InnoDB的后台线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master-Thread（InnoDB-1-0-x之前的版本）"><span class="nav-number">2.</span> <span class="nav-text">Master Thread（InnoDB 1.0.x之前的版本）</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#隔离级别的种类"><span class="nav-number">1.</span> <span class="nav-text">隔离级别的种类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#隔离级别的场景模拟"><span class="nav-number">2.</span> <span class="nav-text">隔离级别的场景模拟</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ANSI-SQL隔离级别表"><span class="nav-number">3.</span> <span class="nav-text">ANSI SQL隔离级别表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#隔离级别的查询和设置"><span class="nav-number">4.</span> <span class="nav-text">隔离级别的查询和设置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#查询事务隔离级别"><span class="nav-number">4.1.</span> <span class="nav-text">查询事务隔离级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置隔离级别"><span class="nav-number">4.2.</span> <span class="nav-text">设置隔离级别</span></a></li></ol></li></ol></div>
             
 
           </div>
