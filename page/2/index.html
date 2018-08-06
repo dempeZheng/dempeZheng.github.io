@@ -281,7 +281,7 @@
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-29-InnoDB Checkpoint机制.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -303,8 +303,8 @@
             
               
                 
-                <a class="post-title-link" href="/2018-07-29-InnoDB后台线程.html" itemprop="url">
-                  InnoDB的后台线程
+                <a class="post-title-link" href="/2018-07-29-InnoDB Checkpoint机制.html" itemprop="url">
+                  InnoDB的Checkpoint机制
                 </a>
               
             
@@ -328,7 +328,7 @@
 
           
           
-             <span id="/2018-07-29-InnoDB后台线程.html" class="leancloud_visitors" data-flag-title="InnoDB的后台线程">
+             <span id="/2018-07-29-InnoDB Checkpoint机制.html" class="leancloud_visitors" data-flag-title="InnoDB的Checkpoint机制">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -357,16 +357,14 @@
       
         
           
-          InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：
+          写在前面
+从上图（Mysq InnoDB存储引擎架构图）我们可以看到比较核心的一块就是InnoDB存储引擎内存池。缓冲池的设计目的是为了协调CPU速度和磁盘速度的鸿沟。页的操作首先是再缓冲池中完成的。
 
-
-[注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)
-
-Master Thread（InnoD
+如果一条DML语句，如Update或Delete改变了页中的记录，那么此时页是脏的,即缓冲池中页
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-07-29-InnoDB后台线程.html#more" rel="contents">
+            <a class="btn" href="/2018-07-29-InnoDB Checkpoint机制.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
