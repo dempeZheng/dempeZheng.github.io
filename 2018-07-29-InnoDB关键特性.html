@@ -108,7 +108,7 @@
 异步IO(Async IO)
 刷新邻">
 <meta property="og:image" content="http://www.zhizus.com/./images/1113510-20170726195345906-321682602.png">
-<meta property="og:updated_time" content="2018-07-29T12:57:49.508Z">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.516Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB的关键特性">
 <meta name="twitter:description" content="InnoDB的关键特性InnoDB是一个完整支持事务的Mysql存储引擎，也是Mysql的默认引擎。特点是行锁设计、支持MVCC、支持外键、提供一致性非锁定读。同时也被设计用来最有效地利用以及使用内存和CPU。
@@ -387,10 +387,10 @@
 <ul>
 <li>索引是辅助索引（sencondary index）</li>
 <li>索引不是唯一（unique）
-因为插入缓冲，数据库并不会查找索引页来验证唯一性，如果查找就会有离散读取的情况发生，Insert Buffer句i失去了意义。<h3 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h3>InnoDB从1.0.x版本开始引入了Change Buffer，可将其市委Insert Buffer的升级。
+因为插入缓冲，数据库并不会查找索引页来验证唯一性，如果查找就会有离散读取的情况发生，Insert Buffer就失去了意义。<h3 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h3>InnoDB从1.0.x版本开始引入了Change Buffer，可将其市委Insert Buffer的升级。
 从这个版本开始，InnoDB存储引擎可以对DML操作-INSERT,DELETE,UPDATE都进行换从，分别是Insert Buffer, Delete Buffer,Purge Buffer</li>
 </ul>
-<h2 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h2><p>hash的时间复杂度为Q（1），而B+书的查找次数取决于B+数的高度，在生产环境中B+数的高度一般为3~4层，故需要3~4次查询。
+<h2 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h2><p>hash的时间复杂度为Q(1)，而B+书的查找次数取决于B+数的高度，在生产环境中B+数的高度一般为3~4层，故需要3~4次查询。
 InnoDB存储引擎会监控对表上各数据索引页的查询，如果观察到建立hash缩影能够带来速度的提升，则建立hash索引，称之为子使用hash索引（Adaptive Hash Index，AHI），AHI通过缓冲池的B+构建而来，因此建立的速度很快，而且不需要整张表建立hash索引。
 AHI有一个要求，即对这个页的连续访问模式必须是一样的。例如对于（a,b）</p>
 <ul>
@@ -413,8 +413,21 @@ AHI有一个要求，即对这个页的连续访问模式必须是一样的。�
 <h2 id="Double-Write"><a href="#Double-Write" class="headerlink" title="Double Write"></a>Double Write</h2><p>InnoDB通过Double Write来保障数据页的可靠性。
 试想一种场景：当数据库发生宕机，InnoDB存储引擎正在写入某个16KB的页，而这个页写入4KB的时候发生了宕机。这种情况被成为部分写失效（<code>partial page write</code>）。在InnoDB使用Double write技术之前，曾经出现因为部分写失效导致数据丢失的情况。</p>
 <p>可能我们会想，如果写失效的时候为什么不能通过重做日志进行恢复？ </p>
-<p>这可能是一个办法，但是必须清楚的认识到，重做日志是记录对页的物理操作，如偏移量800，写记录’aaa’。如果这个页本身已经发生了损坏，再对其重做是没有意义的。
-<img src="./images/1113510-20170726195345906-321682602.png" alt="Alt text">
+<blockquote>
+<p>数据库系统实现日志主要有三种格式，逻辑日志(logical logging)，物理日志(physical logging)，物理逻辑日志(physiological logging)，而对于redo日志，则主要采用物理日志和物理逻辑日志两类。逻辑日志，记录一个个逻辑操作，不涉及物理存储位置信息，比如mysql的binlog；物理日志，则是记录一个个具体物理位置的操作，比如在2号表空间，1号文件，48页的233这个offset地方写入了8个字节的数据，通过(group_id,file_id,page_no,offset)4元组，就能唯一确定数据存储在磁盘的物理位置；物理逻辑日志是物理日志和逻辑日志的混合，如果一个数据库操作(DDL，DML，DCL)产生的日志跨越了多个页面，那么会产生多个物理页面的日志，但对于每个物理页面日志，里面记录则是逻辑信息。这里我举一个简单的INSERT操作来说明几种日志形式。</p>
+<p>比如innodb表T(c1,c2, key key_c1(c1)),插入记录row1(1,’abc’)</p>
+<p><strong>逻辑日志：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;insert OP, T, 1,’abc’&gt;</div></pre></td></tr></table></figure>
+<p><strong>逻辑物理日志：</strong></p>
+<p>因为表T含有索引key_c1, 一次插入操作至少涉及两次B树操作，二次B树必然涉及至少两个物理页面,因此至少有两条日志</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;insert OP, page_no_1, log_body&gt;</div><div class="line"></div><div class="line">&lt;insert OP, page_no_2, log_body&gt;</div></pre></td></tr></table></figure>
+<p><strong>物理日志:</strong></p>
+<p>由于一次INSERT操作，物理上来说要修改页头信息(如,页内的记录数要加1)，要修改相邻记录里的链表指针，要修改Slot属性等，因此对应逻辑物理日志的每一条日志，都会有N条物理日志产生。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&lt; group_id,file_id,page_no,offset1, value1&gt;</div><div class="line"></div><div class="line">&lt; group_id,file_id,page_no,offset2, value2&gt;</div><div class="line"></div><div class="line">……</div><div class="line"></div><div class="line">&lt; group_id,file_id,page_no,offsetN, valueN&gt;</div></pre></td></tr></table></figure>
+<p>因此对于上述一个INSERT操作，会产生一条逻辑日志，二条逻辑物理日志，2*N条物理日志。从上面简单的分析可以看出，逻辑日志的日志量最小，而物理日志的日志量最大；物理日志是纯物理的；而逻辑物理日志则页间物理，页内逻辑，所谓physical-to-a-page, logical-within-a-page。</p>
+</blockquote>
+<p>简而言之，redo log采用的是物理逻辑日志，而物理逻辑日志的操作不一定是幂等的。所以页断裂的时候，通过redo log恢复是不可行的。</p>
+<p><img src="./images/1113510-20170726195345906-321682602.png" alt="Alt text">
 doublewrite由两个部分组成，一部分是内存中的doublewrite buffer，大小为2M，另一部分是物理磁盘上的共享表空间中连续的128个页，即两个区（extend）大小同样为2M。
 在对缓冲池脏也进行刷新的时候，并不直接写磁盘，而是通过<code>memcpy</code>函数将脏页先复制到内存中的doublewrite buffer，之后通过doublewrite buffer分两次，每次1M的顺序写入共享表空间的屋里磁盘上。然后马上调用<code>fsync</code>函数，同步磁盘。
 因为doublewrite页是连续的，顺序写的开销并不是很大。</p>
@@ -427,6 +440,7 @@ AIO的相比同步IO可以减少等待的时间。
 <li>固态硬盘有着较高的IOQPS，是否还需要这个特性？
 因此 InnoDB 1.2.X的版本页提供了参数<code>innodb_flush_neighbors</code>来控制是否启用该特性。</li>
 </ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://www.cnblogs.com/cchust/p/3961260.html" target="_blank" rel="external">https://www.cnblogs.com/cchust/p/3961260.html</a></p>
 
       
     </div>
@@ -478,8 +492,8 @@ AIO的相比同步IO可以减少等待的时间。
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-29-InnoDB Checkpoint机制.html" rel="next" title="InnoDB的Checkpoint机制">
-                <i class="fa fa-chevron-left"></i> InnoDB的Checkpoint机制
+              <a href="/2018-07-29-InnoDB后台线程.html" rel="next" title="InnoDB的后台线程">
+                <i class="fa fa-chevron-left"></i> InnoDB的后台线程
               </a>
             
           </div>
@@ -488,8 +502,8 @@ AIO的相比同步IO可以减少等待的时间。
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018-07-29-InnoDB后台线程.html" rel="prev" title="InnoDB的后台线程">
-                InnoDB的后台线程 <i class="fa fa-chevron-right"></i>
+              <a href="/2018-07-31-Mysql文件-binlog日志.html" rel="prev" title="MySql 文件-binlog">
+                MySql 文件-binlog <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -564,7 +578,7 @@ AIO的相比同步IO可以减少等待的时间。
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -575,7 +589,7 @@ AIO的相比同步IO可以减少等待的时间。
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -655,7 +669,7 @@ AIO的相比同步IO可以减少等待的时间。
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB的关键特性"><span class="nav-number">1.</span> <span class="nav-text">InnoDB的关键特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#插入缓冲"><span class="nav-number">2.</span> <span class="nav-text">插入缓冲</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Insert-Buffer"><span class="nav-number">2.1.</span> <span class="nav-text">Insert Buffer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Change-Buffer"><span class="nav-number">2.2.</span> <span class="nav-text">Change Buffer</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自适应哈希索引"><span class="nav-number">3.</span> <span class="nav-text">自适应哈希索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Double-Write"><span class="nav-number">4.</span> <span class="nav-text">Double Write</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步IO"><span class="nav-number">5.</span> <span class="nav-text">异步IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#刷新邻接页"><span class="nav-number">6.</span> <span class="nav-text">刷新邻接页</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB的关键特性"><span class="nav-number">1.</span> <span class="nav-text">InnoDB的关键特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#插入缓冲"><span class="nav-number">2.</span> <span class="nav-text">插入缓冲</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Insert-Buffer"><span class="nav-number">2.1.</span> <span class="nav-text">Insert Buffer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Change-Buffer"><span class="nav-number">2.2.</span> <span class="nav-text">Change Buffer</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自适应哈希索引"><span class="nav-number">3.</span> <span class="nav-text">自适应哈希索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Double-Write"><span class="nav-number">4.</span> <span class="nav-text">Double Write</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步IO"><span class="nav-number">5.</span> <span class="nav-text">异步IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#刷新邻接页"><span class="nav-number">6.</span> <span class="nav-text">刷新邻接页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">7.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
             
 
           </div>

@@ -87,30 +87,30 @@
 
 
 
-<meta name="description" content="InnoDB是单进程多线程，主要的后台线程有：
+<meta name="description" content="InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：
 
 
 [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)
-Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主要负责将缓冲池中的数据异">
+Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主要">
 <meta property="og:type" content="article">
 <meta property="og:title" content="InnoDB的后台线程">
 <meta property="og:url" content="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html">
 <meta property="og:site_name" content="郑大侠的博客">
-<meta property="og:description" content="InnoDB是单进程多线程，主要的后台线程有：
+<meta property="og:description" content="InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：
 
 
 [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)
-Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主要负责将缓冲池中的数据异">
+Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主要">
 <meta property="og:image" content="http://www.zhizus.com/./images/1532827884301.png">
 <meta property="og:image" content="http://www.zhizus.com/./images/1532826905089.png">
-<meta property="og:updated_time" content="2018-07-29T12:56:56.314Z">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.516Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB的后台线程">
-<meta name="twitter:description" content="InnoDB是单进程多线程，主要的后台线程有：
+<meta name="twitter:description" content="InnoDB的后台线程InnoDB是单进程多线程，主要的后台线程有：
 
 
 [注] InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)
-Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主要负责将缓冲池中的数据异">
+Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心的后台线程，具有最高的线程级别，主要">
 <meta name="twitter:image" content="http://www.zhizus.com/./images/1532827884301.png">
 
 
@@ -365,7 +365,7 @@ Master Thread（InnoDB 1.0.x之前的版本）master thread是一个非常核心
       
 
       
-        <p>InnoDB是单进程多线程，主要的后台线程有：</p>
+        <h2 id="InnoDB的后台线程"><a href="#InnoDB的后台线程" class="headerlink" title="InnoDB的后台线程"></a>InnoDB的后台线程</h2><p>InnoDB是单进程多线程，主要的后台线程有：</p>
 <p><img src="./images/1532827884301.png" alt="Alt text"></p>
 <blockquote>
 <p><code>[注]</code> InnoDB 1.2.X的版本开始才将Master Thread拆分成三个线程(Master Thread,Purge Thread, Page Cleaner Thread)</p>
@@ -379,7 +379,7 @@ Master Thread 内部由多个循环（loop）组成：主循环（loop）、后�
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">void  master_thread()&#123;</div><div class="line">loop:</div><div class="line">for(int i=0; i&lt;10; i++)&#123;</div><div class="line">	do thing once per second</div><div class="line">	sleep 1 second if neccessary</div><div class="line">&#125;</div><div class="line">do things once per 10 seconds</div><div class="line">goto loop;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>可以看到，loop循环通过thread sleep来实现，这意味了每1s或者每10s的操作是不精确的，在负载很大的情况下可能会有延迟（delay）。只能说InnoDB会尽可能保证这个频率。</p>
 <p><img src="./images/1532826905089.png" alt="Alt text"></p>
-<p>上图清晰的描述出Master Thread的主要loop的工作及流转。如果仔细看的话，非发现很多硬编码的参数，随着磁盘的升级，有些参数可能已经不是最佳值了。
+<p>上图清晰的描述出Master Thread的主要loop的工作及流转。如果仔细看的话，会发现很多硬编码的参数，随着磁盘的升级，有些参数可能已经不是最佳值了。
 InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。甚至可以做到根据数据库状态自适应。</p>
 
       
@@ -432,8 +432,8 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-29-InnoDB关键特性.html" rel="next" title="InnoDB的关键特性">
-                <i class="fa fa-chevron-left"></i> InnoDB的关键特性
+              <a href="/2018-07-29-InnoDB Checkpoint机制.html" rel="next" title="InnoDB的Checkpoint机制">
+                <i class="fa fa-chevron-left"></i> InnoDB的Checkpoint机制
               </a>
             
           </div>
@@ -442,8 +442,8 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018-07-29-MySQL的体系结构及存储引擎.html" rel="prev" title="MySQL的体系结构及存储引擎">
-                MySQL的体系结构及存储引擎 <i class="fa fa-chevron-right"></i>
+              <a href="/2018-07-29-InnoDB关键特性.html" rel="prev" title="InnoDB的关键特性">
+                InnoDB的关键特性 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -518,7 +518,7 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -529,7 +529,7 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -609,7 +609,7 @@ InnoDB后续的版本中已经提供了参数去配置这些硬编码的值。�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Master-Thread（InnoDB-1-0-x之前的版本）"><span class="nav-number">1.</span> <span class="nav-text">Master Thread（InnoDB 1.0.x之前的版本）</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB的后台线程"><span class="nav-number">1.</span> <span class="nav-text">InnoDB的后台线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master-Thread（InnoDB-1-0-x之前的版本）"><span class="nav-number">2.</span> <span class="nav-text">Master Thread（InnoDB 1.0.x之前的版本）</span></a></li></ol></div>
             
 
           </div>

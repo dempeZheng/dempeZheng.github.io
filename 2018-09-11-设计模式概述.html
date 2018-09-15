@@ -1,0 +1,1005 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="设计模式,设计原则" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="设计模式一览创建型模式(五种)
+工厂方法模式(Factory)：工厂创建对象（经典实现：很多框架初始化时都会创建一个工厂对象，用来加载资源）
+抽象工厂模式(Abstractfactory)：抽象工厂实例创建对象，工厂可修改，灵活度高（经典实现：Struts2插件机制的核心实现就是BeanFactory这个抽象工厂。Spring IOC加载Bean，AOP创建Proxy）单例模式(Sington)：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式概述">
+<meta property="og:url" content="http://www.zhizus.com/2018-09-11-设计模式概述.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="设计模式一览创建型模式(五种)
+工厂方法模式(Factory)：工厂创建对象（经典实现：很多框架初始化时都会创建一个工厂对象，用来加载资源）
+抽象工厂模式(Abstractfactory)：抽象工厂实例创建对象，工厂可修改，灵活度高（经典实现：Struts2插件机制的核心实现就是BeanFactory这个抽象工厂。Spring IOC加载Bean，AOP创建Proxy）单例模式(Sington)：">
+<meta property="og:image" content="http://www.zhizus.com/./images/1536636920459.png">
+<meta property="og:image" content="http://www.zhizus.com/./images/1536573715998.png">
+<meta property="og:image" content="http://www.zhizus.com/./images/1536575447155.png">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.522Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式概述">
+<meta name="twitter:description" content="设计模式一览创建型模式(五种)
+工厂方法模式(Factory)：工厂创建对象（经典实现：很多框架初始化时都会创建一个工厂对象，用来加载资源）
+抽象工厂模式(Abstractfactory)：抽象工厂实例创建对象，工厂可修改，灵活度高（经典实现：Struts2插件机制的核心实现就是BeanFactory这个抽象工厂。Spring IOC加载Bean，AOP创建Proxy）单例模式(Sington)：">
+<meta name="twitter:image" content="http://www.zhizus.com/./images/1536636920459.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zhizus.com/2018-09-11-设计模式概述.html"/>
+
+
+
+
+
+  <title> 设计模式概述 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-java " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-09-11-设计模式概述.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                设计模式概述
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-09-11-设计模式概述.html" class="leancloud_visitors" data-flag-title="设计模式概述">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="设计模式一览"><a href="#设计模式一览" class="headerlink" title="设计模式一览"></a>设计模式一览</h2><h3 id="创建型模式-五种"><a href="#创建型模式-五种" class="headerlink" title="创建型模式(五种)"></a>创建型模式(五种)</h3><ul>
+<li>工厂方法模式(Factory)：工厂创建对象（经典实现：很多框架初始化时都会创建一个工厂对象，用来加载资源）</li>
+<li>抽象工厂模式(Abstractfactory)：抽象工厂实例创建对象，工厂可修改，灵活度高（经典实现：Struts2插件机制的核心实现就是BeanFactory这个抽象工厂。Spring IOC加载Bean，AOP创建Proxy）单例模式(Sington)：适用于只需要一个对象的情况（经典实现：Tomcat中StringManager的错误处理机制）</li>
+<li>建造者模式(Builder)：一步一步创建一个复杂的对象（经典实现：MyBatis中的SQLSession就是结合了Configure，executor等对象，以此来实现SQLSession的复杂功能）</li>
+<li>原型模式(Prototype)：复制对象，包括深度复制和浅度复制，深度复制重建引用对象，浅度复制不创建（经典实现：java序列化）<h3 id="结构型模式-七种"><a href="#结构型模式-七种" class="headerlink" title="结构型模式(七种)"></a>结构型模式(七种)</h3></li>
+<li>适配器模式(Adapter)：通过实现接口，依赖注入，继承等方式为不相关的实体建立关系（经典实现：Tomcat新版本连接器Coyote，就是通过为Connector适配建立了ProtocolHandler与Tomcat组件Connector的关联关系）</li>
+<li>装饰器模式(Decorator)：创建包装对象修饰扩展被包装对象的功能（经典实现：IO家族中BufferedXxx）</li>
+<li>代理模式(Proxy)：通过添加中间代理的方式限制，过滤，修改被代理类的某些行为（经典实现：Spring AOP核心实现，DataSource中为Connection创建代理对象，改变close方法的行为，使其从开始的关闭连接变成将连接还回连接池）</li>
+<li>外观模式(Facade)：通过外观的包装，使应用程序只能看到外观对象，而不会看到具体的细节对象。（经典实现：Tomcat中创建外观类包装StandardContext传给Wrapper，创建外观类包装Wrapper以ServletConfiguration的形式传给Servlet，以此来屏蔽不想让Servlet可见的那些Tomcat容器参数）</li>
+<li>桥接模式(Bridge)：将抽象部分与它的实现部分分离，使它们都可以独立地变化（经典实现：JDBC驱动）</li>
+<li>组合模式(Composite)：部分与整体，常用于表示树形结构享元模式(Flyweight)：维护资源集合（经典实现：数据库连接池，避免重新开启数据库链接的开销）<h3 id="行为型模式-十一种"><a href="#行为型模式-十一种" class="headerlink" title="行为型模式(十一种)"></a>行为型模式(十一种)</h3></li>
+<li>策略模式(Strategy)：定义多个不同的实现类，这些类实现公共接口，通过调用接口调用不同实例得到不同结果（经典实现：Spring中Bean的定义与注入，Controller，Servcie，repository三层架构中只依赖上一层接口）</li>
+<li>模板方法模式(Template)：父类定义公共方法，不同子类重写父类抽象方法，得到不同结果（经典实现：Tomcat生命周期中的init，SpringIOC上层类加载具体子类指定的配置文件）</li>
+<li>观察者模式(Observer)：目标方法被调用，通知所有观察者（经典实现：Tomcat生命周期事件监听，Spring BeanPostProcessor实现 ）</li>
+<li>迭代子模式(Interator)：提供一种方法顺序访问一个聚合对象中各个元素, 而又不需暴露该对象的内部表示。（经典实现：集合迭代器）</li>
+<li>责任链模式(ChainOfResponsibility)：链式依赖，依次调用（经典实现：Tomcat Valve）</li>
+<li>命令模式(Commond)：Action定义具体命令，拦截器Invocation回调执行命令（经典实现：Struts2）</li>
+<li>备忘录模式(Memento)：建立原始对象副本，用于存储恢复原始对象数据</li>
+<li>状态模式(Stage)：通过改变状态，改变行为（经典实现：切换装载着不同配置信息的配置文件对象）</li>
+<li>访问者模式(Visitor)：结构与操作解耦。灵活的操作，放入固定的结构中执行（经典实现：在SpringAOP的实现过程中首先会有一个ProxyCreator去创建切入点，通知之类的，然后创建一个抽象工厂将这些参数对象传递给抽象工厂，抽象工厂调用createAopProxy(this)来创建对象，传入不同的抽象工厂创建出不同的实体对象）</li>
+<li>中介者模式(Mediator)：MVC 框架，其中C（控制器）就是 M（模型）和 V（视图）的中介者解释器模式(Iterpreter)：定义分别定义 + - * / 非终结符，组合不同的非终结符定义不同的表达式，维护繁琐</li>
+<li>解释器模式(Iterpreter)：定义分别定义 + - * / 非终结符，组合不同的非终结符定义不同的表达式，维护繁琐</li>
+</ul>
+<h2 id="设计模式的原则"><a href="#设计模式的原则" class="headerlink" title="设计模式的原则"></a>设计模式的原则</h2><p><img src="./images/1536636920459.png" alt="Alt text"></p>
+<h2 id="常见设计模式的典型应用"><a href="#常见设计模式的典型应用" class="headerlink" title="常见设计模式的典型应用"></a>常见设计模式的典型应用</h2><h3 id="策略模式-amp-责任链模式"><a href="#策略模式-amp-责任链模式" class="headerlink" title="策略模式&amp;责任链模式"></a>策略模式&amp;责任链模式</h3><p>风控服务设计（策略模式+责任链模式）</p>
+<p><img src="./images/1536573715998.png" alt="Alt text"></p>
+<h3 id="模板方法"><a href="#模板方法" class="headerlink" title="模板方法"></a>模板方法</h3><h4 id="AbstractServiceTemplate"><a href="#AbstractServiceTemplate" class="headerlink" title="AbstractServiceTemplate"></a>AbstractServiceTemplate</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">* 1.preValidate  校验</div><div class="line">* 2.preIdempotent 幂等前置校验（参数校验，签名校验，高危账户校验）</div><div class="line">* 3.process 具体执行方法（具体业务逻辑，写db）</div><div class="line">* 4.postProcessor 业务处理后置方法（异步写日志，发mq等）</div><div class="line">* 5.postIdempotent 幂等后置处理逻辑 (更新幂等结果)</div></pre></td></tr></table></figure>
+<p>通过模板方法，支持上述业务，具体业务只用实现具体process方法，就支持幂等逻辑。
+符合上述逻辑的就继承这个template就可以满足一下需求了。</p>
+<h4 id="支付网关模板"><a href="#支付网关模板" class="headerlink" title="支付网关模板"></a>支付网关模板</h4><p><img src="./images/1536575447155.png" alt="Alt text">
+支付渠道各式各样，常规的就有七八种，支持的全一点的估计要实现20来种，不同的网关都基于同一个模板来实现，不同的渠道有不同的类，比较容易扩展。代码清晰。属于模板方法比较经典的用法。</p>
+<h3 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h3><p>spring aop的用法就是经典的动态代理的用法。比如基于spring的<code>@Aspect</code>。
+spring也有ProxyFactoryBean很方便的提供了代理的功能。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">    * 生成代理类，调用没获取到值，休眠10毫秒后重试，最大重试时间5s</div><div class="line">    * 避免长时间等待</div><div class="line">    *</div><div class="line">    * <span class="doctag">@param</span> target</div><div class="line">    * <span class="doctag">@param</span> methodName</div><div class="line">    * <span class="doctag">@param</span> &lt;T&gt;</div><div class="line">    * <span class="doctag">@returnT</span></div><div class="line">    */</div><div class="line">   <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">T <span class="title">getProxy</span><span class="params">(T target, String methodName, <span class="keyword">int</span> timeout)</span> </span>&#123;</div><div class="line">       ProxyFactoryBean factoryBean = <span class="keyword">new</span> ProxyFactoryBean();</div><div class="line">       factoryBean.setTarget(target);</div><div class="line">       factoryBean.addAdvice(<span class="keyword">new</span> MethodInterceptor() &#123;</div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(MethodInvocation invocation)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">               <span class="keyword">if</span> (!Strings.isNullOrEmpty(methodName) &amp;&amp; !StringUtils.equals(methodName, invocation.getMethod().getName())) &#123;</div><div class="line">                   <span class="keyword">return</span> invocation.proceed();</div><div class="line">               &#125;</div><div class="line">               <span class="keyword">int</span> waitMillTime = <span class="number">0</span>;</div><div class="line">               Object proceed = <span class="keyword">null</span>;</div><div class="line">               <span class="keyword">while</span> (waitMillTime &lt; timeout) &#123;</div><div class="line">                   proceed = invocation.proceed();</div><div class="line">                   <span class="keyword">if</span> (proceed != <span class="keyword">null</span>) &#123;</div><div class="line">                       <span class="keyword">return</span> proceed;</div><div class="line">                   &#125;</div><div class="line">                   waitMillTime += <span class="number">10</span>;</div><div class="line">                   TimeUnit.MILLISECONDS.sleep(<span class="number">10</span>);</div><div class="line">               &#125;</div><div class="line">               <span class="keyword">return</span> proceed;</div><div class="line">           &#125;</div><div class="line">       &#125;);</div><div class="line">       <span class="keyword">return</span> (T) factoryBean.getObject();</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<h3 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h3><p>单例模式比较常用，但是是基于spring开发，那么单例就比较简单，默认的bean都是一个单例，没必要特意去写单例。基于spring的单例生命周期管理也比较方便。</p>
+<h3 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h3><p>服务注册服务发现中需要事件通知经常会用到观察者模式，写过类似组件的用的比较多。</p>
+<h2 id="JDK中设计模式的应用"><a href="#JDK中设计模式的应用" class="headerlink" title="JDK中设计模式的应用"></a>JDK中设计模式的应用</h2><h3 id="Structural（结构模式）"><a href="#Structural（结构模式）" class="headerlink" title="Structural（结构模式）"></a>Structural（结构模式）</h3><h4 id="Adapter"><a href="#Adapter" class="headerlink" title="Adapter:"></a>Adapter:</h4><blockquote>
+<p>把一个接口或是类变成另外一种。</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">java.util.Arrays#asList()</div><div class="line">javax.swing.JTable(TableModel)</div><div class="line">java.io.InputStreamReader(InputStream)</div><div class="line">java.io.OutputStreamWriter(OutputStream)</div><div class="line">javax.xml.bind.annotation.adapters.XmlAdapter#marshal()</div><div class="line">javax.xml.bind.annotation.adapters.XmlAdapter#unmarshal()</div></pre></td></tr></table></figure>
+<h4 id="Bridge"><a href="#Bridge" class="headerlink" title="Bridge:"></a>Bridge:</h4><blockquote>
+<p>把抽象和实现解藕，于是接口和实现可在完全独立开来。</p>
+</blockquote>
+<p>AWT (提供了抽象层映射于实际的操作系统)
+JDBC
+Composite:
+让使用者把单独的对象和组合对象混用。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">javax.swing.JComponent#add(Component)</div><div class="line">java.awt.Container#add(Component)</div><div class="line">java.util.Map#putAll(Map)</div><div class="line">java.util.List#addAll(Collection)</div><div class="line">java.util.Set#addAll(Collection)</div></pre></td></tr></table></figure>
+<h4 id="Decorator"><a href="#Decorator" class="headerlink" title="Decorator:"></a>Decorator:</h4><blockquote>
+<p>为一个对象动态的加上一系列的动作，而不需要因为这些动作的不同而产生大量的继承类。这个模式在JDK中几乎无处不在，所以，下面的列表只是一些典型的。</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">java.io.BufferedInputStream(InputStream)</div><div class="line">java.io.DataInputStream(InputStream)</div><div class="line">java.io.BufferedOutputStream(OutputStream)</div><div class="line">java.util.zip.ZipOutputStream(OutputStream)</div><div class="line">java.util.Collections#checked[List|Map|Set|SortedSet|SortedMap]()</div></pre></td></tr></table></figure>
+<h4 id="Facade"><a href="#Facade" class="headerlink" title="Facade:"></a>Facade:</h4><blockquote>
+<p>用一个简单的接口包状一组组件，接口，抽象或是子系统。</p>
+</blockquote>
+<p>java.lang.Class
+javax.faces.webapp.FacesServlet
+Flyweight:
+有效率地存储大量的小的对象。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">java.lang.Integer#valueOf(int)</div><div class="line">java.lang.Boolean#valueOf(boolean)</div><div class="line">java.lang.Byte#valueOf(byte)</div><div class="line">java.lang.Character#valueOf(char)</div></pre></td></tr></table></figure>
+<h4 id="Proxy"><a href="#Proxy" class="headerlink" title="Proxy:"></a>Proxy:</h4><blockquote>
+<p>用一个简单的对象来代替一个复杂的对象。</p>
+</blockquote>
+<p>java.lang.reflect.Proxy
+RMI</p>
+<h3 id="Creational（创建模式）"><a href="#Creational（创建模式）" class="headerlink" title="Creational（创建模式）"></a>Creational（创建模式）</h3><h4 id="Abstract-factory"><a href="#Abstract-factory" class="headerlink" title="Abstract factory:"></a>Abstract factory:</h4><blockquote>
+<p>创建一组有关联的对象实例。这个模式在JDK中也是相当的常见，还有很多的framework例如Spring。我们很容易找到这样的实例。</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">java.util.Calendar#getInstance()</div><div class="line">java.util.Arrays#asList()</div><div class="line">java.util.ResourceBundle#getBundle()</div><div class="line">java.sql.DriverManager#getConnection()</div><div class="line">java.sql.Connection#createStatement()</div><div class="line">java.sql.Statement#executeQuery()</div><div class="line">java.text.NumberFormat#getInstance()</div><div class="line">javax.xml.transform.TransformerFactory#newInstance()</div></pre></td></tr></table></figure>
+<h4 id="Builder"><a href="#Builder" class="headerlink" title="Builder:"></a>Builder:</h4><blockquote>
+<p>主要用来简化一个复杂的对象的创建。这个模式也可以用来实现一个 Fluent Interface。</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">java.lang.StringBuilder#append()</div><div class="line">java.lang.StringBuffer#append()</div><div class="line">java.sql.PreparedStatement</div><div class="line">javax.swing.GroupLayout.Group#addComponent()</div></pre></td></tr></table></figure>
+<h4 id="Factory"><a href="#Factory" class="headerlink" title="Factory:"></a>Factory:</h4><blockquote>
+<p>简单来说，按照需求返回一个类型的实例。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">java.lang.Proxy#newProxyInstance()</div><div class="line">java.lang.Object#toString()</div><div class="line">java.lang.Class#newInstance()</div><div class="line">java.lang.reflect.Array#newInstance()</div><div class="line">java.lang.reflect.Constructor#newInstance()</div><div class="line">java.lang.Boolean#valueOf(String)</div><div class="line">java.lang.Class#forName()</div></pre></td></tr></table></figure>
+<h4 id="Prototype"><a href="#Prototype" class="headerlink" title="Prototype:"></a>Prototype:</h4><blockquote>
+<p>使用自己的实例创建另一个实例。有时候，创建一个实例然后再把已有实例的值拷贝过去，是一个很复杂的动作。所以，使用这个模式可以避免这样的复杂性。</p>
+</blockquote>
+<p>java.lang.Object#clone()
+java.lang.Cloneable
+Singleton:
+只允许一个实例。在 Effective Java中建议使用Emun.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">java.lang.Runtime#getRuntime()</div><div class="line">java.awt.Toolkit#getDefaultToolkit()</div><div class="line">java.awt.GraphicsEnvironment#getLocalGraphicsEnvironment()</div><div class="line">java.awt.Desktop#getDesktop()</div></pre></td></tr></table></figure>
+<h3 id="Behavioral-行为模式"><a href="#Behavioral-行为模式" class="headerlink" title="Behavioral(行为模式)"></a>Behavioral(行为模式)</h3><h4 id="Chain-of-responsibility"><a href="#Chain-of-responsibility" class="headerlink" title="Chain of responsibility:"></a>Chain of responsibility:</h4><blockquote>
+<p>把一个对象在一个链接传递直到被处理。在这个链上的所有的对象有相同的接口（抽象类）但却有不同的实现。</p>
+</blockquote>
+<p>java.util.logging.Logger#log()
+javax.servlet.Filter#doFilter()
+Command:
+把一个或一些命令封装到一个对象中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">java.lang.Runnable</div><div class="line">javax.swing.Action</div></pre></td></tr></table></figure>
+<p>####Interpreter:</p>
+<blockquote>
+<p>一个语法解释器的模式。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">java.util.Pattern</div><div class="line">java.text.Normalizer</div><div class="line">java.text.Format</div></pre></td></tr></table></figure>
+<p>####Iterator:</p>
+<blockquote>
+<p>提供一种一致的方法来顺序遍历一个容器中的所有元素。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">java.util.Iterator</div><div class="line">java.util.Enumeration</div></pre></td></tr></table></figure>
+<p>####Mediator:</p>
+<blockquote>
+<p>用来减少对象单的直接通讯的依赖关系。使用一个中间类来管理消息的方向。</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">java.util.Timer</div><div class="line">java.util.concurrent.Executor#execute()</div><div class="line">java.util.concurrent.ExecutorService#submit()</div><div class="line">java.lang.reflect.Method#invoke()</div></pre></td></tr></table></figure>
+<p>####Memento:</p>
+<blockquote>
+<p>给一个对象的状态做一个快照。Date类在内部使用了一个long型来做这个快照。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">java.util.Date</div><div class="line">java.io.Serializable</div></pre></td></tr></table></figure>
+<p>####Null Object:
+这个模式用来解决如果一个Collection中没有元素的情况。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">java.util.Collections#emptyList()</div><div class="line">java.util.Collections#emptyMap()</div><div class="line">java.util.Collections#emptySet()</div></pre></td></tr></table></figure>
+<h4 id="Observer"><a href="#Observer" class="headerlink" title="Observer:"></a>Observer:</h4><blockquote>
+<p>允许一个对象向所有的侦听的对象广播自己的消息或事件。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">java.util.EventListener</div><div class="line">javax.servlet.http.HttpSessionBindingListener</div><div class="line">javax.servlet.http.HttpSessionAttributeListener</div><div class="line">javax.faces.event.PhaseListener</div></pre></td></tr></table></figure>
+<p>####State:</p>
+<blockquote>
+<p>这个模式允许你可以在运行时很容易地根据自身内部的状态改变对象的行为。</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">java.util.Iterator</div><div class="line">javax.faces.lifecycle.LifeCycle#execute()</div></pre></td></tr></table></figure>
+<p>####Strategy:</p>
+<blockquote>
+<p>定义一组算法，并把其封装到一个对象中。然后在运行时，可以灵活的使用其中的一个算法。</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">java.util.Comparator#compare()</div><div class="line">javax.servlet.http.HttpServlet</div><div class="line">javax.servlet.Filter#doFilter()</div></pre></td></tr></table></figure>
+<p>####Template method:</p>
+<blockquote>
+<p>允许子类重载部分父类而不需要完全重写。</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">java.util.Collections#sort()</div><div class="line">java.io.InputStream#skip()</div><div class="line">java.io.InputStream#read()</div><div class="line">java.util.AbstractList#indexOf()</div></pre></td></tr></table></figure>
+<p>####Visitor:</p>
+<blockquote>
+<p>作用于某个对象群中各个对象的操作. 它可以使你在不改变这些对象本身的情况下,定义作用于这些对象的新操作.</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">javax.lang.model.element.Element 和javax.lang.model.element.ElementVisitor</div><div class="line">javax.lang.model.type.TypeMirror 和javax.lang.model.type.TypeVisitor</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>简单的功能或演示性的程序不要考虑设计模式<br>关注问题而非解决方案。也就是说只有遇到问题时才去设计模式里找方法  </p>
+<p>关注重用而非设计模式。也就是说设计模式是以重用为目的的，只要能做到重用，是否使用了某种设计模式并不重要</p>
+<p><code>在支持函数式编程的语言里尽量避免使用设计模式</code>。如前所述，设计模式是以重用的目的的，而高阶函数很多情况下是比设计模式更好的重用方法，这些语言包括常见的js, ruby, python,scala等<br>能用简单的模式解决的问题不要引入复杂的模式<br>已经有解决方案的情况下不要硬套设计模式，设计模式不是一切<br>正确认识些暂时无法理解的模式，如Memento, Interpreter, Visitor等，这些模式代表着一类问题，很多时候使用第三方库是更好的选择</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://www.jianshu.com/p/807bc228dbc2" target="_blank" rel="external">https://www.jianshu.com/p/807bc228dbc2</a>
+<a href="https://coolshell.cn/articles/3320.html" target="_blank" rel="external">https://coolshell.cn/articles/3320.html</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-09-05-设计模式--行为型模式 .html" rel="next" title="设计模式--行为型模式">
+                <i class="fa fa-chevron-left"></i> 设计模式--行为型模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-09-15-IntelliJ IDEA配置升级指南.html" rel="prev" title="IntelliJ IDEA配置升级指南">
+                IntelliJ IDEA配置升级指南 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#设计模式一览"><span class="nav-number">1.</span> <span class="nav-text">设计模式一览</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建型模式-五种"><span class="nav-number">1.1.</span> <span class="nav-text">创建型模式(五种)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结构型模式-七种"><span class="nav-number">1.2.</span> <span class="nav-text">结构型模式(七种)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#行为型模式-十一种"><span class="nav-number">1.3.</span> <span class="nav-text">行为型模式(十一种)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设计模式的原则"><span class="nav-number">2.</span> <span class="nav-text">设计模式的原则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见设计模式的典型应用"><span class="nav-number">3.</span> <span class="nav-text">常见设计模式的典型应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#策略模式-amp-责任链模式"><span class="nav-number">3.1.</span> <span class="nav-text">策略模式&责任链模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模板方法"><span class="nav-number">3.2.</span> <span class="nav-text">模板方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#AbstractServiceTemplate"><span class="nav-number">3.2.1.</span> <span class="nav-text">AbstractServiceTemplate</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#支付网关模板"><span class="nav-number">3.2.2.</span> <span class="nav-text">支付网关模板</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代理模式"><span class="nav-number">3.3.</span> <span class="nav-text">代理模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单例模式"><span class="nav-number">3.4.</span> <span class="nav-text">单例模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#观察者模式"><span class="nav-number">3.5.</span> <span class="nav-text">观察者模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK中设计模式的应用"><span class="nav-number">4.</span> <span class="nav-text">JDK中设计模式的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Structural（结构模式）"><span class="nav-number">4.1.</span> <span class="nav-text">Structural（结构模式）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Adapter"><span class="nav-number">4.1.1.</span> <span class="nav-text">Adapter:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Bridge"><span class="nav-number">4.1.2.</span> <span class="nav-text">Bridge:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Decorator"><span class="nav-number">4.1.3.</span> <span class="nav-text">Decorator:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Facade"><span class="nav-number">4.1.4.</span> <span class="nav-text">Facade:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Proxy"><span class="nav-number">4.1.5.</span> <span class="nav-text">Proxy:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Creational（创建模式）"><span class="nav-number">4.2.</span> <span class="nav-text">Creational（创建模式）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Abstract-factory"><span class="nav-number">4.2.1.</span> <span class="nav-text">Abstract factory:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Builder"><span class="nav-number">4.2.2.</span> <span class="nav-text">Builder:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Factory"><span class="nav-number">4.2.3.</span> <span class="nav-text">Factory:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Prototype"><span class="nav-number">4.2.4.</span> <span class="nav-text">Prototype:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Behavioral-行为模式"><span class="nav-number">4.3.</span> <span class="nav-text">Behavioral(行为模式)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Chain-of-responsibility"><span class="nav-number">4.3.1.</span> <span class="nav-text">Chain of responsibility:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Observer"><span class="nav-number">4.3.2.</span> <span class="nav-text">Observer:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

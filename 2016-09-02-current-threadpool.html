@@ -95,7 +95,7 @@
 <meta property="og:description" content="1.概述好的软件设计不建议手动创建和销毁线程。线程的创建和销毁是非常耗 CPU 和内存的，因为这需要 JVM 和操作系统的参与。64位 JVM 默认线程栈是大小1 MB。这就是为什么说在请求频繁时为每个小的请求创建线程是一种资源的浪费。线程池可以根据创建时选择的策略自动处理线程的生命周期。重点在于：在资源（如内存、CPU）充足的情况下，线程池没有明显的优势，否则没有线程池将导致服务器奔溃。有很多的">
 <meta property="og:image" content="http://www.zhizus.com/images/threadPoolFramworkNew.png">
 <meta property="og:image" content="http://www.zhizus.com/images/threadPoolFlow.jpg">
-<meta property="og:updated_time" content="2017-04-15T13:27:35.174Z">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.515Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java线程池详解">
 <meta name="twitter:description" content="1.概述好的软件设计不建议手动创建和销毁线程。线程的创建和销毁是非常耗 CPU 和内存的，因为这需要 JVM 和操作系统的参与。64位 JVM 默认线程栈是大小1 MB。这就是为什么说在请求频繁时为每个小的请求创建线程是一种资源的浪费。线程池可以根据创建时选择的策略自动处理线程的生命周期。重点在于：在资源（如内存、CPU）充足的情况下，线程池没有明显的优势，否则没有线程池将导致服务器奔溃。有很多的">
@@ -454,7 +454,7 @@ netty中的线程池就会同时处理IO任务和少量的定时任务，我们�
 <p>饱和策略一定也不要忽视，合理的饱和策略处理异常情况才能使我们的程序更加稳定。</p>
 <p>线程池的大小一定要分情况讨论，首先考虑CPU密集或者IO密集，其次考虑任务是否有依赖关系，有依赖关系的需要稍稍设置大些，以免造成线程饥饿死锁。是否有长时间任务等等。</p>
 <p>生产消费者模式是个好模式，有着广泛的应用。</p>
-<p><strong>最后，再强调一遍，尽量避免使用无界队列！！！</strong>（本渣曾踩过这个坑…，压测的时候程序直接跪了）</p>
+<p><strong>最后，再强调一遍，尽量避免使用无界队列！！！</strong></p>
 <h2 id="7-延伸阅读："><a href="#7-延伸阅读：" class="headerlink" title="7.延伸阅读："></a>7.延伸阅读：</h2><p><a href="http://calvin1978.blogcn.com/articles/tomcat-threadpool.html" target="_blank" rel="external">江南白衣-Tomcat线程池，更符合大家想象的可扩展线程池</a></p>
 <p><a href="http://www.infoq.com/cn/articles/java-threadPool" target="_blank" rel="external">聊聊并发（三）——JAVA线程池的分析和使用</a></p>
 <hr>
@@ -594,7 +594,7 @@ netty中的线程池就会同时处理IO任务和少量的定时任务，我们�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -605,7 +605,7 @@ netty中的线程池就会同时处理IO任务和少量的定时任务，我们�
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

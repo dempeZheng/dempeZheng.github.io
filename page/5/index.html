@@ -279,8 +279,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-07-11-高并发利器支限流.html">
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-05-29- mysql千万级分页优化.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -302,8 +302,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017-07-11-高并发利器支限流.html" itemprop="url">
-                  高并发利器之限流
+                <a class="post-title-link" href="/2018-05-29- mysql千万级分页优化.html" itemprop="url">
+                   mysq千万级分页优化
                 </a>
               
             
@@ -327,7 +327,7 @@
 
           
           
-             <span id="/2017-07-11-高并发利器支限流.html" class="leancloud_visitors" data-flag-title="高并发利器之限流">
+             <span id="/2018-05-29- mysql千万级分页优化.html" class="leancloud_visitors" data-flag-title=" mysq千万级分页优化">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -356,15 +356,13 @@
       
         
           
-          
-在开发高并发系统时有三把利器用来保护系统：缓存、降级和限流。
-
-限流的目的是通过对并发访问 / 请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（可以直接丢弃请求，或者将溢出请求排队，引流等）。
-一般开发高并发系统常见的限流有：限制总并发数（比如数据库连接池
+          写在前面最近碰到一个分页查询消费记录问题，某个大主播消费记录十万级别的，翻页都后面越来越慢，消费表是亿级别的数据量，
+业务反馈问题sql如下：
+1SELECT * FROM `t_consume_log` FORCE INDEX(idx_consume) WHERE userid = 3014652
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-07-11-高并发利器支限流.html#more" rel="contents">
+            <a class="btn" href="/2018-05-29- mysql千万级分页优化.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -409,8 +407,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-07-09-Hystrix初探.html">
+  <article class="post post-type-笔记 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-05-27- windows配置github ssh key笔记.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -432,8 +430,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017-07-09-Hystrix初探.html" itemprop="url">
-                  Hystrix初探
+                <a class="post-title-link" href="/2018-05-27- windows配置github ssh key笔记.html" itemprop="url">
+                   windows配置github ssh key笔记
                 </a>
               
             
@@ -457,7 +455,7 @@
 
           
           
-             <span id="/2017-07-09-Hystrix初探.html" class="leancloud_visitors" data-flag-title="Hystrix初探">
+             <span id="/2018-05-27- windows配置github ssh key笔记.html" class="leancloud_visitors" data-flag-title=" windows配置github ssh key笔记">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -486,12 +484,13 @@
       
         
           
-          写在前面很早听闻Hystrix的大名，一直没有机会尝试。正好，最近工作中频繁要求到做好服务降级和容灾，就在一个项目里面小试了一下Hystrix。工期紧，直接用了Hystrix 默认的参数，也没有详细测试。结果压测时候悲剧了，几百个并发线程就触发了Hystrix的熔断策略。根本不是我期望的结果。
-所以
+          写在前面最近电脑重装了一次，好多环境要重新安装，需要重新配置git ssh认证，以前配置是找的教程，现在配置还是找教程，浪费了不少时间，这次不如把整个过程记录下来。方便下次安装
+ssh
+什么是ssh：ssh是Secure Shell（安全外壳协议）的缩写，建立在应用层和传输层基础上的安全协议。为了便
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-07-09-Hystrix初探.html#more" rel="contents">
+            <a class="btn" href="/2018-05-27- windows配置github ssh key笔记.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -536,8 +535,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-07-09-微服务下，如何保证服务可用性.html">
+  <article class="post post-type-灾备 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-04-02-金钱灾备跨机房自动切换落地实践.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -559,8 +558,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017-07-09-微服务下，如何保证服务可用性.html" itemprop="url">
-                  微服务下，如何保证服务可用性
+                <a class="post-title-link" href="/2018-04-02-金钱灾备跨机房自动切换落地实践.html" itemprop="url">
+                  金钱灾备跨机房自动切换落地实践
                 </a>
               
             
@@ -584,7 +583,7 @@
 
           
           
-             <span id="/2017-07-09-微服务下，如何保证服务可用性.html" class="leancloud_visitors" data-flag-title="微服务下，如何保证服务可用性">
+             <span id="/2018-04-02-金钱灾备跨机房自动切换落地实践.html" class="leancloud_visitors" data-flag-title="金钱灾备跨机房自动切换落地实践">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -613,12 +612,16 @@
       
         
           
-          背景最近经常被强调最多就是弱依赖降级，强依赖重试，db服务容灾的。被强调的原因是已经有好几例由于由于网络原因造成的重大事故了。
-如今，微服务有兴起的苗头，已经感觉到很多公司都在尝试基于spring cloud来建设微服务，虽然不一定成型，但是服务已经被拆的越来越细。在这种情况下，我们经常被要求服务高
+          现状金钱业务存在余额扣减问题，异地多活实现难度较大，现阶段金钱灾备为同城冷备。冷备节点则面临切换问题。
+1）真正突发故障是否敢切？
+2）人工切换风险高
+3）人工切换耗时久
+4）切换后数据一致性如何保证，如何快速恢复
+方案为解决上述问题，我们采用mysql mha 解决db自动切换问题，从业务止损方案
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-07-09-微服务下，如何保证服务可用性.html#more" rel="contents">
+            <a class="btn" href="/2018-04-02-金钱灾备跨机房自动切换落地实践.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -663,8 +666,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-06-19Java内存区域.html">
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-01-02-canal同步小试牛刀.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -686,8 +689,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017-06-19Java内存区域.html" itemprop="url">
-                  深入理解Java虚拟机-Java内存区域读书笔记
+                <a class="post-title-link" href="/2018-01-02-canal同步小试牛刀.html" itemprop="url">
+                  canal binlog同步小试牛刀
                 </a>
               
             
@@ -711,7 +714,7 @@
 
           
           
-             <span id="/2017-06-19Java内存区域.html" class="leancloud_visitors" data-flag-title="深入理解Java虚拟机-Java内存区域读书笔记">
+             <span id="/2018-01-02-canal同步小试牛刀.html" class="leancloud_visitors" data-flag-title="canal binlog同步小试牛刀">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -740,159 +743,14 @@
       
         
           
-          Java内存区域正好在读书，顺便记录一下读书笔记，因为懒，就暂时以思维导图的方式做个梳理。
-JVM运行时数据区域：
-
-
-
-对象分配
-
-
-
-
-后记最近在读深入理解Java虚拟机一书，后悔没有早点读，走了很多弯路。
-
-          
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017-06-19Java内存区域.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-04-28-一些感悟.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017-04-28-一些感悟.html" itemprop="url">
-                  一个服务化的分享
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2017-04-28-一些感悟.html" class="leancloud_visitors" data-flag-title="一个服务化的分享">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          分享今天听了几个vip p6大神的分享，当然包括vip的网红大神江南白衣，见了这些大神的真身，微服务部分干货也不少，好东西应该共享，
-目录
-1.Saturn-弹性任务调度系统的探索与演进
-2.唯品会服务化架构
-3.Java Tuning GuideV1.8.1
-
-
-
-
-
-
-后记距大神还有很多路要走，
+          场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
+解决方案解决方案一）
+在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
+这种方案实现比较简单，但是需要在旧服务中侵入代码
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-04-28-一些感悟.html#more" rel="contents">
+            <a class="btn" href="/2018-01-02-canal同步小试牛刀.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -937,8 +795,8 @@ JVM运行时数据区域：
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-04-17-gc.html">
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-12-06-记一次服务性能压测.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -960,8 +818,8 @@ JVM运行时数据区域：
             
               
                 
-                <a class="post-title-link" href="/2017-04-17-gc.html" itemprop="url">
-                  JVM GC调优PPT(转)
+                <a class="post-title-link" href="/2017-12-06-记一次服务性能压测.html" itemprop="url">
+                  记一次服务性能压测
                 </a>
               
             
@@ -985,7 +843,7 @@ JVM运行时数据区域：
 
           
           
-             <span id="/2017-04-17-gc.html" class="leancloud_visitors" data-flag-title="JVM GC调优PPT(转)">
+             <span id="/2017-12-06-记一次服务性能压测.html" class="leancloud_visitors" data-flag-title="记一次服务性能压测">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1014,270 +872,12 @@ JVM运行时数据区域：
       
         
           
-          
-
-后记1.对JVM GC总结的非常不错的ppt，体系结构清晰，顺着ppt看完总结整理一下基本可以hold 90% gc部分的面试了。
-2.原文链接：JVM GC调优
-
-          
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017-04-17-gc.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-03-31-netty-buffer-recycler.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017-03-31-netty-buffer-recycler.html" itemprop="url">
-                  记一次netty内存溢出的问题(下)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2017-03-31-netty-buffer-recycler.html" class="leancloud_visitors" data-flag-title="记一次netty内存溢出的问题(下)">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>上一篇：<a href="http://www.zhizus.com/2017-03-28-netty-outofmemory.html">记一次netty内存溢出的问题(上)</a></p>
-<p>在压测基于netty的RPC框架过程中发现了老生代的内存会不断膨胀，即便触发<code>full gc</code>也不会被回收。通过工具dump下来发现跟Recycler相关。</p>
-<div class="note default"><p>Netty的内存分配用到了Recycler机制。Recycler可以看作一个对象池，netty在分配内存的时候首先会从Recycler中<code>get()</code>,实际上是从FastLocalThread中获取，如果有便不重新分配。内存的<code>release()</code>的时候又会调用recycler()将对象回收。netty采用这种机制减少对象创建的损耗和减少垃圾回收从而提升性能。</p>
-</div>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017-03-31-netty-buffer-recycler.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-03-28-netty-outofmemory.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017-03-28-netty-outofmemory.html" itemprop="url">
-                  记一次netty内存溢出的问题(上)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2017-03-28-netty-outofmemory.html" class="leancloud_visitors" data-flag-title="记一次netty内存溢出的问题(上)">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          最近参与一个基于netty的rpc框架的开发，本来觉得只要线程模型和序列化没什么问题，性能应该不会差。然而，真正压测的时候竟然发生内存溢出。
-起初，仅仅2k/s的测一下正常情况下，系统的内存占用和垃圾回收情况，跑了一天发现一切正常。本来以为剩下的只要测测系统的处理峰值，做做小的优化就没啥事了。
-第二
+          场景线上数据比较复杂，也比较难模拟，为压测出较为真实的性能数据。综合考虑，采用tcpdump线上dump离线流量，将离线流量加速在预发布环境重放，记录压测数据。
+tcpdump dump线上离线流量1tcpdump -i eth1 tcp and port 17007 -s 0 -w online_
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-03-28-netty-outofmemory.html#more" rel="contents">
+            <a class="btn" href="/2017-12-06-记一次服务性能压测.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1322,8 +922,8 @@ JVM运行时数据区域：
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-11-05-guava-cache.html">
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-12-01-JVM进程CPU飙高排查.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1345,8 +945,8 @@ JVM运行时数据区域：
             
               
                 
-                <a class="post-title-link" href="/2016-11-05-guava-cache.html" itemprop="url">
-                  Guava Cache 分析
+                <a class="post-title-link" href="/2017-12-01-JVM进程CPU飙高排查.html" itemprop="url">
+                  JVM进程CPU飙高排查
                 </a>
               
             
@@ -1370,7 +970,7 @@ JVM运行时数据区域：
 
           
           
-             <span id="/2016-11-05-guava-cache.html" class="leancloud_visitors" data-flag-title="Guava Cache 分析">
+             <span id="/2017-12-01-JVM进程CPU飙高排查.html" class="leancloud_visitors" data-flag-title="JVM进程CPU飙高排查">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1399,17 +999,15 @@ JVM运行时数据区域：
       
         
           
-          guava的单线程回源缓存的更新有两种方法:
-
-被动更新：先从缓存获取，没有则回源获取，再更新缓存；
-主动更新：发现数据改变后直接更新缓存（在分布式场景下，不容易实现）
-
-在高并发环境，被动回源是需要注意的。
-问题：高并发场景下，大量请求在同一时间回源，大量的请求同一时间穿透到后端，容易引起后端服务
+          java进程CPU飙高是比较常见的case，排查方案网上大把，这里简单做个整理和记录。
+基本思路1）jps -l找对对应进程pid
+2）通过top -H -p pid找出耗用CPU消耗比较高的线程id
+3）将线程id转成16进制
+4）jstack pid | grep -C 30 16进制的线程id
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-11-05-guava-cache.html#more" rel="contents">
+            <a class="btn" href="/2017-12-01-JVM进程CPU飙高排查.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1454,8 +1052,8 @@ JVM运行时数据区域：
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-11-05guava-cache-info.html">
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-11-19-小记JVM参数调优（初）.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1477,8 +1075,8 @@ JVM运行时数据区域：
             
               
                 
-                <a class="post-title-link" href="/2016-11-05guava-cache-info.html" itemprop="url">
-                  Guava Cache使用示例
+                <a class="post-title-link" href="/2017-11-19-小记JVM参数调优（初）.html" itemprop="url">
+                  记JVM参数调优
                 </a>
               
             
@@ -1502,7 +1100,7 @@ JVM运行时数据区域：
 
           
           
-             <span id="/2016-11-05guava-cache-info.html" class="leancloud_visitors" data-flag-title="Guava Cache使用示例">
+             <span id="/2017-11-19-小记JVM参数调优（初）.html" class="leancloud_visitors" data-flag-title="记JVM参数调优">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1531,13 +1129,401 @@ JVM运行时数据区域：
       
         
           
-          1.使用场景
-缓存在很多场景下都是相当有用的。例如，计算或检索一个值的代价很高，并且对同样的输入需要不止一次获取值的时候，就应当考虑使用缓存。
-Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区别是ConcurrentMap会一直保存所有添加的元素，直到显式地移除。
+          一直以来都认为jvm参数调优应该是系统调优最后一步，jvm调优之前一定是代码和架构层面已经调优过了，没有什么调优空间，然后再来JVM参数调优。
+或者说，JVM默认的参数已经比较合适了，大部分团队都没有必要对JVM参数进行特殊调优。
+因为一直以来都是被灌输的这个理论，所以大都数情况都是出现了内存泄漏或
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-11-05guava-cache-info.html#more" rel="contents">
+            <a class="btn" href="/2017-11-19-小记JVM参数调优（初）.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-11-16-记一次服务时延增长问题排查.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-11-16-记一次服务时延增长问题排查.html" itemprop="url">
+                  记一次服务时延增长问题排查
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-11-16-记一次服务时延增长问题排查.html" class="leancloud_visitors" data-flag-title="记一次服务时延增长问题排查">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          场景线上服务高峰期间cpu300~400%飙高，系统使用内存正常（较低），cat监控到整个接口的耗时增长两倍多。
+1）首先怀疑cpu飙高，cpu是系统成为系统瓶颈，故
+sar命令查看到服务各个cpu使用值相对还是比较低，sys和user使用cpu也没毛病，cpu应该不是瓶颈。
+1sar -A  1 
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017-11-16-记一次服务时延增长问题排查.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-11-01-记一次fastjson转java对象的坑.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-11-01-记一次fastjson转java对象的坑.html" itemprop="url">
+                  记一次fastjson parsObject问题
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-11-01-记一次fastjson转java对象的坑.html" class="leancloud_visitors" data-flag-title="记一次fastjson parsObject问题">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          场景
+最近遇到一次由于java bean字段命名特殊（字段命名为：__time__），导致fastjson转java bean的异常问题。
+
+bug还原123String msg = "&#123;\"globalId\":1036210063725043712,\"name\":\"\",\"__
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017-11-01-记一次fastjson转java对象的坑.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-灾备 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-10-31-mysql binlog还原sql.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-10-31-mysql binlog还原sql.html" itemprop="url">
+                  mysql binlog还原sql
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-10-31-mysql binlog还原sql.html" class="leancloud_visitors" data-flag-title="mysql binlog还原sql">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          场景最近在做灾备演练，需要对mysql主备不同步的场景切换主备关系后修复数据。这个过程中就涉及到binlog的提取和恢复。
+核心需求是将差异的binlog提取出来转换为可执行的sql语句。
+这个需求涉及到两个点：
+1）切换主从关系前先记录主从同步的位点。
+2）根据位点提取binlog，并且将这部分b
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017-10-31-mysql binlog还原sql.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1578,7 +1564,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1623,7 +1609,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1634,7 +1620,7 @@ Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区�
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

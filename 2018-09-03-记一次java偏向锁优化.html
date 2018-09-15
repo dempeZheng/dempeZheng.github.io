@@ -1,0 +1,899 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="UseBiasedLocking,偏向锁,高并发,safepoint,stw" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="场景最近查找服务时延增长的问题，通过在jvm启动前加参数：-XX:+PrintGCApplicationStoppedTime，打印日志如下：
+1234567893.899: Total time for which application threads were stopped: 0.0006577 seconds, Stopping threads took: 0.0000253 secon">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次java偏向锁的优化">
+<meta property="og:url" content="http://www.zhizus.com/2018-09-03-记一次java偏向锁优化.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="场景最近查找服务时延增长的问题，通过在jvm启动前加参数：-XX:+PrintGCApplicationStoppedTime，打印日志如下：
+1234567893.899: Total time for which application threads were stopped: 0.0006577 seconds, Stopping threads took: 0.0000253 secon">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.521Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次java偏向锁的优化">
+<meta name="twitter:description" content="场景最近查找服务时延增长的问题，通过在jvm启动前加参数：-XX:+PrintGCApplicationStoppedTime，打印日志如下：
+1234567893.899: Total time for which application threads were stopped: 0.0006577 seconds, Stopping threads took: 0.0000253 secon">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zhizus.com/2018-09-03-记一次java偏向锁优化.html"/>
+
+
+
+
+
+  <title> 记一次java偏向锁的优化 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-case " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-09-03-记一次java偏向锁优化.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                记一次java偏向锁的优化
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-09-03-记一次java偏向锁优化.html" class="leancloud_visitors" data-flag-title="记一次java偏向锁的优化">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>最近查找服务时延增长的问题，通过在jvm启动前加参数：<code>-XX:+PrintGCApplicationStoppedTime</code>，打印日志如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">3.899: Total time for which application threads were stopped: 0.0006577 seconds, Stopping threads took: 0.0000253 seconds</div><div class="line">4.057: Total time for which application threads were stopped: 0.0006618 seconds, Stopping threads took: 0.0000251 seconds</div><div class="line">4.130: Total time for which application threads were stopped: 0.0007136 seconds, Stopping threads took: 0.0000615 seconds</div><div class="line">4.218: Total time for which application threads were stopped: 0.0006155 seconds, Stopping threads took: 0.0000250 seconds</div><div class="line">4.406: Total time for which application threads were stopped: 0.0006617 seconds, Stopping threads took: 0.0000289 seconds</div><div class="line">4.427: Total time for which application threads were stopped: 0.0005132 seconds, Stopping threads took: 0.0000261 seconds</div><div class="line">4.510: Total time for which application threads were stopped: 0.0002178 seconds, Stopping threads took: 0.0000296 seconds</div><div class="line">4.622: [GC (Metadata GC Threshold) [PSYoungGen: 801127K-&gt;22368K(1223168K)] 820102K-&gt;41351K(4019712K), 0.0195913 secs] [Times: user=0.11 sys=0.07, real=0.02 secs] </div><div class="line">4.641: [Full GC (Metadata GC Threshold) [PSYoungGen: 22368K-&gt;0K(1223168K)] [ParOldGen: 18983K-&gt;29281K(2796544K)] 41351K-&gt;29281K(4019712K), [Metaspace: 34906K-&gt;34906K(1079296K)], 0.0481762 secs] [Times: user=0.39 sys=0.03, real=0.05 secs]</div></pre></td></tr></table></figure>
+<p>发现有大量的Total time for which application threads were stopped的日志，尽管耗时不多，但是比较密集，整体耗时也不算少。
+查阅资料确认这个是由于线程进入safepoint导致的停顿。
+那么safepoint是什么？</p>
+<h2 id="SafePoint"><a href="#SafePoint" class="headerlink" title="SafePoint"></a>SafePoint</h2><blockquote>
+<p>Safepoint是java代码中一个线程可能暂停执行的一个位置，SafePoint保存了其他位置没有的一些运行信息。在这个位置上保存了线程上下文的任何信息，包括对象或者非对象的内部指针。在接收到JVM的进入Stop The World 的信息，在safepoint上，用户线程会被挂起。如果JNI代码想要访问在安全点上的用户线程，那么JNI所在线程也会阻塞直到用户线程离开安全点。因为在安全点上jvm线程信息被很好的描述，所以特别适合做一些全局性的操作，例如代码反优化，线程快照等等。<a href="http://peg.hengtiansoft.com/article/jvm-zhong-de-safepoint/" target="_blank" rel="external">http://peg.hengtiansoft.com/article/jvm-zhong-de-safepoint/</a></p>
+<p>一个线程可以在SafePoint上，也可以不在SafePoint上。一个线程在SafePoint时，它的状态可以安全地其他JVM线程所操作和观测；不在SafePoint时，就不能。在SafePoint上不代表被阻塞（比如：JNI方法就可以在SafePoint上运行），但是被阻塞一定发生在SafePoint上。当JVM决定达到一个全局的SafePoint（也叫做Stop the World），JVM里面所有的线程都要在SafePoint上并且不能离开，直到JVM让线程允许为止。这对要求所有线程都要被良好的描述的操作(比如CG，代码反优化等等)非常有好处。一些JVM可以持有一些私有的线程到SafePoint上而不需要全局的SafePoint，比如Zing.当你写一些非安全的代码的时候，你必须假设SafePoint有可能发生在任何两个字节码之间。非安全代码的调用并不要求必须有安全点，但是他们可以包含一个或者多个安全点。所有类型的JVM有一些效率非常高的技巧和去快速的穿过SafePoint，线程并不需要真正地进入SafePoint除非虚拟机指示线程这么做。所有的JNI方法都在SafePoint上执行。在安全点，JNI代码都不能改变和观测发起调用JNI代码线程的java机器状态。任何通过JNI API改变和观测调用线程的状态必须在调用线程离开安全点之后，以及再次进入SafePoint之前的时间内发生。 </p>
+</blockquote>
+<p>深入了解 ，请查阅：<a href="https://www.zhihu.com/question/57722838/answer/156390795" target="_blank" rel="external">https://www.zhihu.com/question/57722838/answer/156390795</a></p>
+<p>什时候线程需要进入SafePoint的呢
+看一下OpenJDK里面关于safepoint的一些说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">// Begin the process of bringing the system to a safepoint.    </div><div class="line">// Java threads can be in several different states and are    </div><div class="line">// stopped by different mechanisms:    </div><div class="line">//    </div><div class="line">//  1. Running interpreted    </div><div class="line">//     The interpeter dispatch table is changed to force it to    </div><div class="line">//     check for a safepoint condition between bytecodes.    </div><div class="line">//  2. Running in native code    </div><div class="line">//     When returning from the native code, a Java thread must check    </div><div class="line">//     the safepoint _state to see if we must block.  If the    </div><div class="line">//     VM thread sees a Java thread in native, it does    </div><div class="line">//     not wait for this thread to block.  The order of the memory    </div><div class="line">//     writes and reads of both the safepoint state and the Java    </div><div class="line">//     threads state is critical.  In order to guarantee that the    </div><div class="line">//     memory writes are serialized with respect to each other,    </div><div class="line">//     the VM thread issues a memory barrier instruction    </div><div class="line">//     (on MP systems).  In order to avoid the overhead of issuing    </div><div class="line">//     a mem barrier for each Java thread making native calls, each Java    </div><div class="line">//     thread performs a write to a single memory page after changing    </div><div class="line">//     the thread state.  The VM thread performs a sequence of    </div><div class="line">//     mprotect OS calls which forces all previous writes from all    </div><div class="line">//     Java threads to be serialized.  This is done in the    </div><div class="line">//     os::serialize_thread_states() call.  This has proven to be    </div><div class="line">//     much more efficient than executing a membar instruction    </div><div class="line">//     on every call to native code.    </div><div class="line">//  3. Running compiled Code    </div><div class="line">//     Compiled code reads a global (Safepoint Polling) page that    </div><div class="line">//     is set to fault if we are trying to get to a safepoint.    </div><div class="line">//  4. Blocked    </div><div class="line">//     A thread which is blocked will not be allowed to return from the    </div><div class="line">//     block condition until the safepoint operation is complete.    </div><div class="line">//  5. In VM or Transitioning between states    </div><div class="line">//     If a Java thread is currently running in the VM or transitioning    </div><div class="line">//     between states, the safepointing code will wait for the thread to    </div><div class="line">//     block itself when it attempts transitions to a new state.</div></pre></td></tr></table></figure>
+<p><a href="http://blog.csdn.net/iter_zc/article/details/41892567" target="_blank" rel="external">http://blog.csdn.net/iter_zc/article/details/41892567</a></p>
+<h3 id="为什么会进入safepoit"><a href="#为什么会进入safepoit" class="headerlink" title="为什么会进入safepoit"></a>为什么会进入safepoit</h3><p><code>-XX:+PrintGCApplicationStoppedTime</code>在gc.log里面记录了所有的停顿，但是没有记录停顿的原因。如果要追查停顿的原因还需要另外两个参数 <code>-XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1</code></p>
+<blockquote>
+<p>这两个参数用于记录STW发生的原因、线程情况、STW各个阶段的停顿时间等。
+此时，在stdout中会打出类似的内容：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">vmop [threads: total initially_running wait_to_block]</div><div class="line">1913.425: GenCollectForAllocation [ 55 2 0 ]</div><div class="line"></div><div class="line">[time: spin block sync cleanup vmop] page_trap_count</div><div class="line">[ 0 0 0 0 6 ] 0</div></pre></td></tr></table></figure>
+<p>此日志分两段，第一段是时间戳，VM Operation的类型，以及线程概况</p>
+<ul>
+<li>total:  所有的java线程数</li>
+<li>initially_running: 号召进入安全点时，还是Running状态的线程数</li>
+<li>wait_to_block: 所有线程都不Running时，仍不是Block状态的线程数</li>
+</ul>
+<p>第二段是到达安全点的各个阶段以及执行操作所花的时间，其中最重要的是vmop</p>
+<ul>
+<li>spin: VMOP线程使用自旋，等待所有线程都不是Running的时间</li>
+<li>block: VMOP线程基于锁，等待所有线程都是Block的时间</li>
+<li>sync:  spin+block +其他，这是从开始到进入安全点的总耗时</li>
+<li>cleanup: 退出清理所用时间</li>
+<li>vmop: 真正执行VM Operation的时间</li>
+</ul>
+<p>原来那些很多但又很短的安全点，全都是RevokeBias，<strong>高并发的应用一般会干脆在启动参数里加一句<code>-XX:-UseBiasedLocking</code>取消掉它</strong>。</p>
+<blockquote>
+<p>另外还看到有些类型是no vm operation， 给一些需要在安全点里进行，又非紧急的操作使用，如果这段时间里，VM都没有因为GC等原因进入过安全点，就强制进入一下。</p>
+</blockquote>
+<p>关于偏向锁，详见：</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>1）STW相关的JVM参数：</strong></p>
+<ul>
+<li><code>-XX:+PrintGCApplicationStoppedTime</code>：gc日志中打印所有停顿</li>
+<li><code>-XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1</code>：记录STW发生的原因、线程情况、STW各个阶段的停顿时间等</li>
+</ul>
+<p>2）高并发场景推荐通过<code>-XX:-UseBiasedLocking</code>禁用偏向锁</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://www.zhihu.com/question/57722838" target="_blank" rel="external">java GC进入safepoint的时间为什么会这么长？</a><br><a href="https://mp.weixin.qq.com/s/DS7AzBVNR-VmeEr3nPFeTw" target="_blank" rel="external">JVM的Stop The World，安全点，黑暗的地底世界 V2.0</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-08-31-处理 InterruptedException.html" rel="next" title="处理 InterruptedException">
+                <i class="fa fa-chevron-left"></i> 处理 InterruptedException
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-09-03-偏向锁.html" rel="prev" title="偏向锁">
+                偏向锁 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SafePoint"><span class="nav-number">2.</span> <span class="nav-text">SafePoint</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么会进入safepoit"><span class="nav-number">2.1.</span> <span class="nav-text">为什么会进入safepoit</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

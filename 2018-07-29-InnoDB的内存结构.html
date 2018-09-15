@@ -90,9 +90,9 @@
 <meta name="description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）
 
-主要包括：
+InnoDB的内存体系主要包括：
 
-缓冲池innodb_buffer_pool（数据页、">
+缓冲池innodb_buffe">
 <meta property="og:type" content="article">
 <meta property="og:title" content="InnoDB的内存结构">
 <meta property="og:url" content="http://www.zhizus.com/2018-07-29-InnoDB的内存结构.html">
@@ -100,19 +100,19 @@
 <meta property="og:description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）
 
-主要包括：
+InnoDB的内存体系主要包括：
 
-缓冲池innodb_buffer_pool（数据页、">
+缓冲池innodb_buffe">
 <meta property="og:image" content="http://www.zhizus.com/./images/InnoDB体系架构-内存 1.png">
-<meta property="og:updated_time" content="2018-07-29T13:11:23.054Z">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.516Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB的内存结构">
 <meta name="twitter:description" content="InnoDB的内存结构InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制InnoDB Checkpoint机制刷新到磁盘，从而提高数据库整体的性能）
 
-主要包括：
+InnoDB的内存体系主要包括：
 
-缓冲池innodb_buffer_pool（数据页、">
+缓冲池innodb_buffe">
 <meta name="twitter:image" content="http://www.zhizus.com/./images/InnoDB体系架构-内存 1.png">
 
 
@@ -370,41 +370,39 @@
         <h2 id="InnoDB的内存结构"><a href="#InnoDB的内存结构" class="headerlink" title="InnoDB的内存结构"></a>InnoDB的内存结构</h2><p>InnoDB存储引擎是基于磁盘存储的，为了解决CPU速度和磁盘速度的鸿沟，InnoDB使用了缓冲技术来提高数据库整体的性能。
 对于数据库中的页的修改，首先修改缓冲池中的页，然后以一定的频率刷新到磁盘上。（通过checkpoint机制<a href="http://www.zhizus.com/2018-07-29-InnoDB%20Checkpoint%E6%9C%BA%E5%88%B6.html">InnoDB Checkpoint机制</a>刷新到磁盘，从而提高数据库整体的性能）
 <img src="./images/InnoDB体系架构-内存 1.png" alt="Alt text">
-主要包括：</p>
+InnoDB的内存体系主要包括：</p>
 <ul>
 <li>缓冲池<code>innodb_buffer_pool</code>（数据页、索引页、插入缓冲，自适应hash索引、锁信息、数据字典）</li>
 <li>重做日志缓冲<code>redo_log_buffer</code></li>
 <li>额外内存池<code>innodb_additional_mem_pool_size</code></li>
 </ul>
 <h2 id="缓冲池"><a href="#缓冲池" class="headerlink" title="缓冲池"></a>缓冲池</h2><p>innoDB缓冲池的大小可以通过<code>innodb_buffer_pool_size</code>来设置。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW VARIABLES LIKE &apos;innodb_buffer_pool_size&apos;\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">Variable_name: innodb_buffer_pool_size</div><div class="line">        Value: 21474836480</div></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW VARIABLES LIKE 'innodb_buffer_pool_size'\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">Variable_name: innodb_buffer_pool_size</div><div class="line">        Value: 21474836480</div></pre></td></tr></table></figure>
 <blockquote>
 <p>从InnoDB 1.0.x版本开始，允许有多个缓冲池实例。每个页根据hash值平均分配到不同的缓冲实例中。从而减少数据库内部资源的竞争，增加数据库的并发处理能力。可以通过<code>innodb_buffer_pool_instances</code>来进行设置，默认值为1；</p>
 </blockquote>
-<h2 id="重做日志缓冲"><a href="#重做日志缓冲" class="headerlink" title="重做日志缓冲"></a>重做日志缓冲</h2><p>InnoDB存储引擎首先将重做日志信息放入redo_log_buffer，然后以一定的频率将其刷新到重做日志文件。
-重做日志的大小可以有参数innodb_log_buffer_size控制，</p>
+<h2 id="重做日志缓冲"><a href="#重做日志缓冲" class="headerlink" title="重做日志缓冲"></a>重做日志缓冲</h2><p>InnoDB存储引擎首先将重做日志信息放入<code>redo_log_buffer</code>，然后以一定的频率将其刷新到重做日志文件。
+重做日志的大小可以有参数<code>innodb_log_buffer_size</code>控制，</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW VARIABLES LIKE 'innodb_log_buffer_size'\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">Variable_name: innodb_log_buffer_size</div><div class="line">        Value: 16777216</div><div class="line">1 row in set (0.03 sec)</div></pre></td></tr></table></figure>
 <h3 id="重做日志缓冲的刷盘时机"><a href="#重做日志缓冲的刷盘时机" class="headerlink" title="重做日志缓冲的刷盘时机"></a>重做日志缓冲的刷盘时机</h3><ul>
 <li>Master Thread每1s将重做日志刷新到重做日志文件</li>
-<li>每个事务提交时会讲重做日志刷新到重做日志稳紧啊</li>
+<li>每个事务提交时会将重做日志刷新到重做日志文件</li>
 <li>当重做日志缓冲剩余空间小于1/2时，将重做日志刷新到重做日志</li>
 </ul>
 <blockquote>
 <p>当重做日志不可用（重做日志被覆盖）时，会将缓存的脏页刷到磁盘，避免宕机后缓存脏页数据丢失无法恢复。</p>
 </blockquote>
-<h2 id="额外内存池"><a href="#额外内存池" class="headerlink" title="额外内存池"></a>额外内存池</h2><p>一些数据结构本省的内存分配时，需要从额外的缓存池中进行申请，当该区域的内存不够时，会从缓冲池中进行申请。</p>
-<h2 id="LRU-List"><a href="#LRU-List" class="headerlink" title="LRU List"></a>LRU List</h2><p>通常来说数据库中的缓冲池是通过LRU(<code>Latest Recent Used</code>,最近最少使用)算法来管理。即最频繁使用的页再LRU列表的前端，而最少使用的页再LRU列表的尾端。当缓存池空间不够的时候，首先释放LRU列表尾端的页。
+<h2 id="额外内存池"><a href="#额外内存池" class="headerlink" title="额外内存池"></a>额外内存池</h2><p>一些数据结构本身的内存分配时，需要从<code>额外的缓存池</code>中进行申请，当该区域的内存不够时，会从缓冲池中进行申请。</p>
+<h2 id="LRU-List"><a href="#LRU-List" class="headerlink" title="LRU List"></a>LRU List</h2><p>通常来说数据库中的缓冲池是通过LRU(<code>Latest Recent Used</code>,最近最少使用)算法来管理。即最频繁使用的页再LRU列表的前端，而最少使用的页在LRU列表的尾端。当缓存池空间不够的时候，首先释放LRU列表尾端的页。 
 在InnoDB存储引擎中，缓冲池中的页大小默认是16KB，同样使用LRU进行管理。但是，稍有不同的是InnoDB存储引擎对LRU算法做了一些针对性的优化。在LRU列表中加入了<code>midpoint</code>位置。当读到最新的页，并不是将其放入LRU的首部，<strong>而是放入LRU列表的modpoint位置</strong>。</p>
 <h3 id="LRU-List-midpoint"><a href="#LRU-List-midpoint" class="headerlink" title="LRU List midpoint"></a>LRU List midpoint</h3><p><code>midpoint</code>位置可以用参数<code>innodb_old_blocks_pct</code>控制，默认位置再LRU列表5/8（37%）处。</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW VARIABLES LIKE 'innodb_old_blocks_pct'\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">Variable_name: innodb_old_blocks_pct</div><div class="line">        Value: 37</div></pre></td></tr></table></figure>
-<p>InnoDB把midpoint之前的数据成为new 列表，之后的数据称为old列表，如果每次都在将数据插入到midpoints位置，那么midpoint之前的数据恐怕一直没有机会刷新了。
+<p>InnoDB把midpoint之前的数据成为<code>new</code>列表，之后的数据称为<code>old</code>列表，如果每次都在将数据插入到<code>midpoints</code>位置，那么midpoint之前的数据恐怕一直没有机会刷新了。 
 为了解决这个问题，InnoDB引擎引入了<code>innodb_old_blocks_times</code>来进一步管理LRU列表，用于表示页读取到mid位置后需要等待多久才会被加入LRU列表的热端。</p>
 <p>那么为什么不采用朴素的LRU算法呢？
-这是因为若直接将读取到的页放入LRU的首部，那么某些SQL操作可能将会使缓冲池中的页被刷出，从而影响缓冲池的效率。比如索引或数据的扫描操作，这类操作需要访问列表中的许多页，甚至是全部的页。而这些数据通常紧紧是本次需要，并不是活跃的热点数据。</p>
-<h3 id="避免缓存热数据刷出的方法"><a href="#避免缓存热数据刷出的方法" class="headerlink" title="避免缓存热数据刷出的方法"></a>避免缓存热数据刷出的方法</h3><p>尽管有midpoint机制，扫描操作的SQL可能还是会将缓存的热数据刷出。 
-1）我们可以选择执行扫描SQL前先将<code>innodb_old_blocks_time</code>设置为0，来尽可能保证LRU列表的热点数据不被刷出。 
-2）如果热点数据不止63%，那么可以执行SQL前先调整<code>innodb_old_blocks_ptc</code>.</p>
-<h3 id="缓存命中率查看"><a href="#缓存命中率查看" class="headerlink" title="缓存命中率查看"></a>缓存命中率查看</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SHOW ENGINE INNODB STATUS\G;</div></pre></td></tr></table></figure>
+这是因为若直接将读取到的页放入LRU的首部，那么某些SQL操作可能将会使缓冲池中的页被刷出，从而影响缓冲池的效率。比如索引或数据的扫描操作，这类操作需要访问列表中的许多页，甚至是全部的页。而这些数据通常仅仅是本次需要，并不是活跃的热点数据。</p>
+<h3 id="避免缓存热数据刷出的方法"><a href="#避免缓存热数据刷出的方法" class="headerlink" title="避免缓存热数据刷出的方法"></a>避免缓存热数据刷出的方法</h3><p>尽管有midpoint机制，扫描操作的SQL可能还是会将缓存的热数据刷出。<br>1）我们可以选择执行扫描SQL前先将<code>innodb_old_blocks_time</code>设置为0，来尽可能保证LRU列表的热点数据不被刷出<br>2）如果热点数据不止63%，那么可以执行SQL前先调整<code>innodb_old_blocks_ptc</code>. </p>
+<h3 id="缓存命中率查看"><a href="#缓存命中率查看" class="headerlink" title="缓存命中率查看"></a>缓存命中率查看</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SHOW</span> <span class="keyword">ENGINE</span> <span class="keyword">INNODB</span> <span class="keyword">STATUS</span>\G;</div></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">----------------------</div><div class="line">BUFFER POOL AND MEMORY</div><div class="line">----------------------</div><div class="line">Total memory allocated 21978152960; in additional pool allocated 0</div><div class="line">Dictionary memory allocated 3921193</div><div class="line">Buffer pool size   1310719</div><div class="line">Free buffers       110</div><div class="line">Database pages     1244160</div><div class="line">Old database pages 459250</div><div class="line">Modified db pages  0</div><div class="line">Pending reads 0</div><div class="line">Pending writes: LRU 0, flush list 0, single page 0</div><div class="line">Pages made young 1739542, not young 0</div><div class="line">0.00 youngs/s, 0.00 non-youngs/s</div><div class="line">Pages read 2725046, created 236354, written 24868623</div><div class="line">0.00 reads/s, 0.00 creates/s, 0.00 writes/s</div><div class="line">Buffer pool hit rate 1000 / 1000, young-making rate 0 / 1000 not 0 / 1000</div><div class="line">Pages read ahead 0.00/s, evicted without access 0.00/s, Random read ahead 0.00/s</div><div class="line">LRU len: 1244160, unzip_LRU len: 0</div><div class="line">I/O sum[0]:cur[0], unzip sum[0]:cur[0]</div></pre></td></tr></table></figure>
 <p>可以看到<code>Buffer pool hit rate</code> 1000 / 1000 的命中率为100%，说明缓冲池运行良好，如果<code>Buffer pool hit rate</code>的值小于95%，用户需要观察是否由于全表扫描引起LRU列表被污染的问题。</p>
 <h3 id="缓存列表被污染的case"><a href="#缓存列表被污染的case" class="headerlink" title="缓存列表被污染的case"></a>缓存列表被污染的case</h3><p>线上有张亿级别的用户表，根据用户id查询qps 4k左右，平常都运行良好。后来有场景需要对用户表进行全表扫描比对数据。
@@ -463,8 +461,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-29-MySQL的体系结构及存储引擎.html" rel="next" title="MySQL的体系结构及存储引擎">
-                <i class="fa fa-chevron-left"></i> MySQL的体系结构及存储引擎
+              <a href="/2018-07-16-记一次Druid连接池CannotGetJdbcConnectionException问题排查.html" rel="next" title="记一次Druid连接池CannotGetJdbcConnectionException问题排查">
+                <i class="fa fa-chevron-left"></i> 记一次Druid连接池CannotGetJdbcConnectionException问题排查
               </a>
             
           </div>
@@ -472,6 +470,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-07-29-MySQL的体系结构及存储引擎.html" rel="prev" title="MySQL的体系结构及存储引擎">
+                MySQL的体系结构及存储引擎 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -545,7 +547,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -556,7 +558,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

@@ -89,9 +89,7 @@
 
 <meta name="description" content="java线程是宝贵的资源，我们在使用的时候都应该尽量用池化的技术来避免线程滥用。但是近来，服务拆分粒度越来越细，依赖服务线程隔离使用的场景越来越多。一个系统很容易线程数量达到四五千。那么java线程数量到底受什么制约，或者书java线程数量的上限究竟是多少？
 要知道java线程上限，首先我们要了解操作系统的线程
-操作系统线程分类1）用户级线程
-2）内核级线程
-3）混合模型
+操作系统线程分类1）用户级线程2）内核级线程3）混合模型  
 jdk线程的实现jdk是">
 <meta property="og:type" content="article">
 <meta property="og:title" content="jdk线程上限">
@@ -99,18 +97,14 @@ jdk线程的实现jdk是">
 <meta property="og:site_name" content="郑大侠的博客">
 <meta property="og:description" content="java线程是宝贵的资源，我们在使用的时候都应该尽量用池化的技术来避免线程滥用。但是近来，服务拆分粒度越来越细，依赖服务线程隔离使用的场景越来越多。一个系统很容易线程数量达到四五千。那么java线程数量到底受什么制约，或者书java线程数量的上限究竟是多少？
 要知道java线程上限，首先我们要了解操作系统的线程
-操作系统线程分类1）用户级线程
-2）内核级线程
-3）混合模型
+操作系统线程分类1）用户级线程2）内核级线程3）混合模型  
 jdk线程的实现jdk是">
-<meta property="og:updated_time" content="2018-07-07T03:54:18.483Z">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.515Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="jdk线程上限">
 <meta name="twitter:description" content="java线程是宝贵的资源，我们在使用的时候都应该尽量用池化的技术来避免线程滥用。但是近来，服务拆分粒度越来越细，依赖服务线程隔离使用的场景越来越多。一个系统很容易线程数量达到四五千。那么java线程数量到底受什么制约，或者书java线程数量的上限究竟是多少？
 要知道java线程上限，首先我们要了解操作系统的线程
-操作系统线程分类1）用户级线程
-2）内核级线程
-3）混合模型
+操作系统线程分类1）用户级线程2）内核级线程3）混合模型  
 jdk线程的实现jdk是">
 
 
@@ -367,9 +361,7 @@ jdk线程的实现jdk是">
       
         <p>java线程是宝贵的资源，我们在使用的时候都应该尽量用池化的技术来避免线程滥用。但是近来，服务拆分粒度越来越细，依赖服务线程隔离使用的场景越来越多。一个系统很容易线程数量达到四五千。那么java线程数量到底受什么制约，或者书java线程数量的上限究竟是多少？
 要知道java线程上限，首先我们要了解操作系统的线程</p>
-<h2 id="操作系统线程分类"><a href="#操作系统线程分类" class="headerlink" title="操作系统线程分类"></a>操作系统线程分类</h2><p>1）用户级线程
-2）内核级线程
-3）混合模型</p>
+<h2 id="操作系统线程分类"><a href="#操作系统线程分类" class="headerlink" title="操作系统线程分类"></a>操作系统线程分类</h2><p>1）用户级线程<br>2）内核级线程<br>3）混合模型  </p>
 <h2 id="jdk线程的实现"><a href="#jdk线程的实现" class="headerlink" title="jdk线程的实现"></a>jdk线程的实现</h2><p>jdk是基于基于内核级线程（1:1）实现的</p>
 <p>知道了jdk线程的实现，其实我们已经可以知道jdk线程的上线取决于操作系统的线程上限。
 那么操作系统线程的上限取决于什么呢？</p>
@@ -387,10 +379,7 @@ jdk线程的实现jdk是">
 <h3 id="jdk线程数量受内存制约"><a href="#jdk线程数量受内存制约" class="headerlink" title="jdk线程数量受内存制约"></a>jdk线程数量受内存制约</h3><p>这里有一个问题，jdk的线程数量到底是受操作系统内存制约 还是受jvm内存制约呢？
 上面我们提到，jdk系统是基于操作系统内核线程实现的，所以，jdk线程其实占用的是系统内存。所以有的时候我们分配给jvm的内存越大，反而jdk可以创建的线程越少了。</p>
 <p>这个问题之前碰到过一次，也有对应的总结。
-包括
-1）jdk线程数量
-2）jdk线程占用内存大小
-具体详见<a href="http://zhizus.com/2017-07-31-%E8%AE%B0%E4%B8%80%E6%AC%A1OutOfMemoryError.html" target="_blank" rel="external">记一次OutOfMemoryError: unable to create new native thread</a></p>
+包括<br>1）jdk线程数量<br>2）jdk线程占用内存大小<br>具体详见<a href="http://zhizus.com/2017-07-31-%E8%AE%B0%E4%B8%80%E6%AC%A1OutOfMemoryError.html" target="_blank" rel="external">记一次OutOfMemoryError: unable to create new native thread</a></p>
 <p>既然jdk线程数量收操作系统内存制约，那么jdk线程的上限怎么算呢？</p>
 <h2 id="当前系统线程数量的查看"><a href="#当前系统线程数量的查看" class="headerlink" title="当前系统线程数量的查看"></a>当前系统线程数量的查看</h2><p>以下两种方式都可以查看某个进程的线程数量</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">pstree -p 进程号 | wc -l</div><div class="line">top -H 进程号 | wc -l</div></pre></td></tr></table></figure>
@@ -534,7 +523,7 @@ jdk线程的实现jdk是">
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -545,7 +534,7 @@ jdk线程的实现jdk是">
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

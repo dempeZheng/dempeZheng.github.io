@@ -279,8 +279,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-08-浅谈事务.html">
+  <article class="post post-type-并发 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-11-浅谈CPU缓存一致性协议MESI.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -302,8 +302,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017-09-08-浅谈事务.html" itemprop="url">
-                  浅谈事务
+                <a class="post-title-link" href="/2018-07-11-浅谈CPU缓存一致性协议MESI.html" itemprop="url">
+                  CPU缓存一致性协议MESI
                 </a>
               
             
@@ -327,7 +327,7 @@
 
           
           
-             <span id="/2017-09-08-浅谈事务.html" class="leancloud_visitors" data-flag-title="浅谈事务">
+             <span id="/2018-07-11-浅谈CPU缓存一致性协议MESI.html" class="leancloud_visitors" data-flag-title="CPU缓存一致性协议MESI">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -356,15 +356,12 @@
       
         
           
-          事务的ACID特征
-Atomic原子性
-事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。
-Consistency一致性
-事务的执行不能破坏数据库数据的完整性和一致性，事务在执行
+          写在前面  处理器上有一套完整的协议，来保证Cache一致性。比较经典的Cache一致性协议当属MESI协议，奔腾处理器有使用它，很多其他的处理器都是使用它的变种。
+单核Cache中每个Cache line有2个标志：dirty和valid标志，它们很好的描述了Cache和Memory(内存)之间的
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-09-08-浅谈事务.html#more" rel="contents">
+            <a class="btn" href="/2018-07-11-浅谈CPU缓存一致性协议MESI.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -409,8 +406,8 @@ Consistency一致性
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-05-消息必达.html">
+  <article class="post post-type-札记 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-11-Java DNS cache.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -432,8 +429,8 @@ Consistency一致性
             
               
                 
-                <a class="post-title-link" href="/2017-09-05-消息必达.html" itemprop="url">
-                  消息必达
+                <a class="post-title-link" href="/2018-07-11-Java DNS cache.html" itemprop="url">
+                  Java DNS Cache小记
                 </a>
               
             
@@ -457,7 +454,7 @@ Consistency一致性
 
           
           
-             <span id="/2017-09-05-消息必达.html" class="leancloud_visitors" data-flag-title="消息必达">
+             <span id="/2018-07-11-Java DNS cache.html" class="leancloud_visitors" data-flag-title="Java DNS Cache小记">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -486,16 +483,17 @@ Consistency一致性
       
         
           
-          背景最近工作中遇到送礼必达的业务，送礼必达的本质是队列消息必达，而队列消息必达的核心是：
-1）消息ack
-2）消息落地
-下图展示一个可靠的消息从生产到消费的整个流程：
+          写在前面默认缓存时间30s
+缓存策略：
+永不过期
+禁用缓存
+设置缓存时间ttl
 
-12345678910111）producer client 发送message，message中包含sequenceId（唯一i
+Java DNS Cache缓存源代码 InetAddress123456789101112131415161718192021222324252627282930313233343536373839404142pri
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-09-05-消息必达.html#more" rel="contents">
+            <a class="btn" href="/2018-07-11-Java DNS cache.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -540,8 +538,8 @@ Consistency一致性
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-04-流量拷贝利器tcpcopy.html">
+  <article class="post post-type-java " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-07-JVM异常体系及异常机制.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -563,8 +561,8 @@ Consistency一致性
             
               
                 
-                <a class="post-title-link" href="/2017-09-04-流量拷贝利器tcpcopy.html" itemprop="url">
-                  流量拷贝利器tcpcopy
+                <a class="post-title-link" href="/2018-07-07-JVM异常体系及异常机制.html" itemprop="url">
+                  JVM异常体系及异常机制
                 </a>
               
             
@@ -588,7 +586,7 @@ Consistency一致性
 
           
           
-             <span id="/2017-09-04-流量拷贝利器tcpcopy.html" class="leancloud_visitors" data-flag-title="流量拷贝利器tcpcopy">
+             <span id="/2018-07-07-JVM异常体系及异常机制.html" class="leancloud_visitors" data-flag-title="JVM异常体系及异常机制">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -617,14 +615,14 @@ Consistency一致性
       
         
           
-          tcpcopy是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。
+          JVM 异常的本质
+Java异常时java语言支持的唯一之中错误上报机制。
 
-曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。
-现在此工具已经
+JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继承Throwable，RuntimeException和IOException等继承Exception。Error和RuntimeEx
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-09-04-流量拷贝利器tcpcopy.html#more" rel="contents">
+            <a class="btn" href="/2018-07-07-JVM异常体系及异常机制.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -669,8 +667,8 @@ Consistency一致性
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-08-30-电路电路器模式.html">
+  <article class="post post-type-test " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-07-如何快速提高代码测试覆盖率.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -692,8 +690,8 @@ Consistency一致性
             
               
                 
-                <a class="post-title-link" href="/2017-08-30-电路电路器模式.html" itemprop="url">
-                  电路熔断器模式
+                <a class="post-title-link" href="/2018-07-07-如何快速提高代码测试覆盖率.html" itemprop="url">
+                  如何快速提高测试代码覆盖率
                 </a>
               
             
@@ -717,7 +715,7 @@ Consistency一致性
 
           
           
-             <span id="/2017-08-30-电路电路器模式.html" class="leancloud_visitors" data-flag-title="电路熔断器模式">
+             <span id="/2018-07-07-如何快速提高代码测试覆盖率.html" class="leancloud_visitors" data-flag-title="如何快速提高测试代码覆盖率">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -746,11 +744,14 @@ Consistency一致性
       
         
           
-          概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路
+          今天一天都是在折腾代码覆盖率，如何快速提升代码覆盖率。虽然快速提高代码覆盖率不一定有用，但是覆盖率作为了一个明确的指标，快速提高也是没有办法的事情。
+折腾了一天貌似也没有太大的收获，但是还是随手记录一下。
+如何快速提高下面的快速提高的前提是覆盖率的统计是jacoco统计的。
+渠道一：过滤掉不想统计的
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-08-30-电路电路器模式.html#more" rel="contents">
+            <a class="btn" href="/2018-07-07-如何快速提高代码测试覆盖率.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -795,8 +796,8 @@ Consistency一致性
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-08-28-幂等.html">
+  <article class="post post-type-shell " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-02-jdk线程上限.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -818,8 +819,8 @@ Consistency一致性
             
               
                 
-                <a class="post-title-link" href="/2017-08-28-幂等.html" itemprop="url">
-                  幂等
+                <a class="post-title-link" href="/2018-07-02-jdk线程上限.html" itemprop="url">
+                  jdk线程上限
                 </a>
               
             
@@ -843,7 +844,7 @@ Consistency一致性
 
           
           
-             <span id="/2017-08-28-幂等.html" class="leancloud_visitors" data-flag-title="幂等">
+             <span id="/2018-07-02-jdk线程上限.html" class="leancloud_visitors" data-flag-title="jdk线程上限">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -872,15 +873,12 @@ Consistency一致性
       
         
           
-          概念一个幂等操作的特点是其任意多次执行所产生的影响均与一次执行的影响相同。
-
-幂等函数，或幂等方法，是指可以使用相同参数重复执行，并能获得相同结果的函数。这些函数不会影响系统状态，也不用担心重复执行会对系统造成改变.
-
-【注】很多人把他理解为“幂等性是指重复使用同样的参数调用同一方法时总能获得同样的
+          java线程是宝贵的资源，我们在使用的时候都应该尽量用池化的技术来避免线程滥用。但是近来，服务拆分粒度越来越细，依赖服务线程隔离使用的场景越来越多。一个系统很容易线程数量达到四五千。那么java线程数量到底受什么制约，或者书java线程数量的上限究竟是多少？
+要知道java线程上限，首先我们要了解操
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-08-28-幂等.html#more" rel="contents">
+            <a class="btn" href="/2018-07-02-jdk线程上限.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -925,8 +923,8 @@ Consistency一致性
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-08-26-重试机制.html">
+  <article class="post post-type-shell " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-06-20-tcpdump命令.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -948,8 +946,8 @@ Consistency一致性
             
               
                 
-                <a class="post-title-link" href="/2017-08-26-重试机制.html" itemprop="url">
-                  重试机制
+                <a class="post-title-link" href="/2018-06-20-tcpdump命令.html" itemprop="url">
+                  tcpdump命令
                 </a>
               
             
@@ -973,7 +971,7 @@ Consistency一致性
 
           
           
-             <span id="/2017-08-26-重试机制.html" class="leancloud_visitors" data-flag-title="重试机制">
+             <span id="/2018-06-20-tcpdump命令.html" class="leancloud_visitors" data-flag-title="tcpdump命令">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1002,14 +1000,12 @@ Consistency一致性
       
         
           
-          重试机制就是一种容错机制。是的最后一根救命稻草！
-Retry模式能够通过重复之前失败的操作来处理那些调用远端服务或者网络资源的时候发生的一些可以预期的临时性的错误。Retry模式可以提高应用的稳定性。
-适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结束。
-如
+          1. tcpdump的基本原理
+Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络报文(准确的说是：网络设备)消息的处理权，当网卡接收到一个网络报文后，它会遍历系统中所有已经注册的网络协议，例如：以太网协议、x25协议处理模块来尝试进行报文的解析处理。这一点和文件系统的挂载相似，就是让系统
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-08-26-重试机制.html#more" rel="contents">
+            <a class="btn" href="/2018-06-20-tcpdump命令.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1054,8 +1050,8 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-08-01-关于mysql容灾的一些思考.html">
+  <article class="post post-type-shell " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-06-19-iconfig命令.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1077,8 +1073,8 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
             
               
                 
-                <a class="post-title-link" href="/2017-08-01-关于mysql容灾的一些思考.html" itemprop="url">
-                  关于mysql容灾的一些思考
+                <a class="post-title-link" href="/2018-06-19-iconfig命令.html" itemprop="url">
+                  ifconfig命令
                 </a>
               
             
@@ -1102,7 +1098,7 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
 
           
           
-             <span id="/2017-08-01-关于mysql容灾的一些思考.html" class="leancloud_visitors" data-flag-title="关于mysql容灾的一些思考">
+             <span id="/2018-06-19-iconfig命令.html" class="leancloud_visitors" data-flag-title="ifconfig命令">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1131,14 +1127,14 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
       
         
           
-          背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
-容灾的技术方案
-这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。
-总结
+          ifconfig命令被用于配置和显示Linux内核中网络接口的网络参数。用ifconfig命令配置的网卡信息，在网卡重启后机器重启后，配置就不存在。要想将上述的配置信息永远的存的电脑里，那就要修改网卡的配置文件了。
+语法1ifconfig
+参数
+add&lt;地址&gt;：设置网络设备IPv6的ip
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-08-01-关于mysql容灾的一些思考.html#more" rel="contents">
+            <a class="btn" href="/2018-06-19-iconfig命令.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1183,8 +1179,8 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-07-31-记一次OutOfMemoryError.html">
+  <article class="post post-type-架构 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-06-06-基于zipkin的链路监控初探.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1206,8 +1202,8 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
             
               
                 
-                <a class="post-title-link" href="/2017-07-31-记一次OutOfMemoryError.html" itemprop="url">
-                  记一次OutOfMemoryError: unable to create new native thread
+                <a class="post-title-link" href="/2018-06-06-基于zipkin的链路监控初探.html" itemprop="url">
+                  基于zipkin的链路监控初探
                 </a>
               
             
@@ -1231,7 +1227,7 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
 
           
           
-             <span id="/2017-07-31-记一次OutOfMemoryError.html" class="leancloud_visitors" data-flag-title="记一次OutOfMemoryError: unable to create new native thread">
+             <span id="/2018-06-06-基于zipkin的链路监控初探.html" class="leancloud_visitors" data-flag-title="基于zipkin的链路监控初探">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1260,12 +1256,13 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
       
         
           
-          前言今天在测试环境跑测试用例的时候发现一大片测试用例无法通过，查看日志发现OutOfMemoryError: unable to create new native thread。从日志信息来看，很明显，内存不足，无法创建本地线程。
-遇到这个异常还是很意外的，测试用例大概就1.5k个，不至于跑个用例
+          写在前面
+如图，在复杂的调用链路中假设存在一条调用链路响应缓慢，如何定位其中延迟高的服务呢？
+Zipkin 为一个分布式的调用链跟踪系统( distributed tracing system )，聚合各业务系统调用延迟数据，达到链路调用监控跟踪。提到链路监控就不得不说谷歌的论文Dapper，大规模
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-07-31-记一次OutOfMemoryError.html#more" rel="contents">
+            <a class="btn" href="/2018-06-06-基于zipkin的链路监控初探.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1310,8 +1307,8 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-07-13-异步回调的另外一种方案.html">
+  <article class="post post-type-测试 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-06-04-浅谈代码覆盖率.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1333,8 +1330,8 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
             
               
                 
-                <a class="post-title-link" href="/2017-07-13-异步回调的另外一种方案.html" itemprop="url">
-                  异步回调通知的另一种方案
+                <a class="post-title-link" href="/2018-06-04-浅谈代码覆盖率.html" itemprop="url">
+                  浅谈代码覆盖率
                 </a>
               
             
@@ -1358,7 +1355,7 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
 
           
           
-             <span id="/2017-07-13-异步回调的另外一种方案.html" class="leancloud_visitors" data-flag-title="异步回调通知的另一种方案">
+             <span id="/2018-06-04-浅谈代码覆盖率.html" class="leancloud_visitors" data-flag-title="浅谈代码覆盖率">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1387,13 +1384,16 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
       
         
           
-          场景最近在做一个签约续费的服务，面临各种不同的回调，不同渠道的签约回调，解约回调，扣费回调等。我们需要处理这些回调，然后将这些回调通知业务方。
-这种应该是用队列的标准场景，一开始也是决定引入队列。但是由于老板考虑到维护成本，而内部有没有一个可靠的队列可用。所以队列的方案pass掉了。
-那么问题来了，
+          概念代码覆盖率 ＝ 代码的覆盖程度，一种度量方式。
+
+Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这个问题，他指出：把测试覆盖作为质量目标没有任何意义，而我们应该把它作为一种发现未被测试覆盖的代码的手段。
+
+
+代码覆盖率的意义1）分析未覆盖部分的代码，从而反推在前期测试设计是
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-07-13-异步回调的另外一种方案.html#more" rel="contents">
+            <a class="btn" href="/2018-06-04-浅谈代码覆盖率.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1438,8 +1438,8 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-07-12-当我们谈论队列，我们在说些什么.html">
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-05-30-数据库大表清理笔记.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1461,8 +1461,8 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
             
               
                 
-                <a class="post-title-link" href="/2017-07-12-当我们谈论队列，我们在说些什么.html" itemprop="url">
-                  当我们谈论队列，我们在说些什么
+                <a class="post-title-link" href="/2018-05-30-数据库大表清理笔记.html" itemprop="url">
+                  数据库大表清理笔记
                 </a>
               
             
@@ -1486,7 +1486,7 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
 
           
           
-             <span id="/2017-07-12-当我们谈论队列，我们在说些什么.html" class="leancloud_visitors" data-flag-title="当我们谈论队列，我们在说些什么">
+             <span id="/2018-05-30-数据库大表清理笔记.html" class="leancloud_visitors" data-flag-title="数据库大表清理笔记">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1515,14 +1515,13 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
       
         
           
-          工作中不得不引入队列了，正好来个关于队列的梳理，很早就有这个想法，一直拖到现在。
-
-消息队列已经逐渐成为企业IT系统内部通信的核心手段。它具有低耦合、可靠投递、广播、流量控制、最终一致性等一系列功能，成为异步RPC的主要手段之一。
-当今市面上有很多主流的消息中间件，如老牌的ActiveMQ、Rabb
+          背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。
+清理表找出大表查询备库，找出大表
+1SELECT TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017-07-12-当我们谈论队列，我们在说些什么.html#more" rel="contents">
+            <a class="btn" href="/2018-05-30-数据库大表清理笔记.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1563,7 +1562,7 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1608,7 +1607,7 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1619,7 +1618,7 @@ Retry模式能够通过重复之前失败的操作来处理那些调用远端服
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

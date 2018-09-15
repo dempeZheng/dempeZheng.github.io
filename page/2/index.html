@@ -279,8 +279,8 @@
   
   
 
-  <article class="post post-type-shell " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-07-02-jdk线程上限.html">
+  <article class="post post-type-jvm " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-27-Java内存区域与对象.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -302,8 +302,8 @@
             
               
                 
-                <a class="post-title-link" href="/2018-07-02-jdk线程上限.html" itemprop="url">
-                  jdk线程上限
+                <a class="post-title-link" href="/2018-08-27-Java内存区域与对象.html" itemprop="url">
+                  Java内存区域与对象
                 </a>
               
             
@@ -327,7 +327,7 @@
 
           
           
-             <span id="/2018-07-02-jdk线程上限.html" class="leancloud_visitors" data-flag-title="jdk线程上限">
+             <span id="/2018-08-27-Java内存区域与对象.html" class="leancloud_visitors" data-flag-title="Java内存区域与对象">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -356,12 +356,14 @@
       
         
           
-          java线程是宝贵的资源，我们在使用的时候都应该尽量用池化的技术来避免线程滥用。但是近来，服务拆分粒度越来越细，依赖服务线程隔离使用的场景越来越多。一个系统很容易线程数量达到四五千。那么java线程数量到底受什么制约，或者书java线程数量的上限究竟是多少？
-要知道java线程上限，首先我们要了解操
+          Java内存区域与对象
+程序计数器程序计数器（Program Counter Register）是一块较小内存空间，它可以看作当前线程执行的字节码行为指示器。
+如果线程正在执行的是一个Java方法，这个计数器记录的是正在执行的虚拟机字节码指令地址；
+如果正在执行的是Native方法，这个计数器值为空
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-07-02-jdk线程上限.html#more" rel="contents">
+            <a class="btn" href="/2018-08-27-Java内存区域与对象.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -406,8 +408,8 @@
   
   
 
-  <article class="post post-type-shell " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-06-20-tcpdump命令.html">
+  <article class="post post-type-并发 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-26-深入浅出volatile.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -429,8 +431,8 @@
             
               
                 
-                <a class="post-title-link" href="/2018-06-20-tcpdump命令.html" itemprop="url">
-                  tcpdump命令
+                <a class="post-title-link" href="/2018-08-26-深入浅出volatile.html" itemprop="url">
+                  深入浅出volatile
                 </a>
               
             
@@ -454,7 +456,7 @@
 
           
           
-             <span id="/2018-06-20-tcpdump命令.html" class="leancloud_visitors" data-flag-title="tcpdump命令">
+             <span id="/2018-08-26-深入浅出volatile.html" class="leancloud_visitors" data-flag-title="深入浅出volatile">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -483,12 +485,17 @@
       
         
           
-          1. tcpdump的基本原理
-Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络报文(准确的说是：网络设备)消息的处理权，当网卡接收到一个网络报文后，它会遍历系统中所有已经注册的网络协议，例如：以太网协议、x25协议处理模块来尝试进行报文的解析处理。这一点和文件系统的挂载相似，就是让系统
+          概述关键字volatitle是Java虚拟机提供最轻量的同步机制，当一个变量被volatile定义之后，具备两种语义：
+
+被volatile定义变量对所有的线程可见
+volatitle第二个语义是禁止指令重拍优化
+
+【注】volatile不能保证原子性，这个比较简单，但是面试的时候面试官喜欢问。
+v
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-06-20-tcpdump命令.html#more" rel="contents">
+            <a class="btn" href="/2018-08-26-深入浅出volatile.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -533,8 +540,8 @@ Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络�
   
   
 
-  <article class="post post-type-shell " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-06-19-iconfig命令.html">
+  <article class="post post-type-并发 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-25-深入浅出synchronized.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -556,8 +563,8 @@ Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络�
             
               
                 
-                <a class="post-title-link" href="/2018-06-19-iconfig命令.html" itemprop="url">
-                  ifconfig命令
+                <a class="post-title-link" href="/2018-08-25-深入浅出synchronized.html" itemprop="url">
+                  深入浅出synchronized
                 </a>
               
             
@@ -581,7 +588,7 @@ Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络�
 
           
           
-             <span id="/2018-06-19-iconfig命令.html" class="leancloud_visitors" data-flag-title="ifconfig命令">
+             <span id="/2018-08-25-深入浅出synchronized.html" class="leancloud_visitors" data-flag-title="深入浅出synchronized">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -610,14 +617,14 @@ Linux 的抓包是通过注册一种虚拟的底层网络协议来完成网络�
       
         
           
-          ifconfig命令被用于配置和显示Linux内核中网络接口的网络参数。用ifconfig命令配置的网卡信息，在网卡重启后机器重启后，配置就不存在。要想将上述的配置信息永远的存的电脑里，那就要修改网卡的配置文件了。
-语法1ifconfig
-参数
-add&lt;地址&gt;：设置网络设备IPv6的ip
+          深入浅出synchronizedsynchronized 可以保证方法或者代码块在运行时，同一时刻只有一个方法可以进入到临界区，同时它还可以保证共享变量的内存可见性。
+
+1.6版本之前 synchronized 被称之为 重量级锁
+1.6版本对 synchronized 进行了优化，主要优化的点在于
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-06-19-iconfig命令.html#more" rel="contents">
+            <a class="btn" href="/2018-08-25-深入浅出synchronized.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -662,8 +669,8 @@ add&lt;地址&gt;：设置网络设备IPv6的ip
   
   
 
-  <article class="post post-type-架构 " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-06-06-基于zipkin的链路监控初探.html">
+  <article class="post post-type-札记 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-23-小记SecureCRT 配色方案.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -685,8 +692,8 @@ add&lt;地址&gt;：设置网络设备IPv6的ip
             
               
                 
-                <a class="post-title-link" href="/2018-06-06-基于zipkin的链路监控初探.html" itemprop="url">
-                  基于zipkin的链路监控初探
+                <a class="post-title-link" href="/2018-08-23-小记SecureCRT 配色方案.html" itemprop="url">
+                  小记SecureCRT 配色方案
                 </a>
               
             
@@ -710,7 +717,7 @@ add&lt;地址&gt;：设置网络设备IPv6的ip
 
           
           
-             <span id="/2018-06-06-基于zipkin的链路监控初探.html" class="leancloud_visitors" data-flag-title="基于zipkin的链路监控初探">
+             <span id="/2018-08-23-小记SecureCRT 配色方案.html" class="leancloud_visitors" data-flag-title="小记SecureCRT 配色方案">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -739,144 +746,15 @@ add&lt;地址&gt;：设置网络设备IPv6的ip
       
         
           
-          写在前面
-如图，在复杂的调用链路中假设存在一条调用链路响应缓慢，如何定位其中延迟高的服务呢？
-Zipkin 为一个分布式的调用链跟踪系统( distributed tracing system )，聚合各业务系统调用延迟数据，达到链路调用监控跟踪。提到链路监控就不得不说谷歌的论文Dapper，大规模
+          最终效果SecureCRT 的配色真的是很难看，一直忍受了几年，最近突然被说难看，索性花点时间，搜了写文章，对照修改一下，最终效果如下：
+
+整体感觉还行，至少比之前的要好看很多。
+顺便记下来，方便以后调整。
+步骤1. 设置背景颜色和字体颜色：选项（Options）==》会话选项（Sessions o
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-06-06-基于zipkin的链路监控初探.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-测试 " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-06-04-浅谈代码覆盖率.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018-06-04-浅谈代码覆盖率.html" itemprop="url">
-                  浅谈代码覆盖率
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2018-06-04-浅谈代码覆盖率.html" class="leancloud_visitors" data-flag-title="浅谈代码覆盖率">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          概念代码覆盖率 ＝ 代码的覆盖程度，一种度量方式。
-
-Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这个问题，他指出：把测试覆盖作为质量目标没有任何意义，而我们应该把它作为一种发现未被测试覆盖的代码的手段。
-
-
-代码覆盖率的意义1）分析未覆盖部分的代码，从而反推在前期测试设计是
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018-06-04-浅谈代码覆盖率.html#more" rel="contents">
+            <a class="btn" href="/2018-08-23-小记SecureCRT 配色方案.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -922,7 +800,7 @@ Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这�
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-05-30-数据库大表清理笔记.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-13-Mysq seconds_behind_master的含义.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -944,8 +822,8 @@ Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这�
             
               
                 
-                <a class="post-title-link" href="/2018-05-30-数据库大表清理笔记.html" itemprop="url">
-                  数据库大表清理笔记
+                <a class="post-title-link" href="/2018-08-13-Mysq seconds_behind_master的含义.html" itemprop="url">
+                  Mysq seconds_behind_master的含义
                 </a>
               
             
@@ -969,7 +847,7 @@ Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这�
 
           
           
-             <span id="/2018-05-30-数据库大表清理笔记.html" class="leancloud_visitors" data-flag-title="数据库大表清理笔记">
+             <span id="/2018-08-13-Mysq seconds_behind_master的含义.html" class="leancloud_visitors" data-flag-title="Mysq seconds_behind_master的含义">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -998,13 +876,15 @@ Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这�
       
         
           
-          背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。
-清理表找出大表查询备库，找出大表
-1SELECT TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1
+          背景seconds_behind_master这个指标公司的db监控平台上面有，因为单词语义比较清晰，一致似懂非懂的认为是从库延时的时间。
+
+很多人说不上这个指标的含义，有的人认为是落后的事件数，有的人则认为是延迟的时间。
+
+case1） 经常业务侧监控到从库延时，但是seconds_behind_
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-05-30-数据库大表清理笔记.html#more" rel="contents">
+            <a class="btn" href="/2018-08-13-Mysq seconds_behind_master的含义.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1050,7 +930,7 @@ Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这�
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-05-29- mysql千万级分页优化.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-13-MySQL性能优化神器Explain.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1072,8 +952,8 @@ Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这�
             
               
                 
-                <a class="post-title-link" href="/2018-05-29- mysql千万级分页优化.html" itemprop="url">
-                   mysq千万级分页优化
+                <a class="post-title-link" href="/2018-08-13-MySQL性能优化神器Explain.html" itemprop="url">
+                  MySQL性能优化神器Explain
                 </a>
               
             
@@ -1097,7 +977,7 @@ Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这�
 
           
           
-             <span id="/2018-05-29- mysql千万级分页优化.html" class="leancloud_visitors" data-flag-title=" mysq千万级分页优化">
+             <span id="/2018-08-13-MySQL性能优化神器Explain.html" class="leancloud_visitors" data-flag-title="MySQL性能优化神器Explain">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1126,272 +1006,11 @@ Martin Fowler（重构那本书的作者）曾经写过一篇博客来讨论这�
       
         
           
-          写在前面最近碰到一个分页查询消费记录问题，某个大主播消费记录十万级别的，翻页都后面越来越慢，消费表是亿级别的数据量，
-业务反馈问题sql如下：
-1SELECT * FROM `t_consume_log` FORCE INDEX(idx_consume) WHERE userid = 3014652
+          概念MySQL EXPLAIN命令来查看一个这些SQL语句的执行计划（query Execution plan），查看该SQL语句有没有使用上了索引，有没有做全表扫描，这都可以通过explain命令来查看。所以我们深入了解MySQL的基于开销的优化器，还可以获得很多可能被优化器考虑到的访问策略的细节
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-05-29- mysql千万级分页优化.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-笔记 " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-05-27- windows配置github ssh key笔记.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018-05-27- windows配置github ssh key笔记.html" itemprop="url">
-                   windows配置github ssh key笔记
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2018-05-27- windows配置github ssh key笔记.html" class="leancloud_visitors" data-flag-title=" windows配置github ssh key笔记">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          写在前面最近电脑重装了一次，好多环境要重新安装，需要重新配置git ssh认证，以前配置是找的教程，现在配置还是找教程，浪费了不少时间，这次不如把整个过程记录下来。方便下次安装
-ssh
-什么是ssh：ssh是Secure Shell（安全外壳协议）的缩写，建立在应用层和传输层基础上的安全协议。为了便
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018-05-27- windows配置github ssh key笔记.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-灾备 " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-04-02-金钱灾备跨机房自动切换落地实践.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018-04-02-金钱灾备跨机房自动切换落地实践.html" itemprop="url">
-                  金钱灾备跨机房自动切换落地实践
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2018-04-02-金钱灾备跨机房自动切换落地实践.html" class="leancloud_visitors" data-flag-title="金钱灾备跨机房自动切换落地实践">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          现状金钱业务存在余额扣减问题，异地多活实现难度较大，现阶段金钱灾备为同城冷备。冷备节点则面临切换问题。
-1）真正突发故障是否敢切？
-2）人工切换风险高
-3）人工切换耗时久
-4）切换后数据一致性如何保证，如何快速恢复
-方案为解决上述问题，我们采用mysql mha 解决db自动切换问题，从业务止损方案
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018-04-02-金钱灾备跨机房自动切换落地实践.html#more" rel="contents">
+            <a class="btn" href="/2018-08-13-MySQL性能优化神器Explain.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1437,7 +1056,7 @@ ssh
   
 
   <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-01-02-canal同步小试牛刀.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-13-Mysql性能优化利器Profiling.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1459,8 +1078,8 @@ ssh
             
               
                 
-                <a class="post-title-link" href="/2018-01-02-canal同步小试牛刀.html" itemprop="url">
-                  canal binlog同步小试牛刀
+                <a class="post-title-link" href="/2018-08-13-Mysql性能优化利器Profiling.html" itemprop="url">
+                  Mysql语句性能分析利器Profiling
                 </a>
               
             
@@ -1484,7 +1103,7 @@ ssh
 
           
           
-             <span id="/2018-01-02-canal同步小试牛刀.html" class="leancloud_visitors" data-flag-title="canal binlog同步小试牛刀">
+             <span id="/2018-08-13-Mysql性能优化利器Profiling.html" class="leancloud_visitors" data-flag-title="Mysql语句性能分析利器Profiling">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1513,14 +1132,402 @@ ssh
       
         
           
-          场景业务迁移过程中，需要完成新旧业务无缝迁移（迁移过程尽量不停服），难点是新服务和之前的服务数据库表结构不同，传统的mysql binlog同步无法做到同步。
-解决方案解决方案一）
-在业务侧双写，即在旧逻辑层面添加业务代码，写入旧表的同时也写入新表。
-这种方案实现比较简单，但是需要在旧服务中侵入代码
+          profiling
+The SHOW PROFILE and SHOW PROFILES statements display profiling information that indicates resource usage for statements executed during the
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018-01-02-canal同步小试牛刀.html#more" rel="contents">
+            <a class="btn" href="/2018-08-13-Mysql性能优化利器Profiling.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-11-Mysql秒杀业务笔记.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018-08-11-Mysql秒杀业务笔记.html" itemprop="url">
+                  Mysql秒杀业务笔记
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-08-11-Mysql秒杀业务笔记.html" class="leancloud_visitors" data-flag-title="Mysql秒杀业务笔记">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          场景需要保证用户账户余额更新，同时记录账户变更日志，变更日志有coinBefore，coin，保证日志coinBefore准确。
+获取coinBefore必须通过select coin from user where userId=${userid},
+逻辑如下：
+123451.查询余额记录内存co
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018-08-11-Mysql秒杀业务笔记.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-6-InnoDB一致性非锁定读.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018-08-6-InnoDB一致性非锁定读.html" itemprop="url">
+                  InnoDB一致性非锁定读
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-08-6-InnoDB一致性非锁定读.html" class="leancloud_visitors" data-flag-title="InnoDB一致性非锁定读">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          概念一致性非锁定读（consistent nonlocking read）是指InnoDB存储引擎通过行多版本控制（MVCC）的方式来读取当前执行时间数据库中行的数据。如果读取数据的行正在执行DELETE或UPDATE操作，这是读取的操作不会因此去等待锁的释放。而是会直接读取行的一个快照数据。
+
+上
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018-08-6-InnoDB一致性非锁定读.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-6-SQL事务隔离级别.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018-08-6-SQL事务隔离级别.html" itemprop="url">
+                  SQL事务隔离级别
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-08-6-SQL事务隔离级别.html" class="leancloud_visitors" data-flag-title="SQL事务隔离级别">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          隔离级别的种类SQL标准定义了四种隔离级别（一般来说隔离级别越低，并发越高）
+
+​READ UNCOMMITTED(未提交读)
+
+​事务的修改即使没有提交，对其他事务也是可见的，也成为脏读。从性能上来说这个隔离级别没有比其他的隔离级别好太多，但是却会导致很多问题，在实际应用中一般很少用到
+
+
+​RE
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018-08-6-SQL事务隔离级别.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1561,7 +1568,7 @@ ssh
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1606,7 +1613,7 @@ ssh
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1617,7 +1624,7 @@ ssh
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

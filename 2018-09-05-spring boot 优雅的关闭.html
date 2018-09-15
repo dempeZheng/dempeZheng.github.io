@@ -1,0 +1,1008 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="springboot,shutdownhook,signal" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="背景核心业务在发版的时候，出现线程池的异步订单丢失。
+因为线程池在初始化的时候已经加了hook，在hook里面执行了shutdown，竟然每次发版还是会丢失订单。这个乍看起来比较奇怪，就花了点时间理了理关于jvm安全关闭的知识。
+关于进程的关闭涉及的知识点比较多。springboot的安全关闭，jvm的安全关闭等等。
+JVM退出的场景
+收到 signal
+在 Java 代码里调用了 System.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="springboot优雅的关闭">
+<meta property="og:url" content="http://www.zhizus.com/2018-09-05-spring boot 优雅的关闭.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="背景核心业务在发版的时候，出现线程池的异步订单丢失。
+因为线程池在初始化的时候已经加了hook，在hook里面执行了shutdown，竟然每次发版还是会丢失订单。这个乍看起来比较奇怪，就花了点时间理了理关于jvm安全关闭的知识。
+关于进程的关闭涉及的知识点比较多。springboot的安全关闭，jvm的安全关闭等等。
+JVM退出的场景
+收到 signal
+在 Java 代码里调用了 System.">
+<meta property="og:image" content="http://www.zhizus.com/./images/1536149084534.png">
+<meta property="og:image" content="http://www.zhizus.com/./images/1536148672464.png">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.521Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="springboot优雅的关闭">
+<meta name="twitter:description" content="背景核心业务在发版的时候，出现线程池的异步订单丢失。
+因为线程池在初始化的时候已经加了hook，在hook里面执行了shutdown，竟然每次发版还是会丢失订单。这个乍看起来比较奇怪，就花了点时间理了理关于jvm安全关闭的知识。
+关于进程的关闭涉及的知识点比较多。springboot的安全关闭，jvm的安全关闭等等。
+JVM退出的场景
+收到 signal
+在 Java 代码里调用了 System.">
+<meta name="twitter:image" content="http://www.zhizus.com/./images/1536149084534.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zhizus.com/2018-09-05-spring boot 优雅的关闭.html"/>
+
+
+
+
+
+  <title> springboot优雅的关闭 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-java " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-09-05-spring boot 优雅的关闭.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                springboot优雅的关闭
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-09-05-spring boot 优雅的关闭.html" class="leancloud_visitors" data-flag-title="springboot优雅的关闭">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>核心业务在发版的时候，出现线程池的异步订单丢失。
+因为线程池在初始化的时候已经加了hook，在hook里面执行了shutdown，竟然每次发版还是会丢失订单。这个乍看起来比较奇怪，就花了点时间理了理关于jvm安全关闭的知识。</p>
+<p>关于进程的关闭涉及的知识点比较多。springboot的安全关闭，jvm的安全关闭等等。</p>
+<h2 id="JVM退出的场景"><a href="#JVM退出的场景" class="headerlink" title="JVM退出的场景"></a>JVM退出的场景</h2><ul>
+<li>收到 signal</li>
+<li>在 Java 代码里调用了 System.exit(int)。</li>
+<li>主线程跑完入口方法main()的时候，系统中还存在其它non-daemon线程，那么JVM要一直等到这些non-daemon线程也跑完才结束。而如果剩下的都是daemon线程了，则JVM不会等待它们跑完而直接可以退出</li>
+</ul>
+<blockquote>
+<p>当收到 Exception 或 Error 类型的 signal，默认情况下 JVM 会直接退出，shutdownhook 都不会被调用的。
+比如我们常用的<code>kill -9</code>，shutdownhook的代码就不会被执行。</p>
+</blockquote>
+<p>下图展示了JVM关闭的场景：
+<img src="./images/1536149084534.png" alt="Alt text">
+只有在正常关闭的场景，才会执行shutdownhook</p>
+<h2 id="JVM的安全退出"><a href="#JVM的安全退出" class="headerlink" title="JVM的安全退出"></a>JVM的安全退出</h2><p>JVM的安全退出可以基于Signal和ShutdownHook安全退出。
+基于Signal安全退出的相对比较少，但是对一些特殊场景比较有用，例如需要在进程关闭的时候立即得到事件消息，以便在第一时间做处理，而又很难侵入原有的关闭机制。
+下图展示了两种安全退出的关系：
+<img src="./images/1536148672464.png" alt="Alt text"></p>
+<h2 id="基于Signal的安全关闭"><a href="#基于Signal的安全关闭" class="headerlink" title="基于Signal的安全关闭"></a>基于Signal的安全关闭</h2><h3 id="信号简介"><a href="#信号简介" class="headerlink" title="信号简介"></a>信号简介</h3><p>信号是在软件层次上对中断机制的一种模拟，在原理上，一个进程收到一个信号与处理器收到一个中断请求可以说是一样的，它是进程间一种异步通信的机制。以Linux的kill命令为例，kill -s SIGKILL pid (即kill -9 pid) 立即杀死指定pid的进程，SIGKILL就是发送给pid进程的信号。</p>
+<p>信号具有平台相关性，Linux平台支持的一些终止进程信号如下所示：</p>
+<table>
+    <tbody>
+        <tr>
+            <td valign="top" width="142">
+            <p align="center">信号名称</p>
+            </td>
+            <td valign="top" width="425">
+            <p align="center">用途</p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="142">
+            <p align="center">SIGKILL</p>
+            </td>
+            <td valign="top" width="425">
+            <p align="center">终止进程，强制杀死进程</p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="142">
+            <p align="center">SIGTERM</p>
+            </td>
+            <td valign="top" width="425">
+            <p align="center">终止进程，软件终止信号</p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="142">
+            <p align="center">SIGTSTP</p>
+            </td>
+            <td valign="top" width="425">
+            <p align="center">停止进程，终端来的停止信号</p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="142">
+            <p align="center">SIGPROF</p>
+            </td>
+            <td valign="top" width="425">
+            <p align="center">终止进程，统计分布图用计时器到时</p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="142">
+            <p align="center">SIGUSR1</p>
+            </td>
+            <td valign="top" width="425">
+            <p align="center">终止进程，用户定义信号1</p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="142">
+            <p align="center">SIGUSR2</p>
+            </td>
+            <td valign="top" width="425">
+            <p align="center">终止进程，用户定义信号2</p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="142">
+            <p align="center">SIGINT</p>
+            </td>
+            <td valign="top" width="425">
+            <p align="center">终止进程，中断进程</p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="142">
+            <p align="center">SIGQUIT</p>
+            </td>
+            <td valign="top" width="425">
+            <p align="center">建立CORE文件终止进程，并且生成core文件</p>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<p>Windows平台存在一些差异，它的一些信号举例如下：SIGINT（Ctrl+C中断）、SIGILL、SIGTERM （kill发出的软件终止）、SIGBREAK （Ctrl+Break中断）。</p>
+<p>信号选择：为了不干扰正常信号的运作，又能模拟Java异步通知，在Linux上我们需要先选定一种特殊的信号。通过查看信号列表上的描述，发现 SIGUSR1 和 SIGUSR2 是允许用户自定义的信号,我们可以选择SIGUSR2，为了测试方便，在Windows上我们可以选择SIGINT。
+实现示例代码如下：
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"> <span class="comment">// 注册信号</span></div><div class="line">    Signal sig = <span class="keyword">new</span> Signal(ShutdownHandler.getOSSignalType());</div><div class="line">    Signal.handle(sig, <span class="keyword">new</span> SignalHandler() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">(Signal signal)</span> </span>&#123;</div><div class="line">            <span class="comment">// 关闭前的清理动作，例如可以关闭前可以主动在注册中心下线服务，保证发布的平滑启动</span></div><div class="line">            doBiz();</div><div class="line">            </div><div class="line">            <span class="comment">//退出系统</span></div><div class="line">            Runtime.getRuntime().exit(<span class="number">0</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"><span class="function"><span class="keyword">private</span> String <span class="title">getOSSignalType</span><span class="params">()</span></span></div><div class="line">   &#123;</div><div class="line">       <span class="keyword">return</span> System.getProperties().getProperty(<span class="string">"os.name"</span>).</div><div class="line">		 toLowerCase().startsWith(<span class="string">"win"</span>) ? <span class="string">"INT"</span> : <span class="string">"USR2"</span>;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>【备注】上述代码可以保证进程通过<code>kill -12</code>关闭的时候第一时间做<code>doBiz</code>的业务逻辑。执行完doBiz后在处理shutdownHook。</p>
+<h2 id="基于Shutdownhook的安全退出"><a href="#基于Shutdownhook的安全退出" class="headerlink" title="基于Shutdownhook的安全退出"></a>基于Shutdownhook的安全退出</h2><p>关闭钩子本质上是一个线程（也称为Hook线程），用来监听JVM的关闭。通过使用Runtime的addShutdownHook(Thread hook)可以向JVM注册一个关闭钩子。Hook线程在JVM 正常关闭才会执行，在强制关闭时不会执行。</p>
+<p>对于一个JVM中注册的多个关闭钩子它们将会并发执行，所以JVM并不能保证它的执行顺行。当所有的Hook线程执行完毕后，如果此时runFinalizersOnExit为true，那么JVM将先运行终结器，然后停止。Hook线程会延迟JVM的关闭时间，这就要求在编写钩子过程中必须要尽可能的减少Hook线程的执行时间。另外由于多个钩子是并发执行的，那么很可能因为代码不当导致出现竞态条件或死锁等问题，为了避免该问题，强烈建议在一个钩子中执行一系列操作。</p>
+<p>另外在使用关闭钩子还要注意以下几点： </p>
+<blockquote>
+<ol>
+<li>不能在钩子调用System.exit()，否则卡住JVM的关闭过程，但是可以调用Runtime.halt()。 </li>
+<li>不能再钩子中再进行钩子的添加和删掉操作，否则将会抛出IllegalStateException。 </li>
+<li>在System.exit()之后添加的钩子无效。 </li>
+<li>当JVM收到SIGTERM命令（比如操作系统在关闭时）后，如果钩子线程在一定时间没有完成，那么Hook线程可能在执行过程中被终止。 </li>
+<li>Hool线程中同样会抛出异常，如果抛出异常又不处理，那么钩子的执行序列就会被停止。</li>
+</ol>
+</blockquote>
+<p>利用钩子关闭的示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Runtime.getRuntime().addShutdownHook(<span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">               <span class="comment">// 做一些清理动作</span></div><div class="line">               doClear();</div><div class="line">           &#125;</div><div class="line">       &#125;));</div></pre></td></tr></table></figure>
+<p>通过以下代码也能保证程序在正常退出的时候能做一些清理工作，比如关闭线程池，关闭连接等。</p>
+<p>备注：
+利用钩子关闭无法保证多个钩子的执行时序问题，且多个钩子如果实现不好可能会造成竞态条件，造成程序退出失败，推荐只用一个钩子。</p>
+<p>如果程序通过调用<code>System.exit()</code>退出，调用钩子的线程后，就会退出。并不一定会等所有的线程执行完毕，<br>例如下面代码：程序并不会等所有的doBiz()业务执行完才退出，而是在hook线程返回后立即退出。
+很可能
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">ExecutorService threadPool = Executors.newCachedThreadPool();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</div><div class="line">            threadPool.submit(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                    doBiz();</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        Runtime.getRuntime().addShutdownHook(<span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                <span class="comment">// 做一些清理动作</span></div><div class="line">                threadPool.shutdown();<span class="comment">//executor.shutdown:关闭线程池，等所有任务执行完毕，线程池退出，方法设置完关闭状态后，立即返回</span></div><div class="line">            &#125;</div><div class="line">        &#125;));</div><div class="line">        System.exit(<span class="number">0</span>);</div></pre></td></tr></table></figure></p>
+<p>上述方法如果想要在程序退出前保证线程池所有的业务处理完成必须</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">ExecutorService threadPool = Executors.newCachedThreadPool();</div><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</div><div class="line">    threadPool.submit(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">            doBiz();</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">&#125;</div><div class="line"></div><div class="line">Runtime.getRuntime().addShutdownHook(<span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">// 做一些清理动作</span></div><div class="line">        threadPool.shutdown();</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">	        <span class="comment">// 该方法会等待线程池内任务执行完毕返回，超时时间10s</span></div><div class="line">            threadPool.awaitTermination(<span class="number">10</span>, TimeUnit.SECONDS);</div><div class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">            Thread.currentThread().interrupt();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;));</div><div class="line">System.exit(<span class="number">0</span>);</div></pre></td></tr></table></figure>
+<p>【注意】<strong>通过Signal&amp;System.exit(),JVM不管线程是否daemon，都不会等线程执行完成。shutdownhook实现需要注意</strong>。
+通过 <code>threadPool.awaitTermination(10, TimeUnit.SECONDS);</code>方法将hook线程变成同步的，线程池任务执行完，hook线程才能返回，程序才会退出。</p>
+<h2 id="springboot的安全关闭"><a href="#springboot的安全关闭" class="headerlink" title="springboot的安全关闭"></a>springboot的安全关闭</h2><p>springboot的安全关闭是基于shutdownHook来实现的，代码如下：
+<code>AbstractApplicationContext.registerShutdownHook</code>方法
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerShutdownHook</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.shutdownHook == <span class="keyword">null</span>) &#123;</div><div class="line">			<span class="comment">// No shutdown hook registered yet.</span></div><div class="line">			<span class="keyword">this</span>.shutdownHook = <span class="keyword">new</span> Thread() &#123;</div><div class="line">				<span class="meta">@Override</span></div><div class="line">				<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">					<span class="keyword">synchronized</span> (startupShutdownMonitor) &#123;</div><div class="line">						doClose();</div><div class="line">					&#125;</div><div class="line">				&#125;</div><div class="line">			&#125;;</div><div class="line">			Runtime.getRuntime().addShutdownHook(<span class="keyword">this</span>.shutdownHook);</div><div class="line">		&#125;</div><div class="line">	&#125;</div></pre></td></tr></table></figure></p>
+<p>核心逻辑在onClose方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doClose</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.active.get() &amp;&amp; <span class="keyword">this</span>.closed.compareAndSet(<span class="keyword">false</span>, <span class="keyword">true</span>)) &#123;</div><div class="line">			<span class="keyword">if</span> (logger.isInfoEnabled()) &#123;</div><div class="line">				logger.info(<span class="string">"Closing "</span> + <span class="keyword">this</span>);</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			LiveBeansView.unregisterApplicationContext(<span class="keyword">this</span>);</div><div class="line"></div><div class="line">			<span class="keyword">try</span> &#123;</div><div class="line">			    <span class="comment">// 1.发布closeEvent</span></div><div class="line">				<span class="comment">// Publish shutdown event. </span></div><div class="line">				publishEvent(<span class="keyword">new</span> ContextClosedEvent(<span class="keyword">this</span>));</div><div class="line">			&#125;</div><div class="line">			<span class="keyword">catch</span> (Throwable ex) &#123;</div><div class="line">				logger.warn(<span class="string">"Exception thrown from ApplicationListener handling ContextClosedEvent"</span>, ex);</div><div class="line">			&#125;</div><div class="line">			<span class="comment">// 2.stop所有实现了lifecycle的bean，避免延迟销毁</span></div><div class="line">			<span class="comment">// Stop all Lifecycle beans, to avoid delays during individual destruction.</span></div><div class="line">			<span class="keyword">if</span> (<span class="keyword">this</span>.lifecycleProcessor != <span class="keyword">null</span>) &#123;</div><div class="line">				<span class="keyword">try</span> &#123;</div><div class="line">					<span class="keyword">this</span>.lifecycleProcessor.onClose();</div><div class="line">				&#125;</div><div class="line">				<span class="keyword">catch</span> (Throwable ex) &#123;</div><div class="line">					logger.warn(<span class="string">"Exception thrown from LifecycleProcessor on context close"</span>, ex);</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">			<span class="comment">// 3.销毁所有的单例</span></div><div class="line">			<span class="comment">// Destroy all cached singletons in the context's BeanFactory.</span></div><div class="line">			destroyBeans();</div><div class="line"></div><div class="line">			<span class="comment">// Close the state of this context itself.</span></div><div class="line">			closeBeanFactory();</div><div class="line"></div><div class="line">			<span class="comment">// Let subclasses do some final clean-up if they wish...</span></div><div class="line">			onClose();</div><div class="line"></div><div class="line">			<span class="keyword">this</span>.active.set(<span class="keyword">false</span>);</div><div class="line">		&#125;</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<h3 id="springboot-doClose存在的问题"><a href="#springboot-doClose存在的问题" class="headerlink" title="springboot doClose存在的问题"></a>springboot doClose存在的问题</h3><p>spring关闭jetty容器是在onClose()实现的，也就是说，spring是最后才关闭jetty 的endpoint，这样可能会导致进程仍然在接受请求，但是请求可能无法正常处理。
+spring官方也承认这个问题存在，据说这个会在springboot 2.x的版本去优化，</p>
+<p>在spring优化之前，我们可以稍作修改，依赖spring closeEvent将jetty server的关闭提前至<code>publishEvent(new ContextClosedEvent(this));</code>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Bean</span></div><div class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Server server;</div><div class="line">  <span class="function"><span class="keyword">public</span> EmbeddedServletContainerFactory <span class="title">jettyEmbeddedServletContainerFactory</span><span class="params">()</span> </span>&#123;</div><div class="line">      JettyServletContainerFactory factory = <span class="keyword">new</span> JettyServletContainerFactory();</div><div class="line">      factory.addServerCustomizers(<span class="keyword">new</span> JettyServerCustomizer() &#123;</div><div class="line">          <span class="meta">@Override</span></div><div class="line">          <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">customize</span><span class="params">(Server server1)</span> </span>&#123;</div><div class="line"></div><div class="line">              server = server1;</div><div class="line">              logger.info(<span class="string">"Jetty version: "</span> + server.getVersion());</div><div class="line"></div><div class="line">              <span class="comment">// Add StatsticsHandler, in order for graceful shutdown to work.</span></div><div class="line">              StatisticsHandler handler = <span class="keyword">new</span> StatisticsHandler();</div><div class="line">              handler.setHandler(server.getHandler());</div><div class="line">              server.setHandler(handler);</div><div class="line"></div><div class="line">              <span class="comment">// We will stop it through JettyGracefulShutdown class.</span></div><div class="line">              server.setStopAtShutdown(<span class="keyword">false</span>);</div><div class="line">          &#125;</div><div class="line">      &#125;);</div><div class="line">      <span class="keyword">return</span> factory;</div><div class="line">  &#125;</div><div class="line">  <span class="meta">@Bean</span></div><div class="line">  <span class="function"><span class="keyword">public</span> JettyGracefulShutdown <span class="title">jettyGracefulShutdown</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">new</span> JettyGracefulShutdown(); &#125;</div><div class="line"></div><div class="line">  <span class="comment">// Springboot closes application context before everything.</span></div><div class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">JettyGracefulShutdown</span> <span class="keyword">implements</span> <span class="title">ApplicationListener</span>&lt;<span class="title">ContextClosedEvent</span>&gt; </span>&#123;</div><div class="line">      <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger log = LoggerFactory.getLogger(JettyGracefulShutdown.class);</div><div class="line"></div><div class="line">      <span class="meta">@Override</span></div><div class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ContextClosedEvent event)</span> </span>&#123;</div><div class="line">          <span class="keyword">if</span> (server == <span class="keyword">null</span>) &#123;</div><div class="line">              log.error(<span class="string">"Jetty server variable is null, this should not happen!"</span>);</div><div class="line">              <span class="keyword">return</span>;</div><div class="line">          &#125;</div><div class="line">          log.info(<span class="string">"Entering shutdown for Jetty."</span>);</div><div class="line">          <span class="keyword">if</span> (!(server.getHandler() <span class="keyword">instanceof</span> StatisticsHandler)) &#123;</div><div class="line">              log.error(<span class="string">"Root handler is not StatisticsHandler, graceful shutdown may not work at all!"</span>);</div><div class="line">          &#125; <span class="keyword">else</span> &#123;</div><div class="line">              log.info(<span class="string">"Active requests: "</span> + ((StatisticsHandler) server.getHandler()).getRequestsActive());</div><div class="line">          &#125;</div><div class="line">          <span class="keyword">try</span> &#123;</div><div class="line">              <span class="keyword">long</span> begin = System.currentTimeMillis();</div><div class="line">              server.stop();</div><div class="line">              log.info(<span class="string">"Shutdown took "</span> + (System.currentTimeMillis() - begin) + <span class="string">" ms."</span>);</div><div class="line">          &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">              log.error(<span class="string">"Fail to shutdown gracefully."</span>, e);</div><div class="line">          &#125;</div><div class="line">      &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>关于其他对象的关闭，也建议基于springboot的关闭，而不要去通过<code>Runtime.getRuntime().addShutdownHook()</code>,这种机制较难控制时序，</p>
+<p>正确的实例：依赖spring销毁bean的时间来shutdown</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">HystrixShutdownHook</span> <span class="keyword">implements</span> <span class="title">DisposableBean</span> </span>&#123;</div><div class="line"></div><div class="line">		<span class="meta">@Override</span></div><div class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">			<span class="comment">// Just call Hystrix to reset thread pool etc.</span></div><div class="line">			Hystrix.reset();</div><div class="line">		&#125;</div><div class="line"></div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://www.zhihu.com/question/52260716" target="_blank" rel="external">https://www.zhihu.com/question/52260716</a><br><a href="http://www.infoq.com/cn/articles/netty-elegant-exit-mechanism-and-principles" target="_blank" rel="external">http://www.infoq.com/cn/articles/netty-elegant-exit-mechanism-and-principles</a><br><a href="https://blog.csdn.net/dd864140130/article/details/49155179" target="_blank" rel="external">https://blog.csdn.net/dd864140130/article/details/49155179</a><br><a href="https://tech.imdada.cn/2017/06/18/jvm-safe-exit/" target="_blank" rel="external">https://tech.imdada.cn/2017/06/18/jvm-safe-exit/</a>  </p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-09-03-mysql show processlist.html" rel="next" title="Mysql show processlist">
+                <i class="fa fa-chevron-left"></i> Mysql show processlist
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-09-05-设计模式--行为型模式 .html" rel="prev" title="设计模式--行为型模式">
+                设计模式--行为型模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM退出的场景"><span class="nav-number">2.</span> <span class="nav-text">JVM退出的场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM的安全退出"><span class="nav-number">3.</span> <span class="nav-text">JVM的安全退出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于Signal的安全关闭"><span class="nav-number">4.</span> <span class="nav-text">基于Signal的安全关闭</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#信号简介"><span class="nav-number">4.1.</span> <span class="nav-text">信号简介</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于Shutdownhook的安全退出"><span class="nav-number">5.</span> <span class="nav-text">基于Shutdownhook的安全退出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#springboot的安全关闭"><span class="nav-number">6.</span> <span class="nav-text">springboot的安全关闭</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#springboot-doClose存在的问题"><span class="nav-number">6.1.</span> <span class="nav-text">springboot doClose存在的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">7.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -97,7 +97,7 @@
 <meta property="og:description" content="背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。
 清理表找出大表查询备库，找出大表
 1SELECT TABLE_SCHEMA,TABLE_NAME,((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1024) as totalSize FROM information_schema.TABLES o">
-<meta property="og:updated_time" content="2018-06-02T11:16:43.611Z">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.515Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据库大表清理笔记">
 <meta name="twitter:description" content="背景这段时间隔三差五就包db磁盘空间告警，需要提单清理日志表(大表)，一个表接近200g，最近有时间，就顺便整理记录一下。
@@ -380,6 +380,7 @@
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>直接drop 大表或者在db服务器删除大文件，db性能下降的很厉害，这点算是深有体会，好几次业务抖动都是db服务器清理大文件造成的。</p>
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p>关于采用硬链接+truncate+ sleep清理大表这篇文章讲的比较清楚
 <a href="https://www.cnblogs.com/billyxp/p/3664672.html" target="_blank" rel="external">https://www.cnblogs.com/billyxp/p/3664672.html</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1006978" target="_blank" rel="external">https://cloud.tencent.com/developer/article/1006978</a></p>
 
       
     </div>
@@ -517,7 +518,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -528,7 +529,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

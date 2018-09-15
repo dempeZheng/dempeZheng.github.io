@@ -1,0 +1,932 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="jvm,gc,OopMap,SafePoint" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="从GC说起
+识别jvm堆栈中一个数据类型是否为为引用类型，目前虚拟机实现中是如何做的？
+
+调用栈里的引用类型数据是GC的根集合（root set）的重要组成部分；找出栈上的引用是GC的根枚举（root enumeration）中不可或缺的一环。如何识别JVM堆栈中一个数据类型是否引用类型，要看JVM选择用什么方式。通常这个选择会影响到GC的实现。 
+保守式GC如果JVM选择不记录任何这种类型的数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OopMap&SafePoint理解">
+<meta property="og:url" content="http://www.zhizus.com/2018-08-28-OopMap&SafePoint理解.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="从GC说起
+识别jvm堆栈中一个数据类型是否为为引用类型，目前虚拟机实现中是如何做的？
+
+调用栈里的引用类型数据是GC的根集合（root set）的重要组成部分；找出栈上的引用是GC的根枚举（root enumeration）中不可或缺的一环。如何识别JVM堆栈中一个数据类型是否引用类型，要看JVM选择用什么方式。通常这个选择会影响到GC的实现。 
+保守式GC如果JVM选择不记录任何这种类型的数据">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.519Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OopMap&SafePoint理解">
+<meta name="twitter:description" content="从GC说起
+识别jvm堆栈中一个数据类型是否为为引用类型，目前虚拟机实现中是如何做的？
+
+调用栈里的引用类型数据是GC的根集合（root set）的重要组成部分；找出栈上的引用是GC的根枚举（root enumeration）中不可或缺的一环。如何识别JVM堆栈中一个数据类型是否引用类型，要看JVM选择用什么方式。通常这个选择会影响到GC的实现。 
+保守式GC如果JVM选择不记录任何这种类型的数据">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zhizus.com/2018-08-28-OopMap&SafePoint理解.html"/>
+
+
+
+
+
+  <title> OopMap&SafePoint理解 | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-jvm " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-28-OopMap&SafePoint理解.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                OopMap&SafePoint理解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-08-28-OopMap&SafePoint理解.html" class="leancloud_visitors" data-flag-title="OopMap&SafePoint理解">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="从GC说起"><a href="#从GC说起" class="headerlink" title="从GC说起"></a>从GC说起</h2><blockquote>
+<p>识别jvm堆栈中一个数据类型是否为为引用类型，目前虚拟机实现中是如何做的？</p>
+</blockquote>
+<p>调用栈里的引用类型数据是GC的根集合（root set）的重要组成部分；找出栈上的引用是GC的根枚举（root enumeration）中不可或缺的一环。<br>如何识别JVM堆栈中一个数据类型是否引用类型，要看JVM选择用什么方式。通常这个选择会影响到GC的实现。 </p>
+<h3 id="保守式GC"><a href="#保守式GC" class="headerlink" title="保守式GC"></a>保守式GC</h3><p>如果JVM选择不记录任何这种类型的数据，那么它就无法区分内存里某个位置上的数据到底应该解读为引用类型还是整型还是别的什么。这种条件下，实现出来的GC就会是“保守式GC（conservative GC）”。在进行GC的时候，JVM开始从一些已知位置（例如说JVM栈）开始扫描内存，扫描的时候每看到一个数字就看看它“像不像是一个指向GC堆中的指针”。这里会涉及上下边界检查（GC堆的上下界是已知的）、对齐检查（通常分配空间的时候会有对齐要求，假如说是4字节对齐，那么不能被4整除的数字就肯定不是指针），之类的。然后递归的这么扫描出去。 </p>
+<p>保守式GC的好处是相对来说实现简单些，而且可以方便的用在对GC没有特别支持的编程语言里提供自动内存管理功能。Boehm-Demers-Weiser GC是保守式GC中的典型代表，可以嵌入到C或C++等语言写的程序中。 </p>
+<p><strong>小历史故事：</strong> </p>
+<blockquote>
+<p>微软的JScript和早期版VBScript也是用保守式GC的；微软的JVM也是。VBScript后来改回用引用计数了。而微软JVM的后代，也就是.NET里的CLR，则改用了完全准确式GC。 
+为了赶上在一个会议上发布消息，微软最初的JVM原型只有一个月左右的时间从开工到达到符合Java标准。所以只好先用简单的办法来实现，也就自然选用了保守式GC。 </p>
+</blockquote>
+<p><strong>保守式GC的缺点有：</strong> 
+1、会有部分对象本来应该已经死了，但有疑似指针指向它们，使它们逃过GC的收集。这对程序语义来说是安全的，因为所有应该活着的对象都会是活的；但对内存占用量来说就不是件好事，总会有一些已经不需要的数据还占用着GC堆空间。具体实现可以通过一些调节来让这种无用对象的比例少一些，可以缓解（但不能根治）内存占用量大的问题。 </p>
+<p>2、由于不知道疑似指针是否真的是指针，所以它们的值都不能改写；移动对象就意味着要修正指针。换言之，对象就不可移动了。有一种办法可以在使用保守式GC的同时支持对象的移动，那就是增加一个间接层，不直接通过指针来实现引用，而是添加一层“句柄”（handle）在中间，所有引用先指到一个句柄表里，再从句柄表找到实际对象。这样，要移动对象的话，只要修改句柄表里的内容即可。但是这样的话引用的访问速度就降低了。Sun JDK的Classic VM用过这种全handle的设计，但效果实在算不上好。 </p>
+<p>由于JVM要支持丰富的反射功能，本来就需要让对象能了解自身的结构，而这种信息GC也可以利用上，所以很少有JVM会用完全保守式的GC。除非真的是特别懒… </p>
+<h3 id="半保守式GC"><a href="#半保守式GC" class="headerlink" title="半保守式GC"></a>半保守式GC</h3><p>JVM可以选择在栈上不记录类型信息，而在对象上记录类型信息。这样的话，扫描栈的时候仍然会跟上面说的过程一样，但扫描到GC堆内的对象时因为对象带有足够类型信息了，JVM就能够判断出在该对象内什么位置的数据是引用类型了。这种是“半保守式GC”，也称为“根上保守（conservative with respect to the roots）”。 </p>
+<p>为了支持半保守式GC，运行时需要在对象上带有足够的元数据。如果是JVM的话，这些数据可能在类加载器或者对象模型的模块里计算得到，但不需要JIT编译器的特别支持。 </p>
+<p>前面提到了Boehm GC，实际上它不但支持完全保守的方式，也可以支持半保守的方式。GCJ和Mono都是以半保守方式使用Boehm GC的例子。 </p>
+<p>Google Android的Dalvik VM的早期版本也是使用半保守式GC的一个例子。不过到2009年中的时候Dalvik VM的内部版本就已经开始支持准确式GC了——代价是优化过的DEX文件的体积膨胀了约9%。 
+其实许多较老的JVM都选择这种实现方式。 </p>
+<p>由于半保守式GC在堆内部的数据是准确的，所以它可以在直接使用指针来实现引用的条件下支持部分对象的移动，方法是只将保守扫描能直接扫到的对象设置为不可移动（pinned），而从它们出发再扫描到的对象就可以移动了。 
+完全保守的GC通常使用不移动对象的算法，例如mark-sweep。半保守方式的GC既可以使用mark-sweep，也可以使用移动部分对象的算法，例如Bartlett风格的mostly-copying GC。 </p>
+<p>半保守式GC对JNI方法调用的支持会比较容易：管它是不是JNI方法调用，是栈都扫过去…完事了。不需要对引用做任何额外的处理。当然代价跟完全保守式一样，会有“疑似指针”的问题。 </p>
+<h3 id="准确式GC"><a href="#准确式GC" class="headerlink" title="准确式GC"></a>准确式GC</h3><p>与保守式GC相对的是“准确式GC”，原文可以是precise GC、exact GC、accurate GC或者type accurate GC。外国人也挺麻烦的，“准确”都统一不到一个词上⋯ 
+是什么东西“准确”呢？关键就是“类型”，也就是说给定某个位置上的某块数据，要能知道它的准确类型是什么，这样才可以合理地解读数据的含义；GC所关心的含义就是“这块数据是不是指针”。 
+要实现这样的GC，JVM就要能够判断出所有位置上的数据是不是指向GC堆里的引用，包括活动记录（栈+寄存器）里的数据。 </p>
+<p><strong>有几种办法：</strong> </p>
+<p>1、让数据自身带上标记（tag）。这种做法在JVM里不常见，但在别的一些语言实现里有体现。就不详细介绍了。打标记的方式在半保守式GC中倒是更常见一些，例如CRuby就是用打标记的半保守式GC。CLDC-HI比较有趣，栈上对每个slot都配对一个字长的tag来说明它的类型，通过这种方式来减少stack map的开销；类似的实现在别的地方没怎么见过，大家一般都不这么取舍。 
+2、让编译器为每个方法生成特别的扫描代码。我还没见过JVM实现里这么做的，虽说在别的语言实现里有见过。 
+3、从外部记录下类型信息，存成映射表。现在三种主流的高性能JVM实现，HotSpot、JRockit和J9都是这样做的。其中，HotSpot把这样的数据结构叫做OopMap，JRockit里叫做livemap，J9里叫做GC map。Apache Harmony的DRLVM也把它叫GCMap。 
+要实现这种功能，需要虚拟机里的解释器和JIT编译器都有相应的支持，由它们来生成足够的元数据提供给GC。 
+使用这样的映射表一般有两种方式： 
+1、每次都遍历原始的映射表，循环的一个个偏移量扫描过去；这种用法也叫“解释式”； 
+2、为每个映射表生成一块定制的扫描代码（想像扫描映射表的循环被展开的样子），以后每次要用映射表就直接执行生成的扫描代码；这种用法也叫“编译式”。 </p>
+<p>在HotSpot中，对象的类型信息里有记录自己的OopMap，记录了在该类型的对象内什么偏移量上是什么类型的数据。所以从对象开始向外的扫描可以是准确的；这些数据是在类加载过程中计算得到的。 </p>
+<blockquote>
+<p>可以把oopMap简单理解成是调试信息。 OopMap就是一个附加的信息，告诉你栈上哪个位置本来是个什么东西。 这个信息是在JIT编译时跟机器码一起产生的。因为只有编译器知道源代码跟产生的代码的对应关系。 每个方法可能会有好几个oopMap，就是根据safepoint把一个方法的代码分成几段，每一段代码一个OopMap，作用域自然也仅限于这一段代码。 循环中引用多个对象，肯定会有多个变量，编译后占据栈上的多个位置。那这段代码的OopMap就会包含多条记录。</p>
+</blockquote>
+<p>每个被JIT编译过后的方法也会在一些特定的位置记录下OopMap，记录了执行到该方法的某条指令的时候，栈上和寄存器里哪些位置是引用。这样GC在扫描栈的时候就会查询这些OopMap就知道哪里是引用了。这些特定的位置主要在： </p>
+<ul>
+<li>1、循环的末尾 </li>
+<li>2、方法临返回前 / 调用方法的call指令后 </li>
+<li>3、可能抛异常的位置 </li>
+</ul>
+<p>这种位置被称为“安全点”（safepoint）。之所以要选择一些特定的位置来记录OopMap，是因为如果对每条指令（的位置）都记录OopMap的话，这些记录就会比较大，那么空间开销会显得不值得。选用一些比较关键的点来记录就能有效的缩小需要记录的数据量，但仍然能达到区分引用的目的。因为这样，HotSpot中GC不是在任意位置都可以进入，而只能在safepoint处进入。 
+而仍然在解释器中执行的方法则可以通过解释器里的功能自动生成出OopMap出来给GC用。 </p>
+<p>平时这些OopMap都是压缩了存在内存里的；在GC的时候才按需解压出来使用。 
+HotSpot是用“解释式”的方式来使用OopMap的，每次都循环变量里面的项来扫描对应的偏移量。 </p>
+<p>对Java线程中的<code>JNI</code>方法，它们既不是由JVM里的解释器执行的，也不是由<code>JVM</code>的<code>JIT</code>编译器生成的，所以会缺少OopMap信息。那么GC碰到这样的栈帧该如何维持准确性呢？ 
+<strong>HotSpot的解决方法是</strong>：所有经过JNI调用边界（调用JNI方法传入的参数、从JNI方法传回的返回值）的引用都必须用“句柄”（handle）包装起来。JNI需要调用Java API的时候也必须自己用句柄包装指针。在这种实现中，JNI方法里写的“jobject”实际上不是直接指向对象的指针，而是先指向一个句柄，通过句柄才能间接访问到对象。这样在扫描到JNI方法的时候就不需要扫描它的栈帧了——只要扫描句柄表就可以得到所有从JNI方法能访问到的GC堆里的对象。 
+但这也就意味着调用JNI方法会有句柄的包装/拆包装的开销，是导致JNI方法的调用比较慢的原因之一。</p>
+<h2 id="OopMap"><a href="#OopMap" class="headerlink" title="OopMap"></a>OopMap</h2><p>OopMap及解决了<code>准确GC</code>的问题（准确的找出JVM堆栈中的引用类型），同时也缩短了GC带来<code>Stop The World</code>的停顿。</p>
+<blockquote>
+<p>在正式的GC之前总是需要进行可达性分析来查找内存中所有存活的对象，以便GC能够正确的回收已经死亡的对象。那么对于一个十分复杂的系统，每次GC的时候都要遍历所有的引用肯定是不现实的。因为在可达性分析的时候，需要进行<code>Stop The World</code>，程序中的线程需要停止来配合可达性分析.  </p>
+<p><code>GC Roots</code> 枚举最大的困难点在于：检查范围比较大，并且必须在内存快照中进行，保证一致性，而且时间要求比较敏感。
+在生产环境中，即使不考虑其它部分内存，仅仅 Java 堆内存就可达几百兆甚至上G，在此范围内完成 GC Roots 确定是一件很困难的事情；同时，在进行 GC Roots 枚举时，必须保证一致性，即所有正在运行的程序必须停顿，不能出现正在枚举 GC Roots，而程序还在跑的情况，这会导致 GC Roots 不断变化，产生数据不一致导致统计不准确的情况；最后，由于所有工作线程必须停顿以完成 GC 过程，在大并发高访问量情况下，这个时间必须非常短。</p>
+</blockquote>
+<p>有了OopMap，就再也不用整个内存快照中扫描来找出引用关系。</p>
+<h2 id="安全点-Safepoint"><a href="#安全点-Safepoint" class="headerlink" title="安全点(Safepoint)"></a>安全点(Safepoint)</h2><p>如果为每一条指令都生成对应的 OopMap，那么将需要大量的额外空间，这样对导致 GC 成本很高，所以 HotSpot 只在 “特定位置” 记录这些信息，这些位置被称为 安全点(Safepoint)。</p>
+<p>并非程序在任意时刻都可以停顿下来进行 GC，而只有程序到达 安全点(Safepoint) 以后才可以停顿下来进行 GC；所以安全点既不能太少，以至于 GC 过程等待程序到达安全点的时间过长，也不能太多，以至于 GC 过程带来的成本过高。</p>
+<h2 id="安全点上停止线程方式"><a href="#安全点上停止线程方式" class="headerlink" title="安全点上停止线程方式"></a>安全点上停止线程方式</h2><p>由于在 GC 过程中必须保证程序已执行，那么也就是说 必须等待所有线程都到达安全点上方可进行 GC。</p>
+<p>一般会有两种解决方案：</p>
+<p>抢先式中断：不需要线程的执行代码去主动配合，当发生 GC 时，先强制中断所有线程，然后如果发现某些线程未处于安全点，那么将其唤醒，直至其到达安全点再次将其中断；这样一直等待所有线程都在安全点后开始 GC。</p>
+<p>主动式中断：不强制中断线程，只是简单地设置一个中断标记，各个线程在执行时轮询这个标记，一旦发现标记被改变(出现中断标记)时，那么将运行到安全点后自己中断挂起；目前所有商用虚拟机全部采用主动式中断。</p>
+<h2 id="安全区-Saferegion"><a href="#安全区-Saferegion" class="headerlink" title="安全区(Saferegion)"></a>安全区(Saferegion)</h2><p>安全点的机制似乎已经完美的解决了 “什么时候以及何时开始 GC” 的问题，但是实际情况并非如此；安全点机制仅仅是保证了程序执行时不需要太长时间就可以进入一个安全点进行 GC 动作，但是当特殊情况时，比如线程休眠、线程阻塞等状态的情况下，显然 JVM 不可能一直等待被阻塞或休眠的线程正常唤醒执行；此时就引入了安全区的概念。</p>
+<p>安全区(Saferegion)：安全区域是指在一段区域内，对象引用关系等不会发生变化，在此区域内任意位置开始 GC 都是安全的；线程运行时，首先标记自己进入了安全区，然后在这段区域内，如果线程发生了阻塞、休眠等操作，JVM 发起 GC 时将忽略这些处于安全区的线程。当线程再次被唤醒时，首先他会检查是否完成了 GC Roots枚举(或这个GC过程)，然后选择是否继续执行，否则将继续等待 GC 的完成。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>读到一篇写的比较深入的文章，后来搜索了一下，发现源头是R大的，R大果然在JVM是神一般的存在。
+<a href="http://rednaxelafx.iteye.com/blog/1044951" target="_blank" rel="external">http://rednaxelafx.iteye.com/blog/1044951</a></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://rednaxelafx.iteye.com/blog/1044951" target="_blank" rel="external">http://rednaxelafx.iteye.com/blog/1044951</a>
+<a href="http://xiao-feng.blogspot.com/2008/01/gc-safe-point-a" target="_blank" rel="external">http://xiao-feng.blogspot.com/2008/01/gc-safe-point-a</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-08-27-Java内存区域与对象.html" rel="next" title="Java内存区域与对象">
+                <i class="fa fa-chevron-left"></i> Java内存区域与对象
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-08-31-Java 泛型.html" rel="prev" title="Java泛型">
+                Java泛型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从GC说起"><span class="nav-number">1.</span> <span class="nav-text">从GC说起</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#保守式GC"><span class="nav-number">1.1.</span> <span class="nav-text">保守式GC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#半保守式GC"><span class="nav-number">1.2.</span> <span class="nav-text">半保守式GC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准确式GC"><span class="nav-number">1.3.</span> <span class="nav-text">准确式GC</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OopMap"><span class="nav-number">2.</span> <span class="nav-text">OopMap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安全点-Safepoint"><span class="nav-number">3.</span> <span class="nav-text">安全点(Safepoint)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安全点上停止线程方式"><span class="nav-number">4.</span> <span class="nav-text">安全点上停止线程方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安全区-Saferegion"><span class="nav-number">5.</span> <span class="nav-text">安全区(Saferegion)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">7.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

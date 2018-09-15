@@ -279,8 +279,8 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-23-motan-codec.html">
+  <article class="post post-type-灾备 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-21-金融灾备落地实践.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -302,8 +302,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016-09-23-motan-codec.html" itemprop="url">
-                  Motan源码解读-codec
+                <a class="post-title-link" href="/2017-09-21-金融灾备落地实践.html" itemprop="url">
+                  金融灾备落地实践
                 </a>
               
             
@@ -327,395 +327,7 @@
 
           
           
-             <span id="/2016-09-23-motan-codec.html" class="leancloud_visitors" data-flag-title="Motan源码解读-codec">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>motan的codec负责rpc框架通讯协议的编解码。codec模块是每个rpc必备的模块，一个设计良好的codec关系到rpc框架编解码的性能和对不同协议的扩展。</p>
-<p>dubbo支持http,thrift,dubbo,rmi,webservice,redis等等协议，而motan目前仅支持默认motan的协议，所以很多时候我们可能会扩展motan支持自己的协议，那么我们就得从codec入手了（有的时候甚至还会涉及到protocol）。</p>
-<p>codec的类图如下：</p>
-<p><img src="/images/motan/codec.png" alt="Alt text"></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016-09-23-motan-codec.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-23-motan-rpc.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016-09-23-motan-rpc.html" itemprop="url">
-                  深入浅出Motan RPC
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2016-09-23-motan-rpc.html" class="leancloud_visitors" data-flag-title="深入浅出Motan RPC">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>本系列文章假设你已经阅读过motan的官方wiki，对motan或者dubbo有一定的了解。对于没有读过wiki的请先阅读<a href="https://github.com/weibocom/motan/wiki/zh_userguide">官方wiki</a>。</p>
-<hr>
-<blockquote>
-<p><code>Motan</code>是一套基于java开发的<code>RPC框架</code>，除了常规的点对点调用外，Motan还提供<code>服务治理功能</code>，包括服务节点的自动发现、摘除、高可用和负载均衡等。Motan具有良好的扩展性，主要模块都提供了多种不同的实现，例如支持多种注册中心，支持多种rpc协议等。</p>
-</blockquote>
-<p><strong>motan定义为一个RPC框架，首先我们看一下RPC的定义：</strong></p>
-<blockquote>
-<p><code>RPC</code> 的全称是 <code>Remote Procedure Call</code> 是一种进程间通信方式。 它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。<strong>即程序员无论是调用本地的还是远程的函数，本质上编写的调用代码基本相同</strong>。</p>
-</blockquote>
-<p>RPC本质上要屏蔽远程调用和本地调用的差异性。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016-09-23-motan-rpc.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-22-motan-serialize.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016-09-22-motan-serialize.html" itemprop="url">
-                  Motan源码解读-serialize
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2016-09-22-motan-serialize.html" class="leancloud_visitors" data-flag-title="Motan源码解读-serialize">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote>
-<p><strong>序列化：</strong> 将数据结构或对象转换成二进制串的过程。
-<strong>反序列化：</strong>将在序列化过程中所生成的二进制串转换成数据结构或者对象的过程。</p>
-</blockquote>
-<p>motan 将RPC<code>请求中的参数、结果等对象进行序列化与反序列化</code>，即进行对象与字节流的互相转换；默认使用对java更友好的hessian2进行序列化。（注意序列化的是请求的参数，和返回的结果，其他的地方不需要序列化）</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016-09-22-motan-serialize.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-21-motan-protocol.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DempeZheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="郑大侠的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016-09-21-motan-protocol.html" itemprop="url">
-                  Motan源码解读-Protocol
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2016-09-21-motan-protocol.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Protocol">
+             <span id="/2017-09-21-金融灾备落地实践.html" class="leancloud_visitors" data-flag-title="金融灾备落地实践">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -744,13 +356,142 @@
       
         
           
-          protocol可以说是motan最重要的部分之一。
-暴露一个服务引用一个服务都是在这块实现的。
-1234567891011121314151617181920212223242526272829303132@Spi(scope = Scope.SINGLETON)public interface 
+          写在前面灾备的本质是冗余数据，而冗余的副作用就是带来数据一致性的问题。对于金融的业务场景，有些经典的强一致性场景。而这些强一致性场景就是金融灾备的难点所在。
+经典场景1）余额扣减
+2）库存扣减
+这两个场景是灾备的经典场景，也是金融难点，使我们要解决的核心问题。
+如果余额不能保证强一致性，就有可能出现
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-protocol.html#more" rel="contents">
+            <a class="btn" href="/2017-09-21-金融灾备落地实践.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-札记 " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-12浮点数的精度.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-09-12浮点数的精度.html" itemprop="url">
+                  浮点数的精度
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-09-12浮点数的精度.html" class="leancloud_visitors" data-flag-title="浮点数的精度">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          写在前面最近，测试妹子发现超大数据会造成用户余额计算错误。之前已经修复过一次double类型的计算引起的精度丢失的问题，所以很快就查出来是mysql的double类型引起的。
+说来惭愧，一直以来对浮点数丢失精度的问题都是一知半解，知道double，float类型的计算会引起精度问题，知道对于浮点数的
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017-09-12浮点数的精度.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -796,7 +537,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-21-motan-override.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-10-可靠的消息-解决分布式事务最佳实践.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -818,8 +559,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-override.html" itemprop="url">
-                  Motan源码解读-源码结构
+                <a class="post-title-link" href="/2017-09-10-可靠的消息-解决分布式事务最佳实践.html" itemprop="url">
+                  可靠的消息-解决分布式事务最佳实践
                 </a>
               
             
@@ -843,7 +584,7 @@
 
           
           
-             <span id="/2016-09-21-motan-override.html" class="leancloud_visitors" data-flag-title="Motan源码解读-源码结构">
+             <span id="/2017-09-10-可靠的消息-解决分布式事务最佳实践.html" class="leancloud_visitors" data-flag-title="可靠的消息-解决分布式事务最佳实践">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -872,15 +613,13 @@
       
         
           
-          旨在对motan包结构熟悉，顺带会根据包结构列出系列文章的索引。
-motan包结构motan-benchmark // 压测相关
-motan-core    //motan核心代码，也是源码解析的主要包
-motan-demo    // 示例，快速上手的最佳方法
-motan-extension //
+          背景服务化盛行的今天，分布式事务的场景也越来越多。高并发场景下的分布式事务也是程序设计中的长期以往的难题。
+正是因为其复杂性，很多公司，在一些依赖分布式事务的场景，都没有的事务保障，数据不一致了，用户投诉才知道。
+一提到分布式事务，很多人就进入了ACID的死胡同，不是二阶段，三阶段提交，就是paxo
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-override.html#more" rel="contents">
+            <a class="btn" href="/2017-09-10-可靠的消息-解决分布式事务最佳实践.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -926,7 +665,7 @@ motan-extension //
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-21-motan-hastratege.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-08-浅谈事务.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -948,8 +687,8 @@ motan-extension //
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-hastratege.html" itemprop="url">
-                  Motan源码解读-容错策略
+                <a class="post-title-link" href="/2017-09-08-浅谈事务.html" itemprop="url">
+                  浅谈事务
                 </a>
               
             
@@ -973,7 +712,7 @@ motan-extension //
 
           
           
-             <span id="/2016-09-21-motan-hastratege.html" class="leancloud_visitors" data-flag-title="Motan源码解读-容错策略">
+             <span id="/2017-09-08-浅谈事务.html" class="leancloud_visitors" data-flag-title="浅谈事务">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1002,17 +741,15 @@ motan-extension //
       
         
           
-          Motan的容错策略
-Motan 在集群调用失败时，提供了两种容错方案，并支持自定义扩展。 高可用集群容错策略在Client端生效，因此需在Client端添加配置 目前支持的集群容错策略有：
-
-
-Failover 失效切换（缺省）
-
-1&lt;motan:protocol ... haStrateg
+          事务的ACID特征
+Atomic原子性
+事务必须是一个原子的操作序列单元，事务中包含的各项操作在一次执行过程中，要么全部执行成功，要么全部不执行，任何一项失败，整个事务回滚，只有全部都执行成功，整个事务才算成功。
+Consistency一致性
+事务的执行不能破坏数据库数据的完整性和一致性，事务在执行
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-hastratege.html#more" rel="contents">
+            <a class="btn" href="/2017-09-08-浅谈事务.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1058,7 +795,7 @@ Failover 失效切换（缺省）
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-21-motan-filter.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-05-消息必达.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1080,8 +817,8 @@ Failover 失效切换（缺省）
             
               
                 
-                <a class="post-title-link" href="/2016-09-21-motan-filter.html" itemprop="url">
-                  Motan源码解读-Filter
+                <a class="post-title-link" href="/2017-09-05-消息必达.html" itemprop="url">
+                  消息必达
                 </a>
               
             
@@ -1105,7 +842,7 @@ Failover 失效切换（缺省）
 
           
           
-             <span id="/2016-09-21-motan-filter.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Filter">
+             <span id="/2017-09-05-消息必达.html" class="leancloud_visitors" data-flag-title="消息必达">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1134,14 +871,16 @@ Failover 失效切换（缺省）
       
         
           
-          很多服务都有filter这个概念，filter就像在管道前的过滤器，只要通过管道的请求必须先经过过滤器。
-过滤器可以做很多事情，类似权限控制，限流，统计，上报，监控等等。有些为服务架构会把filter单独抽出来作为getway服务。
-motan filter：目前实现的filter
-AccessLo
+          背景最近工作中遇到送礼必达的业务，送礼必达的本质是队列消息必达，而队列消息必达的核心是：
+1）消息ack
+2）消息落地
+下图展示一个可靠的消息从生产到消费的整个流程：
+
+12345678910111）producer client 发送message，message中包含sequenceId（唯一i
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-21-motan-filter.html#more" rel="contents">
+            <a class="btn" href="/2017-09-05-消息必达.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1187,7 +926,7 @@ AccessLo
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-20-motan-loadbalance.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-09-04-流量拷贝利器tcpcopy.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1209,8 +948,8 @@ AccessLo
             
               
                 
-                <a class="post-title-link" href="/2016-09-20-motan-loadbalance.html" itemprop="url">
-                  Motan源码解读-负载均衡
+                <a class="post-title-link" href="/2017-09-04-流量拷贝利器tcpcopy.html" itemprop="url">
+                  流量拷贝利器tcpcopy
                 </a>
               
             
@@ -1234,7 +973,7 @@ AccessLo
 
           
           
-             <span id="/2016-09-20-motan-loadbalance.html" class="leancloud_visitors" data-flag-title="Motan源码解读-负载均衡">
+             <span id="/2017-09-04-流量拷贝利器tcpcopy.html" class="leancloud_visitors" data-flag-title="流量拷贝利器tcpcopy">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1263,18 +1002,14 @@ AccessLo
       
         
           
-          负载均衡的策略
-Motan 在集群负载均衡时，提供了多种方案，缺省为 ActiveWeight，并支持自定义扩展。 负载均衡策略在Client端生效，因此需在Client端添加配置
+          tcpcopy是一种重放TCP流的工具，可用于替代ab做在线模拟压力测试，可转发各种在线请求到测试服务器上，进行较为详尽的近乎实际的测试，从而避免了新业务、系统上线带来的潜在问题。
 
-目前支持的负载均衡策略有：
-
-ActiveWeight(缺省)
-
-1&lt;motan:protocol ... l
+曾经应用于网易的广告投放系统，urs系统，nginx hmux协议等系统，避免了上线带来的很多问题。
+现在此工具已经
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-20-motan-loadbalance.html#more" rel="contents">
+            <a class="btn" href="/2017-09-04-流量拷贝利器tcpcopy.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1320,7 +1055,7 @@ ActiveWeight(缺省)
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-19-motan-clientMessage.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-08-30-电路电路器模式.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1342,8 +1077,8 @@ ActiveWeight(缺省)
             
               
                 
-                <a class="post-title-link" href="/2016-09-19-motan-clientMessage.html" itemprop="url">
-                  Motan源码解读-Client异步消息
+                <a class="post-title-link" href="/2017-08-30-电路电路器模式.html" itemprop="url">
+                  电路熔断器模式
                 </a>
               
             
@@ -1367,7 +1102,7 @@ ActiveWeight(缺省)
 
           
           
-             <span id="/2016-09-19-motan-clientMessage.html" class="leancloud_visitors" data-flag-title="Motan源码解读-Client异步消息">
+             <span id="/2017-08-30-电路电路器模式.html" class="leancloud_visitors" data-flag-title="电路熔断器模式">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1396,16 +1131,11 @@ ActiveWeight(缺省)
       
         
           
-          如何设计RPC异步消息？异步调用的好处就不说了，我们直入主题，讨论RPC异步消息如何设计？
-既然是异步的，我们有一个首要的问题需要解决：
-
-通常异步调用都是一问一答的模式，一个Request拿到一个Response，如果我们做了异步，怎么把这两个消息对应起来呢？
-
-既然需要对应，那么只有一种思路就是
+          概念电路熔断器模式(Circuit Breaker Patten), 该模式的原理类似于家里的电路熔断器，如果家里的电路发生短路，熔断器能够主动熔断电路，以避免灾难性损失。在分布式系统中应用电路熔断器模式后，当目标服务慢或者大量超时，调用方能够主动熔断，以防止服务被进一步拖垮；如果情况又好转了，电路
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-19-motan-clientMessage.html#more" rel="contents">
+            <a class="btn" href="/2017-08-30-电路电路器模式.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1451,7 +1181,7 @@ ActiveWeight(缺省)
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2016-09-19-motan-spi.html">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-08-28-幂等.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DempeZheng">
@@ -1473,8 +1203,8 @@ ActiveWeight(缺省)
             
               
                 
-                <a class="post-title-link" href="/2016-09-19-motan-spi.html" itemprop="url">
-                  Motan源码解读-SPI机制
+                <a class="post-title-link" href="/2017-08-28-幂等.html" itemprop="url">
+                  幂等
                 </a>
               
             
@@ -1498,7 +1228,7 @@ ActiveWeight(缺省)
 
           
           
-             <span id="/2016-09-19-motan-spi.html" class="leancloud_visitors" data-flag-title="Motan源码解读-SPI机制">
+             <span id="/2017-08-28-幂等.html" class="leancloud_visitors" data-flag-title="幂等">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1527,13 +1257,273 @@ ActiveWeight(缺省)
       
         
           
-          SPI 全称为 (Service Provider Interface) ,是JDK内置的一种服务提供发现机制。
-motan（也包括dubbo）各个模块的扩展都是基于spi来实现了，学习了解SPI机制对motan的学习尤为重要。
-SPI机制SPI的全名为Service Provider Interf
+          概念一个幂等操作的特点是其任意多次执行所产生的影响均与一次执行的影响相同。
+
+幂等函数，或幂等方法，是指可以使用相同参数重复执行，并能获得相同结果的函数。这些函数不会影响系统状态，也不用担心重复执行会对系统造成改变.
+
+【注】很多人把他理解为“幂等性是指重复使用同样的参数调用同一方法时总能获得同样的
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016-09-19-motan-spi.html#more" rel="contents">
+            <a class="btn" href="/2017-08-28-幂等.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-08-26-重试机制.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-08-26-重试机制.html" itemprop="url">
+                  重试机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-08-26-重试机制.html" class="leancloud_visitors" data-flag-title="重试机制">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          重试机制就是一种容错机制。是的最后一根救命稻草！
+Retry模式能够通过重复之前失败的操作来处理那些调用远端服务或者网络资源的时候发生的一些可以预期的临时性的错误。Retry模式可以提高应用的稳定性。
+适用场景功能逻辑中存在不稳定依赖场景，需要使用重试获取预期结果或者尝试重新执行逻辑不立即结束。
+如
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017-08-26-重试机制.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2017-08-01-关于mysql容灾的一些思考.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-08-01-关于mysql容灾的一些思考.html" itemprop="url">
+                  关于mysql容灾的一些思考
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017-08-01-关于mysql容灾的一些思考.html" class="leancloud_visitors" data-flag-title="关于mysql容灾的一些思考">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          背景工作中碰到要对用户余额做DB层的异地容灾。下文主要是自己的一些思考和对相关知识的一个梳理。
+容灾的技术方案
+这个图基本上来说是目前高可用系统中能看得到的所有的解决方案的基础了。M/S、MM实现起来不难，但是会有很多问题，2PC的问题就是性能不行，而Paxos的问题就是太复杂，实现难度太大。
+总结
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017-08-01-关于mysql容灾的一些思考.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1574,7 +1564,7 @@ SPI机制SPI的全名为Service Provider Interf
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1619,7 +1609,7 @@ SPI机制SPI的全名为Service Provider Interf
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1630,7 +1620,7 @@ SPI机制SPI的全名为Service Provider Interf
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

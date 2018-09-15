@@ -1,0 +1,912 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="mysql,InnoDB,mvcc,phantom problem,幻读" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="关于幻读的困惑最近在看《Mysql 技术内幕 InnoDB存储引擎》，看到幻读的部分很困惑。
+
+在默认的事务隔离级别下，即REPEATABLE READ下，InnoDB存储引擎采用Next-Key Locking机制来避免Phantom Problem；–《Mysql 技术内幕 InnoDB存储引擎》
+
+InnoDB通过MVCC机制来实现一致性非锁定读，在REPREATABLE READ事务隔离级">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB Phantom Problem(幻读)">
+<meta property="og:url" content="http://www.zhizus.com/2018-08-6-InnoDB Phantom Problem.html">
+<meta property="og:site_name" content="郑大侠的博客">
+<meta property="og:description" content="关于幻读的困惑最近在看《Mysql 技术内幕 InnoDB存储引擎》，看到幻读的部分很困惑。
+
+在默认的事务隔离级别下，即REPEATABLE READ下，InnoDB存储引擎采用Next-Key Locking机制来避免Phantom Problem；–《Mysql 技术内幕 InnoDB存储引擎》
+
+InnoDB通过MVCC机制来实现一致性非锁定读，在REPREATABLE READ事务隔离级">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.520Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="InnoDB Phantom Problem(幻读)">
+<meta name="twitter:description" content="关于幻读的困惑最近在看《Mysql 技术内幕 InnoDB存储引擎》，看到幻读的部分很困惑。
+
+在默认的事务隔离级别下，即REPEATABLE READ下，InnoDB存储引擎采用Next-Key Locking机制来避免Phantom Problem；–《Mysql 技术内幕 InnoDB存储引擎》
+
+InnoDB通过MVCC机制来实现一致性非锁定读，在REPREATABLE READ事务隔离级">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zhizus.com/2018-08-6-InnoDB Phantom Problem.html"/>
+
+
+
+
+
+  <title> InnoDB Phantom Problem(幻读) | 郑大侠的博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f75c9cec9ecead0dfce9a108b9688072";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">郑大侠的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-crossed">
+          <a href="http://zhizus.com" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-camera-retro"></i> <br />
+            
+            穿越
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-mysql " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://www.zhizus.com/2018-08-6-InnoDB Phantom Problem.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DempeZheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="郑大侠的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                InnoDB Phantom Problem(幻读)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018-08-6-InnoDB Phantom Problem.html" class="leancloud_visitors" data-flag-title="InnoDB Phantom Problem(幻读)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="关于幻读的困惑"><a href="#关于幻读的困惑" class="headerlink" title="关于幻读的困惑"></a>关于幻读的困惑</h2><p>最近在看《Mysql 技术内幕 InnoDB存储引擎》，看到幻读的部分很困惑。</p>
+<blockquote>
+<p>在默认的事务隔离级别下，即REPEATABLE READ下，InnoDB存储引擎采用Next-Key Locking机制来避免Phantom Problem；–《Mysql 技术内幕 InnoDB存储引擎》</p>
+</blockquote>
+<p>InnoDB通过MVCC机制来实现一致性非锁定读，在REPREATABLE READ事务隔离级别下，只能看到比当前事务号小的版本，什么场景下会出现幻读呢？
+关于MVCC详见<a href="http://zhizus.com/2018-08-1-MVCC%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E8%AF%BB.html" target="_blank" rel="external">InnoDB MVCC多版本并发读</a></p>
+<p>百思不得其解。</p>
+<p>网上查了很多资料，参差不齐。也不知道应该信任哪一个版本。</p>
+<p>于是，顺手翻了《高性能的Mysql》，读到下面一段关于幻读的解释，</p>
+<blockquote>
+<p>REPEATABLE READ解决了脏读的问题。该级别保证了在同一事务中多次读取的同样记录是一致的。但是理论上，可重复读隔离级别还是无法解决幻读（<code>Phantom Problem</code>）的问题。
+所谓的幻读，指的是当某个事务再读取某个范围内的记录是，回产生换行（Phantom Row）。<strong>InnoDB存储引擎通过多版本并发控制（<code>MVCC，Multiversion Concurrency Control</code>）解决了幻读问题。</strong>–《高性能的Mysql]》</p>
+</blockquote>
+<p>比较有意思了，两本书上面说法不太一致。</p>
+<blockquote>
+<p>To prevent phantoms, InnoDB uses an algorithm called next-key locking that combines index-row locking with gap locking. –Mysql官网</p>
+</blockquote>
+<p>官网上面找到这句，这个至少说明《Mysql 技术内幕 InnoDB存储引擎》这本书是上面的没错。</p>
+<blockquote>
+<p>The so-called phantom problem occurs within a transaction when the same query produces different sets of rows at different times. For example, if a SELECT is executed twice, but returns a row the second time that was not returned the first time, the row is a “phantom” row.</p>
+</blockquote>
+<p>官网给出关于幻读的定义：在同一事务下，连续两次执行相同的查询sql，可能返回不同的结果。第二次可能返回不存在的行。</p>
+<p>在这个语意的描述下，<code>REPEATABLE READ</code>正常场景下就不会出现幻读了。
+MVCC机制能提供一致性的非锁定读，在<code>REPEATABLE READ</code>隔离级别下保证读取的版本在事务开始之前。
+那么在<code>REPEATABLE READ</code>隔离级下，什么时候会出现两次读的结果不一样呢？
+我们先来看一个InnoDB在<code>REPEATABLE READ</code>下的”诡异现象”!</p>
+<h2 id="“诡异现象”"><a href="#“诡异现象”" class="headerlink" title="“诡异现象”"></a>“诡异现象”</h2><p>1）建一个简单的表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">show create table t5;</div><div class="line">+-------+---------------------------------------------------------------------------------------------------------+</div><div class="line">| Table | Create Table                                                                                            |</div><div class="line">+-------+---------------------------------------------------------------------------------------------------------+</div><div class="line">| t5    | CREATE TABLE `t5` (</div><div class="line">  `id` int(11) DEFAULT NULL,</div><div class="line">  KEY `id` (`id`)</div><div class="line">) ENGINE=InnoDB DEFAULT CHARSET=utf8 |</div><div class="line">+-------+---------------------------------------------------------------------------------------------------------+</div></pre></td></tr></table></figure>
+<p>2）初始化数据如下：
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">mysql&gt; select * from t5;         </div><div class="line">+------+</div><div class="line">| id   |</div><div class="line">+------+</div><div class="line">|    1 |</div><div class="line">|    4 |</div><div class="line">|    7 |</div><div class="line">+------+</div></pre></td></tr></table></figure></p>
+<p>3）诡异现象</p>
+<table class="wrapped fixed-table confluenceTable tablesorter tablesorter-default stickyTableHeaders" role="grid" style="padding: 0px;"><colgroup><col style="width: 49.0px;"><col style="width: 274.0px;"><col style="width: 252.0px;"><col style="width: 355.0px;"></colgroup><thead class="tableFloatingHeaderOriginal"><tr role="row" class="tablesorter-headerRow"><th class="confluenceTh tablesorter-header sortableHeader tablesorter-headerUnSorted" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" unselectable="on" aria-sort="none" aria-label="时间: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">时间</div></th><th class="confluenceTh tablesorter-header sortableHeader tablesorter-headerUnSorted" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" unselectable="on" aria-sort="none" aria-label="Session A: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">Session A</div></th><th class="confluenceTh tablesorter-header sortableHeader tablesorter-headerUnSorted" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" unselectable="on" aria-sort="none" aria-label="Session B: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">Session B</div></th><th colspan="1" class="confluenceTh tablesorter-header sortableHeader tablesorter-headerUnSorted" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" unselectable="on" aria-sort="none" aria-label="备注: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">备注</div></th></tr></thead><thead class="tableFloatingHeader" style="display: none;"><tr role="row" class="tablesorter-headerRow"><th class="confluenceTh tablesorter-header sortableHeader tablesorter-headerUnSorted" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" unselectable="on" aria-sort="none" aria-label="时间: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">时间</div></th><th class="confluenceTh tablesorter-header sortableHeader tablesorter-headerUnSorted" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" unselectable="on" aria-sort="none" aria-label="Session A: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">Session A</div></th><th class="confluenceTh tablesorter-header sortableHeader tablesorter-headerUnSorted" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" unselectable="on" aria-sort="none" aria-label="Session B: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">Session B</div></th><th colspan="1" class="confluenceTh tablesorter-header sortableHeader tablesorter-headerUnSorted" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" unselectable="on" aria-sort="none" aria-label="备注: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">备注</div></th></tr></thead><tbody aria-live="polite" aria-relevant="all"><tr role="row"><td class="confluenceTd">1</td><td class="confluenceTd"><p>mysql&gt; begin;<br>Query OK, 0 rows affected (0.04 sec)</p><p>mysql&gt; select <em> from t5 where id&gt;4;<br>+——+<br>| id |<br>+——+<br>| 7 |<br>+——+<br>1 row in set (0.04 sec)</em></p><p><br></p><p><br></p></td><td class="confluenceTd"><br></td><td colspan="1" class="confluenceTd"><br></td></tr><tr role="row"><td class="confluenceTd">2</td><td class="confluenceTd"><br></td><td class="confluenceTd"><p>begin;<br>Query OK, 0 rows affected (0.04 sec)</p><p>mysql&gt; insert into t5 value(8);<br>Query OK, 1 row affected (0.03 sec)</p></td><td colspan="1" class="confluenceTd"><br></td></tr><tr role="row"><td class="confluenceTd">3</td><td class="confluenceTd"><p>mysql&gt; select  from t5 where id&gt;4;<br>+——+<br>| id |<br>+——+<br>| 7 |<br>+——+<br>1 row in set (0.04 sec)</p></td><td class="confluenceTd"><br></td><td colspan="1" class="confluenceTd">这里 Session B事务没有提交，不管是READ COMMITED还是REPEATABLE READ都是不可见的</td></tr><tr role="row"><td class="confluenceTd">4</td><td class="confluenceTd"><br></td><td class="confluenceTd">commit；</td><td colspan="1" class="confluenceTd"><br></td></tr><tr role="row"><td class="confluenceTd">5</td><td class="confluenceTd"><p>mysql&gt; select <em> from t5 where id&gt;4;<br>+——+<br>| id |<br>+——+<br>| 7 |<br>+——+<br>1 row in set (0.04 sec)</em></p></td><td class="confluenceTd"><br></td><td colspan="1" class="confluenceTd">由于当前的事务隔离级别是<span>REPEATABLE READ，InnoDB通过MVCC机制提供一致性非锁定读，故目前仍然不可见Session B事务</span></td></tr><tr role="row"><td class="highlight-red confluenceTd" colspan="1" data-highlight-colour="red">6</td><td class="highlight-red confluenceTd" colspan="1" data-highlight-colour="red"><p>mysql&gt; update t5 set id=10 where id=8;<br>Query OK, 1 row affected (0.04 sec)<br>Rows matched: 1 Changed: 1 Warnings: 0</p></td><td class="highlight-red confluenceTd" colspan="1" data-highlight-colour="red"><br></td><td class="highlight-red confluenceTd" colspan="1" data-highlight-colour="red">诡异现象出现了，这里update的语句竟然可以看到Session B的提交</td></tr><tr role="row"><td colspan="1" class="confluenceTd">7</td><td colspan="1" class="confluenceTd"><p>mysql&gt; select  from t5 where id&gt;4; <br>+——+<br>| id |<br>+——+<br>| 7 |<br>| 10 |<br>+——+<br>2 rows in set (0.03 sec)</p></td><td colspan="1" class="confluenceTd"><br></td><td colspan="1" class="confluenceTd">Session A再次查询的时候就可以查看新的update的值，当然这里是合理的，因为在同一个事务中，应该能看到本事务的修改。</td></tr><tr role="row"><td colspan="1" class="confluenceTd">8</td><td colspan="1" class="confluenceTd">commit</td><td colspan="1" class="confluenceTd"><br></td><td colspan="1" class="confluenceTd"><br></td></tr></tbody></table>
+
+<h2 id="『诡异现象』背后的原因"><a href="#『诡异现象』背后的原因" class="headerlink" title="『诡异现象』背后的原因"></a>『诡异现象』背后的原因</h2><p><a href="https://yq.aliyun.com/articles/8868" target="_blank" rel="external">关于InnoDB事务的一个“诡异”现象</a> 这篇文章从源代码的角度解释了这个诡异现象背后的原因。
+简单的说可以是：update语句少了一个版本比较的判断。查询语句会判断查询语句的事务号是否大于当前的事务号。但是update语句没走这个判断分支。</p>
+<p>对于这个『诡异现象』，InnoDB怎么解决的呢？</p>
+<h2 id="如何避免『诡异现象』"><a href="#如何避免『诡异现象』" class="headerlink" title="如何避免『诡异现象』"></a>如何避免『诡异现象』</h2><blockquote>
+<p>To prevent phantoms, InnoDB uses an algorithm called next-key locking that combines index-row locking with gap locking. –Mysql官网</p>
+</blockquote>
+<p>InnoDB存储引擎采用Next-Key Locking机制来避免<code>Phantom Problem</code>（幻读问题）</p>
+<p>我们对查询sql加上一个X锁，那么其他事务在插入或者修改该范围的时候就会阻塞。这样就避免了幻读。
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t5 <span class="keyword">where</span> <span class="keyword">id</span>&gt;<span class="number">4</span> <span class="keyword">for</span> <span class="keyword">update</span>;</div></pre></td></tr></table></figure></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote>
+<p>（幻读（Phantom））：事务T1读取满足一些&lt;搜索条件&gt;的一组数据项。事务T2然后创建满足T1的&lt;搜索条件&gt;并提交的数据项。如果T1然后使用相同的&lt;搜索条件&gt;重复读取，它将获得与第一次读取不同的组数据项  –《ANSI SQL隔离级别》</p>
+</blockquote>
+<p>如果按照这个幻读的定义，Mysql InnoDB存储引擎通过MVCC机制确实解决了幻读的问题。至少目前在<code>REPEATABLE READ</code>的隔离级别下，范围查询语句，没有发现存在幻读的案例，但是在更新操作存在幻读的场景。（见上文中的『诡异现象』）
+那InnoDB 存储引擎在<code>REPEATABLE READ</code>事务隔离级别下的『写』幻读到底算不算幻读，这个要看幻读的定义标准了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-next-key-locking.html" target="_blank" rel="external">InnoDB官方文档–Phantom Row</a></p>
+<p><a href="https://yq.aliyun.com/articles/8868" target="_blank" rel="external">关于InnoDB事务的一个“诡异”现象</a></p>
+<p><a href="http://zhizus.com/2018-08-1-MVCC%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E8%AF%BB.html" target="_blank" rel="external">InnoDB MVCC多版本并发读</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大侠劫富济贫啦！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/dempe/20180527112524.jpg" alt="DempeZheng WeChat Pay"/>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-08-1-Mysql的复制-半同步复制.html" rel="next" title="Mysql的半同步复制（转）">
+                <i class="fa fa-chevron-left"></i> Mysql的半同步复制（转）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-08-6-SQL事务隔离级别.html" rel="prev" title="SQL事务隔离级别">
+                SQL事务隔离级别 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars3.githubusercontent.com/u/6263631?v=3&s=466"
+               alt="DempeZheng" />
+          <p class="site-author-name" itemprop="name">DempeZheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">請更固執，將自己謀生與擅長的事情做到最好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/dempeZheng" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=6758793" target="_blank" title="网易云音乐">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  网易云音乐
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/dempe" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wolfbe.com/" title="朗度云" target="_blank">朗度云</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#关于幻读的困惑"><span class="nav-number">1.</span> <span class="nav-text">关于幻读的困惑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#“诡异现象”"><span class="nav-number">2.</span> <span class="nav-text">“诡异现象”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#『诡异现象』背后的原因"><span class="nav-number">3.</span> <span class="nav-text">『诡异现象』背后的原因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何避免『诡异现象』"><span class="nav-number">4.</span> <span class="nav-text">如何避免『诡异现象』</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DempeZheng</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dhzMp0HdJLWMCrt04bwybWzH-gzGzoHsz", "gH6FmxJiUaVLLRXQDWpkkIVv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

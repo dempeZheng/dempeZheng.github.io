@@ -102,7 +102,7 @@ JVM异常体系异常的继承结构：Throwable为基类，Error和Exception继
 <meta property="og:image" content="http://www.zhizus.com/./images/ex-class-strut.jpg">
 <meta property="og:image" content="http://www.zhizus.com/./images/1530967496815.png">
 <meta property="og:image" content="http://www.zhizus.com/./images/1530967526425.png">
-<meta property="og:updated_time" content="2018-07-11T14:24:55.037Z">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.515Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM异常体系及异常机制">
 <meta name="twitter:description" content="JVM 异常的本质
@@ -395,20 +395,20 @@ try的起点，和try的终点，以及catch的起点（及时将要跳转的位
 </ol>
 </li>
 </ul>
-<h2 id="异常的开销"><a href="#异常的开销" class="headerlink" title="异常的开销"></a>异常的开销</h2><p>首先异常是有开销的，也就是使用异常是有成本的。这点基本上是共识。
-现在的问题是异常的开销究竟有多大?
-要搞清楚这个问题，就要弄明白异常的消耗主要来自哪里？</p>
-<p>1、当代码出现异常的时候，首先需要创建一个异常
-2、创建一个异常时，需要收集一个栈用来跟踪异常情况
-3、栈跟踪异常情况需要记录下来（入栈，出栈），一直跟踪到我们扑捉到异常并且进行处理后截止</p>
+<h2 id="异常的开销"><a href="#异常的开销" class="headerlink" title="异常的开销"></a>异常的开销</h2><p>首先异常是有开销的，也就是使用异常是有成本的。这点基本上是共识。 
+现在的问题是异常的开销究竟有多大? 
+要搞清楚这个问题，就要弄明白异常的消耗主要来自哪里？ </p>
+<p>1、当代码出现异常的时候，首先需要创建一个异常 
+2、创建一个异常时，需要收集一个栈用来跟踪异常情况 
+3、栈跟踪异常情况需要记录下来（入栈，出栈），一直跟踪到我们扑捉到异常并且进行处理后截止 </p>
 <blockquote>
 <p>根本原因在于:
 异常基类Throwable.java的public synchronized native Throwable fillInStackTrace()方法
 方法介绍:
 Fills in the execution stack trace. This method records within this Throwable object information about the current state of the stack frames for the current thread.
 性能开销在于:
-<strong>1. 是一个<code>synchronized</code>方法(主因)</strong>
-<strong>2. 需要填充线程运行堆栈信息</strong></p>
+<strong>1. 是一个<code>synchronized</code>方法(主因)</strong> 
+<strong>2. 需要填充线程运行堆栈信息</strong> </p>
 </blockquote>
 <h2 id="异常控制流程的一些争论"><a href="#异常控制流程的一些争论" class="headerlink" title="异常控制流程的一些争论"></a>异常控制流程的一些争论</h2><p>关于要不要以来异常机制来处理控制流程，一直以来就有这个争论。不少帖子都讨论过这个问题。
 在两本不同的书里面也见到了截然不同的观点：</p>
@@ -563,7 +563,7 @@ Fills in the execution stack trace. This method records within this Throwable ob
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -574,7 +574,7 @@ Fills in the execution stack trace. This method records within this Throwable ob
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

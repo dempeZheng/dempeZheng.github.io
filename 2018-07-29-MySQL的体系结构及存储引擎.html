@@ -100,7 +100,7 @@ Management Serveices &amp;amp; Utilities： 系统管理和控制工具，例如
 Connection Pool: 连接池：管理缓冲用户连接、用户名、密码、权限校验、线程处理等需要缓存的需求 
 SQL Interface: SQL接口：接受用户的SQL命令，并且返回用户需要查询的">
 <meta property="og:image" content="http://www.zhizus.com/./images/Mysql体系结构 1.png">
-<meta property="og:updated_time" content="2018-07-29T13:15:57.003Z">
+<meta property="og:updated_time" content="2018-09-15T10:29:40.517Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL的体系结构及存储引擎">
 <meta name="twitter:description" content="Connectors 指的是不同的语言是Mysql的交互；
@@ -379,12 +379,19 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
 现在有很多种存储引擎，各个存储引擎的优势各不一样，最常用的MyISAM,InnoDB,BDB ;</li>
 <li>File System： 物理文件</li>
 </ul>
-<h2 id="1-Mysql概览–体系结构"><a href="#1-Mysql概览–体系结构" class="headerlink" title="1.Mysql概览–体系结构"></a>1.Mysql概览–体系结构</h2><p><a href="http://www.zhizus.com/2018-07-29-MySQL的体系结构及存储引擎.html">Mysql概览–体系结构</a></p>
-<h2 id="2-InnoDB-存储引擎–体系结构"><a href="#2-InnoDB-存储引擎–体系结构" class="headerlink" title="2.InnoDB 存储引擎–体系结构"></a>2.InnoDB 存储引擎–体系结构</h2><h3 id="2-1-InnoDB后台线程"><a href="#2-1-InnoDB后台线程" class="headerlink" title="2.1 InnoDB后台线程"></a>2.1 InnoDB后台线程</h3><p><a href="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html">InnoDB后台线程</a></p>
-<h3 id="2-2-InnoDB-内存"><a href="#2-2-InnoDB-内存" class="headerlink" title="2.2 InnoDB 内存"></a>2.2 InnoDB 内存</h3><p><a href="http://www.zhizus.com/2018-07-29-InnoDB的内存结构.html">InnoDB的内存结构</a></p>
-<h3 id="2-3-Checkpoint技术"><a href="#2-3-Checkpoint技术" class="headerlink" title="2.3 Checkpoint技术"></a>2.3 Checkpoint技术</h3><p><a href="http://www.zhizus.com/2018-07-29-InnoDB%20Checkpoint%E6%9C%BA%E5%88%B6.html">InnoDB Checkpoint机制</a></p>
-<h3 id="2-4-InnoDB的关键特性"><a href="#2-4-InnoDB的关键特性" class="headerlink" title="2.4 InnoDB的关键特性"></a>2.4 InnoDB的关键特性</h3><p><a href="http://www.zhizus.com/2018-07-29-InnoDB关键特性.html">InnoDB关键特性</a></p>
-<h2 id="3-文件概述"><a href="#3-文件概述" class="headerlink" title="3. 文件概述"></a>3. 文件概述</h2><h3 id="3-1-binlog文件"><a href="#3-1-binlog文件" class="headerlink" title="3.1 binlog文件"></a>3.1 binlog文件</h3><h3 id="3-2-InnoDB存储引擎文件"><a href="#3-2-InnoDB存储引擎文件" class="headerlink" title="3.2 InnoDB存储引擎文件"></a>3.2 InnoDB存储引擎文件</h3><h2 id="表"><a href="#表" class="headerlink" title="表"></a>表</h2><hr>
+<p><a href="http://www.zhizus.com/2018-07-29-MySQL的体系结构及存储引擎.html">Mysql概览–体系结构</a></p>
+<p><a href="http://www.zhizus.com/2018-07-29-InnoDB后台线程.html">2.1 InnoDB后台线程</a></p>
+<p><a href="http://www.zhizus.com/2018-07-29-InnoDB的内存结构.html">2.2 InnoDB的内存结构</a></p>
+<p><a href="http://www.zhizus.com/2018-07-29-InnoDB%20Checkpoint%E6%9C%BA%E5%88%B6.html">2.3 InnoDB Checkpoint机制</a></p>
+<p><a href="http://www.zhizus.com/2018-07-29-InnoDB关键特性.html">2.4 InnoDB关键特性</a></p>
+<p><a href="http://www.zhizus.com/2018-07-31-Mysql%E6%96%87%E4%BB%B6-binlog%E6%97%A5%E5%BF%97.html">3.1 MySql 文件-binlog</a></p>
+<p><a href="http://zhizus.com/2018-08-1-MVCC%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E8%AF%BB.html" target="_blank" rel="external">4.1 MySql MVCC多版本并发读</a></p>
+<p><a href="http://zhizus.com/2018-08-6-InnoDB%E4%B8%80%E8%87%B4%E6%80%A7%E9%9D%9E%E9%94%81%E5%AE%9A%E8%AF%BB.html" target="_blank" rel="external">4.2 InnoDB一致性非锁定读</a></p>
+<p><a href="http://zhizus.com/2018-08-6-InnoDB%20Phantom%20Problem.html" target="_blank" rel="external">4.3 InnoDB Phantom Problem(幻读)</a></p>
+<p><a href="http://zhizus.com/2018-08-6-SQL%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB.html" target="_blank" rel="external">4.4 SQL事务隔离级别</a></p>
+<p><a href="http://zhizus.com/2018-08-11-Mysql%E7%A7%92%E6%9D%80%E4%B8%9A%E5%8A%A1%E7%AC%94%E8%AE%B0.html" target="_blank" rel="external">6.1 Mysql秒杀业务笔记</a></p>
+<p><a href="http://zhizus.com/2018-08-1-Mysql%E7%9A%84%E5%A4%8D%E5%88%B6-%E5%8D%8A%E5%90%8C%E6%AD%A5%E5%A4%8D%E5%88%B6.html" target="_blank" rel="external">6.2 Mysql的半同步复制</a></p>
+<hr>
 <h2 id="附"><a href="#附" class="headerlink" title="附"></a>附</h2><h3 id="Mysql-参数详解"><a href="#Mysql-参数详解" class="headerlink" title="Mysql 参数详解"></a>Mysql 参数详解</h3><h3 id="Mysql"><a href="#Mysql" class="headerlink" title="Mysql"></a>Mysql</h3><h3 id="Mysql-协议"><a href="#Mysql-协议" class="headerlink" title="Mysql 协议"></a>Mysql 协议</h3><p><a href="http://hutaow.com/blog/2013/11/06/mysql-protocol-analysis/" target="_blank" rel="external">Mysql协议分析（胡桃夹子）</a></p>
 <h3 id="JDBC的实现为什么不用NIO？"><a href="#JDBC的实现为什么不用NIO？" class="headerlink" title="JDBC的实现为什么不用NIO？"></a>JDBC的实现为什么不用NIO？</h3><h3 id="mysql默认8小时连接断开，如何解决？"><a href="#mysql默认8小时连接断开，如何解决？" class="headerlink" title="mysql默认8小时连接断开，如何解决？"></a>mysql默认8小时连接断开，如何解决？</h3><h3 id="Mysql为什么最好不要用null"><a href="#Mysql为什么最好不要用null" class="headerlink" title="Mysql为什么最好不要用null"></a>Mysql为什么最好不要用null</h3>
       
@@ -437,8 +444,8 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018-07-29-InnoDB后台线程.html" rel="next" title="InnoDB的后台线程">
-                <i class="fa fa-chevron-left"></i> InnoDB的后台线程
+              <a href="/2018-07-29-InnoDB的内存结构.html" rel="next" title="InnoDB的内存结构">
+                <i class="fa fa-chevron-left"></i> InnoDB的内存结构
               </a>
             
           </div>
@@ -447,8 +454,8 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018-07-29-InnoDB的内存结构.html" rel="prev" title="InnoDB的内存结构">
-                InnoDB的内存结构 <i class="fa fa-chevron-right"></i>
+              <a href="/2018-07-29-InnoDB Checkpoint机制.html" rel="prev" title="InnoDB的Checkpoint机制">
+                InnoDB的Checkpoint机制 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -523,7 +530,7 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -534,7 +541,7 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -614,7 +621,7 @@ Mysql的存储引擎是插件式的。它根据MySql AB公司提供的文件访�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Mysql概览–体系结构"><span class="nav-number">1.</span> <span class="nav-text">1.Mysql概览–体系结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-InnoDB-存储引擎–体系结构"><span class="nav-number">2.</span> <span class="nav-text">2.InnoDB 存储引擎–体系结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-InnoDB后台线程"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 InnoDB后台线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-InnoDB-内存"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 InnoDB 内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Checkpoint技术"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Checkpoint技术</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-InnoDB的关键特性"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 InnoDB的关键特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-文件概述"><span class="nav-number">3.</span> <span class="nav-text">3. 文件概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-binlog文件"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 binlog文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-InnoDB存储引擎文件"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 InnoDB存储引擎文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表"><span class="nav-number">4.</span> <span class="nav-text">表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#附"><span class="nav-number">5.</span> <span class="nav-text">附</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql-参数详解"><span class="nav-number">5.1.</span> <span class="nav-text">Mysql 参数详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql"><span class="nav-number">5.2.</span> <span class="nav-text">Mysql</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql-协议"><span class="nav-number">5.3.</span> <span class="nav-text">Mysql 协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDBC的实现为什么不用NIO？"><span class="nav-number">5.4.</span> <span class="nav-text">JDBC的实现为什么不用NIO？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql默认8小时连接断开，如何解决？"><span class="nav-number">5.5.</span> <span class="nav-text">mysql默认8小时连接断开，如何解决？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql为什么最好不要用null"><span class="nav-number">5.6.</span> <span class="nav-text">Mysql为什么最好不要用null</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#附"><span class="nav-number">1.</span> <span class="nav-text">附</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql-参数详解"><span class="nav-number">1.1.</span> <span class="nav-text">Mysql 参数详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql"><span class="nav-number">1.2.</span> <span class="nav-text">Mysql</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql-协议"><span class="nav-number">1.3.</span> <span class="nav-text">Mysql 协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDBC的实现为什么不用NIO？"><span class="nav-number">1.4.</span> <span class="nav-text">JDBC的实现为什么不用NIO？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql默认8小时连接断开，如何解决？"><span class="nav-number">1.5.</span> <span class="nav-text">mysql默认8小时连接断开，如何解决？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql为什么最好不要用null"><span class="nav-number">1.6.</span> <span class="nav-text">Mysql为什么最好不要用null</span></a></li></ol></li></ol></div>
             
 
           </div>
